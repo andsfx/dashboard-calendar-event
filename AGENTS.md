@@ -97,7 +97,7 @@ Mulai dari gejala, bukan dari file.
 | "Gagal memperbarui — Perubahan belum tersimpan" | `22P02`: `categories` dikirim `JSON.stringify`, harus `toTextArray` |
 | `/instagram-sync` 500 | `APIFY_API_TOKEN` tidak ada di `environment:` service `api` |
 | 429 | `enforceRateLimit`; `clientIp` membaca `X-Real-IP` hasil nginx |
-| Halaman ber-`DashboardShell` tampak kosong padahal DOM terisi | Entrance GSAP tidak melepas pre-state `motion.css` `.dashboard-section { opacity: 0 }`. `<main>` baru dirender setelah `/auth/me` selesai, jadi effect pertama hook menemukan `ref` kosong; `useGsapEntrance` menunggu simpul itu (polling berbatas) dan `refreshKey` `DashboardShell` memuat `isLoading`. Jangan hapus dependensi itu; tes: `src/components/ui/__tests__/useGsapEntrance.test.tsx` |
+| Halaman ber-`DashboardShell` tampak kosong padahal DOM terisi | Entrance GSAP tidak melepas pre-state `motion.css` `.dashboard-section { opacity: 0 }`. `<main>` baru dirender setelah `/auth/me` selesai, jadi effect pertama hook menemukan `ref` kosong; `useGsapEntrance` menunggu simpul itu selama 150 **frame** (`MAX_WAIT_FRAMES`, bukan jam dinding — tab latar menghentikan rAF sementara `performance.now()` jalan) dan `refreshKey` `DashboardShell` memuat `isLoading`. Jangan hapus dependensi itu; tes: `src/components/ui/__tests__/useGsapEntrance.test.tsx` |
 | 5xx produksi lain | `ssh medprom` → `docker compose -f /opt/metmal/deploy/vps/docker-compose.yml logs --tail=100 api` |
 
 Setelah itu: baca stack trace asli, perbaiki akar, lalu **pasang penangkap kekambuhan** — tes bila deterministik, asersi/smoke bila bergantung lingkungan. Kriteria selesai: akar disebut dengan `path:line`, gejala hilang pada smoke, dan kekambuhan akan gagal lebih dulu.
