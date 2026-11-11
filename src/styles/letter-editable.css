@@ -1,0 +1,38 @@
+/* Always-editable document fields (WYSIWYG): inputs look like plain text. */
+.editable {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dashed transparent;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  outline: none;
+  resize: none;
+}
+
+.editable:hover,
+.editable:focus {
+  border-bottom: 1px dashed var(--wf-rule, #94a3b8);
+  background: color-mix(in srgb, var(--wf-board-2, #f1f5f9) 60%, transparent);
+}
+
+.editable--area {
+  resize: none;
+  overflow: hidden;
+  width: 100%;
+}
+
+@media print {
+  .editable,
+  .editable--area {
+    border: 0 !important;
+    background: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    font: inherit;
+  }
+}

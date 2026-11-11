@@ -1,0 +1,121 @@
+/* shadcn/ui semantic tokens — Metmal tosca/pink warm-paper palette.
+ * ADDITIVE ONLY: introduces NEW variables (--background, --foreground, …)
+ * and their Tailwind v4 @theme color mappings (--color-background, …).
+ * Every value is mapped from the existing brand palette in theme.css /
+ * tokens.css / dashboard-wayfinding.css; no existing token is redefined or
+ * overridden. The :root block below covers light mode; the .dark block at the
+ * bottom maps the same semantics to the wf dark palette.
+ */
+
+/* animate-in / fade-in / zoom-in / slide-in-from-* utilities used by
+ * dialog, sheet, dropdown-menu and select (tw-animate-css, already installed). */
+@import "tw-animate-css";
+
+:root {
+  /* Surfaces — warm paper */
+  --background: #f8f7f0;            /* slate-50 warm paper */
+  --foreground: #16211b;            /* slate-900 ink */
+  --card: #fdfcf6;                  /* slate-100 */
+  --card-foreground: #16211b;       /* slate-900 ink */
+  --popover: #fdfcf6;               /* slate-100 */
+  --popover-foreground: #16211b;    /* slate-900 ink */
+
+  /* Brand — tosca primary */
+  /* Pasangan accent dashboard (--wf-accent + --wf-accent-ink) — bukan tosca 500
+     #00918e, karena putih di atasnya hanya 3.85:1 dan gagal AA untuk teks 14px.
+     Nilai light: #00706e + #ffffff = 5.85:1; tema gelap memakai pasangan yang sama. */
+  --primary: var(--wf-accent);
+  --primary-foreground: var(--wf-accent-ink);
+  --secondary: #e6f7f6;             /* tosca 50 */
+  --secondary-foreground: #007a78;  /* tosca 600 — AA on tosca-50 */
+
+  /* Neutrals */
+  --muted: #edeee2;                 /* slate-200 */
+  --muted-foreground: #586056;      /* slate-500 */
+  --accent: #e6f7f6;                /* tosca 50 */
+  --accent-foreground: #007a78;     /* tosca 600 */
+
+  /* Danger — token bahaya dashboard, bukan pink.
+   * Rantai warisannya: lapisan Material lama sudah memetakan error ke
+   * var(--wf-danger), dan tombol berbahaya memang #b91c1c. Memakai --wf-danger
+   * di sini menjaga satu makna = satu merah (sebelumnya filled merah pink
+   * #c2185b sementara outline/ghost memakai --wf-danger — dua merah untuk satu
+   * semantik). */
+  --destructive: var(--wf-danger);
+  --destructive-foreground: #ffffff;
+
+  /* Lines & focus */
+  --border: #edeee2;                /* slate-200 — garis permukaan/kartu */
+  /* Batas kontrol memakai token yang sudah ada di dashboard-wayfinding.css,
+   * bukan warna baru: `--wf-rule-control` #7d847e (3.73:1 di board, ambang
+   * 3:1 WCAG 1.4.11). Sebelumnya `--input` disamakan dengan `--border`
+   * (#edeee2, ~1.1:1) sehingga kotak Input/Select/Textarea tak terlihat. */
+  --input: var(--wf-rule-control);
+  --ring: #00918e;                  /* tosca 500 */
+}
+
+/* Tailwind v4 mapping — exposes bg-background, text-foreground, bg-primary,
+ * border-input, ring-ring, … to the shadcn components. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /*
+   * Radius: intentionally NOT redefined here. theme.css already owns the
+   * scale (--radius: 0.5rem, --radius-sm/md/lg/xl) and re-declaring the
+   * shadcn calc() formula would override the app-wide rounded-* utilities
+   * (a change to existing styling — forbidden). The shadcn components'
+   * rounded-md/lg/xl and var(--radius-md) resolve against the existing
+   * scale as-is: --radius-sm 0.25rem, --radius-md 0.75rem, --radius-lg
+   * 1rem, --radius-xl 1.25rem.
+   */
+}
+
+/*
+ * Dark mode — .dark is toggled on <html> (App.tsx). Every value below maps
+ * 1:1 from the wf dark palette in dashboard-wayfinding.css (.dark block,
+ * contrast-checked there): board #16211b, board-2 #121a15, rule
+ * rgba(255,255,255,0.14), ink #eef2ea, ink-muted #a9b4a5, tosca-400
+ * #33bfbc, tosca-400-hover #66cfcd, accent-ink #06120f, accent-soft
+ * rgba(51,191,188,0.14), rule-control #969b98. The :root light block above
+ * is untouched — this only overrides the same semantic vars under .dark.
+ */
+.dark {
+  --background: #16211b;            /* wf board */
+  --foreground: #eef2ea;            /* wf ink */
+  --card: #121a15;                  /* wf board-2 */
+  --card-foreground: #eef2ea;       /* wf ink */
+  --popover: #121a15;               /* wf board-2 */
+  --popover-foreground: #eef2ea;    /* wf ink */
+  --primary: var(--wf-accent);              /* wf tosca-400 #33bfbc */
+  --primary-foreground: var(--wf-accent-ink); /* 7.88:1 di atas accent */
+
+  --secondary: rgba(51, 191, 188, 0.14);  /* wf accent-soft */
+  --secondary-foreground: #66cfcd;  /* wf tosca-400 hover */
+  --muted: rgba(255, 255, 255, 0.08);
+  --muted-foreground: #a9b4a5;      /* wf ink-muted */
+  --accent: rgba(51, 191, 188, 0.14);     /* wf accent-soft */
+  --accent-foreground: #66cfcd;     /* wf tosca-400 hover */
+  --destructive: var(--wf-danger);  /* wf-danger dark #fca5a5 */
+  --destructive-foreground: #06120f;  /* wf accent-ink */
+  --border: rgba(255, 255, 255, 0.14);  /* wf rule */
+  --input: var(--wf-rule-control); /* wf rule-control #969b98 */
+  --ring: #33bfbc;                  /* wf tosca-400 */
+}
