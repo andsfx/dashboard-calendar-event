@@ -55,6 +55,7 @@ const SIK: SikRequestItem = {
   namaEvent: 'Meet & Greet Film', tempatSurat: 'Bekasi',
   penandatanganNama: 'Supeno Budiyanto', penandatanganJabatan: 'Marcomm Manager',
   catatan: '',
+  docType: 'sik' as const,
 };
 
 function respondWith(letterData: unknown, extra: Record<string, unknown> = {}) {
@@ -85,14 +86,14 @@ describe('PublicLetterViewer — dokumen SKE vs SIK', () => {
   });
 
   it('docType sik mengganti judul jadi Surat Izin Kerja', async () => {
-    respondWith({ ...SIK, docType: 'sik' });
+    respondWith({ ...SIK });
     renderViewer();
     expect(await screen.findByText('Surat Izin Kerja')).toBeInTheDocument();
     expect(screen.queryByText('Surat Konfirmasi Event')).toBeNull();
   });
 
   it('unduh memakai snapshot pdf_base64 bila tersedia', async () => {
-    respondWith({ ...SIK, docType: 'sik' }, { pdf_base64: 'JVBERi0xLjQK' });
+    respondWith({ ...SIK }, { pdf_base64: 'JVBERi0xLjQK' });
     renderViewer();
     const btn = await screen.findByRole('button', { name: /Unduh PDF/ });
     btn.click();
@@ -102,7 +103,7 @@ describe('PublicLetterViewer — dokumen SKE vs SIK', () => {
   });
 
   it('fallback tanpa snapshot memakai builder SIK, bukan SKE', async () => {
-    respondWith({ ...SIK, docType: 'sik' });
+    respondWith({ ...SIK });
     renderViewer();
     const btn = await screen.findByRole('button', { name: /Buat & Unduh PDF/ });
     btn.click();
@@ -111,7 +112,7 @@ describe('PublicLetterViewer — dokumen SKE vs SIK', () => {
   });
 
   it('fallback SKE memakai builder SKE', async () => {
-    respondWith({ ...SKE, docType: 'ske' });
+    respondWith({ ...SKE });
     renderViewer();
     const btn = await screen.findByRole('button', { name: /Buat & Unduh PDF/ });
     btn.click();

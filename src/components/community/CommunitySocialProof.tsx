@@ -36,7 +36,7 @@ function StatBadgeSkeleton({ label }: { label: string }) {
 
 export function CommunitySocialProof({ totalEvents = 0, totalCompleted = 0, totalOrganizers = 0, isLoading = false }: Props) {
   return (
-    <RevealSection className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection className="border-b border-[var(--wf-rule)] bg-[var(--section-alt)] px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl text-center">
         <p className="text-xs font-semibold tracking-wide text-[var(--wf-ink-muted)]">
           Dipercaya oleh komunitas di Bekasi

@@ -282,7 +282,7 @@ export function RegistrationForm() {
           type="button"
           variant="ghost"
           onClick={() => { setSubmitted(false); setForm({ ...INITIAL_FORM }); }}
-          className={`mt-6 inline-flex h-auto items-center gap-2 whitespace-normal rounded-full border border-[var(--border-subtle)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink-muted)] dark:hover:bg-[var(--wf-board-2)] active:translate-y-0 ${focusRing} focus-visible:ring-0`}
+          className={`mt-6 inline-flex h-auto items-center gap-2 whitespace-normal rounded-full border border-[var(--border-subtle)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink-muted)] active:translate-y-0 ${focusRing} focus-visible:ring-0`}
         >
           Daftar {typeLabel} Lain
         </Button>
@@ -474,7 +474,7 @@ export function RegistrationForm() {
                   type="button"
                   variant="ghost"
                   onClick={() => document.getElementById('reg-proposal')?.click()}
-                  className={`flex h-auto w-full items-center justify-start gap-2 whitespace-normal rounded-[var(--radius-control)] border border-dashed border-[var(--wf-rule-strong)] bg-[var(--wf-board-2)] px-4 py-3 text-sm text-[var(--wf-ink-muted)] transition hover:border-[var(--brand-tosca)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] dark:hover:bg-[var(--wf-board-2)] active:translate-y-0 ${focusRing} focus-visible:ring-0`}
+                  className={`flex h-auto w-full items-center justify-start gap-2 whitespace-normal rounded-[var(--radius-control)] border border-dashed border-[var(--wf-rule-strong)] bg-[var(--wf-board-2)] px-4 py-3 text-sm text-[var(--wf-ink-muted)] transition hover:border-[var(--brand-tosca)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] active:translate-y-0 ${focusRing} focus-visible:ring-0`}
                 >
                   <Paperclip className="h-4 w-4" />
                   Pilih file

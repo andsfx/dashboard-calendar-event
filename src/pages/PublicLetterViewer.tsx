@@ -37,11 +37,11 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
       try {
         // GET /api/v1/letters/:id — publik, status='active' saja (server 404 lainnya).
         const data = await apiGet<Record<string, unknown>>(`/letters/${encodeURIComponent(id)}`);
-        // `doc_type` di kolom adalah turunan `letter_data.docType`; baris lama → 'ske'.
+        // Server tidak pernah mengirim kolom `doc_type` (docType hidup di
+        // `letter_data` JSONB); fallback baris lama → 'ske'.
         const letterData = data.letter_data as LetterDocument | undefined;
         const docType: GeneratedLetter['docType'] =
-          (data.doc_type as GeneratedLetter['docType']) ||
-          (letterData?.docType === 'sik' ? 'sik' : 'ske');
+          letterData?.docType === 'sik' ? 'sik' : 'ske';
         setLetter({
           id: String(data.id ?? ''),
           eventId: (data.event_id as string) || undefined,

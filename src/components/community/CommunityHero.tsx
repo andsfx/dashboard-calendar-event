@@ -251,7 +251,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
           band directly below the hero instead of being deleted. */}
       <section
         aria-label="Keunggulan program komunitas"
-        className="border-b border-black/5 bg-[var(--wf-board)] px-4 py-6 sm:px-6"
+        className="border-b border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-6 sm:px-6"
       >
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 text-sm font-medium text-[var(--wf-ink-muted)]">
           {HIGHLIGHTS.map(({ icon: Icon, label, emerald }) => (

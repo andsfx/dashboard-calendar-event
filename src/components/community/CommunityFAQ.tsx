@@ -151,7 +151,7 @@ export function CommunityFAQ() {
   const [openFaq, setOpenFaq] = useState(0);
 
   return (
-    <RevealSection id="faq" className="scroll-mt-28 border-t border-black/5 px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="faq" className="scroll-mt-28 border-t border-[var(--wf-rule)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-5xl">
         <div className="max-w-2xl">
           <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">

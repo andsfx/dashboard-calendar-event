@@ -74,12 +74,12 @@ interface Props {
 
 function UpcomingEventsSkeleton() {
   return (
-    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-[var(--wf-rule)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
           Agenda event
         </h2>
-        <div className="mt-8 overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-[var(--wf-board-2)]  " aria-hidden="true">
+        <div className="mt-8 overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-[var(--wf-board)]  " aria-hidden="true">
           <div className="p-6 sm:p-10 lg:p-12">
             <span className="inline-block h-6 w-36 animate-pulse rounded-full bg-[var(--wf-rule)] motion-reduce:animate-none" />
             <span className="mt-6 block h-10 w-3/4 animate-pulse rounded-lg bg-[var(--wf-rule)] motion-reduce:animate-none" />
@@ -87,7 +87,7 @@ function UpcomingEventsSkeleton() {
             <span className="mt-8 block h-4 w-full animate-pulse rounded bg-[var(--wf-rule)] motion-reduce:animate-none" />
             <span className="mt-3 block h-4 w-5/6 animate-pulse rounded bg-[var(--wf-rule)] motion-reduce:animate-none" />
           </div>
-          <div className="border-t border-black/5 bg-[var(--wf-board)]/50 p-6 sm:p-10  ">
+          <div className="border-t border-[var(--wf-rule)] bg-[var(--wf-board)]/50 p-6 sm:p-10  ">
             <div className="grid max-w-md grid-cols-3 gap-3">
               {[0, 1, 2].map(i => (
                 <span key={i} className="h-20 animate-pulse rounded-2xl bg-[var(--wf-rule)] motion-reduce:animate-none" />
@@ -114,7 +114,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   }
   if (!mainEvent) {
     return (
-      <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
+      <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-[var(--wf-rule)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
         <div className="mx-auto max-w-7xl">
           <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
             Agenda event
@@ -138,7 +138,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   const promoImageUrl = resolveEventPoster(mainEvent, albums);
 
   return (
-    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-[var(--wf-rule)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className={`grid gap-6 lg:items-stretch ${promoImageUrl ? 'lg:grid-cols-[1.15fr_0.85fr]' : 'lg:grid-cols-1'}`}>
           {/* ── Main event card ── */}
@@ -146,7 +146,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
             type="button"
             variant="ghost"
             onClick={() => onDetail?.(mainEvent)}
-            className="group flex! flex-col! items-stretch! h-auto! w-full! gap-0! rounded-[var(--radius-campaign-card)]! border border-[var(--border-subtle)]! bg-[var(--wf-board-2)] p-0! text-left! whitespace-normal! font-normal! shadow-[0_12px_32px_rgba(22,33,27,0.04)] transition-shadow! hover:bg-[var(--wf-board-2)]! dark:hover:bg-[var(--wf-board-2)]! hover:shadow-[0_16px_36px_rgba(22,33,27,0.08)] lg:justify-between focus-visible:outline-none focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! focus-visible:ring-offset-2 focus-visible:border-[var(--border-subtle)]! active:translate-y-0!"
+            className="group flex! flex-col! items-stretch! h-auto! w-full! gap-0! rounded-[var(--radius-campaign-card)]! border border-[var(--border-subtle)]! bg-[var(--wf-board)] p-0! text-left! whitespace-normal! font-normal! shadow-[0_12px_32px_rgba(22,33,27,0.04)] transition-shadow! hover:bg-[var(--wf-board-2)]! hover:shadow-[0_16px_36px_rgba(22,33,27,0.08)] lg:justify-between focus-visible:outline-none focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! focus-visible:ring-offset-2 focus-visible:border-[var(--border-subtle)]! active:translate-y-0!"
           >
             <div className="p-6 sm:p-10 lg:p-12">
               <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--wf-ink)]" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
@@ -183,7 +183,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
               )}
             </div>
 
-            <div className="border-t border-black/5 bg-[var(--wf-board)]/50 p-6 sm:p-10   lg:rounded-b-[var(--radius-campaign-card)]">
+            <div className="border-t border-[var(--wf-rule)] bg-[var(--wf-board)]/50 p-6 sm:p-10   lg:rounded-b-[var(--radius-campaign-card)]">
               {showCountdown && countdown ? (
                 <>
                   <p className="mb-3 text-xs font-bold tracking-wide text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Countdown menuju event</p>
@@ -233,7 +233,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 type="button"
                 variant="ghost"
                 onClick={() => onDetail?.(ev)}
-                className="group flex! flex-col! items-start! justify-start! h-auto! w-full! gap-0! overflow-hidden rounded-[var(--radius-card-lg)]! border border-[var(--border-subtle)]! bg-[var(--wf-board)] p-0! text-left! whitespace-normal! font-normal! shadow-[0_4px_12px_rgba(22,33,27,0.02)] transition-shadow! hover:bg-[var(--wf-board)]! dark:hover:bg-[var(--wf-board)]! hover:shadow-[0_8px_24px_rgba(22,33,27,0.06)] focus-visible:outline-none focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! focus-visible:ring-offset-2 focus-visible:border-[var(--border-subtle)]! active:translate-y-0!"
+                className="group flex! flex-col! items-start! justify-start! h-auto! w-full! gap-0! overflow-hidden rounded-[var(--radius-card-lg)]! border border-[var(--border-subtle)]! bg-[var(--wf-board)] p-0! text-left! whitespace-normal! font-normal! shadow-[0_4px_12px_rgba(22,33,27,0.02)] transition-shadow! hover:bg-[var(--wf-board-2)]! hover:shadow-[0_8px_24px_rgba(22,33,27,0.06)] focus-visible:outline-none focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! focus-visible:ring-offset-2 focus-visible:border-[var(--border-subtle)]! active:translate-y-0!"
               >
                 {evPoster && <EventPosterBanner src={evPoster} alt={ev.acara} />}
                 <div className="flex flex-col items-start gap-4 p-5">
