@@ -8,10 +8,10 @@ const HASH_LOOKUP_BUDGET_MS = 1000;
  * Reset posisi scroll saat rute berubah.
  *
  * Reset ke atas hanya terjadi ketika `pathname` berubah (PUSH/REPLACE) tanpa
- * `hash`. Perubahan search param saja (`?waktu=`, `?kategori=`) membuat entri
- * lokasi baru dengan `key` baru tetapi `pathname` tetap, jadi halaman tidak
- * boleh melompat ke atas di tengah daftar. Perubahan hash saja pada pathname
- * yang sama tetap menggulir ke target anchor.
+ * `hash`. Perubahan search param saja (`?waktu=`, `?q=`; `?kategori=` lama
+ * diabaikan) membuat entri lokasi baru dengan `key` baru tetapi `pathname`
+ * tetap, jadi halaman tidak boleh melompat ke atas di tengah daftar.
+ * Perubahan hash saja pada pathname yang sama tetap menggulir ke target anchor.
  *
  * Yang dikecualikan hanya `POP` ke entri riwayat lama (back/forward, ber-hash
  * maupun tidak): browser sudah memulihkan posisi tersimpan untuk entri itu,
@@ -46,7 +46,7 @@ export function ScrollToTop(): null {
 
     if (!hash) {
       if (isInitialEntry) return;
-      // Search-param-only (filter `?waktu=`/`?kategori=`) bukan pindah halaman.
+      // Search-param-only (filter `?waktu=`/`?q=` di /events) bukan pindah halaman.
       if (pathname === previousPathname) return;
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       return;

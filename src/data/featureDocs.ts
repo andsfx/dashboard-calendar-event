@@ -179,7 +179,7 @@ export const DOC_SECTIONS: DocSection[] = [
             summary:
               'Halaman publik tidak memerlukan akun. Semua yang di bawah ini bisa dibuka langsung dari beranda tanpa login.',
             steps: [
-              'Lihat acara yang sedang dan akan berlangsung di /events, bisa disaring per waktu atau kategori.',
+              'Lihat acara yang sedang dan akan berlangsung di /events, bisa disaring per waktu atau dicari lewat kata kunci.',
               'Buka kartu acara untuk detail lengkap, lalu tambahkan ke kalender atau bagikan lewat WhatsApp.',
               'Telusuri dokumentasi acara di /gallery dan kabar terbaru di /news.',
               'Cari tenant di /tenants atau organisasi yang pernah tampil di /community.',
@@ -709,18 +709,19 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/events',
             audience: 'Publik',
             summary:
-              'Event yang sedang berlangsung dan akan datang dalam kartu sorotan, rail per area, dan kalender bulanan. Filter bisa dibagikan lewat URL.',
+              'Acara yang belum selesai dalam kartu sorotan, rail per area, dan kalender bulanan. Filter dan pencarian bisa dibagikan lewat URL.',
             steps: [
               'Buka /events.',
-              'Lihat kartu sorotan beserta hitungan waktu (hari, jam, menit) menuju acara.',
+              'Lihat kartu sorotan beserta hitungan waktu (hari, jam, menit, detik) menuju acara.',
               'Klik chip waktu ("Hari ini", "Besok", atau "Akhir pekan ini") untuk menyaring.',
-              'Klik chip kategori untuk menyaring per jenis acara (maksimal 10 kategori ditampilkan).',
+              'Ketik di kotak cari untuk menyaring nama acara, lokasi, atau keterangan (tersimpan sebagai ?q= dan ikut menyaring kalender).',
               'Klik kartu event untuk membuka detailnya, atau lihat "Jadwal lengkap" di kalender bulanan.',
               'Klik "Unduh PDF" untuk mengunduh jadwal, atau "Ajukan event" untuk mengajukan acara kamu sendiri.',
             ],
             notes: [
-              'Filter tersimpan di alamat halaman (mis. ?waktu=hari-ini atau ?kategori=Festival), jadi bisa disalin dan dibagikan. Mengubah filter tidak menambah riwayat tombol Back.',
-              'Filter hanya menyaring daftar sorotan; kalender di bawahnya selalu menampilkan semua event.',
+              'Filter tersimpan di alamat halaman (mis. ?waktu=hari-ini atau ?q=bazar), jadi bisa disalin dan dibagikan. Mengubah filter tidak menambah riwayat tombol Back.',
+              'Filter dan pencarian menyaring daftar sorotan sekaligus kalender dan agenda bulanan.',
+              'Halaman hanya menampilkan acara yang belum selesai. Acara berstatus selesai tidak pernah muncul di kartu, kalender, rekap bulanan, maupun ekspor PDF.',
               'Event berstatus draf tidak pernah ikut tampil.',
             ],
           },
@@ -1106,7 +1107,8 @@ export const DOC_SECTIONS: DocSection[] = [
               'Tiga permukaan bisa menghasilkan PDF: jadwal event, album galeri, dan hasil evaluasi tenant. Sebelum berkas dibuat, kamu memilih dulu bagian dokumen dan cakupan itemnya.',
             steps: [
               'Jadwal event: klik "Unduh PDF" di /events. Pilih periode (Semua / Hari ini / Minggu ini / Bulan / Tahun / Tema / Rentang khusus), lalu centang event yang ingin diekspor.',
-              'Filter yang sedang aktif di /events (?waktu= atau ?kategori=) ikut menyaring ekspor, jadi yang masuk dokumen hanya acara yang tampil di daftar.',
+              'Filter dan pencarian yang sedang aktif di /events (?waktu= atau ?q=) ikut menyaring ekspor, jadi yang masuk dokumen hanya acara yang tampil di daftar.',
+              'Acara yang sudah selesai tidak ikut ekspor karena halaman tidak menampilkannya.',
               'Bila halaman sedang difilter, dialog menampilkan sakelar "Abaikan filter halaman". Nyalakan untuk menawarkan seluruh acara; mis. saat halaman difilter "Hari ini" tetapi kamu ingin rekap satu tema penuh.',
               'Jadwal event (dashboard): tombol "Unduh PDF" yang sama ada di tampilan Jadwal event; daftar draf tidak pernah ikut karena draf selalu dibuang dari dokumen.',
               'Album galeri: klik "Ekspor PDF" di /gallery, pilih periode dan album (mode "Berdasarkan tema" menyaring album per tema lebih dulu). Lalu klik "Pratinjau PDF" dan "Unduh PDF".',

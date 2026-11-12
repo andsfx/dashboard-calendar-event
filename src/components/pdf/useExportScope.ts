@@ -44,8 +44,8 @@ export interface UseExportScopeOptions<T> {
   /**
    * Kumpulan lengkap **sebelum** filter halaman diterapkan. Diisi hanya oleh
    * permukaan yang memang punya filter sendiri (mis. `/events` dengan
-   * `?waktu=`/`?kategori=`); kosong berarti tidak ada yang bisa diabaikan,
-   * sehingga sakelarnya tidak pernah ditawarkan.
+   * `?waktu=`/`?q=`; `?kategori=` lama diabaikan); kosong berarti tidak ada
+   * yang bisa diabaikan, sehingga sakelarnya tidak pernah ditawarkan.
    */
   allItems?: T[];
   getId: (item: T) => string;

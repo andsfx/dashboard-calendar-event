@@ -22,10 +22,12 @@ const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agus
 const DAY_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 const DAY_FULL = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const STATUS_ORDER: Record<string, number> = { ongoing: 0, upcoming: 1, past: 2, draft: 3 };
+// Hanya dua status yang bisa muncul di sini: `/events` tidak pernah mengirim
+// event `past` (lihat `liveEvents` di EventsLandingPage), jadi entri "Selesai"
+// sengaja tidak ada. `STATUS_ORDER` tetap lengkap karena dipakai mengurutkan.
 const STATUS_GROUPS = [
   { key: 'ongoing' as const, label: 'Berlangsung', dot: 'bg-emerald-500' },
   { key: 'upcoming' as const, label: 'Mendatang', dot: 'bg-amber-400' },
-  { key: 'past' as const, label: 'Selesai', dot: 'bg-[var(--wf-rule-strong)]' },
 ];
 
 function getTimeSortValue(jam: string) {
@@ -263,7 +265,6 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
 <div className="flex flex-wrap items-center justify-center gap-3 border-t border-[var(--wf-rule)] px-3 py-3 text-[11px] text-[var(--wf-ink-muted)]  sm:text-xs">
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-400" />Berlangsung</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" />Mendatang</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--wf-rule-strong)]" />Selesai</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-rose-500" />Libur nasional</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-sky-500" />Cuti bersama</span>
         </div>
@@ -293,7 +294,6 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                           {' '}({[
                             monthEvents.filter(e => e.status === 'ongoing').length > 0 && `${monthEvents.filter(e => e.status === 'ongoing').length} berlangsung`,
                             monthEvents.filter(e => e.status === 'upcoming').length > 0 && `${monthEvents.filter(e => e.status === 'upcoming').length} mendatang`,
-                            monthEvents.filter(e => e.status === 'past').length > 0 && `${monthEvents.filter(e => e.status === 'past').length} selesai`,
                           ].filter(Boolean).join(', ')})
                         </span>
                       )}
@@ -513,13 +513,14 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
               Ringkasan {MONTH_ID[month]} {year}
             </p>
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              {(['ongoing', 'upcoming', 'past'] as const).map(s => {
-                const count = monthEvents.filter(e => e.status === s).length;
-                const label = s === 'ongoing' ? 'Berlangsung' : s === 'upcoming' ? 'Mendatang' : 'Selesai';
-                const color = s === 'ongoing' ? 'text-emerald-600 dark:text-emerald-400' : s === 'upcoming' ? 'text-amber-600 dark:text-amber-400' : 'text-[var(--wf-ink-muted)]';
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              {([
+                { key: 'ongoing', label: 'Berlangsung', color: 'text-emerald-600 dark:text-emerald-400' },
+                { key: 'upcoming', label: 'Mendatang', color: 'text-amber-600 dark:text-amber-400' },
+              ] as const).map(({ key, label, color }) => {
+                const count = monthEvents.filter(e => e.status === key).length;
                 return (
-                  <div key={s} className="text-center">
+                  <div key={key} className="text-center">
                     <p className={`text-2xl font-bold ${color}`}>{count}</p>
                     <p className="text-xs text-[var(--wf-ink-muted)]">{label}</p>
                   </div>

@@ -467,11 +467,20 @@ export function EventsLandingPage({
     title: 'Jadwal event - Metropolitan Mall Bekasi',
     description: 'Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.',
   });
+  /**
+   * Permukaan `/events` hanya menampilkan event yang BELUM selesai: entri
+   * berstatus `past` ("Selesai") sengaja dibuang di sini — dari kartu, blok
+   * venue, kalender, rekap bulanan, angka "Total event", sampai cakupan ekspor
+   * PDF. Status `ongoing` DIPERTAHANKAN: hero bergantung padanya dan badge
+   * "Berlangsung" adalah informasi yang benar. Ini keputusan sadar owner —
+   * jangan "memperbaikinya" dengan mengembalikan `past` ke daftar.
+   */
+  const liveEvents = useMemo(() => events.filter(e => e.status !== 'past'), [events]);
   // Rangkaian reguler dirangkum jadi satu entri per seri: kartu jadwal publik
   // tidak membanjir dengan satu kartu per kemunculan. Kalender bulanan tetap
-  // memakai daftar yang belum dirangkum (`events`, atau `filteredEvents` saat
-  // filter aktif) supaya tiap tanggal kemunculan tetap tampil.
-  const displayEvents = useMemo(() => collapseRecurringSeries(events), [events]);
+  // memakai daftar yang belum dirangkum (`liveEvents`, atau `filteredEvents`
+  // saat filter aktif) supaya tiap tanggal kemunculan tetap tampil.
+  const displayEvents = useMemo(() => collapseRecurringSeries(liveEvents), [liveEvents]);
   const ongoing = useMemo(
     () => sortHighlightCandidates(displayEvents.filter(e => e.status === 'ongoing')),
     [displayEvents],
@@ -509,10 +518,11 @@ export function EventsLandingPage({
 
   const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
 
-  // ─── Filter URL (?waktu= & ?kategori=) — deep-linkable, riset Skedda/Eventbrite pattern ───
+  // ─── Filter URL (?waktu=) — deep-linkable, riset Skedda/Eventbrite pattern ───
   const [searchParams, setSearchParams] = useSearchParams();
   const waktu = searchParams.get('waktu'); // 'hari-ini' | 'besok' | 'akhir-pekan' | null
-  const kategori = searchParams.get('kategori'); // label kategori | null
+  // Tautan lama berisi `?kategori=X` sengaja diabaikan: paramnya boleh tetap di
+  // URL, tidak menyaring apa pun, dan tidak boleh membuat halaman gagal.
 
   // ─── Pencarian (?q=) — ketikan lokal, URL diperbarui setelah 300 ms ───
   // Input dikendalikan state lokal supaya tiap huruf tidak menulis riwayat;
@@ -523,12 +533,6 @@ export function EventsLandingPage({
    *  menimpa ketikan yang lebih baru saat URL menyusul. */
   const lastPushedQ = useRef(qParam);
 
-  const categoryOptions = useMemo(() => {
-    const set = new Set<string>();
-    for (const ev of events) for (const c of ev.categories || []) set.add(c);
-    return [...set].sort((a, b) => a.localeCompare(b, 'id')).slice(0, 10);
-  }, [events]);
-
   const filteredEvents = useMemo(() => {
     const todayIso = getTodayIsoLocal();
     const weekend = getWeekendWindow();
@@ -538,9 +542,8 @@ export function EventsLandingPage({
         ? { start: getTomorrowIsoLocal(), end: getTomorrowIsoLocal() }
         : waktu === 'akhir-pekan' ? weekend : null;
     const needle = qParam.trim().toLowerCase();
-    return events.filter(ev => {
+    return liveEvents.filter(ev => {
       if (win && !eventOverlapsWindow(ev.dateStr, ev.dateEnd, win.start, win.end)) return false;
-      if (kategori && !(ev.categories || []).includes(kategori)) return false;
       if (needle) {
         // Substring tanpa beda huruf besar/kecil atas nama, lokasi, keterangan.
         const haystack = [ev.acara, ev.lokasi, ev.keterangan];
@@ -548,7 +551,7 @@ export function EventsLandingPage({
       }
       return true;
     }).sort((a, b) => a.dateStr.localeCompare(b.dateStr));
-  }, [events, waktu, kategori, qParam]);
+  }, [liveEvents, waktu, qParam]);
   // Filter menjaga semantik tanggal (seri reguler cocok bila salah satu
   // kemunculannya masuk window), lalu dirangkum untuk tampilan.
   const displayFilteredEvents = useMemo(
@@ -596,13 +599,14 @@ export function EventsLandingPage({
     ? `${shownVenueNames.join(', ')}${hiddenVenueCount > 0 ? ` +${hiddenVenueCount} lainnya` : ''}`
     : 'lokasi lain';
 
-  const isFilterActive = Boolean(waktu || kategori || qParam.trim());
+  // Filter aktif hanya bila preset waktu atau kata kunci pencarian terisi.
+  const isFilterActive = Boolean(waktu || qParam.trim());
 
   // Cakupan ekspor: periode (hari/minggu/bulan/tahun/tema/kustom) lalu pilih
   // per event.
   //
   // Dua hal yang sengaja dibuat sama dengan tampilan halaman:
-  //  1. Filter halaman (`?waktu=` / `?kategori=`) ikut menyaring ekspor, jadi
+  //  1. Filter halaman (`?waktu=` / `?q=`) ikut menyaring ekspor, jadi
   //     angka di dialog cocok dengan "N acara ditemukan" di badan halaman.
   //     Dashboard sudah berperilaku begitu (mengekspor `visibleEvents`).
   //     `allItems` dikirim hanya saat filter halaman benar-benar aktif: itulah
@@ -614,9 +618,12 @@ export function EventsLandingPage({
   //  2. Event tidak punya kolom tema di database, jadi preset Tema memakai
   //     rentang tanggal tema — cara yang sama dipakai `/gallery` untuk
   //     memasangkan album ke tema.
+  //
+  // Keduanya dibaca dari set `liveEvents`/`filteredEvents` yang sama dengan
+  // tampilan, jadi brosur tidak pernah memuat acara yang sudah lewat.
   const exportScope = useExportScope<EventItem>({
     items: filteredEvents,
-    allItems: isFilterActive ? events : undefined,
+    allItems: isFilterActive ? liveEvents : undefined,
     getId: (event) => event.id,
     getRange: (event) => ({ start: event.dateStr, end: event.dateEnd }),
     themes,
@@ -627,7 +634,7 @@ export function EventsLandingPage({
     return renderEventsSchedulePdfResult(exportScope.selected, { sections: sections as SchedulePdfSection[] });
   };
 
-  const setParam = (key: 'waktu' | 'kategori' | 'q', value: string | null) => {
+  const setParam = (key: 'waktu' | 'q', value: string | null) => {
     const next = new URLSearchParams(searchParams);
     if (value) next.set(key, value);
     else next.delete(key);
@@ -731,7 +738,7 @@ export function EventsLandingPage({
                   type="button"
                   variant="ghost"
                   onClick={() => setIsExportOptionsOpen(true)}
-                  disabled={isLoading || events.length === 0}
+                  disabled={isLoading || liveEvents.length === 0}
                   className="inline-flex items-center gap-2 rounded-full border border-black/10! bg-[var(--wf-board)] px-5 py-2.5 text-[13px] md:text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! disabled:cursor-not-allowed disabled:opacity-50 ui-focus-ring h-auto rounded-full! leading-normal active:translate-y-0! disabled:pointer-events-auto! hover:text-[var(--wf-ink-muted)]!"
                   aria-label="Unduh jadwal event sebagai PDF"
                 >
@@ -803,99 +810,64 @@ export function EventsLandingPage({
           </div>
         </RevealSection>
 
-        {/* Filter URL-shareable — preset waktu + kategori (riset Skedda "today/this weekend") */}
+        {/* Filter URL-shareable — preset waktu (riset Skedda "today/this weekend") */}
         <section id="filter" aria-label="Filter jadwal event" className="sticky top-[calc(4rem+1px)] z-30 border-y border-black/5 bg-[var(--wf-page)]/95 px-4 py-2 backdrop-blur-sm sm:px-6 sm:py-4">
-          <div className="mx-auto flex max-w-7xl flex-col gap-1.5 sm:gap-3">
-            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
-              {/* Baris tunggal: tab tidak membungkus (4 tab butuh ~361px di 390px),
-                  jadi strip tetap pendek dan anchor `scroll-margin-top` 13rem sah. */}
-              <div className="no-scrollbar flex flex-nowrap items-center gap-2 overflow-x-auto" role="group" aria-label="Filter waktu">
-                {([['', 'Semua'], ['hari-ini', 'Hari ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir pekan ini']] as const).map(([value, label]) => (
-                  <Button
-                    key={value || 'semua'}
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setParam('waktu', value || null)}
-                    aria-pressed={(waktu || '') === value}
-                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold transition ui-focus-ring h-auto rounded-full! font-bold! active:translate-y-0! sm:py-1.5 ${
-                      (waktu || '') === value
-                        ? 'border-0 bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]!'
-                        : 'border border-black/10! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
-                    }`}
-                  >
-                    {label}
-                  </Button>
-                ))}
-              </div>
-
-              {/* Kolom cari: menyaring nama, lokasi, dan keterangan acara lewat `?q=`. */}
-              <div className="relative w-full sm:w-72">
-                <Search
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]"
-                  aria-hidden="true"
-                />
-                <Input
-                  type="text"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  aria-label="Cari event"
-                  placeholder="Cari nama lomba, workshop, kajian..."
-                  className="ui-focus-ring h-10! w-full! rounded-lg border border-[var(--wf-rule)]! bg-[var(--wf-board)]! pl-9! pr-8! text-sm! text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus-visible:border-[var(--wf-accent)]! dark:bg-[var(--wf-board)]!"
-                />
-                {searchInput && (
-                  <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={clearSearch}
-                      aria-label="Hapus pencarian"
-                      className="rounded-full! text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink)]!"
-                    >
-                      <X className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-            {categoryOptions.length > 0 && (
-              <div className="no-scrollbar flex items-center gap-2 overflow-x-auto" role="group" aria-label="Filter kategori">
+          <div className="mx-auto flex max-w-7xl flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            {/* Baris tunggal: tab tidak membungkus (4 tab butuh ~361px di 390px),
+                jadi strip tetap pendek dan anchor `scroll-margin-top` 13rem sah. */}
+            <div className="no-scrollbar flex flex-nowrap items-center gap-2 overflow-x-auto" role="group" aria-label="Filter waktu">
+              {([['', 'Semua'], ['hari-ini', 'Hari ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir pekan ini']] as const).map(([value, label]) => (
                 <Button
+                  key={value || 'semua'}
                   type="button"
                   variant="ghost"
-                  onClick={() => setParam('kategori', null)}
-                  aria-pressed={!kategori}
-                  className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1 text-[11px] md:text-[11px] font-semibold transition ui-focus-ring h-auto gap-0! rounded-full! leading-normal active:translate-y-0! ${
-                    !kategori
+                  onClick={() => setParam('waktu', value || null)}
+                  aria-pressed={(waktu || '') === value}
+                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold transition ui-focus-ring h-auto rounded-full! font-bold! active:translate-y-0! sm:py-1.5 ${
+                    (waktu || '') === value
                       ? 'border-0 bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]!'
                       : 'border border-black/10! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
                   }`}
                 >
-                  Semua kategori
+                  {label}
                 </Button>
-                {categoryOptions.map(cat => (
+              ))}
+            </div>
+
+            {/* Kolom cari: menyaring nama, lokasi, dan keterangan acara lewat `?q=`. */}
+            <div className="relative w-full sm:w-72">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]"
+                aria-hidden="true"
+              />
+              <Input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                aria-label="Cari event"
+                placeholder="Cari nama lomba, workshop, kajian..."
+                className="ui-focus-ring h-10! w-full! rounded-lg border border-[var(--wf-rule)]! bg-[var(--wf-board)]! pl-9! pr-8! text-sm! text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus-visible:border-[var(--wf-accent)]! dark:bg-[var(--wf-board)]!"
+              />
+              {searchInput && (
+                <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
                   <Button
-                    key={cat}
                     type="button"
                     variant="ghost"
-                    onClick={() => setParam('kategori', kategori === cat ? null : cat)}
-                    aria-pressed={kategori === cat}
-                    className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1 text-[11px] md:text-[11px] font-semibold transition ui-focus-ring h-auto gap-0! rounded-full! leading-normal active:translate-y-0! ${
-                      kategori === cat
-                        ? 'border-0 bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]!'
-                        : 'border border-black/10! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
-                    }`}
+                    size="icon-sm"
+                    onClick={clearSearch}
+                    aria-label="Hapus pencarian"
+                    className="rounded-full! text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink)]!"
                   >
-                    {cat}
+                    <X className="h-4 w-4" aria-hidden="true" />
                   </Button>
-                ))}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
         {/* Event rail */}
-        <RevealSection id="featured" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32" refreshKey={`${events.length}:${filteredEvents.length}`}>
+        <RevealSection id="featured" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32" refreshKey={`${liveEvents.length}:${filteredEvents.length}`}>
           <div className="mx-auto max-w-7xl">
             {isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -1039,7 +1011,7 @@ export function EventsLandingPage({
                   </div>
                 )}
               </>
-            ) : !highlight ? null : (
+            ) : (
               <div className="rounded-[var(--radius-card-lg)] border border-dashed border-[var(--wf-rule)] bg-[var(--wf-board)]/60 px-6 py-10 text-center">
                 <p className="text-sm font-medium text-[var(--wf-ink-muted)]">
                   Lihat kalender untuk jadwal lengkap.
@@ -1056,7 +1028,7 @@ export function EventsLandingPage({
         </RevealSection>
 
         {/* Calendar */}
-        <RevealSection id="calendar" tabIndex={-1} className="border-t border-black/5 bg-[var(--wf-board)]/50 px-4 py-16 outline-none   sm:px-6 sm:py-24 lg:py-32" refreshKey={events.length}>
+        <RevealSection id="calendar" tabIndex={-1} className="border-t border-black/5 bg-[var(--wf-board)]/50 px-4 py-16 outline-none   sm:px-6 sm:py-24 lg:py-32" refreshKey={liveEvents.length}>
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="max-w-2xl">
               <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
@@ -1142,9 +1114,9 @@ export function EventsLandingPage({
             description={
               isFilterActive
                 ? exportScope.ignorePageFilter
-                  ? `${exportScope.selected.length} dari ${events.length} event akan disertakan. Filter halaman diabaikan, jadi seluruh acara ditawarkan.`
+                  ? `${exportScope.selected.length} dari ${liveEvents.length} event akan disertakan. Filter halaman diabaikan, jadi seluruh acara ditawarkan.`
                   : `${exportScope.selected.length} dari ${filteredEvents.length} event akan disertakan. Filter halaman aktif, jadi hanya acara yang tampil di daftar.`
-                : `${exportScope.selected.length} dari ${events.length} event akan disertakan. Atur periode dan event, lalu pilih bagian dokumen.`
+                : `${exportScope.selected.length} dari ${liveEvents.length} event akan disertakan. Atur periode dan event, lalu pilih bagian dokumen.`
             }
             sections={SCHEDULE_SECTION_OPTIONS}
             defaultSelected={['summary', 'table']}

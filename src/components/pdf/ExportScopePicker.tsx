@@ -186,7 +186,8 @@ export function ExportScopePicker<T>({
         </p>
 
         {/* Sakelar ini hanya muncul di permukaan yang memang punya filter
-            halaman sendiri (mis. /events dengan ?waktu=/?kategori=).
+            halaman sendiri (mis. /events dengan ?waktu=/?q=; ?kategori= lama
+            diabaikan).
             Tanpanya, filter halaman dan periode ekspor bertumpuk sebagai
             irisan, sehingga rekap satu tema penuh mustahil dibuat saat
             halaman sedang difilter. */}

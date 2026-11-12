@@ -229,10 +229,10 @@ describe('EventsLandingPage — preset Tema', () => {
 });
 
 describe('EventsLandingPage — filter halaman ikut menyaring ekspor', () => {
-  // Kategori berbeda supaya filter URL punya efek yang bisa diamati.
+  // Filter halaman yang tersisa setelah baris kategori dihapus: `?q=`.
   const FILTERED = [
-    ev({ id: 'f1', status: 'upcoming', acara: 'Konser Anak', categories: ['Anak'] }),
-    ev({ id: 'f2', status: 'upcoming', acara: 'Pameran Seni', categories: ['Seni'] }),
+    ev({ id: 'f1', status: 'upcoming', acara: 'Konser Anak' }),
+    ev({ id: 'f2', status: 'upcoming', acara: 'Pameran Seni' }),
   ];
 
   function renderWith(entry: string) {
@@ -245,12 +245,12 @@ describe('EventsLandingPage — filter halaman ikut menyaring ekspor', () => {
           holidays={[]}
           onDetail={() => {}}
         />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
   }
 
   it('hanya menawarkan event yang lolos filter halaman', async () => {
-    renderWith('/events?kategori=Anak');
+    renderWith('/events?q=konser');
     const dialog = await openExportDialog();
 
     expect(dialog.getByText('1 event pada periode ini')).toBeInTheDocument();
@@ -259,7 +259,7 @@ describe('EventsLandingPage — filter halaman ikut menyaring ekspor', () => {
   });
 
   it('mengirim hanya event yang lolos filter halaman', async () => {
-    renderWith('/events?kategori=Seni');
+    renderWith('/events?q=seni');
     const dialog = await openExportDialog();
 
     fireEvent.click(dialog.getByRole('button', { name: /Pratinjau PDF/ }));
@@ -270,7 +270,7 @@ describe('EventsLandingPage — filter halaman ikut menyaring ekspor', () => {
   });
 
   it('menjelaskan bahwa filter halaman sedang aktif', async () => {
-    renderWith('/events?kategori=Anak');
+    renderWith('/events?q=konser');
     const dialog = await openExportDialog();
 
     expect(dialog.getByText(/Filter halaman aktif/)).toBeInTheDocument();
@@ -278,14 +278,15 @@ describe('EventsLandingPage — filter halaman ikut menyaring ekspor', () => {
 });
 
 describe('EventsLandingPage — abaikan filter halaman', () => {
-  // Dua kategori, masing-masing punya acara di bulan berbeda. Dipakai untuk
-  // membuktikan bahwa tema yang rentangnya jatuh di luar filter halaman tetap
-  // bisa diekspor utuh — inilah yang sebelumnya mustahil karena filter
-  // halaman dan periode ekspor bertumpuk sebagai irisan.
+  // Filter halaman (`?q=konser`) hanya menyisakan m1, sementara tema Ramadan
+  // berisi acara bulan Maret. Dipakai untuk membuktikan bahwa tema yang
+  // rentangnya jatuh di luar filter halaman tetap bisa diekspor utuh — inilah
+  // yang sebelumnya mustahil karena filter halaman dan periode ekspor
+  // bertumpuk sebagai irisan.
   const MIXED = [
-    ev({ id: 'm1', status: 'upcoming', acara: 'Konser Anak', categories: ['Anak'], dateStr: '2026-09-05' }),
-    ev({ id: 'm2', status: 'upcoming', acara: 'Bazar Ramadan', categories: ['Seni'], dateStr: '2026-03-12', month: 'Maret' }),
-    ev({ id: 'm3', status: 'upcoming', acara: 'Pameran Seni', categories: ['Seni'], dateStr: '2026-03-20', month: 'Maret' }),
+    ev({ id: 'm1', status: 'upcoming', acara: 'Konser Anak', dateStr: '2026-09-05' }),
+    ev({ id: 'm2', status: 'upcoming', acara: 'Bazar Ramadan', dateStr: '2026-03-12', month: 'Maret' }),
+    ev({ id: 'm3', status: 'upcoming', acara: 'Pameran Seni', dateStr: '2026-03-20', month: 'Maret' }),
   ];
   const THEME = {
     id: 't1', name: 'Tema Ramadan', dateStart: '2026-03-01', dateEnd: '2026-03-31', color: '#000',
@@ -314,7 +315,7 @@ describe('EventsLandingPage — abaikan filter halaman', () => {
   });
 
   it('default menghormati filter halaman', async () => {
-    renderWith('/events?kategori=Anak');
+    renderWith('/events?q=konser');
     const dialog = await openExportDialog();
 
     expect(dialog.getByRole('checkbox', { name: /Abaikan filter halaman/ })).not.toBeChecked();
@@ -322,11 +323,11 @@ describe('EventsLandingPage — abaikan filter halaman', () => {
   });
 
   it('melepas filter halaman sehingga tema diekspor utuh', async () => {
-    renderWith('/events?kategori=Anak');
+    renderWith('/events?q=konser');
     const dialog = await openExportDialog();
 
     // Tanpa sakelar: tema Ramadan tidak menghasilkan apa pun karena kedua
-    // acaranya berkategori "Seni", sedangkan halaman difilter "Anak".
+    // acaranya di bulan Maret, sedangkan halaman difilter "konser" (m1 saja).
     fireEvent.click(dialog.getByRole('button', { name: 'Tema' }));
     expect(dialog.getByText('0 event pada periode ini')).toBeInTheDocument();
 
@@ -340,7 +341,7 @@ describe('EventsLandingPage — abaikan filter halaman', () => {
   });
 
   it('mengembalikan event yang tersembunyi ke pilihan saat sakelar dibalik', async () => {
-    renderWith('/events?kategori=Anak');
+    renderWith('/events?q=konser');
     const dialog = await openExportDialog();
 
     expect(dialog.getByText('1 event pada periode ini')).toBeInTheDocument();
@@ -356,7 +357,7 @@ describe('EventsLandingPage — abaikan filter halaman', () => {
   });
 
   it('memperbarui deskripsi dialog saat filter halaman diabaikan', async () => {
-    renderWith('/events?kategori=Anak');
+    renderWith('/events?q=konser');
     const dialog = await openExportDialog();
 
     expect(dialog.getByText(/Filter halaman aktif/)).toBeInTheDocument();
@@ -367,11 +368,11 @@ describe('EventsLandingPage — abaikan filter halaman', () => {
 });
 
 describe('EventsLandingPage — pencarian ikut menyaring ekspor', () => {
-  // `?q=` adalah filter halaman ketiga: ia menyempitkan daftar ekspor dengan
-  // aturan yang sama dengan tampilan (AND dengan waktu + kategori).
+  // `?q=` satu-satunya filter halaman yang menyempitkan daftar ekspor selain
+  // preset waktu; baris filter kategori sudah dihapus dari halaman.
   const SEARCHABLE = [
-    ev({ id: 'q1', status: 'upcoming', acara: 'Kompetisi Tari Tradisional', categories: ['Anak'] }),
-    ev({ id: 'q2', status: 'upcoming', acara: 'Bazar Kuliner', lokasi: 'Lantai Dasar', categories: ['Anak'] }),
+    ev({ id: 'q1', status: 'upcoming', acara: 'Kompetisi Tari Tradisional' }),
+    ev({ id: 'q2', status: 'upcoming', acara: 'Bazar Kuliner', lokasi: 'Lantai Dasar' }),
   ];
 
   function renderWith(entry: string) {
@@ -416,12 +417,5 @@ describe('EventsLandingPage — pencarian ikut menyaring ekspor', () => {
     fireEvent.click(toggle);
     expect(dialog.getByText('2 event pada periode ini')).toBeInTheDocument();
     expect(dialog.getByText('Bazar Kuliner')).toBeInTheDocument();
-  });
-
-  it('menggabungkan q dengan filter kategori', async () => {
-    renderWith('/events?q=tari&kategori=Seni');
-    const dialog = await openExportDialog();
-
-    expect(dialog.getByText('0 event pada periode ini')).toBeInTheDocument();
   });
 });
