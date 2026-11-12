@@ -46,7 +46,7 @@ describe('validateTenantSurvey', () => {
       data.event_id = '';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('ID event'))).toBe(true);
+      expect(result.errors.some(e => e.includes('Event survei belum terpilih'))).toBe(true);
     });
 
     it('should reject missing nama_gerai for submit', () => {
@@ -62,7 +62,7 @@ describe('validateTenantSurvey', () => {
       data.nama_gerai = 'x'.repeat(101);
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('100 karakter'))).toBe(true);
+      expect(result.errors.some(e => e.toLowerCase().includes('100 huruf'))).toBe(true);
     });
 
     it('should reject missing lokasi_zona for submit', () => {
@@ -70,7 +70,7 @@ describe('validateTenantSurvey', () => {
       data.lokasi_zona = '';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('lokasi zona'))).toBe(true);
+      expect(result.errors.some(e => e.toLowerCase().includes('lokasi/zona'))).toBe(true);
     });
 
     it('should reject invalid lokasi_zona not in options', () => {
@@ -78,7 +78,7 @@ describe('validateTenantSurvey', () => {
       data.lokasi_zona = 'Zona Palsu';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('lokasi zona'))).toBe(true);
+      expect(result.errors.some(e => e.toLowerCase().includes('lokasi/zona'))).toBe(true);
     });
 
     it('should reject missing kategori for submit', () => {
@@ -102,7 +102,7 @@ describe('validateTenantSurvey', () => {
       data.kenaikan_traffic = '';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('traffic'))).toBe(true);
+      expect(result.errors.some(e => e.toLowerCase().includes('pengunjung'))).toBe(true);
     });
 
     it('should reject invalid kenaikan_traffic not in options', () => {
@@ -110,7 +110,7 @@ describe('validateTenantSurvey', () => {
       data.kenaikan_traffic = 'Naik Banget';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('traffic'))).toBe(true);
+      expect(result.errors.some(e => e.toLowerCase().includes('pengunjung'))).toBe(true);
     });
 
     it('should reject missing kenaikan_sales for submit', () => {
@@ -118,7 +118,7 @@ describe('validateTenantSurvey', () => {
       data.kenaikan_sales = '';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('sales'))).toBe(true);
+      expect(result.errors.some(e => e.toLowerCase().includes('penjualan'))).toBe(true);
     });
 
     it('should reject invalid kenaikan_sales not in options', () => {
@@ -126,7 +126,7 @@ describe('validateTenantSurvey', () => {
       data.kenaikan_sales = 'Laris Manis';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('sales'))).toBe(true);
+      expect(result.errors.some(e => e.toLowerCase().includes('penjualan'))).toBe(true);
     });
   });
 
@@ -151,7 +151,7 @@ describe('validateTenantSurvey', () => {
       };
       const result = validateTenantSurvey(data, true);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('ID event'))).toBe(true);
+      expect(result.errors.some(e => e.includes('Event survei belum terpilih'))).toBe(true);
     });
 
     it('should still validate nama_gerai length in draft mode', () => {
@@ -161,7 +161,7 @@ describe('validateTenantSurvey', () => {
       };
       const result = validateTenantSurvey(data, true);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('100 karakter'))).toBe(true);
+      expect(result.errors.some(e => e.includes('100 huruf'))).toBe(true);
     });
   });
 

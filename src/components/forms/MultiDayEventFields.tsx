@@ -37,7 +37,7 @@ export function MultiDayEventFields({
     <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-3">
       <div>
         <Label htmlFor={`${datalistId}-date-end`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
-          Tanggal Selesai <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+          Tanggal selesai <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
         </Label>
         <Input
           id={`${datalistId}-date-end`}

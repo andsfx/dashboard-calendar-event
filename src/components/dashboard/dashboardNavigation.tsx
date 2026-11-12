@@ -64,11 +64,11 @@ export const CONTENT_ROUTES = {
 /** Canonical Dashboard Group labels, in display order, used by the register
  *  "Semua modul" to group its rows. The rail lists the same five groups, but
  *  with its own literal labels: this constant does not drive the rail. */
-export type DashboardGroupLabel = 'Ringkasan' | 'Kelola Event' | 'Interaksi' | 'Sistem' | 'Konten';
+export type DashboardGroupLabel = 'Ringkasan' | 'Kelola event' | 'Interaksi' | 'Sistem' | 'Konten';
 
 export const DASHBOARD_GROUP_ORDER: DashboardGroupLabel[] = [
   'Ringkasan',
-  'Kelola Event',
+  'Kelola event',
   'Interaksi',
   'Sistem',
   'Konten',
@@ -82,7 +82,7 @@ export const DASHBOARD_GROUP_ORDER: DashboardGroupLabel[] = [
  */
 export interface CommandCenterQueue {
   count: number;
-  /** Keadaan antrian dalam kata (mis. "menunggu review"). */
+  /** Keadaan antrian dalam kata (mis. "menunggu tinjauan"). */
   state: string;
   /** Label aksi menuju modul yang memilikinya. */
   action: string;
@@ -139,33 +139,33 @@ export function getDashboardNavGroups(
         ...(!isTrOnly ? [{ id: 'overview', label: 'Pusat Komando', icon: <LayoutDashboard className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard' }] : []),
         ...(!isTrOnly && !permissions.isDemo ? [{ id: 'insights', label: 'Insight Cerdas', icon: <Sparkles className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/insights' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analitik', icon: <BarChart3 className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
-        ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil Evaluasi Tenant', icon: <TrendingUp className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
+        ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil evaluasi tenant', icon: <TrendingUp className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
       ],
     },
     {
-      label: 'Kelola Event',
+      label: 'Kelola event',
       items: [
-        ...(!isTrOnly ? [{ id: 'events', label: 'Jadwal Event', icon: <CalendarDays className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/events' }] : []),
-        ...(permissions.canViewDrafts ? [{ id: 'drafts', label: 'Antrian Draft', icon: <FileEdit className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
-        ...(permissions.canViewThemes ? [{ id: 'themes', label: 'Tema Tahunan', icon: <Palette className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/themes' }] : []),
-        ...(permissions.canViewExhibitions ? [{ id: 'exhibitions', label: 'Pameran & Aktivasi', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/exhibitions' }] : []),
+        ...(!isTrOnly ? [{ id: 'events', label: 'Jadwal event', icon: <CalendarDays className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/events' }] : []),
+        ...(permissions.canViewDrafts ? [{ id: 'drafts', label: 'Antrian draft', icon: <FileEdit className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
+        ...(permissions.canViewThemes ? [{ id: 'themes', label: 'Tema tahunan', icon: <Palette className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/themes' }] : []),
+        ...(permissions.canViewExhibitions ? [{ id: 'exhibitions', label: 'Pameran dan aktivasi', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/exhibitions' }] : []),
       ],
     },
     {
       label: 'Interaksi',
       items: [
         ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
-        ...(permissions.canViewTenantProposals ? [{ id: 'tenant-proposals', label: 'Kolaborasi Tenant', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-proposals' }] : []),
-        ...(permissions.canViewTenantParticipations ? [{ id: 'tenant-participations', label: 'Partisipasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-participations' }] : []),
-        ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/survey' }] : []),
-        ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
+        ...(permissions.canViewTenantProposals ? [{ id: 'tenant-proposals', label: 'Kolaborasi tenant', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-proposals' }] : []),
+        ...(permissions.canViewTenantParticipations ? [{ id: 'tenant-participations', label: 'Partisipasi tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-participations' }] : []),
+        ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survei kepuasan', icon: <ClipboardCheck className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/survey' }] : []),
+        ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
       ],
     },
     {
       label: 'Sistem',
       items: [
-        ...(permissions.canViewUsers ? [{ id: 'users', label: 'Manajemen Pengguna', icon: <UserCog className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/users' }] : []),
-        ...(permissions.canViewActivityLog ? [{ id: 'activity-log', label: 'Log Aktivitas', icon: <Activity className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/activity-log' }] : []),
+        ...(permissions.canViewUsers ? [{ id: 'users', label: 'Manajemen pengguna', icon: <UserCog className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/users' }] : []),
+        ...(permissions.canViewActivityLog ? [{ id: 'activity-log', label: 'Log aktivitas', icon: <Activity className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/activity-log' }] : []),
       ],
     },
     {
@@ -217,19 +217,19 @@ export interface WayfindingEntry {
 
 const WAYFINDING: WayfindingEntry[] = [
   { path: '/', label: 'Pusat Komando', description: 'Keadaan hari ini dan antrian yang perlu tindakan' },
-  { path: '/insights', label: 'Insight Cerdas', description: 'Analisis otomatis dan rekomendasi tindakan dari data event & modul lain' },
-  { path: '/events', label: 'Jadwal Event', description: 'Kelola semua event dalam berbagai tampilan' },
-  { path: '/drafts', label: 'Antrian Draft', description: 'Kelola draft event sebelum dipublikasikan' },
-  { path: '/themes', label: 'Tema Tahunan', description: 'Kelola tema dan perencanaan tahunan' },
-  { path: '/exhibitions', label: 'Pameran & Aktivasi', description: 'Kelola pameran Casual Leasing, tautan aktivasi, dan pengajuan brand/EO' },
+  { path: '/insights', label: 'Insight Cerdas', description: 'Analisis otomatis dan rekomendasi tindakan dari data event dan modul lain' },
+  { path: '/events', label: 'Jadwal event', description: 'Kelola semua event dalam berbagai tampilan' },
+  { path: '/drafts', label: 'Antrian draft', description: 'Kelola draft event sebelum dipublikasikan' },
+  { path: '/themes', label: 'Tema tahunan', description: 'Kelola tema dan perencanaan tahunan' },
+  { path: '/exhibitions', label: 'Pameran dan aktivasi', description: 'Kelola pameran Casual Leasing, tautan aktivasi, dan pengajuan brand atau EO' },
   { path: '/registrations', label: 'Pendaftaran', description: 'Kelola permintaan pendaftaran dari community' },
-  { path: '/tenant-proposals', label: 'Kolaborasi Tenant', description: 'Tinjau pengajuan event dan kerja sama dari tenant' },
-  { path: '/tenant-participations', label: 'Partisipasi Tenant', description: 'Tinjau pengajuan open booth dan voucher tenant per event' },
-  { path: '/survey', label: 'Survey Kepuasan', description: 'Kelola Survey Kepuasan pengunjung dan organizer per event' },
-  { path: '/tenant-surveys', label: 'Evaluasi Tenant', description: 'Self-assessment tenant per event' },
+  { path: '/tenant-proposals', label: 'Kolaborasi tenant', description: 'Tinjau pengajuan event dan kerja sama dari tenant' },
+  { path: '/tenant-participations', label: 'Partisipasi tenant', description: 'Tinjau pengajuan open booth dan voucher tenant per event' },
+  { path: '/survey', label: 'Survei kepuasan', description: 'Kelola survei kepuasan pengunjung dan organizer per event' },
+  { path: '/tenant-surveys', label: 'Evaluasi tenant', description: 'Self-assessment tenant per event' },
   { path: '/analytics', label: 'Analitik', description: 'Analisis tren dan statistik event' },
-  { path: '/users', label: 'Manajemen Pengguna', description: 'Kelola user dan permission' },
-  { path: '/activity-log', label: 'Log Aktivitas', description: 'Audit trail dari semua aktivitas sistem' },
+  { path: '/users', label: 'Manajemen pengguna', description: 'Kelola pengguna dan hak akses' },
+  { path: '/activity-log', label: 'Log aktivitas', description: 'Catatan semua aktivitas sistem' },
   { path: '/content/landing', label: 'Halaman Landing', description: 'Gambar hero dan feed Instagram halaman landing' },
   { path: '/content/galeri', label: 'Galeri Album', description: 'Album foto yang tampil di halaman galeri publik' },
   { path: '/content/foto-area', label: 'Foto Area Event', description: 'Area event dan foto representatifnya' },
@@ -320,46 +320,46 @@ export function getCommandCenterCards({
   const draftQueue: CommandCenterQueue | undefined = draftsError
     ? { count: 0, state: 'Gagal dimuat', action: 'Buka antrian draft', error: draftsError }
     : activeDrafts.length > 0
-      ? { count: activeDrafts.length, state: 'menunggu dipublikasikan', action: 'Buka antrian draft' }
+      ? { count: activeDrafts.length, state: 'menunggu penerbitan', action: 'Buka antrian draft' }
       : undefined;
 
   const cards: CommandCenterCard[] = [
     {
       id: 'events',
-      title: 'Jadwal Event',
+      title: 'Jadwal event',
       subtitle: MODULE_PURPOSE['/events'] ?? 'Kelola semua event dalam berbagai tampilan',
       icon: <CalendarDays className={CARD} strokeWidth={sw} />,
       route: '/dashboard/events',
-      group: 'Kelola Event',
+      group: 'Kelola event',
     },
     ...(permissions.canViewDrafts ? [{
       id: 'drafts',
-      title: 'Antrian Draft',
+      title: 'Antrian draft',
       subtitle: MODULE_PURPOSE['/drafts'] ?? 'Kelola draft event sebelum dipublikasikan',
       icon: <FileEdit className={CARD} strokeWidth={sw} />,
       route: '/dashboard/drafts',
       queue: draftQueue,
-      group: 'Kelola Event' as const,
+      group: 'Kelola event' as const,
     }] : []),
     ...(permissions.canViewThemes ? [{
       id: 'themes',
-      title: 'Tema Tahunan',
+      title: 'Tema tahunan',
       subtitle: MODULE_PURPOSE['/themes'] ?? 'Kelola tema dan perencanaan tahunan',
       icon: <Palette className={CARD} strokeWidth={sw} />,
       route: '/dashboard/themes',
       state: currentTheme ? `Aktif: ${currentTheme.name}` : 'Belum ada tema aktif',
-      group: 'Kelola Event' as const,
+      group: 'Kelola event' as const,
     }] : []),
     ...(permissions.canViewExhibitions ? [{
       id: 'exhibitions',
-      title: 'Pameran & Aktivasi',
-      subtitle: MODULE_PURPOSE['/exhibitions'] ?? 'Kelola pameran, aktivasi, dan pengajuan brand/EO',
+      title: 'Pameran dan aktivasi',
+      subtitle: MODULE_PURPOSE['/exhibitions'] ?? 'Kelola pameran, aktivasi, dan pengajuan brand atau EO',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/exhibitions',
       queue: pendingLeads > 0
-        ? { count: pendingLeads, state: 'pengajuan menunggu review', action: 'Buka pameran & aktivasi' }
+        ? { count: pendingLeads, state: 'pengajuan menunggu tinjauan', action: 'Buka pameran dan aktivasi' }
         : undefined,
-      group: 'Kelola Event' as const,
+      group: 'Kelola event' as const,
     }] : []),
     ...(permissions.canViewRegistrations ? [{
       id: 'registrations',
@@ -368,43 +368,43 @@ export function getCommandCenterCards({
       icon: <Users className={CARD} strokeWidth={sw} />,
       route: '/dashboard/registrations',
       queue: pendingRegistrations > 0
-        ? { count: pendingRegistrations, state: 'menunggu review', action: 'Buka pendaftaran' }
+        ? { count: pendingRegistrations, state: 'menunggu tinjauan', action: 'Buka pendaftaran' }
         : undefined,
       group: 'Interaksi' as const,
     }] : []),
     ...(permissions.canViewTenantProposals ? [{
       id: 'tenant-proposals',
-      title: 'Kolaborasi Tenant',
+      title: 'Kolaborasi tenant',
       subtitle: MODULE_PURPOSE['/tenant-proposals'] ?? 'Tinjau pengajuan event dan kerja sama dari tenant',
       icon: <Handshake className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-proposals',
       queue: pendingTenantProposals > 0
-        ? { count: pendingTenantProposals, state: 'pengajuan menunggu review', action: 'Buka kolaborasi tenant' }
+        ? { count: pendingTenantProposals, state: 'pengajuan menunggu tinjauan', action: 'Buka kolaborasi tenant' }
         : undefined,
       group: 'Interaksi' as const,
     }] : []),
     ...(permissions.canViewTenantParticipations ? [{
       id: 'tenant-participations',
-      title: 'Partisipasi Tenant',
+      title: 'Partisipasi tenant',
       subtitle: MODULE_PURPOSE['/tenant-participations'] ?? 'Tinjau pengajuan open booth dan voucher tenant per event',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-participations',
       queue: pendingTenantParticipations > 0
-        ? { count: pendingTenantParticipations, state: 'pengajuan menunggu review', action: 'Buka partisipasi tenant' }
+        ? { count: pendingTenantParticipations, state: 'pengajuan menunggu tinjauan', action: 'Buka partisipasi tenant' }
         : undefined,
       group: 'Interaksi' as const,
     }] : []),
     ...(permissions.canViewSurvey ? [{
       id: 'survey',
-      title: 'Survey Kepuasan',
-      subtitle: MODULE_PURPOSE['/survey'] ?? 'Kelola Survey Kepuasan pengunjung dan organizer per event',
+      title: 'Survei kepuasan',
+      subtitle: MODULE_PURPOSE['/survey'] ?? 'Kelola survei kepuasan pengunjung dan organizer per event',
       icon: <ClipboardCheck className={CARD} strokeWidth={sw} />,
       route: '/dashboard/survey',
       group: 'Interaksi' as const,
     }] : []),
     ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{
       id: 'tenant-surveys',
-      title: 'Evaluasi Tenant',
+      title: 'Evaluasi tenant',
       subtitle: MODULE_PURPOSE['/tenant-surveys'] ?? 'Self-assessment tenant per event',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-surveys',
@@ -412,7 +412,7 @@ export function getCommandCenterCards({
     }] : []),
     ...(permissions.canViewTenantSurveyResults ? [{
       id: 'tenant-survey-results',
-      title: 'Hasil Evaluasi Tenant',
+      title: 'Hasil evaluasi tenant',
       subtitle: 'Hasil evaluasi tenant',
       icon: <TrendingUp className={CARD} strokeWidth={sw} />,
       route: '/tenant-survey-results',
@@ -436,16 +436,16 @@ export function getCommandCenterCards({
     }] : []),
     ...(permissions.canViewActivityLog ? [{
       id: 'activity-log',
-      title: 'Log Aktivitas',
-      subtitle: MODULE_PURPOSE['/activity-log'] ?? 'Audit trail dari semua aktivitas sistem',
+      title: 'Log aktivitas',
+      subtitle: MODULE_PURPOSE['/activity-log'] ?? 'Catatan semua aktivitas sistem',
       icon: <Activity className={CARD} strokeWidth={sw} />,
       route: '/dashboard/activity-log',
       group: 'Sistem' as const,
     }] : []),
     ...(permissions.canViewUsers ? [{
       id: 'users',
-      title: 'Manajemen Pengguna',
-      subtitle: MODULE_PURPOSE['/users'] ?? 'Kelola user dan permission',
+      title: 'Manajemen pengguna',
+      subtitle: MODULE_PURPOSE['/users'] ?? 'Kelola pengguna dan hak akses',
       icon: <UserCog className={CARD} strokeWidth={sw} />,
       route: '/dashboard/users',
       group: 'Sistem' as const,

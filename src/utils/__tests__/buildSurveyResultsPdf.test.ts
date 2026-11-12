@@ -51,35 +51,35 @@ describe('buildSurveyResultsPdf', () => {
 
     const text = extractPdfStrings(doc);
     expect(text).toContain('Hasil Evaluasi Tenant');
-    expect(text).toContain('Distribusi Traffic');
-    expect(text).toContain('Top Tenant');
-    expect(text).toContain('Cross-tab');
-    expect(text).toContain('Cuplikan Feedback');
-    expect(text).toContain('tanpa data PIC');
+    expect(text).toContain('Sebaran kunjungan');
+    expect(text).toContain('Tenant teratas');
+    expect(text).toContain('Silang kategori dan penjualan');
+    expect(text).toContain('Cuplikan umpan balik');
+    expect(text).toContain('tanpa data penanggung jawab');
   });
 
   it('menerjemahkan nilai enum filter ke Bahasa Indonesia', () => {
     // Regresi: dulu tercetak "Status: submitted+reviewed" apa adanya.
     const text = extractPdfStrings(build());
-    expect(text).toContain('Terkirim & Ditinjau');
+    expect(text).toContain('Terkirim dan ditinjau');
     expect(text).not.toContain('submitted+reviewed');
 
     const submitted = extractPdfStrings(build({ filter: { ...FILTER, status: 'submitted' } }));
-    expect(submitted).toContain('Telah Dikirim');
+    expect(submitted).toContain('Telah dikirim');
 
     const reviewed = extractPdfStrings(build({ filter: { ...FILTER, status: 'reviewed' } }));
-    expect(reviewed).toContain('Telah Ditinjau');
+    expect(reviewed).toContain('Telah ditinjau');
   });
 
   it('hanya menggambar bagian yang dipilih', () => {
     const kpiOnly = extractPdfStrings(build({ sections: ['kpi'] }));
-    expect(kpiOnly).toContain('TOTAL SUBMISI');
-    expect(kpiOnly).not.toContain('Distribusi Traffic');
-    expect(kpiOnly).not.toContain('Cuplikan Feedback');
+    expect(kpiOnly).toContain('TOTAL ISIAN');
+    expect(kpiOnly).not.toContain('Sebaran kunjungan');
+    expect(kpiOnly).not.toContain('Cuplikan umpan balik');
 
     const feedbackOnly = extractPdfStrings(build({ sections: ['feedback'] }));
-    expect(feedbackOnly).toContain('Cuplikan Feedback');
-    expect(feedbackOnly).not.toContain('Distribusi Traffic');
+    expect(feedbackOnly).toContain('Cuplikan umpan balik');
+    expect(feedbackOnly).not.toContain('Sebaran kunjungan');
   });
 
   it('feedback panjang tidak menabrak footer', () => {
@@ -103,6 +103,6 @@ describe('buildSurveyResultsPdf', () => {
 
   it('tidak memuat data PIC tenant', () => {
     const text = extractPdfStrings(build());
-    expect(text).toContain('tanpa data PIC');
+    expect(text).toContain('tanpa data penanggung jawab');
   });
 });

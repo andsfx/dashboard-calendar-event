@@ -169,7 +169,7 @@ describe('updateDraft — flag lifecycle bukan bagian payload', () => {
     // Tidak ada perubahan nyata → perilaku lama "Tidak ada perubahan".
     expect(status).toBe(200);
     expect(body.success).toBe(false);
-    expect(body.error).toBe('Tidak ada perubahan');
+    expect(body.error).toBe('Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.');
   });
 
   it('masih menulis kolom biasa, termasuk progress', async () => {
@@ -233,10 +233,10 @@ describe('createDraft — flag lifecycle hanya boleh bernilai default', () => {
 
 describe('pemetaan SQLSTATE input klien', () => {
   it.each([
-    ['22P02', 'Format nilai tidak valid'],
-    ['22007', 'Format tanggal tidak valid'],
-    ['22008', 'Tanggal atau waktu di luar jangkauan'],
-    ['23503', 'Data terkait tidak ditemukan'],
+    ['22P02', 'isian yang tidak cocok'],
+    ['22007', 'belum sesuai format'],
+    ['22008', 'terlalu jauh dari rentang'],
+    ['23503', 'Data yang dirujuk tidak ada'],
   ])('%s → 400, bukan 500', async (code, expectedMessage) => {
     dbState.error = Object.assign(new Error('invalid input syntax for type json — baris rahasia'), { code });
 
@@ -259,7 +259,7 @@ describe('pemetaan SQLSTATE input klien', () => {
     dbState.error = Object.assign(new Error('relation "rahasia" does not exist'), { code: '42P01' });
     const { status, body } = await callAction('listEvents');
     expect(status).toBe(500);
-    expect(body.error).toContain('Terjadi kesalahan server');
+    expect(body.error).toContain('Server sedang bermasalah');
     expect(body.error).not.toContain('rahasia');
   });
 });

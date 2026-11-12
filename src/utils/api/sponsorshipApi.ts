@@ -64,9 +64,9 @@ export async function submitSponsorLead(data: SponsorLeadInput): Promise<void> {
       email: data.email,
       message: data.message,
     });
-    if (!result.success) throw new ApiError(result.error || 'Gagal mengirim minat support');
+    if (!result.success) throw new ApiError(result.error || 'Gagal mengirim minat dukungan');
   } catch (err) {
-    throw rewrapApiError(err, 'Gagal mengirim minat support');
+    throw rewrapApiError(err, 'Gagal mengirim minat dukungan');
   }
 }
 
@@ -94,12 +94,12 @@ export async function updateSponsorLeadStatus(id: string, status: SponsorLeadSta
   const result = await adminAction<{ success: boolean; error?: string }>(
     'updateSponsorLeadStatus', { id, status, internalNotes }
   );
-  if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui lead sponsor');
+  if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui minat sponsor');
 }
 
 export async function deleteSponsorLead(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteSponsorLead', { id });
-  if (!result.success) throw new ApiError(result.error || 'Gagal menghapus lead sponsor');
+  if (!result.success) throw new ApiError(result.error || 'Gagal menghapus minat sponsor');
 }
 
 /** Admin — upload a proposal file for an event (upsert 1-to-1). */

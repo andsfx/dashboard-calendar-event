@@ -44,7 +44,7 @@ describe('tenantEventProposalSchema — tanggal harus tanggal kalender nyata', (
     (date) => {
       const issues = proposalIssues({ proposedStart: date });
       expect(issues.length).toBeGreaterThan(0);
-      expect(issues.some(i => i.message.includes('Tanggal tidak valid'))).toBe(true);
+      expect(issues.some(i => i.message.includes('Tanggal ini tidak ada di kalender'))).toBe(true);
     },
   );
 
@@ -70,7 +70,7 @@ describe('exhibitionDataSchema — dateStart/dateEnd harus tanggal nyata', () =>
   it.each(['2099-02-31', '2099-04-31', '2100-02-29'])('menolak dateStart %s', (date) => {
     const result = exhibitionResult({ dateStart: date });
     expect(result.success).toBe(false);
-    expect(result.error.issues.some(i => i.message.includes('Tanggal tidak valid'))).toBe(true);
+    expect(result.error.issues.some(i => i.message.includes('Tanggal ini tidak ada di kalender'))).toBe(true);
   });
 
   it('menolak dateEnd mustahil', () => {

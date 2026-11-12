@@ -219,7 +219,7 @@ describe('EventInsightsPanel', () => {
     expect(screen.queryByText('Antrian menunggu tindakan')).not.toBeInTheDocument();
     expect(localStorage.getItem('metmal.insight.dismissed')).toContain('antrian');
 
-    fireEvent.click(screen.getByRole('button', { name: /Tampilkan 1 yang disembunyikan/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Tampilkan kembali/ }));
     expect(screen.getByText('Antrian menunggu tindakan')).toBeInTheDocument();
   });
 

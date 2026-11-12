@@ -11,9 +11,9 @@ describe('CommunitySteps', () => {
 
   it('renders all 4 steps', () => {
     render(<CommunitySteps />)
-    expect(screen.getByText('Daftar & Kirim')).toBeInTheDocument()
-    expect(screen.getByText('Review Tim Mall')).toBeInTheDocument()
-    expect(screen.getByText('Konfirmasi & Persiapan')).toBeInTheDocument()
+    expect(screen.getByText('Daftar dan kirim')).toBeInTheDocument()
+    expect(screen.getByText('Review tim mall')).toBeInTheDocument()
+    expect(screen.getByText('Konfirmasi dan persiapan')).toBeInTheDocument()
     expect(screen.getByText('Hari H!')).toBeInTheDocument()
   })
 

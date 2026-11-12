@@ -97,7 +97,7 @@ describe('EventPublicDetailPage', () => {
       'href',
       expect.stringContaining('https://wa.me/?text='),
     );
-    expect(screen.getByRole('button', { name: /Salin link/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Salin tautan/i })).toBeInTheDocument();
   });
 
   it('PIC, phone, nominal, dan model kerja sama TIDAK tampil di halaman publik', async () => {
@@ -116,7 +116,7 @@ describe('EventPublicDetailPage', () => {
     // Label CTA disamakan dengan tujuan `/events` (satu intent, satu label), dan
     // dicari di dalam `main` karena header global juga memuat tautan yang sama.
     expect(
-      within(screen.getByRole('main')).getByRole('link', { name: 'Jadwal Event' }),
+      within(screen.getByRole('main')).getByRole('link', { name: 'Jadwal event' }),
     ).toHaveAttribute('href', '/events');
   });
 
@@ -133,7 +133,7 @@ describe('EventPublicDetailPage', () => {
   it('document.title di-set per event', async () => {
     fetchEventByIdMock.mockResolvedValueOnce(makeEvent());
     renderAt('/events/evt_1');
-    await waitFor(() => expect(document.title).toBe('Festival Minang 2026 - Jadwal Event Metropolitan Mall Bekasi'));
+    await waitFor(() => expect(document.title).toBe('Festival Minang 2026 - Jadwal event Metropolitan Mall Bekasi'));
   });
 
   it('poster event dirender sebagai banner di halaman detail', async () => {
@@ -158,8 +158,8 @@ describe('EventPublicDetailPage', () => {
     Object.assign(navigator, { clipboard: { writeText } });
     renderAt('/events/evt_1');
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Festival Minang 2026' })).toBeInTheDocument());
-    await userEvent.click(screen.getByRole('button', { name: /Salin link/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Salin tautan/i }));
     await waitFor(() => expect(writeText).toHaveBeenCalledWith('http://localhost:3000/events/evt_1'));
-    expect(screen.getByText('Link tersalin')).toBeInTheDocument();
+    expect(screen.getByText('Tautan tersalin')).toBeInTheDocument();
   });
 });

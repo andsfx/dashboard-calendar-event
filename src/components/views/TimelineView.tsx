@@ -67,8 +67,8 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
             <CalendarDays className="h-10 w-10 opacity-60" aria-hidden="true" />
           </EmptyMedia>
           <EmptyHeader>
-            <EmptyTitle className="text-sm font-medium">Tidak ada acara ditemukan</EmptyTitle>
-            <EmptyDescription className="mt-1 text-xs text-[var(--wf-ink-muted)]">Coba ubah filter atau kata kunci pencarian</EmptyDescription>
+            <EmptyTitle className="text-sm font-medium">Tidak ada acara yang cocok</EmptyTitle>
+            <EmptyDescription className="mt-1 text-xs text-[var(--wf-ink-muted)]">Coba ubah filter atau kata kunci pencarian.</EmptyDescription>
           </EmptyHeader>
         </Empty>
       </div>

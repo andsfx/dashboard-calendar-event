@@ -43,8 +43,8 @@ export class AdminError extends Error {
  * Tanpa ini setiap kegagalan mutasi jatuh ke `kind: 'Unknown'`: `ApiError`
  * (dilempar `lib/rest`) BUKAN `AdminError`, sehingga seluruh cabang
  * `Unauthorized`/`Forbidden`/`Conflict` di hook tidak pernah tercapai dan
- * sesi yang kedaluwarsa tampil sebagai "Perubahan belum tersimpan. Silakan
- * coba lagi." — pengguna mengulang terus tanpa tahu harus masuk ulang.
+ * sesi yang kedaluwarsa tampil sebagai "Perubahan belum tersimpan. Coba simpan
+ * lagi." — pengguna mengulang terus tanpa tahu harus masuk ulang.
  *
  * `ApiError.code` berisi status HTTP sebagai string, atau 'NETWORK' bila
  * request tidak pernah sampai ke server.

@@ -666,7 +666,7 @@ test.describe('event detail page — /events/:id + EventPhotoGallery lightbox', 
       await tiles.first().click();
       const dialog = page.locator('[role="dialog"]');
       const dialogVisible = await dialog.isVisible().catch(() => false);
-      const closeButton = dialog.getByRole('button', { name: 'Tutup lightbox', exact: true });
+      const closeButton = dialog.getByRole('button', { name: 'Tutup pratinjau foto', exact: true });
       const closeButtonCount = await closeButton.count();
       const closeAccessibleName = closeButtonCount > 0
         ? await closeButton.first().getAttribute('aria-label')

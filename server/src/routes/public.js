@@ -73,7 +73,7 @@ router.get('/events/:id', async (req, res, next) => {
       `SELECT ${EVENT_SELECT} FROM events WHERE id = $1 AND status <> 'draft' LIMIT 1`,
       [req.params.id],
     );
-    if (!rows[0]) return res.status(404).json({ success: false, error: 'Event tidak ditemukan' });
+    if (!rows[0]) return res.status(404).json({ success: false, error: 'Event ini tidak ada atau sudah dihapus. Cek daftar event terbaru.' });
     res.json({ success: true, data: stripPii(rows[0], ['pic', 'phone']) });
   } catch (err) {
     next(err);
@@ -129,7 +129,7 @@ router.get('/news/:slug', async (req, res, next) => {
        LIMIT 1`,
       [req.params.slug],
     );
-    if (!rows[0]) return res.status(404).json({ success: false, error: 'Artikel tidak ditemukan' });
+    if (!rows[0]) return res.status(404).json({ success: false, error: 'Artikel ini tidak ada atau sudah diarsipkan. Buka daftar berita untuk artikel terbaru.' });
     res.json({ success: true, data: rows[0] });
   } catch (err) {
     next(err);
@@ -153,7 +153,7 @@ router.get('/albums', async (_req, res, next) => {
 router.get('/albums/:slug', async (req, res, next) => {
   try {
     const { rows } = await db.query('SELECT * FROM photo_albums WHERE slug = $1 LIMIT 1', [req.params.slug]);
-    if (!rows[0]) return res.status(404).json({ success: false, error: 'Album tidak ditemukan' });
+    if (!rows[0]) return res.status(404).json({ success: false, error: 'Album ini tidak ada atau sudah dihapus. Cek daftar album di halaman galeri.' });
     const photos = await db.query('SELECT * FROM event_photos WHERE album_id = $1 ORDER BY sort_order ASC', [rows[0].id]);
     res.json({ success: true, data: { album: rows[0], photos: photos.rows } });
   } catch (err) {
@@ -197,8 +197,8 @@ function isRealIsoDate(value) {
 
 const isoDateSchema = z
   .string()
-  .regex(ISO_DATE_RE, 'Format tanggal harus YYYY-MM-DD')
-  .refine(isRealIsoDate, 'Tanggal tidak valid');
+  .regex(ISO_DATE_RE, 'Isi tanggal dengan format YYYY-MM-DD, mis. 2026-07-12.')
+  .refine(isRealIsoDate, 'Tanggal ini tidak ada di kalender. Periksa bulan dan hari-nya.');
 
 /**
  * Batas input publik POST /drafts. Tanpa ini klien bisa mengirim teks sepanjang
@@ -213,7 +213,7 @@ const draftSubmissionSchema = z.object({
   jam: z.string().max(100).optional(),
   lokasi: z.string().max(200).optional(),
   area_id: z.string().max(100).nullable().optional(),
-  acara: z.string().trim().min(1, 'Nama acara wajib diisi').max(200, 'Nama acara maksimal 200 karakter'),
+  acara: z.string().trim().min(1, 'Nama acara belum diisi. Isi dulu ya.').max(200, 'Nama acara terlalu panjang, maksimal 200 huruf.'),
   eo: z.string().max(100).optional(),
   pic: z.string().max(100).optional(),
   phone: z.string().max(20).optional(),
@@ -247,7 +247,7 @@ router.post('/drafts', async (req, res, next) => {
     }
     return res.status(400).json({
       success: false,
-      error: 'Validasi gagal. Periksa kembali data yang Anda masukkan.',
+      error: 'Beberapa isian belum benar. Perbaiki kolom yang ditandai lalu kirim ulang.',
       details,
     });
   }
@@ -304,7 +304,7 @@ router.get('/letters/:id', async (req, res, next) => {
       [req.params.id],
     );
     if (!rows[0]) {
-      return res.status(404).json({ success: false, error: 'Surat tidak ditemukan' });
+      return res.status(404).json({ success: false, error: 'Surat ini tidak ada atau sudah dinonaktifkan. Minta EO yang membagikan tautan untuk mengirim ulang.' });
     }
     res.json({ success: true, data: rows[0] });
   } catch (err) {
@@ -325,11 +325,11 @@ const PUBLIC_SETTINGS_KEYS = new Set([
 
 router.get('/settings/:key', async (req, res, next) => {
   if (!PUBLIC_SETTINGS_KEYS.has(req.params.key)) {
-    return res.status(404).json({ success: false, error: 'Setting tidak ditemukan' });
+    return res.status(404).json({ success: false, error: 'Pengaturan ini tidak tersedia untuk halaman publik.' });
   }
   try {
     const { rows } = await db.query('SELECT value FROM site_settings WHERE key = $1 LIMIT 1', [req.params.key]);
-    if (!rows[0]) return res.status(404).json({ success: false, error: 'Setting tidak ditemukan' });
+    if (!rows[0]) return res.status(404).json({ success: false, error: 'Nilai untuk pengaturan ini belum diisi.' });
     res.json({ success: true, data: rows[0].value });
   } catch (err) {
     next(err);

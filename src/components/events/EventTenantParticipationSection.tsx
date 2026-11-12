@@ -181,7 +181,7 @@ export function EventTenantParticipationSection({ eventId, isPast }: Props) {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-sm font-semibold text-[var(--wf-accent)] ">Punya tenant di Metropolitan Mall?</span>
-            <span className="block text-[11px] text-[var(--wf-accent)] ">Ajukan open booth atau voucher untuk event ini</span>
+            <span className="block text-[11px] text-[var(--wf-accent)] ">Ajukan booth terbuka atau voucher untuk event ini</span>
           </span>
           <ArrowRight className="h-4 w-4 shrink-0 text-[var(--wf-accent)] " aria-hidden="true" />
         </Link>

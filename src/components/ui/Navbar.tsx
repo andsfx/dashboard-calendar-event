@@ -79,7 +79,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
             )}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold leading-tight text-[var(--wf-ink)]">Dashboard Event</p>
+            <p className="truncate text-sm font-bold leading-tight text-[var(--wf-ink)]">Dashboard event</p>
             <p className="truncate text-[10px] leading-tight text-[var(--wf-ink-muted)]">Metropolitan Mall Bekasi</p>
           </div>
         </div>

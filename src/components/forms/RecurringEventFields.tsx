@@ -49,7 +49,7 @@ export function RecurringEventFields({
           <option value="weekly">Setiap minggu</option>
           <option value="biweekly">Setiap 2 minggu</option>
           <option value="monthly">Setiap bulan</option>
-          <option value="custom">Custom (setiap N hari)</option>
+          <option value="custom">Kustom (setiap N hari)</option>
         </NativeSelect>
       </div>
 
@@ -140,7 +140,7 @@ export function RecurringEventFields({
         return (
           <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3">
             <p className="mb-2 text-xs font-semibold text-[var(--wf-accent)]">
-              Preview: {dates.length} event akan dibuat{isDraft ? ' saat diterbitkan' : ''}
+              Pratinjau: {dates.length} event akan dibuat{isDraft ? ' saat diterbitkan' : ''}
             </p>
             <div className="max-h-40 space-y-1 overflow-y-auto">
               {dates.map((dateStr) => {

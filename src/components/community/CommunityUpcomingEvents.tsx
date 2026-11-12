@@ -21,7 +21,7 @@ function EmptyEvents() {
         href="#contact"
         className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-page)]"
       >
-        Hubungi Kami <ArrowRight className="h-4 w-4" />
+        Hubungi kami <ArrowRight className="h-4 w-4" />
       </a>
     </div>
   );
@@ -156,7 +156,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                     <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }}></span>
                   </span>
                 )}
-                {showOngoing ? 'Sedang Berlangsung' : 'Event Berikutnya'}
+                {showOngoing ? 'Sedang berlangsung' : 'Event berikutnya'}
               </span>
               <h2 className="mt-6 text-4xl font-bold leading-[1.15] tracking-tight text-[var(--wf-ink)] sm:text-5xl">
                 {mainEvent.acara}
@@ -196,12 +196,12 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
               ) : showOngoing ? null : (
                 <div className="rounded-2xl border px-5 py-4" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}12` }}>
                   <p className="text-xl font-bold sm:text-2xl" style={{ color: catColor }}>
-                    Hari Ini
+                    Hari ini
                   </p>
                 </div>
               )}
               <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] transition-colors group-hover:bg-[var(--wf-page)]">
-                Lihat Detail Event <ArrowRight className="size-4" />
+                Lihat detail event <ArrowRight className="size-4" />
               </span>
             </div>
           </Button>
@@ -267,7 +267,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
             to="/events"
             className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] px-6 py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2`}
           >
-            Lihat Semua Event
+            Lihat semua event
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>

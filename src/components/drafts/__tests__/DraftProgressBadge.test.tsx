@@ -6,7 +6,7 @@ import { DraftProgressBadge } from '../DraftProgressBadge'
 describe('DraftProgressBadge', () => {
   it('renders draft progress', () => {
     render(<DraftProgressBadge progress="draft" />)
-    expect(screen.getByText('Draft')).toBeInTheDocument()
+    expect(screen.getByText('Draf')).toBeInTheDocument()
   })
 
   it('renders confirm progress', () => {

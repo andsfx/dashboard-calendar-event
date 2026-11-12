@@ -94,8 +94,8 @@ export default function TenantSurveyResultsPage({
   standalone = false,
 }: Props) {
   usePageMeta({
-    title: 'Hasil Survey Tenant - Metropolitan Mall Bekasi',
-    description: 'Hasil survey traffic dan sales tenant setelah event di Metropolitan Mall Bekasi.',
+    title: 'Hasil survei tenant - Metropolitan Mall Bekasi',
+    description: 'Hasil survei kunjungan dan penjualan tenant setelah event di Metropolitan Mall Bekasi.',
   });
   const { surveys, isLoading, error } = useTenantSurveys(undefined, { publicMode });
   const [filter, setFilter] = useState<ResultsFilter>(EMPTY_FILTER);
@@ -123,7 +123,7 @@ export default function TenantSurveyResultsPage({
       setRoster(list);
       setRosterLoading(false);
       if (list.length === 0) {
-        setRosterError('Roster tenant kosong atau gagal dimuat. Coba refresh sebentar lagi.');
+        setRosterError('Data tenant kosong atau gagal dimuat. Coba muat ulang.');
       }
     });
     return () => {
@@ -362,7 +362,7 @@ export default function TenantSurveyResultsPage({
         <p className="text-sm font-medium text-[var(--wf-ink-muted)]">
           Memuat hasil evaluasi tenant…
         </p>
-        <p className="text-xs text-[var(--wf-ink-muted)]">Memuat data survey…</p>
+        <p className="text-xs text-[var(--wf-ink-muted)]">Memuat data survei…</p>
       </div>
     );
   }
@@ -371,8 +371,8 @@ export default function TenantSurveyResultsPage({
 
   const mainTabs: Array<{ id: MainTab; label: string; shortLabel: string; count?: number }> = [
     { id: 'ringkasan', label: 'Ringkasan', shortLabel: 'Ringkas', count: agg.total },
-    { id: 'checklist', label: 'Checklist tenant', shortLabel: 'Checklist', count: checklistStats.pending },
-    { id: 'bagikan', label: 'Bagikan form survey', shortLabel: 'Bagikan', count: shareableEvents.length },
+    { id: 'checklist', label: 'Daftar periksa tenant', shortLabel: 'Periksa', count: checklistStats.pending },
+    { id: 'bagikan', label: 'Bagikan formulir survei', shortLabel: 'Bagikan', count: shareableEvents.length },
     { id: 'detail', label: 'Detail', shortLabel: 'Detail', count: agg.rows.length },
   ];
 
@@ -417,7 +417,7 @@ export default function TenantSurveyResultsPage({
             className="ui-btn-primary ui-focus-ring inline-flex h-auto w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2"
           >
             <Download className="h-4 w-4" aria-hidden />
-            Export PDF
+            Ekspor PDF
           </Button>
         )}
       </header>
@@ -610,7 +610,7 @@ export default function TenantSurveyResultsPage({
       {/* KPI strip — always 2×2 on phone */}
       <section aria-label="Ringkasan angka" className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4">
         <KpiCard
-          label="Total Submisi"
+          label="Total isian"
           value={agg.total}
           icon={<BarChart3 className="h-4 w-4" aria-hidden />}
           helper="Formulir yang telah dikirim"
@@ -641,14 +641,14 @@ export default function TenantSurveyResultsPage({
           }
         />
         <KpiCard
-          label="Traffic Positif"
+          label="Kunjungan naik"
           value={agg.total > 0 ? `${agg.trafficPosPct}%` : '-'}
           icon={<TrendingUp className="h-4 w-4" aria-hidden />}
           tone={pctTone(agg.trafficPosPct)}
           helper="Menyatakan pengunjung meningkat"
         />
         <KpiCard
-          label="Sales Positif"
+          label="Penjualan naik"
           value={agg.total > 0 ? `${agg.salesPosPct}%` : '-'}
           icon={<DollarSign className="h-4 w-4" aria-hidden />}
           tone={pctTone(agg.salesPosPct)}
@@ -714,7 +714,7 @@ export default function TenantSurveyResultsPage({
                 id="share-heading"
                 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]"
               >
-                Bagikan form survey
+                Bagikan formulir survei
               </h2>
               <p className="text-[11px] text-[var(--wf-ink-muted)]">
                 {selectedEvent
@@ -770,7 +770,7 @@ export default function TenantSurveyResultsPage({
       {/* Tab: Checklist */}
       {mainTab === 'checklist' && (
       <section
-        aria-label="Checklist tenant"
+        aria-label="Daftar periksa tenant"
         className="ui-dashboard-surface overflow-hidden"
       >
         <div className="bg-[var(--wf-board-2)] flex flex-col gap-3 border-b border-[var(--wf-rule)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -780,7 +780,7 @@ export default function TenantSurveyResultsPage({
             </span>
             <div>
               <h2 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]">
-                Checklist tenant
+                Daftar periksa tenant
               </h2>
               <p className="text-[11px] text-[var(--wf-ink-muted)]">
                 {filter.eventId === 'all'
@@ -930,9 +930,9 @@ export default function TenantSurveyResultsPage({
           </div>
         ) : (
           <div className="space-y-4">
-            <section aria-label="Distribusi" className="grid gap-3 lg:grid-cols-2">
+            <section aria-label="Sebaran" className="grid gap-3 lg:grid-cols-2">
               <DistBars
-                title="Traffic"
+                title="Kunjungan"
                 icon={<TrendingUp className="h-3.5 w-3.5" aria-hidden />}
                 dist={agg.trafficDist}
                 total={agg.total}
@@ -940,7 +940,7 @@ export default function TenantSurveyResultsPage({
                 hint="Hijau: pengunjung meningkat. Merah: menurun."
               />
               <DistBars
-                title="Sales"
+                title="Penjualan"
                 icon={<DollarSign className="h-3.5 w-3.5" aria-hidden />}
                 dist={agg.salesDist}
                 total={agg.total}
@@ -967,7 +967,7 @@ export default function TenantSurveyResultsPage({
               <div className="ui-dashboard-surface overflow-hidden">
                 <div className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] px-4 py-2.5">
                   <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]">
-                    Top Tenant
+                    Tenant teratas
                   </h3>
                   <p className="mt-0.5 text-[11px] text-[var(--wf-ink-muted)]">
                     Diurut berdasarkan frekuensi laporan kenaikan pengunjung atau omzet, bukan nilai omzet tertinggi
@@ -998,7 +998,7 @@ export default function TenantSurveyResultsPage({
                       </div>
                         <div className="shrink-0 text-right text-[11px] text-[var(--wf-ink-muted)]">
                         <p>
-                          Traffic naik {g.trafficPos} · Omzet naik {g.salesPos}
+                          Kunjungan naik {g.trafficPos} · Omzet naik {g.salesPos}
                         </p>
                         <p className="font-bold text-[var(--wf-accent)]">
                           skor {g.score}
@@ -1012,7 +1012,7 @@ export default function TenantSurveyResultsPage({
               <div className="ui-dashboard-surface overflow-hidden">
                 <div className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] px-4 py-2.5">
                   <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]">
-                    Kategori × Sales
+                    Kategori dan penjualan
                   </h3>
                   <p className="mt-0.5 text-[11px] text-[var(--wf-ink-muted)]">
                     Jenis tenant yang paling sering melaporkan kenaikan omzet, beserta besarannya
@@ -1026,7 +1026,7 @@ export default function TenantSurveyResultsPage({
                           Kategori
                         </TableHead>
                         <TableHead scope="col" className="h-auto px-2 py-2 font-semibold text-[var(--wf-ink-muted)]">
-                          Sales
+                          Penjualan
                         </TableHead>
                         <TableHead scope="col" className="h-auto px-4 py-2 text-right font-semibold text-[var(--wf-ink-muted)]">
                           N
@@ -1075,7 +1075,7 @@ export default function TenantSurveyResultsPage({
                     id="feedback-heading"
                     className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]"
                   >
-                    Feedback Tenant
+                    Umpan balik tenant
                     <span className="ml-1.5 font-semibold normal-case tracking-normal text-[var(--wf-ink-muted)]">
                       ({feedbackFiltered.length})
                     </span>
@@ -1087,7 +1087,7 @@ export default function TenantSurveyResultsPage({
               </div>
               <div className="relative max-w-xs flex-1">
                 <Label htmlFor="feedback-search" className="sr-only">
-                  Cari feedback atau tenant
+                  Cari umpan balik atau tenant
                 </Label>
                 <Search
                   className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]"
@@ -1098,7 +1098,7 @@ export default function TenantSurveyResultsPage({
                   type="search"
                   value={feedbackQ}
                   onChange={(e) => setFeedbackQ(e.target.value)}
-                  placeholder="Cari feedback / tenant…"
+                  placeholder="Cari umpan balik atau tenant…"
                   className={`${FIELD} h-auto py-1.5 pl-8 pr-3`}
                 />
               </div>
@@ -1110,7 +1110,7 @@ export default function TenantSurveyResultsPage({
                     className="mx-auto h-6 w-6 text-[var(--wf-ink-muted)]"
                     aria-hidden
                   />
-                  <p className="mt-2 text-xs font-medium text-[var(--wf-ink-muted)]">Tidak ada feedback teks</p>
+                  <p className="mt-2 text-xs font-medium text-[var(--wf-ink-muted)]">Tidak ada umpan balik teks</p>
                 </div>
               ) : (
                 <ul className="grid gap-2.5 sm:gap-3">
@@ -1177,11 +1177,11 @@ export default function TenantSurveyResultsPage({
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-[var(--wf-ink-muted)]">Traffic</dt>
+                      <dt className="text-[var(--wf-ink-muted)]">Kunjungan</dt>
                       <dd className="font-medium text-[var(--wf-ink)]">{s.kenaikan_traffic || '-'}</dd>
                     </div>
                     <div>
-                      <dt className="text-[var(--wf-ink-muted)]">Sales</dt>
+                      <dt className="text-[var(--wf-ink-muted)]">Penjualan</dt>
                       <dd className="font-medium text-[var(--wf-ink)]">{s.kenaikan_sales || '-'}</dd>
                     </div>
                   </dl>
@@ -1208,10 +1208,10 @@ export default function TenantSurveyResultsPage({
                       Kategori
                     </TableHead>
                     <TableHead scope="col" className="h-auto px-2 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
-                      Traffic
+                      Kunjungan
                     </TableHead>
                     <TableHead scope="col" className="h-auto px-2 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
-                      Sales
+                      Penjualan
                     </TableHead>
                     <TableHead scope="col" className="h-auto px-4 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
                       Status
@@ -1266,8 +1266,8 @@ export default function TenantSurveyResultsPage({
           <PdfExportOptionsModal
             isOpen={showExportOptions}
             onClose={() => setShowExportOptions(false)}
-            title="Export Hasil Evaluasi"
-            description={`${agg.total} submisi · ${agg.uniqueGerai} tenant. Pilih bagian yang ingin diekspor.`}
+            title="Ekspor hasil evaluasi"
+            description={`${agg.total} isian · ${agg.uniqueGerai} tenant. Pilih bagian yang ingin diekspor.`}
             sections={SURVEY_SECTION_OPTIONS}
             defaultSelected={['kpi', 'distribution', 'topGerai', 'crossTab', 'feedback']}
             onGenerate={handleExportPdf}

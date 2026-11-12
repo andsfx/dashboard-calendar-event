@@ -18,11 +18,11 @@ const ratingColor = (n: number): string => {
 
 const ratingLabel = (n: number): string => {
   if (n === 0) return 'Belum dinilai';
-  if (n <= 2) return 'Sangat Kurang';
+  if (n <= 2) return 'Sangat kurang';
   if (n <= 4) return 'Kurang';
   if (n <= 6) return 'Cukup';
   if (n <= 8) return 'Baik';
-  return 'Sangat Baik';
+  return 'Sangat baik';
 };
 
 export default function RatingSlider({ label, description, value, onChange, icon }: RatingSliderProps) {

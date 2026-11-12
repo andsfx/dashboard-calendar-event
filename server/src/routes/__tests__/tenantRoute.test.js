@@ -384,7 +384,7 @@ describe('POST /tenant/create — eo_tenant hanya event yang ditugaskan', () => 
 
     expect(status).toBe(403);
     expect(body.success).toBe(false);
-    expect(body.error).toContain('akses');
+    expect(body.error).toContain('belum ditugaskan');
     // Tidak boleh ada INSERT sama sekali.
     expect(query).not.toHaveBeenCalled();
   });
@@ -439,7 +439,7 @@ describe('POST /tenant/update — eo_tenant hanya event yang ditugaskan', () => 
     });
 
     expect(status).toBe(403);
-    expect(body.error).toContain('akses');
+    expect(body.error).toContain('belum ditugaskan');
     const wrote = query.mock.calls.some(([sql]) => String(sql).startsWith('UPDATE'));
     expect(wrote).toBe(false);
   });
@@ -479,7 +479,7 @@ describe('SQLSTATE input klien → 400 (bukan 500)', () => {
     const { status, body } = await call('POST', '/create', { body: { event_id: 'evt_1' } });
 
     expect(status).toBe(400);
-    expect(body.error).toContain('Format nilai tidak valid');
+    expect(body.error).toContain('isian yang tidak cocok');
     expect(body.error).not.toContain('invalid input syntax');
   });
 
@@ -496,6 +496,6 @@ describe('SQLSTATE input klien → 400 (bukan 500)', () => {
     });
 
     expect(status).toBe(400);
-    expect(body.error).toContain('di luar jangkauan');
+    expect(body.error).toContain('terlalu jauh dari rentang');
   });
 });

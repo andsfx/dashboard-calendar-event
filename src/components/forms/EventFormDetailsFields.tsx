@@ -77,14 +77,14 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
       {/* Organisasi (komunitas / EO terdaftar) */}
       {!isDraft && organizationOptions.length > 0 && (
         <div>
-          <Label htmlFor={`${datalistId}-org`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Organisasi Terdaftar (opsional)</Label>
+          <Label htmlFor={`${datalistId}-org`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Organisasi terdaftar (opsional)</Label>
           <NativeSelect
             id={`${datalistId}-org`}
             value={organizationId || ''}
             onChange={e => onFieldChange('organizationId', e.target.value)}
             className="w-full"
           >
-            <option value="">- Tanpa organisasi terdaftar -</option>
+            <option value="">Tanpa organisasi terdaftar</option>
             {organizationOptions.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
           </NativeSelect>
         </div>
@@ -147,7 +147,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
       {/* Categories + Priority */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <Label htmlFor={`${datalistId}-category`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Jenis Acara</Label>
+          <Label htmlFor={`${datalistId}-category`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Jenis acara</Label>
           <NativeSelect
             id={`${datalistId}-category`}
             value=""

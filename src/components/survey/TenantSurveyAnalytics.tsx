@@ -89,7 +89,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry?: () => voi
   return (
     <div role="alert" className="rounded-[var(--wf-radius-board)] border border-red-200 bg-red-600/10 p-6 text-center dark:border-red-800">
       <BarChart3 className="mx-auto size-8 text-red-700 dark:text-red-300" />
-      <p className="mt-2 text-sm font-medium text-red-700 dark:text-red-300">Gagal memuat analytics</p>
+      <p className="mt-2 text-sm font-medium text-red-700 dark:text-red-300">Gagal memuat analitik</p>
       <p className="mt-1 text-xs text-red-700/80 dark:text-red-300/80">{message}</p>
       {onRetry && (
         <Button type="button" variant="outline" className="mt-3" onClick={onRetry}>
@@ -208,13 +208,13 @@ export default function TenantSurveyAnalyticsPanel({
           <div className="flex items-center gap-2">
             <Store className="h-4 w-4 text-[var(--wf-accent)]" />
             <h3 className="text-sm font-bold text-[var(--wf-ink)]">
-              Feedback Publik (Self-Assessment v3)
+              Umpan balik publik (penilaian mandiri v3)
             </h3>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
-              label="Total Submisi"
+              label="Total isian"
               value={v3Data.total}
               icon={<BarChart3 className="h-4 w-4" />}
             />
@@ -224,7 +224,7 @@ export default function TenantSurveyAnalyticsPanel({
               icon={<Store className="h-4 w-4" />}
             />
             <StatCard
-              label="Traffic Positif"
+              label="Kunjungan naik"
               value={v3Data.total > 0 ? `${v3Data.trafficPosPct}%` : '-'}
               icon={<TrendingUp className="h-4 w-4" />}
               color={
@@ -236,7 +236,7 @@ export default function TenantSurveyAnalyticsPanel({
               }
             />
             <StatCard
-              label="Sales Positif"
+              label="Penjualan naik"
               value={v3Data.total > 0 ? `${v3Data.salesPosPct}%` : '-'}
               icon={<DollarSign className="h-4 w-4" />}
               color={
@@ -269,24 +269,24 @@ export default function TenantSurveyAnalyticsPanel({
           <div className="flex items-center gap-2">
             <Star className="h-4 w-4 text-[var(--wf-accent)]" />
             <h3 className="text-sm font-bold text-[var(--wf-ink)]">
-              Self-Assessment Tenant (v2)
+              Penilaian mandiri tenant (v2)
             </h3>
           </div>
 
           {/* Stat cards */}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
-              label="Total Self-Assessment"
+              label="Total penilaian mandiri"
               value={aggregate.totalSurveys}
               icon={<BarChart3 className="h-4 w-4" />}
             />
             <StatCard
-              label="Tenant Aktif"
+              label="Tenant aktif"
               value={aggregate.totalTenants}
               icon={<Users className="h-4 w-4" />}
             />
             <StatCard
-              label="Rating Rata-rata"
+              label="Rata-rata nilai"
               value={aggregate.avgOverall?.toFixed(1) || '-'}
               icon={<Star className="h-4 w-4" />}
               color={ratingColor(aggregate.avgOverall)}
@@ -296,14 +296,14 @@ export default function TenantSurveyAnalyticsPanel({
           {/* Category averages */}
           <div className="ui-dashboard-surface p-4">
             <h3 className="mb-3 text-sm font-bold text-[var(--wf-ink)]">
-              Rata-rata per Kategori
+              Rata-rata per kategori
             </h3>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {([
-                ['avg_venue_rating', 'Venue', <Building2 className="h-3.5 w-3.5" />],
+                ['avg_venue_rating', 'Tempat', <Building2 className="h-3.5 w-3.5" />],
                 ['avg_management_rating', 'Manajemen', <Users className="h-3.5 w-3.5" />],
-                ['avg_event_organization_rating', 'Organisasi Event', <Star className="h-3.5 w-3.5" />],
-                ['avg_booth_facility_rating', 'Fasilitas Booth', <ThumbsUp className="h-3.5 w-3.5" />],
+                ['avg_event_organization_rating', 'Organisasi event', <Star className="h-3.5 w-3.5" />],
+                ['avg_booth_facility_rating', 'Fasilitas booth', <ThumbsUp className="h-3.5 w-3.5" />],
               ] as const).map(([key, label, icon]) => {
                 const val = aggregate.weightedAvgs[key] as number | null;
                 return (
@@ -327,7 +327,7 @@ export default function TenantSurveyAnalyticsPanel({
             <div className="ui-dashboard-surface">
               <div className="border-b border-[var(--wf-rule)] p-4">
                 <h3 className="text-sm font-bold text-[var(--wf-ink)]">
-                  Tenant Terbaik
+                  Tenant terbaik
                 </h3>
               </div>
               <div className="divide-y divide-[var(--wf-rule)]">
@@ -344,7 +344,7 @@ export default function TenantSurveyAnalyticsPanel({
                         {a.tenant_organization || 'Tenant'}
                       </p>
                       <p className="text-xs text-[var(--wf-ink-muted)]">
-                        {a.submitted_surveys} survey terkirim
+                        {a.submitted_surveys} survei terkirim
                       </p>
                     </div>
                     <div className="text-right">
@@ -353,7 +353,7 @@ export default function TenantSurveyAnalyticsPanel({
                       </p>
                       {a.avg_overall_rating != null && (
                         <p className="text-[11px] text-[var(--wf-ink-muted)]">
-                          {a.avg_venue_rating != null ? `${a.avg_venue_rating}/5 venue` : ''}
+                          {a.avg_venue_rating != null ? `${a.avg_venue_rating}/5 tempat` : ''}
                         </p>
                       )}
                     </div>
@@ -389,7 +389,7 @@ function V3DistributionSection({
   return (
     <div className="grid gap-4 sm:grid-cols-3">
       <DistCard
-        title="Evaluasi Traffic"
+        title="Evaluasi kunjungan"
         icon={<TrendingUp className="h-4 w-4" />}
         dist={trafficDist}
         colorMap={{
@@ -401,7 +401,7 @@ function V3DistributionSection({
         total={total}
       />
       <DistCard
-        title="Evaluasi Sales"
+        title="Evaluasi penjualan"
         icon={<DollarSign className="h-4 w-4" />}
         dist={salesDist}
         colorMap={{
@@ -414,7 +414,7 @@ function V3DistributionSection({
         total={total}
       />
       <DistCard
-        title="Distribusi Kategori"
+        title="Sebaran kategori"
         icon={<Tag className="h-4 w-4" />}
         dist={kategoriDist}
         total={total}

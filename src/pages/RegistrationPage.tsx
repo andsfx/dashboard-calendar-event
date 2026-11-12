@@ -15,7 +15,7 @@ interface Props {
  */
 export function RegistrationPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Daftar Komunitas - Metropolitan Mall Bekasi',
+    title: 'Daftar komunitas - Metropolitan Mall Bekasi',
     description: 'Daftarkan komunitas atau organisasimu untuk berkolaborasi dengan Metropolitan Mall Bekasi.',
   });
 
@@ -31,9 +31,9 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
       <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 pb-16 sm:px-6 outline-none">
         <RevealSection as="div" className="pt-10">
-          <h1 className="text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl">Daftarkan Event Komunitas di Metropolitan Mall Bekasi</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl">Daftarkan event komunitas di Metropolitan Mall Bekasi</h1>
           <p className="mt-3 text-sm leading-7 ui-text-secondary">
-            Terbuka untuk semua jenis komunitas yang ingin mengadakan event di Metropolitan Mall Bekasi. Isi datanya, pendaftaran kamu akan kami review secepatnya. Tim kami yang akan menghubungi kamu untuk langkah selanjutnya.
+            Terbuka untuk semua jenis komunitas yang ingin mengadakan event di Metropolitan Mall Bekasi. Isi datanya, pendaftaran kamu akan kami tinjau secepatnya. Tim kami akan menghubungi kamu untuk langkah selanjutnya.
           </p>
         </RevealSection>
 

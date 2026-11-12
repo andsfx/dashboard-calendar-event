@@ -165,7 +165,7 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
     savedRef.current = { ske: null, sik: null };
     setErrors(EMPTY_ERRORS);
     setShowPicker(false);
-    showToast('success', 'Data event dimuat', 'Field surat terisi otomatis');
+    showToast('success', 'Data event dimuat', 'Isian surat terisi otomatis');
   }, [confirm, showToast, ske, sik]);
 
   const validateCurrent = useCallback((): Errors => ({
@@ -181,7 +181,7 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
     const next = validateCurrent();
     setErrors(next);
     if (Object.keys(next.ske).length > 0 || Object.keys(next.sik).length > 0) {
-      showToast('error', 'Data belum lengkap', 'Lengkapi field wajib pada SKE dan SIK');
+      showToast('error', 'Data belum lengkap', 'Lengkapi isian wajib pada surat konfirmasi event dan surat izin kerja');
       return null;
     }
     setIsSaving(true);
@@ -218,7 +218,7 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
       savePairs([published, ...others]);
       saveDraft(published);
       setPairs([published, ...others]);
-      showToast('success', 'Dua dokumen diterbitkan', 'SKE dan Surat Izin Kerja berhasil disimpan ke server');
+      showToast('success', 'Dua dokumen diterbitkan', 'Surat konfirmasi dan surat izin kerja berhasil disimpan.');
       return savedRef.current;
     } catch (err) {
       showToast('error', 'Gagal menerbitkan', err instanceof Error ? err.message : 'Terjadi kesalahan');
@@ -242,9 +242,9 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
         `${DOC_TYPE_LABEL.sik}: ${window.location.origin}/letter/${saved.sik.id}`,
       ].join('\n');
       await navigator.clipboard.writeText(text);
-      showToast('success', 'Dua link disalin', 'Link SKE dan Surat Izin Kerja telah disalin');
+      showToast('success', 'Dua tautan disalin', 'Tautan surat konfirmasi event dan surat izin kerja sudah disalin');
     } catch {
-      showToast('error', 'Gagal menyalin link', 'Pastikan browser mendukung clipboard API');
+      showToast('error', 'Gagal menyalin tautan', 'Salin manual dari kotak tautan, atau coba browser lain.');
     }
   }, [publishedIds, showToast]);
 
@@ -334,7 +334,7 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
 
   const handleExportBackup = useCallback(() => {
     exportBackup(loadPairs());
-    showToast('success', 'Backup diekspor', 'Berkas JSON diunduh');
+    showToast('success', 'Cadangan diekspor', 'Berkas JSON diunduh');
   }, [showToast]);
 
   const handleImportBackup = useCallback((file: File) => {
@@ -343,7 +343,7 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
       const { merged, added, skipped } = importBackup(reader.result, loadPairs());
       savePairs(merged);
       setPairs(merged);
-      showToast('success', 'Backup diimpor', `+${added} dokumen, ${skipped} dilewati`);
+      showToast('success', 'Cadangan diimpor', `+${added} dokumen, ${skipped} dilewati`);
     };
     reader.readAsText(file);
   }, [showToast]);
@@ -354,7 +354,7 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
         {dialog}
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-bold text-[var(--wf-ink)]">Riwayat Dokumen Lokal</h2>
+            <h2 className="text-base font-bold text-[var(--wf-ink)]">Riwayat dokumen lokal</h2>
             <p className="text-xs text-[var(--wf-ink-muted)]">Cari, buka, duplikat, atau hapus.</p>
           </div>
           <Button variant="outline" onClick={() => setMode('write')} aria-label="Kembali ke editor">
@@ -384,7 +384,7 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-          {status === 'published' ? 'Terbit' : 'Draft lokal'}
+          {status === 'published' ? 'Terbit' : 'Draf lokal'}
         </span>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={() => setShowPicker(true)} aria-label="Isi dari event" disabled={readOnly}>
@@ -394,9 +394,9 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
             <History className="mr-1 h-4 w-4" />
             Riwayat
           </Button>
-          <Button variant="outline" onClick={() => setPratinjauBersih((v) => !v)} aria-label="Pratinjau bersih">
+          <Button variant="outline" onClick={() => setPratinjauBersih((v) => !v)} aria-label="Pratinjau tanpa editor">
             {pratinjauBersih ? <EyeOff className="mr-1 h-4 w-4" /> : <Eye className="mr-1 h-4 w-4" />}
-            {pratinjauBersih ? 'Tampilkan editor' : 'Pratinjau bersih'}
+            {pratinjauBersih ? 'Tampilkan isian' : 'Pratinjau tanpa editor'}
           </Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -421,9 +421,9 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
               </Button>
             </>
           )}
-          <Button variant="outline" onClick={handleExportBackup} aria-label="Export backup">
+          <Button variant="outline" onClick={handleExportBackup} aria-label="Ekspor cadangan">
             <Upload className="mr-1 h-4 w-4" />
-            Export Backup
+            Ekspor cadangan
           </Button>
           <Label className="inline-flex cursor-pointer items-center font-normal">
             <input
@@ -436,7 +436,7 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
                 e.target.value = '';
               }}
             />
-            <span className="rounded-md border border-[var(--wf-rule)] px-3 py-1.5 text-sm">Import Backup</span>
+            <span className="rounded-md border border-[var(--wf-rule)] px-3 py-1.5 text-sm">Impor cadangan</span>
           </Label>
         </div>
       </div>

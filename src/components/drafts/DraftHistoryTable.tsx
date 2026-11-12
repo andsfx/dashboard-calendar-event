@@ -22,7 +22,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
       <Table className="w-full min-w-[980px] text-sm">
           <TableHeader>
             <TableRow className="border-b border-[var(--wf-rule)] bg-[var(--wf-board-2)]">
-              {['Tanggal', 'Event', 'EO', 'PIC', 'Nomor Telepon', 'Progress', 'Status Histori', 'Follow Up'].map(label => (
+              {['Tanggal', 'Event', 'Penyelenggara', 'Penanggung jawab', 'Nomor telepon', 'Progres', 'Riwayat status', 'Tindak lanjut'].map(label => (
                 <TableHead key={label} scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{label}</TableHead>
               ))}
             </TableRow>

@@ -64,7 +64,7 @@ describe('SurveyDashboard — tombol CSV', () => {
   it('menyembunyikan CSV saat canExport=false (demo)', async () => {
     render(<SurveyDashboard events={EVENTS} readOnly canExport={false} />);
     // Link tetap ada
-    expect(await screen.findByText('Link')).toBeInTheDocument();
+    expect(await screen.findByText('Tautan')).toBeInTheDocument();
     expect(screen.queryByText('CSV')).not.toBeInTheDocument();
   });
 
@@ -76,13 +76,13 @@ describe('SurveyDashboard — tombol CSV', () => {
 
 describe('TenantSurveyPage — tombol CSV', () => {
   function openManagement() {
-    fireEvent.click(screen.getByRole('button', { name: /Kelola Self-Assessment per Event/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Kelola penilaian mandiri per event/ }));
   }
 
   it('menyembunyikan CSV untuk eo/demo (canExportCsv=false)', () => {
     render(<TenantSurveyPage events={TENANT_EVENTS} isAdmin={false} canExportCsv={false} />);
     openManagement();
-    expect(screen.getAllByText('Link').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Tautan').length).toBeGreaterThan(0);
     expect(screen.getAllByText('QR').length).toBeGreaterThan(0);
     expect(screen.queryByText('CSV')).not.toBeInTheDocument();
   });

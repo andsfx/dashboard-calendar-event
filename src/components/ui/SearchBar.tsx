@@ -14,7 +14,7 @@ interface Props {
  * Input memakai Input shadcn; tombol bersihkan memakai Button shadcn
  * (pola yang sama dengan plate search di `DashboardHeader`).
  */
-export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, EO…' }: Props) {
+export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, penyelenggara…' }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const focusInput = () => {

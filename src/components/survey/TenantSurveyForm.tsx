@@ -239,7 +239,7 @@ export default function TenantSurveyForm({
         {/* Progress */}
         <div className="mt-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-[var(--wf-ink-muted)]">Progress</span>
+            <span className="text-[var(--wf-ink-muted)]">Progres</span>
             <span className="font-semibold text-[var(--wf-ink)]">{progress}%</span>
           </div>
           <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[var(--wf-board-2)]">
@@ -276,10 +276,10 @@ export default function TenantSurveyForm({
       {/* Section 1: Informasi Tenant */}
       <section className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
         <h3 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
-          Informasi Tenant
+          Informasi tenant
         </h3>
         <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
-          Isi data tenant Anda di Metropolitan Mall Bekasi.
+          Isi data tenant kamu di Metropolitan Mall Bekasi.
         </p>
 
         <div className="space-y-4">
@@ -323,7 +323,7 @@ export default function TenantSurveyForm({
             <div className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-action)]/10 px-3 py-2 text-xs text-[var(--wf-action)]">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>Lokasi tidak terdeteksi. Silakan pilih manual dari dropdown.</span>
+                <span>Lokasi tidak terdeteksi. Silakan pilih manual dari daftar.</span>
               </div>
             </div>
           )}
@@ -340,10 +340,10 @@ export default function TenantSurveyForm({
           <div className="relative">
             <Label htmlFor="ts-form-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium leading-normal text-[var(--wf-ink-muted)]">
               <MapPin className="h-3.5 w-3.5" />
-              Lokasi / Zona
+              Zona
               <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
               {autoFilled.lokasi_zona && (
-                <span className="ml-1 rounded-full bg-[var(--wf-live)]/10 px-1.5 py-0.5 text-[10px] font-bold text-[var(--wf-live)] ring-1 ring-[var(--wf-rule)]">Auto</span>
+                <span className="rounded-full bg-[var(--wf-live)]/10 px-1.5 py-0.5 text-[10px] font-bold text-[var(--wf-live)] ring-1 ring-[var(--wf-rule)]">Otomatis</span>
               )}
             </Label>
             <NativeSelect
@@ -352,11 +352,11 @@ export default function TenantSurveyForm({
               onChange={(e) => updateField('lokasi_zona')(e.target.value)}
               disabled={disabled}
               required
-              aria-label="Lokasi / Zona"
+              aria-label="Zona"
               aria-invalid={!!fieldLevelErrors.lokasi_zona || undefined}
               className="w-full"
             >
-              <option value="">Pilih lokasi / zona</option>
+              <option value="">Pilih zona</option>
               {SURVEY_OPTIONS.lokasi_zona.map((z) => (
                 <option key={z} value={z}>{z}</option>
               ))}
@@ -371,11 +371,11 @@ export default function TenantSurveyForm({
           {/* Kategori */}
           {autoFilled.kategori && (
             <div className="mb-1">
-              <span className="rounded-full bg-[var(--wf-live)]/10 px-1.5 py-0.5 text-[10px] font-bold text-[var(--wf-live)] ring-1 ring-[var(--wf-rule)]">Auto - terdeteksi dari data tenant</span>
+              <span className="rounded-full bg-[var(--wf-live)]/10 px-1.5 py-0.5 text-[10px] font-bold text-[var(--wf-live)] ring-1 ring-[var(--wf-rule)]">Otomatis, terdeteksi dari data tenant</span>
             </div>
           )}
           <RadioGroup
-            label="Kategori Tenant"
+            label="Kategori tenant"
             options={SURVEY_OPTIONS.kategori}
             value={formData.kategori}
             onChange={updateField('kategori')}
@@ -389,7 +389,7 @@ export default function TenantSurveyForm({
       {/* Section 2: Evaluasi Traffic & Sales */}
       <section className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
         <h3 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
-          Evaluasi Traffic &amp; Sales
+          Evaluasi kunjungan dan penjualan
         </h3>
         <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
           Bandingkan pengunjung dan penjualan selama event dengan hari biasa.
@@ -397,7 +397,7 @@ export default function TenantSurveyForm({
 
         <div className="space-y-4">
           <RadioGroup
-            label="Kenaikan Traffic Pengunjung"
+            label="Kenaikan kunjungan pengunjung"
             options={SURVEY_OPTIONS.kenaikan_traffic}
             value={formData.kenaikan_traffic}
             onChange={updateField('kenaikan_traffic')}
@@ -408,7 +408,7 @@ export default function TenantSurveyForm({
           />
 
           <RadioGroup
-            label="Kenaikan Sales / Penjualan"
+            label="Kenaikan penjualan"
             options={SURVEY_OPTIONS.kenaikan_sales}
             value={formData.kenaikan_sales}
             onChange={updateField('kenaikan_sales')}
@@ -424,13 +424,13 @@ export default function TenantSurveyForm({
         {/* PIC */}
         <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
           <h3 className="mb-3 text-sm font-bold text-[var(--wf-ink)]">
-            Informasi PIC (opsional)
+            Penanggung jawab (opsional)
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <Label htmlFor="ts-form-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium leading-normal text-[var(--wf-ink-muted)]">
                 <Building2 className="h-3.5 w-3.5" />
-                Nama PIC
+                Nama penanggung jawab
               </Label>
               <Input
                 id="ts-form-pic-name"
@@ -440,14 +440,14 @@ export default function TenantSurveyForm({
                 placeholder="Nama penanggung jawab"
                 maxLength={100}
                 disabled={disabled}
-                aria-label="Nama PIC"
+                aria-label="Nama penanggung jawab"
                 className="w-full"
               />
             </div>
             <div>
               <Label htmlFor="ts-form-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium leading-normal text-[var(--wf-ink-muted)]">
                 <Phone className="h-3.5 w-3.5" />
-                No. Telepon PIC
+                Nomor telepon penanggung jawab
               </Label>
               <Input
                 id="ts-form-pic-phone"
@@ -457,7 +457,7 @@ export default function TenantSurveyForm({
                 placeholder="08xxx"
                 maxLength={20}
                 disabled={disabled}
-                aria-label="No. Telepon PIC"
+                aria-label="Nomor telepon penanggung jawab"
                 className="w-full"
               />
             </div>
@@ -467,14 +467,14 @@ export default function TenantSurveyForm({
         {/* Feedback */}
         <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
           <h3 className="mb-3 text-sm font-bold text-[var(--wf-ink)]">
-            Umpan Balik (Opsional)
+            Umpan balik (opsional)
           </h3>
           <div>
             <Textarea
-              aria-label="Masukan / Feedback"
+              aria-label="Masukan dan umpan balik"
               value={formData.feedback_teks}
               onChange={(e) => updateField('feedback_teks')(e.target.value)}
-              placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
+              placeholder="Ceritakan kesan atau saran kamu tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
               disabled={disabled}
@@ -534,15 +534,15 @@ export function TenantSurveySuccess({
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-live)]/10">
         <CheckCircle2 className="h-8 w-8 text-[var(--wf-live)]" />
       </div>
-      <h2 className="text-lg font-bold text-[var(--wf-ink)]">Survey Terkirim!</h2>
+      <h2 className="text-lg font-bold text-[var(--wf-ink)]">Survei terkirim!</h2>
       <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
-        Terima kasih telah mengirimkan self-assessment untuk event
+        Terima kasih telah mengirimkan penilaian mandiri untuk event
       </p>
       <p className="mt-0.5 text-sm font-semibold text-[var(--wf-accent)]">
         "{eventName}"
       </p>
       <p className="mt-4 max-w-md text-xs text-[var(--wf-ink-muted)]">
-        Masukan Anda sangat berharga untuk meningkatkan kualitas kerjasama dan pelayanan kami.
+        Masukan kamu sangat berharga untuk meningkatkan kualitas kerja sama dan pelayanan kami.
       </p>
       <Button className="mt-6" onClick={onBack}>
         <ChevronLeft className="size-4" />
@@ -567,19 +567,19 @@ export function TenantSurveyDuplicate({
         <CheckCircle2 className="h-8 w-8 text-[var(--wf-action)]" />
       </div>
       <h2 className="text-lg font-bold text-[var(--wf-ink)]">
-        Anda Sudah Mengisi Survey
+        Kamu sudah mengisi survei
       </h2>
       <p className="mt-2 max-w-md text-sm text-[var(--wf-ink-muted)]">
-        Anda sudah pernah mengirimkan self-assessment untuk event
+        Kamu sudah pernah mengirimkan penilaian mandiri untuk event
         <span className="mx-1 font-semibold text-[var(--wf-accent)]">
           "{eventName}"
         </span>
-        Setiap tenant hanya dapat mengirimkan satu survey per event.
+        Setiap tenant hanya dapat mengirimkan satu survei per event.
       </p>
       <div className="mt-6 flex gap-3">
         {onViewExisting && (
           <Button variant="outline" onClick={onViewExisting}>
-            Lihat Survey
+            Lihat survei
           </Button>
         )}
         <Button onClick={onBack}>
@@ -613,7 +613,7 @@ export function TenantSurveyError({
         {onRetry && (
           <Button variant="outline" onClick={onRetry}>
             <RefreshCw className="size-4" />
-            Coba Lagi
+            Coba lagi
           </Button>
         )}
         {onBack && (
@@ -627,7 +627,7 @@ export function TenantSurveyError({
   );
 }
 
-export function TenantSurveyLoading({ message = 'Memuat survey…' }: { message?: string }) {
+export function TenantSurveyLoading({ message = 'Memuat survei…' }: { message?: string }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-12">
       <Loader2 className="h-8 w-8 animate-spin text-[var(--wf-accent)]" />

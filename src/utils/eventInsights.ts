@@ -184,7 +184,7 @@ function conflictInsights(events: EventItem[], areas: EventArea[], now: Date): E
       body: `${pairs.length} pasangan event memakai area yang sama pada rentang tanggal beririsan: ${names}${pairs.length > 3 ? '…' : ''}`,
       metric: String(pairs.length),
       scope,
-      actions: [{ label: 'Jadwal Event', path: '/events', filter: { search: scope } }],
+      actions: [{ label: 'Jadwal event', path: '/events', filter: { search: scope } }],
     });
   }
   return insights;
@@ -259,7 +259,7 @@ function denseDayInsight(events: EventItem[], now: Date): EventInsight[] {
     body: `Tanggal ${label} memuat ${busiest} event. Periksa kesiapan area dan tim pada hari itu.`,
     metric: String(busiest),
     scope: busiestDate,
-    actions: [{ label: 'Jadwal Event', path: '/events', filter: monthName ? { month: monthName } : undefined }],
+    actions: [{ label: 'Jadwal event', path: '/events', filter: monthName ? { month: monthName } : undefined }],
   }];
 }
 
@@ -281,7 +281,7 @@ function nearbyInsight(events: EventItem[], now: Date): EventInsight[] {
     title: 'Event dalam 7 hari ke depan',
     body: `${upcoming.length} event mulai dalam sepekan: ${names}${upcoming.length > 3 ? '…' : ''}`,
     metric: String(upcoming.length),
-    actions: [{ label: 'Jadwal Event', path: '/events', filter: { status: 'upcoming' } }],
+    actions: [{ label: 'Jadwal event', path: '/events', filter: { status: 'upcoming' } }],
   }];
 }
 
@@ -299,7 +299,7 @@ function areaInsight(events: EventItem[], areas: EventArea[]): EventInsight[] {
     body: `${top.name} memimpin dengan ${top.totalEvents} event${top.inUseNow ? ' dan sedang dipakai saat ini' : ''}. ${inUseNow} dari ${totalActive} area aktif sedang terpakai.`,
     metric: String(top.totalEvents),
     scope: top.name,
-    actions: [{ label: 'Jadwal Event', path: '/events', filter: { search: top.name } }],
+    actions: [{ label: 'Jadwal event', path: '/events', filter: { search: top.name } }],
   }];
 }
 
@@ -317,7 +317,7 @@ function categoryInsight(events: EventItem[]): EventInsight[] {
     body: `Kategori ${top.label} muncul pada ${top.value} event (${share}% dari total).`,
     metric: String(top.value),
     scope: top.label,
-    actions: [{ label: 'Jadwal Event', path: '/events', filter: { category: top.label } }],
+    actions: [{ label: 'Jadwal event', path: '/events', filter: { category: top.label } }],
   }];
 }
 
@@ -340,7 +340,7 @@ function completenessInsight(events: EventItem[], now: Date): EventInsight[] {
     title: 'Event terdekat belum lengkap datanya',
     body: `${incomplete.length} event dalam 30 hari ke depan belum punya poster, EO, atau PIC: ${names}${incomplete.length > 3 ? '…' : ''}`,
     metric: String(incomplete.length),
-    actions: [{ label: 'Jadwal Event', path: '/events', filter: { status: 'upcoming' } }],
+    actions: [{ label: 'Jadwal event', path: '/events', filter: { status: 'upcoming' } }],
   }];
 }
 
@@ -386,7 +386,7 @@ function gapInsight(events: EventItem[], now: Date): EventInsight[] {
     title: 'Ada rentang tanpa event',
     body: `Tidak ada event terjadwal ${bestLength} hari berturut-turut (${formatDay(bestStart)} – ${formatDay(bestEnd)}). Manfaatkan untuk promo atau pemeliharaan area.`,
     metric: `${bestLength} hari`,
-    actions: [{ label: 'Jadwal Event', path: '/events' }],
+    actions: [{ label: 'Jadwal event', path: '/events' }],
   }];
 }
 

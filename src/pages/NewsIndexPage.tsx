@@ -21,7 +21,7 @@ interface Props {
 
 export function NewsIndexPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Berita & Pengumuman - Metropolitan Mall Bekasi',
+    title: 'Berita dan pengumuman - Metropolitan Mall Bekasi',
     description: 'Berita terbaru dan pengumuman resmi dari Metropolitan Mall Bekasi.',
   });
 
@@ -88,7 +88,7 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
               <RefreshCw className="h-7 w-7 text-red-500 dark:text-red-400" />
             </div>
             <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">Gagal memuat data</p>
-            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Terjadi kesalahan saat memuat berita. Periksa koneksi internet Anda.</p>
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Terjadi kesalahan saat memuat berita. Periksa koneksi internet kamu.</p>
             <Button
               type="button"
               variant="ghost"

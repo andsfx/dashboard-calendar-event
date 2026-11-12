@@ -14,12 +14,12 @@ import { validateEmail, validatePhone, validateInstagram } from '../../utils/val
 
 const ORG_TYPE_LABELS: Record<OrganizationType, string> = {
   community: 'Komunitas',
-  school: 'Sekolah / Universitas',
+  school: 'Sekolah / universitas',
   company: 'Perusahaan',
-  eo: 'Event Organizer',
-  campus: 'Organisasi Kampus',
-  government: 'Instansi Pemerintah',
-  ngo: 'NGO / Yayasan',
+  eo: 'Event organizer',
+  campus: 'Organisasi kampus',
+  government: 'Instansi pemerintah',
+  ngo: 'NGO / yayasan',
   other: 'Lainnya',
 };
 
@@ -254,11 +254,11 @@ export function RegistrationForm() {
       if (code === '409') {
         setError('Pendaftaran ini sepertinya sudah terkirim. Cek WhatsApp kamu, atau hubungi tim kami.');
       } else if (code === '429') {
-        setError('Terlalu banyak percobaan. Tunggu sebentar, lalu tekan Kirim Pendaftaran lagi.');
+        setError('Terlalu banyak percobaan. Tunggu sebentar, lalu tekan Kirim pendaftaran lagi.');
       } else if (code === '400' || code === '422') {
         setError('Ada data yang belum sesuai. Periksa kembali kolom yang ditandai, lalu kirim ulang.');
       } else {
-        setError('Koneksi terputus saat mengirim. Periksa jaringan kamu, lalu tekan Kirim Pendaftaran lagi. Datamu masih ada di form ini.');
+        setError('Koneksi terputus saat mengirim. Periksa jaringan kamu, lalu tekan Kirim pendaftaran lagi. Datamu masih ada di form ini.');
       }
     } finally {
       setSubmitting(false);
@@ -273,7 +273,7 @@ export function RegistrationForm() {
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
           <CheckCircle2 className="h-8 w-8 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
         </div>
-        <h3 className="mt-5 text-2xl font-bold text-[var(--wf-ink)]">Pendaftaran Terkirim!</h3>
+        <h3 className="mt-5 text-2xl font-bold text-[var(--wf-ink)]">Pendaftaran terkirim!</h3>
         <p className="mt-3 text-sm leading-7 ui-text-secondary">
           Terima kasih sudah mendaftar! Tim kami akan mereview dan menghubungi kamu segera.
           <br />Sambil menunggu, ikuti <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">@metmalbekasi</a> untuk update terbaru!
@@ -284,7 +284,7 @@ export function RegistrationForm() {
           onClick={() => { setSubmitted(false); setForm({ ...INITIAL_FORM }); }}
           className={`mt-6 inline-flex h-auto items-center gap-2 whitespace-normal rounded-full border border-[var(--border-subtle)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink-muted)] active:translate-y-0 ${focusRing} focus-visible:ring-0`}
         >
-          Daftar {typeLabel} Lain
+          Daftar {typeLabel} lain
         </Button>
       </div>
     );
@@ -333,7 +333,7 @@ export function RegistrationForm() {
             {/* Organization Name */}
             <div className="sm:col-span-2">
               <Label htmlFor="reg-org-name" className={labelClass}>
-                {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                {form.organizationType === 'community' ? 'Nama komunitas' : 'Nama organisasi'} <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
               </Label>
               <Input
                 id="reg-org-name"
@@ -416,7 +416,7 @@ export function RegistrationForm() {
               )}
             </div>
             <div>
-              <Label htmlFor="reg-instagram" className={labelClass}>Instagram / Media Sosial</Label>
+              <Label htmlFor="reg-instagram" className={labelClass}>Instagram / media sosial</Label>
               <Input 
                 id="reg-instagram" 
                 value={form.instagram} 
@@ -433,16 +433,16 @@ export function RegistrationForm() {
               )}
             </div>
             <div>
-              <Label htmlFor="reg-date" className={labelClass}>Preferensi Tanggal Event</Label>
+              <Label htmlFor="reg-date" className={labelClass}>Preferensi tanggal event</Label>
               <Input id="reg-date" type="date" min={todayIso()} value={form.preferredDate} onChange={e => setField('preferredDate', e.target.value)} className={inputClass} />
             </div>
             <div className="sm:col-span-2">
-              <Label htmlFor="reg-desc" className={labelClass}>Deskripsi / Proposal Event</Label>
+              <Label htmlFor="reg-desc" className={labelClass}>Deskripsi / proposal event</Label>
               <Textarea id="reg-desc" value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang rencana event yang mau diadain di Metropolitan Mall Bekasi…" className={`${inputClass} resize-none`} />
             </div>
             {/* Proposal / Company Profile Upload (optional) */}
             <div className="sm:col-span-2">
-              <Label className={labelClass}>Lampiran Proposal / Company Profile (opsional)</Label>
+              <Label className={labelClass}>Lampiran proposal / company profile (opsional)</Label>
               {/* Pengecualian kategori (b): input berkas tersembunyi — tetap native,
                   `Input` akan menggambar kotak yang tidak diinginkan. */}
               <input
@@ -496,7 +496,7 @@ export function RegistrationForm() {
           className={`inline-flex h-auto items-center justify-center gap-2 whitespace-normal rounded-full bg-[var(--wf-accent)] px-7 py-3.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-page)] disabled:opacity-60 motion-reduce:transition-none active:translate-y-0 ${focusRing} focus-visible:ring-0`}
         >
           <Send className="h-4 w-4" />
-          {submitting ? 'Mengirim…' : 'Kirim Pendaftaran'}
+          {submitting ? 'Mengirim…' : 'Kirim pendaftaran'}
         </Button>
       </div>
     </form>
@@ -509,7 +509,7 @@ export function CommunityRegistrationForm() {
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
           <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
-            Daftarkan Komunitas Kamu
+            Daftarkan komunitas kamu
           </h2>
           <p className="mt-5 text-sm leading-7 ui-text-secondary">
             Isi form di bawah buat daftarin komunitas kamu. Tim kami bakal review dan hubungi kamu secepatnya.

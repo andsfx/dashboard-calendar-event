@@ -11,12 +11,12 @@ describe('CommunityFacilities', () => {
 
   it('renders all 6 facility cards', () => {
     render(<CommunityFacilities />)
-    expect(screen.getByText('Panggung & Backdrop')).toBeInTheDocument()
-    expect(screen.getByText('Sound System 10K Watt')).toBeInTheDocument()
-    expect(screen.getByText('Lighting System')).toBeInTheDocument()
-    expect(screen.getByText('50 Kursi Penonton')).toBeInTheDocument()
-    expect(screen.getByText('Area Lantai 3')).toBeInTheDocument()
-    expect(screen.getByText('Meja Juri')).toBeInTheDocument()
+    expect(screen.getByText('Panggung dan backdrop')).toBeInTheDocument()
+    expect(screen.getByText('Sound system 10.000 watt')).toBeInTheDocument()
+    expect(screen.getByText('Lighting system')).toBeInTheDocument()
+    expect(screen.getByText('50 kursi penonton')).toBeInTheDocument()
+    expect(screen.getByText('Area lantai 3')).toBeInTheDocument()
+    expect(screen.getByText('Meja juri')).toBeInTheDocument()
   })
 
   it('renders facility details', () => {

@@ -21,13 +21,13 @@ export default function SurveySuccess({ eventName, onBack }: SurveySuccessProps)
         Terima Kasih!
       </h2>
       <p className="mb-1 text-sm text-[var(--wf-ink-muted)] ">
-        Feedback Anda untuk event
+        Feedback kamu untuk event
       </p>
       <p className="mb-6 text-sm font-semibold text-[var(--wf-accent)] ">
         "{eventName}"
       </p>
       <p className="mb-8 max-w-xs text-sm text-[var(--wf-ink-muted)]">
-        telah berhasil disimpan. Masukan Anda sangat berarti untuk meningkatkan kualitas layanan kami.
+        telah berhasil disimpan. Masukan kamu sangat berarti untuk meningkatkan kualitas layanan kami.
       </p>
 
       <Button

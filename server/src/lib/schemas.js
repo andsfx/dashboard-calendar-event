@@ -21,7 +21,7 @@ const createEventDataSchema = z.object({
   jam: z.string().optional().default(''),
   lokasi: z.string().optional().default(''),
   area_id: z.string().nullable().optional(),
-  acara: z.string().min(1, 'Nama acara wajib diisi'),
+  acara: z.string().min(1, 'Nama acara belum diisi. Isi dulu ya.'),
   eo: z.string().optional().default(''),
   pic: z.string().optional().default(''),
   phone: z.string().optional().default(''),
@@ -84,7 +84,7 @@ const ACTION_SCHEMAS = {
   readRegistrations: z.object({ action: z.literal('readRegistrations') }),
   createEventArea: z.object({
     action: z.literal('createEventArea'),
-    data: z.object({ name: z.string().min(1, 'Nama area wajib diisi') }).passthrough(),
+    data: z.object({ name: z.string().min(1, 'Nama area belum diisi. Tulis namanya.') }).passthrough(),
   }),
   updateEventArea: z.object({ action: z.literal('updateEventArea'), id: z.string().min(1), data: z.object({}).passthrough() }),
   deleteEventArea: z.object({ action: z.literal('deleteEventArea'), id: z.string().min(1) }),
@@ -107,7 +107,7 @@ const ACTION_SCHEMAS = {
       /** Teks lokasi pengganti (opsional) — menyeragamkan ejaan. */
       targetLokasi: z.string().min(1).optional(),
     }).refine(m => Boolean(m.areaId) || Boolean(m.targetLokasi), {
-      message: 'Setiap pemetaan butuh areaId atau targetLokasi',
+      message: 'Setiap pemetaan perlu area tujuan atau teks lokasi pengganti. Isi salah satu.',
     })).min(1),
   }),
   updateRegistrationStatus: z.object({
@@ -162,7 +162,7 @@ const ACTION_SCHEMAS = {
         pdfBase64: z.string().max(2_500_000).nullish(),
         status: z.enum(['active', 'archived', 'deleted']).optional(),
       })
-      .refine((u) => Object.keys(u).length > 0, { message: 'updates kosong' }),
+      .refine((u) => Object.keys(u).length > 0, { message: 'Tidak ada isian yang dikirim untuk diubah. Isi minimal satu kolom.' }),
   }),
   deleteLetter: z.object({ action: z.literal('deleteLetter'), id: z.string().min(1) }),
   // Narasi AI: hanya fakta insight yang sudah dihitung klien (tanpa PII mentah).
@@ -187,7 +187,7 @@ const ACTION_SCHEMAS = {
  */
 export function validateAction(body) {
   const action = String(body?.action || '').trim();
-  if (!action) return { ok: false, error: 'Action wajib diisi' };
+  if (!action) return { ok: false, error: 'Nama aksi belum terkirim. Muat ulang halaman lalu ulangi.' };
 
   const schema = ACTION_SCHEMAS[action];
   if (!schema) {
@@ -198,7 +198,7 @@ export function validateAction(body) {
   const result = schema.safeParse(body);
   if (!result.success) {
     const msg = result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ');
-    return { ok: false, error: `Validasi gagal: ${msg}` };
+    return { ok: false, error: `Isian belum lengkap — ${msg}` };
   }
   return { ok: true, data: result.data };
 }

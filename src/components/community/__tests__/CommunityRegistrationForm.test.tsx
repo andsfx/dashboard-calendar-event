@@ -13,7 +13,7 @@ vi.mock('../../../utils/domainApi', () => ({
 describe('CommunityRegistrationForm', () => {
   it('renders form heading', () => {
     render(<CommunityRegistrationForm />)
-    expect(screen.getByText('Daftarkan Komunitas Kamu')).toBeInTheDocument()
+    expect(screen.getByText('Daftarkan komunitas kamu')).toBeInTheDocument()
   })
 
   function clickCommunityType() {
@@ -23,21 +23,21 @@ describe('CommunityRegistrationForm', () => {
 
   /** Fills the required type-specific field ("Tipe Komunitas") for the community type. */
   async function fillCommunityType() {
-    fireEvent.change(await screen.findByLabelText(/Tipe Komunitas/), { target: { value: 'Musik' } })
+    fireEvent.change(await screen.findByLabelText(/Tipe komunitas/), { target: { value: 'Musik' } })
   }
 
   it('renders all required form fields after type selection', () => {
     render(<CommunityRegistrationForm />)
     clickCommunityType()
-    expect(screen.getByLabelText(/Nama Komunitas/)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Nama komunitas/)).toBeInTheDocument()
     expect(screen.getByLabelText(/Nama PIC/)).toBeInTheDocument()
     expect(screen.getByLabelText(/Nomor WhatsApp/)).toBeInTheDocument()
   })
 
   it('renders form with required fields', () => {
     render(<CommunityRegistrationForm />)
-    expect(screen.getByText('Daftarkan Komunitas Kamu')).toBeInTheDocument()
-    expect(screen.getByText('Kirim Pendaftaran')).toBeInTheDocument()
+    expect(screen.getByText('Daftarkan komunitas kamu')).toBeInTheDocument()
+    expect(screen.getByText('Kirim pendaftaran')).toBeInTheDocument()
   })
 
   it('does not submit when a required type-specific field is empty', async () => {
@@ -47,16 +47,16 @@ describe('CommunityRegistrationForm', () => {
     render(<CommunityRegistrationForm />)
     clickCommunityType()
 
-    fireEvent.change(await screen.findByLabelText(/Nama Komunitas/), { target: { value: 'Test Community' } })
+    fireEvent.change(await screen.findByLabelText(/Nama komunitas/), { target: { value: 'Test Community' } })
     fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { value: 'John Doe' } })
     fireEvent.change(screen.getByLabelText(/Nomor WhatsApp/), { target: { value: '08123456789' } })
     // "Tipe Komunitas" intentionally left empty.
 
-    fireEvent.submit(screen.getByText('Kirim Pendaftaran').closest('form')!)
+    fireEvent.submit(screen.getByText('Kirim pendaftaran').closest('form')!)
 
-    expect(await screen.findByText('Tipe Komunitas wajib diisi.')).toBeInTheDocument()
+    expect(await screen.findByText('Tipe komunitas wajib diisi.')).toBeInTheDocument()
     expect(domainApi.submitCommunityRegistration).not.toHaveBeenCalled()
-    expect(screen.queryByText('Pendaftaran Terkirim!')).not.toBeInTheDocument()
+    expect(screen.queryByText('Pendaftaran terkirim!')).not.toBeInTheDocument()
   })
 
   it('submits form successfully', async () => {
@@ -65,16 +65,16 @@ describe('CommunityRegistrationForm', () => {
     clickCommunityType()
 
     // Wait for form fields to render
-    const nameInput = await screen.findByLabelText(/Nama Komunitas/)
+    const nameInput = await screen.findByLabelText(/Nama komunitas/)
     fireEvent.change(nameInput, { target: { value: 'Test Community' } })
     await fillCommunityType()
     fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { value: 'John Doe' } })
     fireEvent.change(screen.getByLabelText(/Nomor WhatsApp/), { target: { value: '08123456789' } })
 
-    fireEvent.submit(screen.getByText('Kirim Pendaftaran').closest('form')!)
+    fireEvent.submit(screen.getByText('Kirim pendaftaran').closest('form')!)
 
     await waitFor(() => {
-      expect(screen.getByText('Pendaftaran Terkirim!')).toBeInTheDocument()
+      expect(screen.getByText('Pendaftaran terkirim!')).toBeInTheDocument()
     })
   })
 
@@ -83,20 +83,20 @@ describe('CommunityRegistrationForm', () => {
     render(<CommunityRegistrationForm />)
     clickCommunityType()
 
-    const nameInput = await screen.findByLabelText(/Nama Komunitas/)
+    const nameInput = await screen.findByLabelText(/Nama komunitas/)
     fireEvent.change(nameInput, { target: { value: 'Test' } })
     await fillCommunityType()
     fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { value: 'John' } })
     fireEvent.change(screen.getByLabelText(/Nomor WhatsApp/), { target: { value: '08123456789' } })
 
-    fireEvent.submit(screen.getByText('Kirim Pendaftaran').closest('form')!)
+    fireEvent.submit(screen.getByText('Kirim pendaftaran').closest('form')!)
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(/Koneksi terputus/)
     })
     // Retry affordance: the submit button stays usable and data is preserved.
-    expect(screen.getByText('Kirim Pendaftaran')).toBeEnabled()
-    expect(screen.getByLabelText(/Nama Komunitas/)).toHaveValue('Test')
+    expect(screen.getByText('Kirim pendaftaran')).toBeEnabled()
+    expect(screen.getByLabelText(/Nama komunitas/)).toHaveValue('Test')
   })
 
   it('names an already-submitted conflict instead of a generic failure', async () => {
@@ -106,12 +106,12 @@ describe('CommunityRegistrationForm', () => {
     render(<CommunityRegistrationForm />)
     clickCommunityType()
 
-    fireEvent.change(await screen.findByLabelText(/Nama Komunitas/), { target: { value: 'Test' } })
+    fireEvent.change(await screen.findByLabelText(/Nama komunitas/), { target: { value: 'Test' } })
     await fillCommunityType()
     fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { value: 'John' } })
     fireEvent.change(screen.getByLabelText(/Nomor WhatsApp/), { target: { value: '08123456789' } })
 
-    fireEvent.submit(screen.getByText('Kirim Pendaftaran').closest('form')!)
+    fireEvent.submit(screen.getByText('Kirim pendaftaran').closest('form')!)
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(/sudah terkirim/)

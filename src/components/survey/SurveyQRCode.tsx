@@ -24,7 +24,7 @@ export default function SurveyQRCode({
   surveyType,
   compact = false,
   basePath = '/survey',
-  label = 'Survey Kepuasan',
+  label = 'Survei kepuasan',
   showTypeTabs = true,
 }: SurveyQRCodeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -112,7 +112,7 @@ export default function SurveyQRCode({
     return (
       <div className="flex flex-col items-center gap-2">
         <canvas ref={canvasRef} className="rounded-lg" />
-        <p className="text-[10px] text-[var(--wf-ink-muted)]">Scan untuk isi survey</p>
+        <p className="text-[10px] text-[var(--wf-ink-muted)]">Pindai untuk mengisi survei</p>
       </div>
     );
   }
@@ -147,7 +147,7 @@ export default function SurveyQRCode({
             variant="ghost"
             onClick={handleCopy}
             className="h-auto shrink-0 rounded-md p-1! text-[var(--wf-ink-muted)] hover:bg-[var(--wf-rule-strong)]! hover:text-[var(--wf-ink)]! dark:hover:bg-[var(--wf-rule-strong)]!"
-            title="Copy link"
+            title="Salin tautan"
           >
             {copied ? <Check className="h-3.5 w-3.5 size-3.5 text-[var(--wf-live)]" /> : <Copy className="h-3.5 w-3.5 size-3.5" />}
           </Button>

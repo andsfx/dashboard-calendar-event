@@ -301,7 +301,7 @@ function HighlightEventCard({
             onClick={() => onDetail(event)}
             className="group inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-page)]! ui-focus-ring h-auto border-0 rounded-full! font-bold! active:translate-y-0! hover:text-[var(--wf-accent-ink)]!"
           >
-            Lihat Detail Event
+            Lihat detail event
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
           </Button>
         </div>
@@ -447,7 +447,7 @@ export function EventsLandingPage({
   onDetail,
 }: Props) {
   usePageMeta({
-    title: 'Jadwal Event - Metropolitan Mall Bekasi',
+    title: 'Jadwal event - Metropolitan Mall Bekasi',
     description: 'Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.',
   });
   // Rangkaian reguler dirangkum jadi satu entri per seri: kartu jadwal publik
@@ -595,7 +595,7 @@ export function EventsLandingPage({
             <div className="flex min-w-0 flex-col justify-center">
               <CommunityEyebrow>Metropolitan Mall Bekasi</CommunityEyebrow>
               <h1 className="font-display mt-3 max-w-xl text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-[var(--wf-ink)]">
-                Jadwal Event
+                Jadwal event
               </h1>
               <p className="mt-4 max-w-md text-base leading-8 text-[var(--wf-ink-muted)]">
                 Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.
@@ -604,7 +604,7 @@ export function EventsLandingPage({
               {!isLoading && !error && (
                 <dl className="mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
                   <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--wf-board)] px-2.5 py-3 sm:px-3  ">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">Total Event</dt>
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">Total event</dt>
                     <dd className="font-display mt-1 text-xl font-bold tabular-nums text-[var(--wf-ink)] sm:text-2xl">{displayEvents.length}</dd>
                   </div>
                   <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-2.5 py-3 sm:px-3 dark:border-emerald-800/50 dark:bg-emerald-950/30">
@@ -633,7 +633,7 @@ export function EventsLandingPage({
                   to="/daftar"
                   className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-[var(--wf-board)] px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
                 >
-                  Daftar Event
+                  Daftar event
                 </Link>
                 <Button
                   type="button"
@@ -666,13 +666,13 @@ export function EventsLandingPage({
                   to="/daftar"
                   className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-[var(--wf-board)] px-3.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] ui-focus-ring"
                 >
-                  Daftar Event
+                  Daftar event
                 </Link>
                 <Link
                   to="/ajukan-event"
                   className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-[var(--wf-board)] px-3.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] ui-focus-ring"
                 >
-                  Ajukan Event
+                  Ajukan event
                 </Link>
                 <Link
                   to="/sponsor"
@@ -715,7 +715,7 @@ export function EventsLandingPage({
         <RevealSection id="filter" aria-label="Filter jadwal event" className="scroll-mt-28 border-t border-black/5 px-4 py-8  sm:px-6">
           <div className="mx-auto flex max-w-7xl flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter waktu">
-              {([['', 'Semua'], ['hari-ini', 'Hari Ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir Pekan Ini']] as const).map(([value, label]) => (
+              {([['', 'Semua'], ['hari-ini', 'Hari ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir pekan ini']] as const).map(([value, label]) => (
                 <Button
                   key={value || 'semua'}
                   type="button"
@@ -745,7 +745,7 @@ export function EventsLandingPage({
                       : 'border border-black/10! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
                   }`}
                 >
-                  Semua Kategori
+                  Semua kategori
                 </Button>
                 {categoryOptions.map(cat => (
                   <Button
@@ -844,7 +844,7 @@ export function EventsLandingPage({
                     <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
                       <div>
                         <p className="text-xl font-bold tracking-tight text-[var(--wf-ink)]">
-                          {g.area ? g.name : 'Lokasi Lainnya'}
+                          {g.area ? g.name : 'Lokasi lainnya'}
                         </p>
                         <p className="mt-1 text-sm font-medium text-[var(--wf-ink-muted)]">
                           {g.events.length} acara
@@ -864,7 +864,7 @@ export function EventsLandingPage({
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
-                      Mendatang & Berlangsung
+                      Mendatang dan berlangsung
                     </h2>
                   </div>
                   <p className="text-sm text-[var(--wf-ink-muted)]">
@@ -897,7 +897,7 @@ export function EventsLandingPage({
                   href="#calendar"
                   className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca-600)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                 >
-                  Lihat Kalender <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  Lihat kalender <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
               </div>
             )}
@@ -909,7 +909,7 @@ export function EventsLandingPage({
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="max-w-2xl">
               <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
-                Jadwal Lengkap
+                Jadwal lengkap
               </h2>
               <p className="mt-3 text-base leading-8 text-[var(--wf-ink-muted)]">
                 Tampilan bulanan. Klik event untuk melihat detail.
@@ -941,7 +941,7 @@ export function EventsLandingPage({
               to="/daftar"
               className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-7 py-3.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-page)] ui-focus-ring"
             >
-              Daftar Event
+              Daftar event
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -954,7 +954,7 @@ export function EventsLandingPage({
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <p className="text-sm font-semibold text-white">Metropolitan Mall Bekasi</p>
-            <p className="mt-0.5 text-xs text-white/70">Jadwal Event</p>
+            <p className="mt-0.5 text-xs text-white/70">Jadwal event</p>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/80">
             <Link to="/" className="transition hover:text-white ui-focus-ring rounded-sm">
@@ -973,10 +973,10 @@ export function EventsLandingPage({
               Kalender
             </a>
             <Link to="/ajukan-event" className="transition hover:text-white ui-focus-ring rounded-sm">
-              Ajukan Event
+              Ajukan event
             </Link>
             <Link to="/daftar" className="transition hover:text-white ui-focus-ring rounded-sm">
-              Daftar Event
+              Daftar event
             </Link>
           </div>
         </div>
@@ -987,7 +987,7 @@ export function EventsLandingPage({
           <PdfExportOptionsModal
             isOpen={isExportOptionsOpen}
             onClose={() => setIsExportOptionsOpen(false)}
-            title="Unduh Jadwal Event"
+            title="Unduh jadwal event"
             description={
               isFilterActive
                 ? exportScope.ignorePageFilter

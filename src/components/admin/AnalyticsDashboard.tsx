@@ -23,7 +23,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       {/* Header */}
       <div>
         <h2 className="text-base font-bold text-[var(--wf-ink)]">Analitik Lanjutan</h2>
-        <p className="text-xs text-[var(--wf-ink-muted)]">Insight mendalam tentang event & venue</p>
+        <p className="text-xs text-[var(--wf-ink-muted)]">Insight mendalam tentang acara dan tempat</p>
       </div>
 
       {/* 1. Tren Event per Bulan */}
@@ -46,7 +46,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       {/* 2. Perbandingan Periode YoY */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <CompareCard
-          label="Total Event"
+          label="Total acara"
           current={currentYearEvents.length}
           previous={prevYearEvents.length}
         />
@@ -56,7 +56,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
           previous={+(prevYearEvents.length / 12).toFixed(1)}
         />
         <CompareCard
-          label="Kategori Aktif"
+          label="Kategori aktif"
           current={new Set(currentYearEvents.flatMap(e => e.categories.length > 0 ? e.categories : [e.category])).size}
           previous={new Set(prevYearEvents.flatMap(e => e.categories.length > 0 ? e.categories : [e.category])).size}
         />
@@ -258,9 +258,9 @@ function computeAnalytics(events: EventItem[]) {
   });
   const totalModels = events.length || 1;
   const modelBreakdown = [
-    { model: 'Free', count: modelCounts.free, pct: (modelCounts.free / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
+    { model: 'Gratis', count: modelCounts.free, pct: (modelCounts.free / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
     { model: 'Bayar', count: modelCounts.bayar, pct: (modelCounts.bayar / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
-    { model: 'Support', count: modelCounts.support, pct: (modelCounts.support / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
+    { model: 'Dukungan', count: modelCounts.support, pct: (modelCounts.support / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
     { model: 'Lainnya', count: modelCounts.other, pct: (modelCounts.other / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
   ];
 

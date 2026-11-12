@@ -159,7 +159,7 @@ export function EventInsightsPanel({
           Insight Cerdas
         </span>
       }
-      subtitle={`Analisis otomatis dari data event${crossModuleCount > 0 ? ' & modul lain' : ''} · diperbarui ${generatedLabel}`}
+      subtitle={`Analisis otomatis dari data event${crossModuleCount > 0 ? ' dan modul lain' : ''} · diperbarui ${generatedLabel}`}
       actions={
         visible.length > 0 ? (
           <Button type="button" variant="ghost" size="sm" onClick={copySummary}>
@@ -179,7 +179,7 @@ export function EventInsightsPanel({
           {dismissed.length > 0 ? (
             <Button type="button" variant="ghost" size="sm" onClick={restoreAll}>
               <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-              Tampilkan {dismissed.length} yang disembunyikan
+              Tampilkan kembali
             </Button>
           ) : null}
         </div>
@@ -208,7 +208,7 @@ export function EventInsightsPanel({
             {dismissed.length > 0 ? (
               <Button type="button" variant="ghost" size="sm" className="ml-auto" onClick={restoreAll}>
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-                Tampilkan {dismissed.length} yang disembunyikan
+                Tampilkan kembali
               </Button>
             ) : null}
           </div>

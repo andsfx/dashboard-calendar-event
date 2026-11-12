@@ -34,7 +34,7 @@ const router = Router();
 // ─── POST /auth/login ────────────────────────────────────────────
 router.post('/login', async (req, res, next) => {
   if (!process.env.JWT_SECRET) {
-    return res.status(503).json({ success: false, error: 'Autentikasi belum dikonfigurasi (JWT_SECRET)' });
+    return res.status(503).json({ success: false, error: 'Layanan login sedang tidak siap. Coba lagi beberapa saat.' });
   }
   // 20 attempts / 15 min per IP (mirror api/auth.js).
   if (!enforceRateLimit(req, res, 'auth-login', 20, 15 * 60 * 1000)) return;
@@ -43,7 +43,7 @@ router.post('/login', async (req, res, next) => {
   const password = String(req.body?.password || '');
 
   if (!email || !password) {
-    return res.status(400).json({ success: false, error: 'Email dan password harus diisi' });
+    return res.status(400).json({ success: false, error: 'Isi email dan password untuk masuk.' });
   }
 
   try {
@@ -66,7 +66,7 @@ router.post('/login', async (req, res, next) => {
     // akun non-aktif membalas 403 "Akun dinonaktifkan" — itu memberi tahu
     // penyerang bahwa email terdaftar, bertentangan dengan komentar di atas.
     const invalid = () =>
-      res.status(401).json({ success: false, error: 'Email atau password salah' });
+      res.status(401).json({ success: false, error: 'Email atau password belum cocok. Periksa lagi lalu coba.' });
 
     if (!userRow || !userRow.password_hash || !userRow.is_active || !match) {
       return invalid();
@@ -86,7 +86,7 @@ router.post('/login', async (req, res, next) => {
   } catch (err) {
     if (err?.code === 'DB_UNAVAILABLE') return next(err);
     console.error('[auth/login]', err);
-    return res.status(500).json({ success: false, error: 'Login gagal. Coba lagi nanti.' });
+    return res.status(500).json({ success: false, error: 'Login terganggu karena server sedang bermasalah. Coba lagi nanti.' });
   }
 });
 
@@ -110,7 +110,7 @@ router.post('/logout', async (req, res, next) => {
     clearAuthCookies(res);
     if (err?.code === 'DB_UNAVAILABLE') return next(err);
     console.error('[auth/logout] verifikasi sesi gagal:', err?.message);
-    return res.status(500).json({ success: false, error: 'Logout gagal. Coba lagi nanti.' });
+    return res.status(500).json({ success: false, error: 'Server belum bisa mengakhiri sesi. Coba lagi nanti.' });
   }
 
   // Tidak ada sesi valid: tidak ada yang bisa dicabut, cukup bersihkan cookie.
@@ -128,7 +128,7 @@ router.post('/logout', async (req, res, next) => {
     clearAuthCookies(res);
     console.error('[auth/logout] gagal mencabut token:', err?.message);
     if (err?.code === 'DB_UNAVAILABLE') return next(err);
-    return res.status(500).json({ success: false, error: 'Logout gagal mencabut sesi. Coba lagi.' });
+    return res.status(500).json({ success: false, error: 'Server gagal mengakhiri sesi. Coba lagi.' });
   }
 
   clearAuthCookies(res);
@@ -144,7 +144,7 @@ router.get('/me', async (req, res, next) => {
     return res.json({ success: true, user: publicUser(auth.user) });
   } catch (err) {
     if (err?.code === 'DB_UNAVAILABLE') return next(err);
-    return res.status(500).json({ success: false, error: 'Gagal memeriksa sesi' });
+    return res.status(500).json({ success: false, error: 'Server tidak bisa memeriksa sesi. Muat ulang halaman lalu coba lagi.' });
   }
 });
 

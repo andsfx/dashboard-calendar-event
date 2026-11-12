@@ -201,7 +201,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
         {albums.length > 0 && (
           <div className="mt-10 sm:mt-14 lg:mt-16">
             <div className="mb-6 flex items-center gap-3">
-              <h3 className="text-xs font-bold tracking-wide text-[var(--wf-ink-muted)]">Dokumentasi Event</h3>
+              <h3 className="text-xs font-bold tracking-wide text-[var(--wf-ink-muted)]">Dokumentasi event</h3>
               <div className="h-px flex-1 bg-[var(--wf-rule)]" />
             </div>
 
@@ -241,7 +241,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
                 className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] px-6 py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ${focusRing}`}
               >
                 <Camera className="h-4 w-4" aria-hidden="true" />
-                Lihat Semua Galeri
+                Lihat semua galeri
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>

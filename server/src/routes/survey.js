@@ -57,26 +57,26 @@ function validateSubmission(body) {
   const errors = [];
 
   if (!body.event_id || typeof body.event_id !== 'string' || !body.event_id.trim()) {
-    errors.push('event_id wajib diisi');
+    errors.push('Event survey belum terpilih. Buka ulang tautan survey dari EO.');
   }
   if (!['organizer', 'public'].includes(body.survey_type)) {
-    errors.push('survey_type harus "organizer" atau "public"');
+    errors.push('Jenis survey tidak dikenal. Buka ulang tautan survey dari EO.');
   }
 
   // Rating mall — wajib untuk kedua tipe.
   for (const field of ['mall_cleanliness', 'mall_staff_service', 'mall_coordination', 'mall_security']) {
-    if (!isValidRating(body[field])) errors.push(`${field} harus angka 1-10`);
+    if (!isValidRating(body[field])) errors.push('Isi rating mall dengan angka 1 sampai 10 (kolom yang belum terisi di daftar pertanyaan).');
   }
 
   // Rating EO — wajib hanya untuk survey publik.
   if (body.survey_type === 'public') {
     for (const field of ['eo_event_quality', 'eo_organization', 'eo_committee_service', 'eo_promotion_accuracy', 'eo_recommendation']) {
-      if (!isValidRating(body[field])) errors.push(`${field} harus angka 1-10`);
+      if (!isValidRating(body[field])) errors.push('Isi rating penyelenggara dengan angka 1 sampai 10 (kolom yang belum terisi di daftar pertanyaan).');
     }
   }
 
   const email = sanitize(body.respondent_email || '', 254);
-  if (email && !EMAIL_RE.test(email)) errors.push('Format email tidak valid');
+  if (email && !EMAIL_RE.test(email)) errors.push('Format email belum benar. Contoh yang benar: nama@email.com');
 
   return errors;
 }
@@ -136,7 +136,7 @@ router.post('/submit', async (req, res, next) => {
     // dibagikan harus tetap bisa diisi.
     const { rows: eventRows } = await db.query('SELECT id FROM events WHERE id = $1 LIMIT 1', [eventId]);
     if (!eventRows[0]) {
-      return res.status(404).json({ success: false, error: 'Event tidak ditemukan' });
+      return res.status(404).json({ success: false, error: 'Event ini tidak ada atau sudah dihapus. Buka ulang tautan survey dari EO.' });
     }
 
     // Duplikat (soft limit) — device fingerprint per event.
@@ -148,7 +148,7 @@ router.post('/submit', async (req, res, next) => {
       if (rows[0]) {
         return res.status(409).json({
           success: false,
-          error: 'Anda sudah mengisi survey untuk event ini',
+          error: 'Perangkat ini sudah mengisi survey untuk event ini. Terima kasih sudah berpartisipasi.',
           already_submitted: true,
         });
       }
@@ -199,7 +199,7 @@ router.get('/check', async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   const fingerprint = String(req.query?.fingerprint || '').trim();
 
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
   if (!fingerprint) return res.json({ success: true, data: { submitted: false } });
 
   try {
@@ -220,7 +220,7 @@ router.get('/check', async (req, res, next) => {
 router.get('/summary', async (req, res, next) => {
   if (!enforceRateLimit(req, res, 'survey-summary', 60, 60_000)) return;
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
 
   try {
     const { rows } = await db.query(
@@ -288,12 +288,12 @@ router.get('/summary', async (req, res, next) => {
 // ─── GET /responses — staff/viewer/eo_tenant (paginated) ───────────
 router.get('/responses', requireRole(SURVEY_READ_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
   // `eo_tenant` hanya event yang ditugaskan: id event bukan rahasia (tampil di
   // URL publik), jadi tanpa guard ini EO mana pun bisa membaca respons event
   // milik EO lain hanya dengan menebak/menyalin id.
   if (!canAccessSurveyEvent(req.auth?.user, eventId)) {
-    return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey event ini.' });
+    return res.status(403).json({ success: false, error: 'Survey event ini belum ditugaskan ke akun kamu. Minta admin untuk menambahkannya.' });
   }
 
   const page = Math.max(1, parseInt(req.query?.page || '1', 10) || 1);
@@ -334,9 +334,9 @@ router.get('/responses', requireRole(SURVEY_READ_ROLES), async (req, res, next) 
 // ─── GET /config — staff/viewer/eo_tenant ──────────────────────────
 router.get('/config', requireRole(SURVEY_READ_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
   if (!canAccessSurveyEvent(req.auth?.user, eventId)) {
-    return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey event ini.' });
+    return res.status(403).json({ success: false, error: 'Survey event ini belum ditugaskan ke akun kamu. Minta admin untuk menambahkannya.' });
   }
 
   try {
@@ -361,7 +361,7 @@ router.get('/config', requireRole(SURVEY_READ_ROLES), async (req, res, next) => 
 router.post('/config-set', requireRole(['superadmin', 'admin']), async (req, res, next) => {
   const body = req.body || {};
   const eventId = String(body.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
 
   const now = new Date().toISOString();
   const isActive = !!body.is_active;
@@ -510,11 +510,11 @@ router.get('/stats', requireRole(SURVEY_READ_ROLES), async (req, res, next) => {
 // `eo_tenant` juga tidak: CSV memuat satu event penuh tanpa batas cakupan.
 router.get('/export', requireRole(SURVEY_EXPORT_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
   // Penjaga kedua: kalau daftar role ekspor melebar lagi, EO tetap terkurung
   // pada event yang ditugaskan.
   if (!canAccessSurveyEvent(req.auth?.user, eventId)) {
-    return res.status(403).json({ success: false, error: 'Tidak berhak mengekspor survey event ini.' });
+    return res.status(403).json({ success: false, error: 'Ekspor survey event ini belum ditugaskan ke akun kamu. Minta admin untuk membantunya.' });
   }
 
   try {
@@ -523,7 +523,7 @@ router.get('/export', requireRole(SURVEY_EXPORT_ROLES), async (req, res, next) =
       [eventId],
     );
     if (rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Tidak ada data survey untuk event ini' });
+      return res.status(404).json({ success: false, error: 'Belum ada respons survey untuk event ini. Unduhan akan tersedia setelah ada yang mengisi.' });
     }
 
     const headers = [

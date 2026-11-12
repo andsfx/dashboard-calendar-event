@@ -71,7 +71,7 @@ describe('tanggal kalender', () => {
   it('submit publik menolak tanggal mustahil dengan pesan validasi, bukan lolos ke Postgres', () => {
     const result = tenantParticipationSchema.safeParse({ ...BASE, boothStart: '2026-02-31' });
     expect(result.success).toBe(false);
-    expect(result.error.issues.map((issue) => issue.message)).toContain('Tanggal tidak valid');
+    expect(result.error.issues.map((issue) => issue.message)).toContain('Tanggal ini tidak ada di kalender. Periksa bulan dan hari-nya.');
   });
 
   it('submit publik masih menerima tanggal kosong untuk booth_end', () => {

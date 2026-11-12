@@ -52,8 +52,8 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
     setLastError(ae);
     if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
     else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
-    else if (ae.kind === 'Network') setError('Gagal terhubung ke server. Periksa koneksi lalu coba lagi.');
-    else setError(ae.message || 'Perubahan belum tersimpan. Silakan coba lagi.');
+    else if (ae.kind === 'Network') setError('Koneksi ke server terputus. Periksa internet kamu, lalu coba lagi.');
+    else setError(ae.message || 'Perubahan belum tersimpan. Coba simpan lagi.');
     console.error(context, err);
   }, []);
 
@@ -94,8 +94,8 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
           if (ae.kind === 'ServerError' || ae.kind === 'Network') {
             setLastError(ae);
             setError(ae.kind === 'Network'
-              ? 'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.'
-              : 'Gagal memuat jadwal internal. Coba lagi beberapa saat lagi.');
+              ? 'Koneksi ke server terputus. Periksa internet kamu, lalu coba lagi.'
+              : 'Jadwal internal belum termuat. Muat ulang halaman ini.');
             return;
           }
           // SPA (Vercel, auto-deploy) dan API (VPS, deploy manual) berversi

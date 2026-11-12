@@ -69,7 +69,7 @@ describe('EventDetailContent', () => {
     render(<EventDetailContent event={makeEvent()} isAdmin />);
     expect(screen.getByText('PIC Rahasia')).toBeInTheDocument();
     expect(screen.getByText('081234567890')).toBeInTheDocument();
-    expect(screen.getByText('Support')).toBeInTheDocument();
+    expect(screen.getByText('Dukungan')).toBeInTheDocument();
     expect(screen.getByText('Rp 1.000.000')).toBeInTheDocument();
     expect(screen.getByText('notes internal')).toBeInTheDocument();
   });
@@ -101,6 +101,6 @@ describe('EventDetailContent', () => {
   it('field kosong tidak render InfoRow (nominal kosong → tidak ada elemen Nominal Event)', () => {
     render(<EventDetailContent event={makeEvent({ eventNominal: '', eventModel: '', pic: '', phone: '' })} isAdmin />);
     expect(screen.queryByText('Nominal Event')).not.toBeInTheDocument();
-    expect(screen.queryByText('Model Event')).not.toBeInTheDocument();
+    expect(screen.queryByText('Model event')).not.toBeInTheDocument();
   });
 });

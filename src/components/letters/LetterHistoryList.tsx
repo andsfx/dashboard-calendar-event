@@ -96,12 +96,12 @@ export function LetterHistoryList({
                   {p.title || p.id}
                 </p>
                 <p className="text-xs text-[var(--wf-ink-muted)]">
-                  {p.status === 'published' ? 'Terbit' : 'Draft lokal'} · {fmtDateTime(p.updatedAt)}
+                  {p.status === 'published' ? 'Terbit' : 'Draf lokal'} · {fmtDateTime(p.updatedAt)}
                 </p>
               </div>
               <div className="flex items-center gap-1">
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${p.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                  {p.status === 'published' ? 'Terbit' : 'Draft lokal'}
+                  {p.status === 'published' ? 'Terbit' : 'Draf lokal'}
                 </span>
                 <Button variant="outline" onClick={() => onOpenPair?.(p)} aria-label="Buka surat">
                   Buka

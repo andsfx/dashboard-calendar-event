@@ -40,10 +40,10 @@ const ACTION_LABELS: Record<string, string> = {
 
 const RESOURCE_LABELS: Record<string, string> = {
   event: 'Event',
-  draft: 'Draft',
+  draft: 'Draf',
   theme: 'Tema',
   user: 'Pengguna',
-  survey_config: 'Konfigurasi Survey',
+  survey_config: 'Konfigurasi survei',
   registration: 'Registrasi',
 };
 
@@ -112,7 +112,7 @@ export function ActivityLog() {
       <div className="flex flex-wrap items-center gap-2">
         <Filter className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
         <NativeSelect aria-label="Filter aksi" value={filterAction} onChange={e => { setFilterAction(e.target.value); setPage(1); }} size="sm">
-          <option value="">Semua Aksi</option>
+          <option value="">Semua aksi</option>
           <option value="create">Buat</option>
           <option value="update">Perbarui</option>
           <option value="delete">Hapus</option>
@@ -121,9 +121,9 @@ export function ActivityLog() {
           <option value="invite">Undang</option>
         </NativeSelect>
         <NativeSelect aria-label="Filter tipe resource" value={filterResource} onChange={e => { setFilterResource(e.target.value); setPage(1); }} size="sm">
-          <option value="">Semua Tipe</option>
+          <option value="">Semua tipe</option>
           <option value="event">Event</option>
-          <option value="draft">Draft</option>
+          <option value="draft">Draf</option>
           <option value="user">Pengguna</option>
           <option value="theme">Tema</option>
           <option value="survey_config">Konfigurasi Survey</option>

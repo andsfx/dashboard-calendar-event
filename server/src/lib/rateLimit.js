@@ -57,7 +57,7 @@ export function enforceRateLimit(req, res, bucketKey, max, windowMs) {
     res.setHeader('Retry-After', String(retryAfter));
     res.status(429).json({
       success: false,
-      error: 'Terlalu banyak permintaan. Coba lagi sebentar.',
+      error: 'Server menerima terlalu banyak permintaan dari kamu. Tunggu sebentar, lalu coba lagi.',
       retry_after: retryAfter,
     });
     return false;

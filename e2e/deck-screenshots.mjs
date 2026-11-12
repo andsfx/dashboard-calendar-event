@@ -54,7 +54,7 @@ console.log('saved 10-dashboard-registrations.png');
 
 // ═══ 2. Four view modes (real event data) ═══
 await page.goto(`${BASE}/dashboard/events`, { waitUntil: 'domcontentloaded' });
-await page.getByRole('heading', { name: 'Jadwal Event' }).waitFor({ timeout: 20000 });
+await page.getByRole('heading', { name: 'Jadwal event' }).waitFor({ timeout: 20000 });
 // Wait until real data is loaded (footer shows "Menampilkan X dari Y acara")
 await page.getByText(/Menampilkan \d+ dari \d+ acara/).waitFor({ timeout: 20000 });
 await page.waitForTimeout(800);

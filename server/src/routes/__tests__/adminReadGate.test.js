@@ -128,7 +128,7 @@ const READ_ACTIONS = [...VIEWER_READ_ACTIONS, ...VIEWER_DENIED_READ_ACTIONS];
 /** Permukaan baca yang benar-benar dibuka untuk demo. */
 const DEMO_READ_SURFACE = READ_ACTIONS.filter((action) => !DEMO_EXCLUDED_ACTIONS.includes(action));
 const WRITE_ACTIONS = ['updateTenantEventProposal', 'deleteTenantEventProposal', 'updateRegistrationStatus'];
-const READ_ONLY_MESSAGE = 'Akun baca-saja hanya dapat melihat data (read-only).';
+const READ_ONLY_MESSAGE = 'Akun kamu hanya bisa melihat data, tidak bisa mengubah. Minta admin untuk membuka akses tulis.';
 
 beforeEach(() => {
   users.clear();

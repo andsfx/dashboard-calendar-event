@@ -120,8 +120,8 @@ export default function TenantSurveyTrendChart({
           <div className="flex items-center gap-4 text-[10px] text-[var(--wf-ink-muted)]">
             {stats.submissionsChange !== 0 && (
               <span>
-                Submisi: {stats.submissionsChange > 0 ? '+' : ''}{stats.submissionsChange}
-                <span className="text-[var(--wf-ink-muted)]"> vs bulan lalu</span>
+                Isian: {stats.submissionsChange > 0 ? '+' : ''}{stats.submissionsChange}
+                <span className="text-[var(--wf-ink-muted)]"> dibanding bulan lalu</span>
               </span>
             )}
           </div>
@@ -133,24 +133,24 @@ export default function TenantSurveyTrendChart({
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <TrendStat
             icon={<BarChart3 className="h-3.5 w-3.5" />}
-            label="Submisi Bulan Ini"
+            label="Isian bulan ini"
             value={stats.latestSubmissions}
             change={stats.submissionsChange}
-            changeLabel="dari bulan lalu"
+            changeLabel="dibanding bulan lalu"
           />
           <TrendStat
             icon={<TrendingUp className="h-3.5 w-3.5" />}
-            label="Traffic Positif"
+            label="Kunjungan naik"
             value={`${stats.latestTrafficPos}%`}
             change={stats.trafficChange}
-            changeLabel="pp dari bulan lalu"
+            changeLabel="poin persentase dari bulan lalu"
           />
           <TrendStat
             icon={<DollarSign className="h-3.5 w-3.5" />}
-            label="Sales Positif"
+            label="Penjualan naik"
             value={`${stats.latestSalesPos}%`}
             change={stats.salesChange}
-            changeLabel="pp dari bulan lalu"
+            changeLabel="poin persentase dari bulan lalu"
           />
         </div>
       )}

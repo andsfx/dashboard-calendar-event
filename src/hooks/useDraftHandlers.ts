@@ -56,8 +56,8 @@ export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
     const isUpdate = Boolean(editingDraft?.id);
     if (isUpdate && editingDraft) {
       success = await updateDraft({ ...editingDraft, ...data } as DraftEventItem);
-      if (success) showToast('success', 'Draft diperbarui', `"${data.acara}" berhasil diperbarui.`);
-      else showToast('error', 'Gagal memperbarui draft', 'Perubahan draft belum tersimpan.');
+      if (success) showToast('success', 'Draf diperbarui', `"${data.acara}" berhasil diperbarui.`);
+      else showToast('error', 'Gagal memperbarui draf', 'Perubahan draf belum tersimpan.');
     } else {
       const newDraft: DraftEventItem = {
         ...data as DraftEventItem, id: createId(), rowIndex: draftEventsLength + 1,
@@ -65,31 +65,31 @@ export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
         deleted: false, deletedAt: '',
       };
       success = await addDraft(newDraft);
-      if (success) showToast('success', 'Draft ditambahkan', `"${data.acara}" masuk ke antrian Draft.`);
-      else showToast('error', 'Gagal menambahkan draft', 'Draft event belum tersimpan.');
+      if (success) showToast('success', 'Draf ditambahkan', `"${data.acara}" masuk ke antrean draf.`);
+      else showToast('error', 'Gagal menambahkan draf', 'Draf event belum tersimpan.');
     }
     if (success) { setShowDraftModal(false); setEditingDraft(null); }
     return success;
   }, [editingDraft, draftEventsLength, addDraft, updateDraft, showToast]);
   const handleDeleteDraft = useCallback(async (draft: DraftEventItem) => {
     const ok = await confirm({
-      title: 'Hapus draft event?',
-      message: 'Draft akan dipindahkan ke riwayat dan dapat dipulihkan dari sana.',
+      title: 'Hapus draf event?',
+      message: 'Draf akan dipindahkan ke riwayat dan dapat dipulihkan dari sana.',
       subject: draft.acara,
     });
     if (!ok) return;
     const success = await deleteDraft(draft.id);
-    if (success) showToast('success', 'Draft dipindahkan ke riwayat', `"${draft.acara}" ditandai sebagai dihapus.`);
-    else showToast('error', 'Gagal menghapus draft', 'Draft event belum terhapus.');
+    if (success) showToast('success', 'Draf dipindahkan ke riwayat', `"${draft.acara}" ditandai sebagai dihapus.`);
+    else showToast('error', 'Gagal menghapus draf', 'Draf event belum terhapus.');
   }, [confirm, deleteDraft, showToast]);
 
   const handlePublishDraft = useCallback(async (draft: DraftEventItem) => {
-    if (draft.published) { showToast('warning', 'Sudah diterbitkan', 'Draft ini sudah diterbitkan.'); return; }
-    if (draft.deleted) { showToast('warning', 'Draft terhapus', 'Pulihkan draft dulu sebelum menerbitkan.'); return; }
-    if (!canPublishDraft(draft)) { showToast('warning', 'Belum bisa terbitkan', 'Draft harus berstatus Konfirmasi sebelum diterbitkan.'); return; }
+    if (draft.published) { showToast('warning', 'Sudah diterbitkan', 'Draf ini sudah diterbitkan.'); return; }
+    if (draft.deleted) { showToast('warning', 'Draf terhapus', 'Pulihkan draf dulu sebelum menerbitkan.'); return; }
+    if (!canPublishDraft(draft)) { showToast('warning', 'Belum bisa terbitkan', 'Draf harus berstatus Konfirmasi sebelum diterbitkan.'); return; }
     const ok = await confirm({
-      title: 'Terbitkan draft?',
-      message: 'Draft akan diterbitkan ke jadwal Event resmi dan bisa dilihat publik.',
+      title: 'Terbitkan draf?',
+      message: 'Draf akan diterbitkan ke jadwal event resmi dan bisa dilihat publik.',
       subject: draft.acara,
       confirmLabel: 'Terbitkan',
     });
@@ -97,30 +97,30 @@ export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
     const success = await publishDraft(draft.id);
     if (success) {
       await refreshEvents();
-      showToast('success', 'Draft diterbitkan', `"${draft.acara}" sudah jadi Event di jadwal resmi.`);
+      showToast('success', 'Draf diterbitkan', `"${draft.acara}" sudah jadi event di jadwal resmi.`);
     } else {
-      showToast('error', 'Gagal menerbitkan draft', 'Draft belum berhasil diterbitkan ke jadwal Event.');
+      showToast('error', 'Gagal menerbitkan draf', 'Draf belum berhasil diterbitkan ke jadwal event.');
     }
   }, [confirm, publishDraft, refreshEvents, showToast]);
 
   const handleDraftProgressChange = useCallback(async (draft: DraftEventItem, progress: DraftEventItem['progress']) => {
     const success = await updateDraft({ ...draft, progress });
-    if (success) showToast('success', 'Progress diperbarui', `Draft "${draft.acara}" sekarang berstatus ${progress}.`);
-    else showToast('error', 'Gagal memperbarui progress', 'Progress draft belum berubah.');
+    if (success) showToast('success', 'Progres diperbarui', `Draft "${draft.acara}" sekarang berstatus ${progress}.`);
+    else showToast('error', 'Gagal memperbarui progres', 'Progres draf belum berubah.');
   }, [updateDraft, showToast]);
 
   const handleRestoreDraft = useCallback(async (draft: DraftEventItem) => {
-    if (draft.published) { showToast('warning', 'Tidak bisa dipulihkan', 'Draft yang sudah diterbitkan tidak dapat dipulihkan.'); return; }
+    if (draft.published) { showToast('warning', 'Tidak bisa dipulihkan', 'Draf yang sudah diterbitkan tidak dapat dipulihkan.'); return; }
     const ok = await confirm({
-      title: 'Pulihkan draft event?',
-      message: 'Draft akan dikembalikan ke queue aktif.',
+      title: 'Pulihkan draf event?',
+      message: 'Draf akan dikembalikan ke antrean aktif.',
       subject: draft.acara,
       confirmLabel: 'Pulihkan',
     });
     if (!ok) return;
     const success = await restoreDraft(draft.id);
-    if (success) showToast('success', 'Draft dipulihkan', `"${draft.acara}" kembali ke queue aktif.`);
-    else showToast('error', 'Gagal memulihkan draft', 'Draft event belum berhasil dipulihkan.');
+    if (success) showToast('success', 'Draf dipulihkan', `"${draft.acara}" kembali ke antrean aktif.`);
+    else showToast('error', 'Gagal memulihkan draf', 'Draf event belum berhasil dipulihkan.');
   }, [confirm, restoreDraft, showToast]);
 
   return {

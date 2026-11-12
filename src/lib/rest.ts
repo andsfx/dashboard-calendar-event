@@ -185,7 +185,7 @@ async function request<T>(
     // informatif; setiap konsumen meneruskan err.message apa adanya ke UI.
     // Teks asli disimpan di payload untuk diagnosa, bukan untuk ditampilkan.
     throw new ApiError(
-      'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.',
+      'Koneksi ke server terputus. Periksa internet kamu, lalu coba lagi.',
       'NETWORK',
       { detail: err instanceof Error ? err.message : String(err) },
     );
@@ -204,7 +204,7 @@ async function request<T>(
     const fields = parseErrorFields(rawBody);
     if (response.status === 401) notifyUnauthorized(method, path);
     const fallback =
-      options.errorMessageFallback?.(response.status) ?? `Permintaan gagal (HTTP ${response.status})`;
+      options.errorMessageFallback?.(response.status) ?? `Permintaan belum bisa diproses (kode ${response.status}). Coba lagi beberapa saat.`;
     throw new ApiError(fields.message ?? fallback, fields.code ?? String(response.status), fields.payload);
   }
 
@@ -228,7 +228,7 @@ export async function apiGet<T>(path: string, options: RestOptions<T> = {}): Pro
   if (rec.success === false) {
     const fields = parseErrorFields(body);
     throw new ApiError(
-      fields.message ?? `Gagal memuat ${path}`,
+      fields.message ?? `Server belum bisa mengirim data untuk ${path}. Muat ulang halaman sebentar lagi.`,
       fields.code,
       fields.payload,
     );

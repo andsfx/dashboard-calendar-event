@@ -31,9 +31,9 @@ export interface CommunityStats {
 }
 
 export const COMMUNITY_STAT_LABELS = {
-  completed: 'Event Terlaksana',
+  completed: 'Event terlaksana',
   organizers: 'Penyelenggara',
-  total: 'Total Event',
+  total: 'Total event',
 } as const;
 
 /**

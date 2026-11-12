@@ -16,9 +16,9 @@ describe('DashboardStats', () => {
   it('renders the actionable counts plus the reference pair', () => {
     render(<DashboardStats stats={mockStats} attention={attention} />)
     expect(screen.getByText('Menunggu keputusan')).toBeInTheDocument()
-    expect(screen.getByText('Sedang Berlangsung')).toBeInTheDocument()
-    expect(screen.getByText('Akan Datang')).toBeInTheDocument()
-    expect(screen.getByText('Total Acara')).toBeInTheDocument()
+    expect(screen.getByText('Sedang berlangsung')).toBeInTheDocument()
+    expect(screen.getByText('Akan datang')).toBeInTheDocument()
+    expect(screen.getByText('Total acara')).toBeInTheDocument()
     expect(screen.getByText('Selesai')).toBeInTheDocument()
   })
 
@@ -29,9 +29,9 @@ describe('DashboardStats', () => {
       Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
 
     const lead = screen.getByText('Menunggu keputusan')
-    const ongoing = screen.getByText('Sedang Berlangsung')
-    const upcoming = screen.getByText('Akan Datang')
-    const reference = screen.getByText('Total Acara')
+    const ongoing = screen.getByText('Sedang berlangsung')
+    const upcoming = screen.getByText('Akan datang')
+    const reference = screen.getByText('Total acara')
 
     expect(follows(lead, ongoing)).toBe(true)
     expect(follows(ongoing, upcoming)).toBe(true)
@@ -62,7 +62,7 @@ describe('DashboardStats', () => {
   it('shows no queue tier at all when nothing is waiting', () => {
     render(<DashboardStats stats={mockStats} attention={{ draftCount: 0, pendingRegistrations: 0, pendingExhibitionLeads: 0, pendingTenantProposals: 0, draftsError: null }} />)
     expect(screen.queryByText('Menunggu keputusan')).not.toBeInTheDocument()
-    expect(screen.getByText('Sedang Berlangsung')).toBeInTheDocument()
+    expect(screen.getByText('Sedang berlangsung')).toBeInTheDocument()
   })
 
   it('counts pending tenant collaboration proposals into the lead number', () => {
@@ -87,9 +87,9 @@ describe('DashboardStats', () => {
 
   it('keeps the public compact summary to the two discovery counts', () => {
     render(<DashboardStats stats={mockStats} compact />)
-    expect(screen.getByText('Akan Datang')).toBeInTheDocument()
-    expect(screen.getByText('Sedang Berlangsung')).toBeInTheDocument()
-    expect(screen.queryByText('Total Acara')).not.toBeInTheDocument()
+    expect(screen.getByText('Akan datang')).toBeInTheDocument()
+    expect(screen.getByText('Sedang berlangsung')).toBeInTheDocument()
+    expect(screen.queryByText('Total acara')).not.toBeInTheDocument()
     expect(screen.queryByText('Menunggu keputusan')).not.toBeInTheDocument()
   })
 })

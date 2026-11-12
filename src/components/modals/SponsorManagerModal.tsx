@@ -279,7 +279,7 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                       ) : (
                         <>
                           <Upload className="h-3.5 w-3.5" />
-                          {item.proposal.fileUrl ? 'Ganti' : 'Upload'}
+                          {item.proposal.fileUrl ? 'Ganti' : 'Unggah'}
                         </>
                       )}
                     </Button>)}

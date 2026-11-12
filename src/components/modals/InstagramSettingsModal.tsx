@@ -126,7 +126,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
               ) : (
                 <>
                   <ImageIcon className="h-5 w-5" />
-                  <span>Upload foto hero background</span>
+                  <span>Unggah foto latar utama</span>
                 </>
               )}
             </Button>
@@ -211,7 +211,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
           className="w-full"
         >
           <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-          {isSyncing ? 'Syncing via Apify…' : 'Sync & Cache Instagram Posts'}
+          {isSyncing ? 'Menyinkronkan lewat Apify…' : 'Sinkron dan simpan unggahan Instagram'}
         </Button>}
         {syncResult && (
           <p role={syncResult.includes('Berhasil') ? 'status' : 'alert'} className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]' : 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]'}`}>

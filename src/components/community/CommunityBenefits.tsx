@@ -6,17 +6,17 @@ import { Link } from 'react-router-dom';
 const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string }> = [
   {
     icon: <Megaphone className="h-6 w-6" aria-hidden="true" />,
-    title: 'Promosi & Marketing',
+    title: 'Promosi dan marketing',
     desc: 'Event kamu kami promosiin lewat media sosial, digital signage, dan kanal mall lainnya.',
   },
   {
     icon: <Sprout className="h-6 w-6" aria-hidden="true" />,
-    title: 'Kembangkan Komunitas',
+    title: 'Kembangkan komunitas',
     desc: 'Eksposur ke ribuan pengunjung mall setiap hari. Kesempatan kolaborasi dengan komunitas lain yang udah bergabung.',
   },
   {
     icon: <PackageCheck className="h-6 w-6" aria-hidden="true" />,
-    title: 'Venue & Peralatan Gratis',
+    title: 'Venue dan peralatan gratis',
     desc: 'Panggung, sound system, lighting, kursi penonton, semuanya gratis. Kamu tinggal fokus bikin acaranya.',
   },
 ];
@@ -25,8 +25,9 @@ const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string }> = [
    "headline + card grid" — the same layout family as Facilities, Steps and
    Gallery. It is now the page's single "stacked full-width feature-rows"
    family: every item is a full-width row (icon tile left, copy right) stacked
-   vertically, with no card surfaces and no grid. All copy, heading text/levels
-   and the `/sponsor` CTA target are unchanged. */
+   vertically, with no card surfaces and no grid. String copy was later
+   reworded by plain-language alignment (sentence case, "&" → "dan"); heading
+   levels and the `/sponsor` CTA target are unchanged. */
 export function CommunityBenefits() {
   return (
     <RevealSection id="benefits" className="scroll-mt-28 border-b border-[var(--wf-rule)] bg-[var(--section-alt)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
@@ -48,13 +49,13 @@ export function CommunityBenefits() {
                 <HandCoins className="h-6 w-6 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <h3 className="text-xl font-bold leading-tight text-[var(--wf-ink)]">Dukungan Sponsorship</h3>
+                <h3 className="text-xl font-bold leading-tight text-[var(--wf-ink)]">Dukungan sponsorship</h3>
                 <p className="mt-2 max-w-[65ch] text-base leading-7 ui-text-secondary">Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.</p>
                 <Link
                   to="/sponsor"
                   className="mt-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-page)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2"
                 >
-                  Lihat Peluang Sponsor
+                  Lihat peluang sponsor
                 </Link>
               </div>
             </div>

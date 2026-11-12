@@ -88,8 +88,8 @@ export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
 
   const handleSaveBatch = useCallback(async (evs: EventItem[]) => {
     const success = await addRecurringEvents(evs);
-    if (success) showToast('success', 'Event reguler ditambahkan!', `${evs.length} event berhasil dibuat.`);
-    else showToast('error', 'Gagal menambahkan', 'Event reguler belum tersimpan. Silakan coba lagi.');
+    if (success) showToast('success', 'Acara reguler ditambahkan!', `${evs.length} event berhasil dibuat.`);
+    else showToast('error', 'Gagal menambahkan', 'Acara reguler belum tersimpan. Coba lagi.');
     if (success) { setShowCrudModal(false); setEditingEvent(null); setInitialEventData(null); }
     return success;
   }, [addRecurringEvents, showToast]);

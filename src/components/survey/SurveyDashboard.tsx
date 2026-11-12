@@ -130,13 +130,13 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
         credentials: 'include',
       });
       if (!res.ok) {
-        setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
+        setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet kamu.');
         return;
       }
       const blob = await res.blob();
       downloadBlob(blob, `survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`);
     } catch {
-      setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
+      setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet kamu.');
     }
   }, []);
 
@@ -164,10 +164,10 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
       if (json.success) {
         setActiveConfigs(prev => ({ ...prev, [eventId]: !currentActive }));
       } else {
-        setActionError(json.error || 'Gagal mengubah status survey.');
+        setActionError(json.error || 'Gagal mengubah status survei.');
       }
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Gagal mengubah status survey.');
+      setActionError(err instanceof Error ? err.message : 'Gagal mengubah status survei.');
     }
     finally { setConfigLoading(null); }
   }, []);
@@ -204,7 +204,7 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
         <div className="ui-dashboard-surface p-6 text-center">
           <ClipboardCheck className="mx-auto h-10 w-10 text-[var(--wf-ink-muted)]" />
           <p className="mt-3 text-sm font-medium text-[var(--wf-ink-muted)]">
-            Belum ada response survey
+            Belum ada respons survei
           </p>
         </div>
         {actionError && (
@@ -235,8 +235,8 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-[var(--wf-ink)]">Survey Kepuasan</h2>
-          <p className="text-xs text-[var(--wf-ink-muted)]">Feedback dari penyelenggara & peserta event</p>
+          <h2 className="text-base font-bold text-[var(--wf-ink)]">Survei kepuasan</h2>
+          <p className="text-xs text-[var(--wf-ink-muted)]">Umpan balik dari penyelenggara dan peserta event</p>
         </div>
         <Button
           type="button"
@@ -261,10 +261,10 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatMini icon={<ClipboardCheck className="h-4 w-4" />} label="Total Response" value={stats.total_responses} color="primary" />
+        <StatMini icon={<ClipboardCheck className="h-4 w-4" />} label="Total respons" value={stats.total_responses} color="primary" />
         <StatMini icon={<Building2 className="h-4 w-4" />} label="Penyelenggara" value={stats.organizer_responses} color="blue" />
         <StatMini icon={<Users className="h-4 w-4" />} label="Peserta" value={stats.public_responses} color="emerald" />
-        <StatMini icon={<Star className="h-4 w-4" />} label="Event Dinilai" value={stats.unique_events} color="amber" />
+        <StatMini icon={<Star className="h-4 w-4" />} label="Event dinilai" value={stats.unique_events} color="amber" />
       </div>
 
       {/* Mall average ratings */}
@@ -322,7 +322,7 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
       {stats.recent.length > 0 && (
         <div className="ui-dashboard-surface">
           <div className="flex flex-col gap-2 border-b border-[var(--wf-rule)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Response Terbaru</h3>
+            <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Respons terbaru</h3>
             {/* Date filter */}
             <div className="flex items-center gap-2">
               <Calendar className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
@@ -358,7 +358,7 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
           </div>
           <div className="divide-y divide-[var(--wf-rule)]">
             {filteredRecent.length === 0 && (
-              <p className="px-4 py-3 text-xs text-[var(--wf-ink-muted)]">Tidak ada response dalam rentang tanggal ini</p>
+              <p className="px-4 py-3 text-xs text-[var(--wf-ink-muted)]">Tidak ada respons dalam rentang tanggal ini</p>
             )}
             {filteredRecent.map((r) => {
               const mallAvg = ((r.mall_cleanliness + r.mall_staff_service + r.mall_coordination + r.mall_security) / 4);
@@ -485,8 +485,8 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
   return (
     <div className="ui-dashboard-surface">
       <div className="border-b border-[var(--wf-rule)] px-4 py-3">
-        <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola Survey per Event</h3>
-        <p className="text-[10px] text-[var(--wf-ink-muted)]">Copy link, aktifkan/nonaktifkan{canExport ? ', atau export data' : ''}</p>
+        <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola survei per event</h3>
+        <p className="text-[10px] text-[var(--wf-ink-muted)]">Salin tautan, aktifkan atau nonaktifkan{canExport ? ', atau ekspor data' : ''}</p>
         <div className="relative mt-2">
           <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
           <Input
@@ -524,8 +524,8 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                 onClick={() => onToggleConfig(ev.id, isActive)}
                 disabled={isToggling}
                 aria-pressed={isActive}
-                aria-label={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survey ${ev.acara}`}
-                title={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
+                aria-label={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survei ${ev.acara}`}
+                title={isActive ? 'Survei aktif - klik untuk nonaktifkan' : 'Survei nonaktif - klik untuk aktifkan'}
                 className="active:translate-y-0"
               >
                 {isToggling ? (
@@ -542,11 +542,11 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                 type="button"
                 variant="ghost"
                 onClick={() => onCopyLink(ev.id)}
-                title="Salin tautan survey"
-                aria-label={`Salin tautan survey ${ev.acara}`}
+                title="Salin tautan survei"
+                aria-label={`Salin tautan survei ${ev.acara}`}
               >
                 {isCopied ? <Check className="size-3 text-[var(--wf-live)]" /> : <Link2 className="size-3" />}
-                {isCopied ? 'Tersalin!' : 'Link'}
+                {isCopied ? 'Tersalin' : 'Tautan'}
               </Button>
 
               {/* Export — backend menolak demo; tombol disembunyikan agar tak 403 */}
@@ -555,7 +555,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                   type="button"
                   variant="ghost"
                   onClick={() => onExport(ev.id)}
-                  aria-label={`Unduh CSV survey ${ev.acara}`}
+                  aria-label={`Unduh CSV survei ${ev.acara}`}
                 >
                   <Download className="size-3" />
                   CSV

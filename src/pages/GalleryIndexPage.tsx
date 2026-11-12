@@ -33,7 +33,7 @@ interface Props {
 
 export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Galeri Foto - Metropolitan Mall Bekasi',
+    title: 'Galeri foto - Metropolitan Mall Bekasi',
     description: 'Galeri foto momen dan kegiatan event di Metropolitan Mall Bekasi.',
   });
 
@@ -114,7 +114,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
           className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-ink)]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Kembali ke Beranda
+          Kembali ke beranda
         </Link>
 
         {/* Page title */}
@@ -122,7 +122,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                Galeri Event
+                Galeri event
               </h1>
               <p className="mt-2 text-base text-[var(--wf-ink-muted)]">
                 Dokumentasi event di Metropolitan Mall Bekasi
@@ -136,7 +136,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-lg shadow-brand-primary-600/20 transition hover:bg-[var(--wf-accent)]! h-auto border-0 rounded-full! active:translate-y-0! hover:text-[var(--wf-accent-ink)]!"
               >
                 <FileDown className="size-4" />
-                Export PDF
+                Ekspor PDF
               </Button>
             )}
           </div>
@@ -167,7 +167,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
               Gagal memuat data
             </p>
             <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
-              Terjadi kesalahan saat memuat album. Periksa koneksi internet Anda.
+              Terjadi kesalahan saat memuat album. Periksa koneksi internet kamu.
             </p>
             <Button
               type="button"
@@ -214,7 +214,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                   </h2>
                   <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
                     {theme
-                      ? `${formatThemeDate(theme.dateStart)} - ${formatThemeDate(theme.dateEnd)}`
+                      ? `${formatThemeDate(theme.dateStart)} sampai ${formatThemeDate(theme.dateEnd)}`
                       : 'Album di luar tema tahunan'
                     }
                     {' · '}{groupAlbums.length} album

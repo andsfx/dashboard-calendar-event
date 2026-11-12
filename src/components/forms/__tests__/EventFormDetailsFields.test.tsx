@@ -23,7 +23,7 @@ describe('EventFormDetailsFields', () => {
     expect(screen.getByText(/Event Organizer/)).toBeInTheDocument()
     expect(screen.getByText(/Penanggung Jawab/)).toBeInTheDocument()
     expect(screen.getByText(/Nomor Handphone/)).toBeInTheDocument()
-    expect(screen.getByText(/Jenis Acara/)).toBeInTheDocument()
+    expect(screen.getByText(/Jenis acara/)).toBeInTheDocument()
     expect(screen.getByText('Prioritas')).toBeInTheDocument()
   })
 

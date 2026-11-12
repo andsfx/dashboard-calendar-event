@@ -27,7 +27,7 @@ export function useDraftEvents(enabled = false) {
       setDraftEvents(drafts);
     } catch (err) {
       console.error('Draft fetch error:', err);
-      setError('Gagal memuat draft event.');
+      setError('Gagal memuat draf event.');
     } finally {
       if (!opts?.silent) setIsLoading(false);
     }

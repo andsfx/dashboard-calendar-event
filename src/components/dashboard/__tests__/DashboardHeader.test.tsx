@@ -15,7 +15,7 @@ describe('DashboardHeader', () => {
 
   it('renders the route heading, not a generic dashboard title', () => {
     render(<DashboardHeader {...mockProps} />)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Jadwal Event')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Jadwal event')
     expect(screen.getByText('Kelola semua event dalam berbagai tampilan')).toBeInTheDocument()
   })
 
@@ -28,12 +28,12 @@ describe('DashboardHeader', () => {
     render(<DashboardHeader {...mockProps} />)
     const headings = screen.getAllByRole('heading', { level: 1 })
     expect(headings).toHaveLength(1)
-    expect(headings[0]).toHaveTextContent('Jadwal Event')
+    expect(headings[0]).toHaveTextContent('Jadwal event')
   })
 
   it('renders public heading when isAdmin is false', () => {
     render(<DashboardHeader {...mockProps} isAdmin={false} />)
-    expect(screen.getByText('Jadwal Event')).toBeInTheDocument()
+    expect(screen.getByText('Jadwal event')).toBeInTheDocument()
     expect(screen.getByText(/Jadwal acara publik/)).toBeInTheDocument()
   })
 

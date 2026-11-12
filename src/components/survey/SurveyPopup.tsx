@@ -140,7 +140,7 @@ export default function SurveyPopup({ pastEvents }: SurveyPopupProps) {
           </div>
 
           <h3 id="survey-popup-title" className="mb-1 text-base font-bold text-[var(--wf-ink)] ">
-            Bagaimana Pengalaman Anda?
+            Bagaimana pengalaman kamu?
           </h3>
           <p className="mb-1 text-sm text-[var(--wf-ink-muted)] ">
             Event <span className="font-semibold text-[var(--wf-accent)] ">"{targetEvent.acara}"</span> telah selesai.

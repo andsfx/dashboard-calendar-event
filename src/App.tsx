@@ -512,7 +512,7 @@ export default function App() {
               <div className="ui-dashboard-surface overflow-hidden">
                 <div className="border-b border-[var(--wf-rule)] bg-gradient-to-r from-brand-primary-50/50 to-transparent px-6 py-5 dark:from-brand-primary-950/30">
                   <h1 className="text-xl font-bold text-[var(--wf-ink)]">Evaluasi Dampak Event</h1>
-                  <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Pilih event di bawah untuk mengisi survei tenant dan bantu kami memahami dampak event terhadap tenant Anda.</p>
+                  <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Pilih event di bawah untuk mengisi survei tenant dan bantu kami memahami dampak event terhadap tenant kamu.</p>
                 </div>
                 <div className="px-6 py-5"><TenantSurveyEventPicker /></div>
               </div>

@@ -2,7 +2,7 @@
  * POST /auth/login tidak boleh membocorkan keberadaan akun.
  *
  * Temuan audit 2026-10-04: akun non-aktif membalas **403 "Akun dinonaktifkan"**
- * sementara kegagalan lain membalas 401 "Email atau password salah" — padahal
+ * sementara kegagalan lain membalas 401 "Email atau password belum cocok" — padahal
  * komentar di kode justru mengklaim pesan seragam. Perbedaan status/pesan itu
  * memberi tahu penyerang bahwa email terdaftar (user enumeration).
  *
@@ -99,7 +99,7 @@ describe('POST /auth/login tidak membocorkan keberadaan akun', () => {
     dbState.user.is_active = false;
     const { status, body } = await login('admin@example.com', PASSWORD);
     expect(status).toBe(401);
-    expect(body.error).toBe('Email atau password salah');
+    expect(body.error).toBe('Email atau password belum cocok. Periksa lagi lalu coba.');
     expect(body.error).not.toContain('dinonaktifkan');
   });
 
@@ -118,7 +118,7 @@ describe('POST /auth/login tidak membocorkan keberadaan akun', () => {
     }
     // Status & pesan harus identik untuk keempatnya.
     expect(new Set(seen.map(s => s.status))).toEqual(new Set([401]));
-    expect(new Set(seen.map(s => s.error))).toEqual(new Set(['Email atau password salah']));
+    expect(new Set(seen.map(s => s.error))).toEqual(new Set(['Email atau password belum cocok. Periksa lagi lalu coba.']));
   });
 
   it('tetap menjalankan bcrypt.compare saat email tidak dikenal (anti-timing)', async () => {

@@ -65,7 +65,7 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
           Semua modul
         </h2>
         <p className="wf-queue-empty mt-2">
-          Tidak ada modul yang bisa dibuka peran ini. Hubungi admin mall untuk menambah izin akses.
+          Tidak ada modul yang bisa dibuka peran ini. Hubungi admin mall untuk menambah hak akses.
         </p>
       </section>
     );
@@ -77,7 +77,7 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
         <h2 id="cc-directory-title" className="font-display text-base font-semibold text-[var(--wf-ink)]">
           Semua modul
         </h2>
-        <p className="text-xs text-[var(--wf-ink-muted)]">{cards.length} tujuan yang boleh Anda buka.</p>
+        <p className="text-xs text-[var(--wf-ink-muted)]">{cards.length} tujuan yang bisa kamu buka.</p>
       </div>
 
       <div className="wf-directory">

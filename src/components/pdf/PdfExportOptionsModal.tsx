@@ -66,7 +66,7 @@ export function PdfExportOptionsModal({
   requiredSections = [],
   onGenerate,
   children,
-  generateLabel = 'Preview PDF',
+  generateLabel = 'Pratinjau PDF',
   canGenerate: canGenerateProp,
 }: Props) {
   const [selected, setSelected] = useState<string[]>(defaultSelected);
@@ -119,7 +119,7 @@ export function PdfExportOptionsModal({
       if (result) setPreview(result);
       else onClose();
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Gagal membuat PDF.');
+      setErrorMessage(error instanceof Error ? error.message : 'Gagal membuat PDF. Coba lagi.');
     } finally {
       setIsGenerating(false);
     }

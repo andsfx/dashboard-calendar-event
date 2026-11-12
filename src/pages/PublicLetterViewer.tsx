@@ -56,7 +56,7 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
       } catch {
         // 404 atau gagal jaringan — pesan sama, jangan bocorkan alasannya.
         setLetter(null);
-        setError('Surat yang Anda cari tidak tersedia.');
+        setError('Surat yang kamu cari tidak tersedia.');
       } finally {
         setIsLoading(false);
       }
@@ -107,10 +107,10 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
           <div className="mt-12 max-w-md rounded-2xl border border-red-200 bg-[var(--wf-board)] p-6 text-center shadow-[var(--shadow-card-soft)]">
             <AlertCircle size={48} className="mx-auto mb-4 text-red-500" aria-hidden />
             <h1 className="mb-2 text-xl font-bold text-[var(--wf-ink)]">
-              Surat Tidak Ditemukan
+              Surat tidak ditemukan
             </h1>
             <p className="mb-4 text-[var(--wf-ink-muted)]">
-              {error || 'Surat yang Anda cari tidak tersedia.'}
+              {error || 'Surat yang kamu cari tidak tersedia.'}
             </p>
             <Button
               type="button"
@@ -119,7 +119,7 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
               className="ui-btn-primary ui-focus-ring mx-auto flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--wf-page)] flex! h-auto border-0 rounded-full! active:translate-y-0!"
             >
               <ArrowLeft size={16} aria-hidden />
-              Kembali ke Beranda
+              Kembali ke beranda
             </Button>
           </div>
         </main>
@@ -152,10 +152,10 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 pt-6 pb-4 outline-none sm:px-6">
         <div className="mb-4">
           <h1 className="text-lg font-bold text-[var(--wf-ink)] sm:text-xl">
-            {letter.docType === 'sik' ? 'Surat Izin Kerja' : 'Surat Konfirmasi Event'}
+            {letter.docType === 'sik' ? 'Surat Izin Kerja' : 'Surat konfirmasi pelaksanaan event'}
           </h1>
           <p className="text-xs text-[var(--wf-ink-muted)]">
-            {letter.letterData.namaEvent || 'Tanpa Judul'} &middot;
+            {letter.letterData.namaEvent || 'Tanpa judul'} &middot;
             Dibuat {new Date(letter.createdAt).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
@@ -188,7 +188,7 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
               className="ui-btn-primary ui-focus-ring mx-auto mt-4 flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--wf-page)] flex! h-auto border-0 rounded-full! active:translate-y-0!"
             >
               <Download size={16} aria-hidden />
-              Buat & Unduh PDF
+              Buat dan unduh PDF
             </Button>
           </div>
         )}

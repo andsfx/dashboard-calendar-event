@@ -14,40 +14,40 @@ describe('EventFormModelFields', () => {
 
   it('renders model selector', () => {
     render(<EventFormModelFields {...mockProps} />)
-    expect(screen.getByText('Model Event')).toBeInTheDocument()
+    expect(screen.getByText('Model event')).toBeInTheDocument()
   })
 
   it('shows all model options', () => {
     render(<EventFormModelFields {...mockProps} />)
     // NativeSelect merender <select> native; opsinya ada di DOM.
-    const select = screen.getByLabelText('Model Event')
+    const select = screen.getByLabelText('Model event')
     expect(within(select).getByRole('option', { name: 'Pilih model' })).toBeInTheDocument()
-    expect(within(select).getByRole('option', { name: 'Free' })).toBeInTheDocument()
+    expect(within(select).getByRole('option', { name: 'Gratis' })).toBeInTheDocument()
     expect(within(select).getByRole('option', { name: 'Bayar' })).toBeInTheDocument()
-    expect(within(select).getByRole('option', { name: 'Support' })).toBeInTheDocument()
+    expect(within(select).getByRole('option', { name: 'Dukungan' })).toBeInTheDocument()
   })
 
   it('hides detail fields when model is empty or free', () => {
     render(<EventFormModelFields {...mockProps} />)
     expect(screen.queryByLabelText(/Nominal/)).not.toBeInTheDocument()
-    expect(screen.queryByLabelText(/Keterangan Model Event/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Keterangan model event/)).not.toBeInTheDocument()
   })
 
   it('shows detail fields when model is bayar', () => {
     render(<EventFormModelFields {...mockProps} eventModel="bayar" />)
     expect(screen.getByText(/Nominal/)).toBeInTheDocument()
-    expect(screen.getByText(/Keterangan Model Event/)).toBeInTheDocument()
+    expect(screen.getByText(/Keterangan model event/)).toBeInTheDocument()
   })
 
   it('shows detail fields when model is support', () => {
     render(<EventFormModelFields {...mockProps} eventModel="support" />)
     expect(screen.getByText(/Nominal/)).toBeInTheDocument()
-    expect(screen.getByText(/Keterangan Model Event/)).toBeInTheDocument()
+    expect(screen.getByText(/Keterangan model event/)).toBeInTheDocument()
   })
 
   it('calls onFieldChange when model changes', () => {
     render(<EventFormModelFields {...mockProps} />)
-    const select = screen.getByLabelText('Model Event')
+    const select = screen.getByLabelText('Model event')
     fireEvent.change(select, { target: { value: 'bayar' } })
     expect(mockProps.onFieldChange).toHaveBeenCalledWith('eventModel', 'bayar')
   })

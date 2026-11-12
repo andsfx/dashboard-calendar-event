@@ -43,7 +43,7 @@ describe('CommandCenterAgenda: pintu masuk jadwal', () => {
   it('menautkan ke rute yang memiliki jadwal penuh, bukan menyalinnya', () => {
     renderAgenda();
 
-    expect(screen.getByRole('link', { name: /Buka Jadwal Event/ })).toHaveAttribute('href', '/dashboard/events');
+    expect(screen.getByRole('link', { name: /Buka Jadwal event/ })).toHaveAttribute('href', '/dashboard/events');
   });
 
   it('menyebut event berjalan beserta lokasi dan waktunya', () => {
@@ -88,6 +88,6 @@ describe('CommandCenterAgenda: pintu masuk jadwal', () => {
     renderAgenda({ error: 'Koneksi ke server gagal.' });
 
     expect(screen.getByText(/Jadwal event gagal dimuat: Koneksi ke server gagal\./)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Buka Jadwal Event/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Buka Jadwal event/ })).toBeInTheDocument();
   });
 });

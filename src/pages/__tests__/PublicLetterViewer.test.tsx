@@ -79,17 +79,17 @@ describe('PublicLetterViewer — dokumen SKE vs SIK', () => {
     downloadBlob.mockReset();
   });
 
-  it('baris lama tanpa docType tampil sebagai Surat Konfirmasi Event', async () => {
+  it('baris lama tanpa docType tampil sebagai Surat konfirmasi pelaksanaan event', async () => {
     respondWith(SKE);
     renderViewer();
-    expect(await screen.findByText('Surat Konfirmasi Event')).toBeInTheDocument();
+    expect(await screen.findByText('Surat konfirmasi pelaksanaan event')).toBeInTheDocument();
   });
 
   it('docType sik mengganti judul jadi Surat Izin Kerja', async () => {
     respondWith({ ...SIK });
     renderViewer();
     expect(await screen.findByText('Surat Izin Kerja')).toBeInTheDocument();
-    expect(screen.queryByText('Surat Konfirmasi Event')).toBeNull();
+    expect(screen.queryByText('Surat konfirmasi pelaksanaan event')).toBeNull();
   });
 
   it('unduh memakai snapshot pdf_base64 bila tersedia', async () => {
@@ -105,7 +105,7 @@ describe('PublicLetterViewer — dokumen SKE vs SIK', () => {
   it('fallback tanpa snapshot memakai builder SIK, bukan SKE', async () => {
     respondWith({ ...SIK });
     renderViewer();
-    const btn = await screen.findByRole('button', { name: /Buat & Unduh PDF/ });
+    const btn = await screen.findByRole('button', { name: /Buat dan unduh PDF/ });
     btn.click();
     await vi.waitFor(() => expect(downloadSikPdf).toHaveBeenCalled());
     expect(downloadLetterPdf).not.toHaveBeenCalled();
@@ -114,7 +114,7 @@ describe('PublicLetterViewer — dokumen SKE vs SIK', () => {
   it('fallback SKE memakai builder SKE', async () => {
     respondWith({ ...SKE });
     renderViewer();
-    const btn = await screen.findByRole('button', { name: /Buat & Unduh PDF/ });
+    const btn = await screen.findByRole('button', { name: /Buat dan unduh PDF/ });
     btn.click();
     await vi.waitFor(() => expect(downloadLetterPdf).toHaveBeenCalled());
     expect(downloadSikPdf).not.toHaveBeenCalled();

@@ -268,7 +268,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             disabled={!canGenerate}
           >
             {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
-            {isGenerating ? (progressText || 'Membuat PDF…') : 'Preview PDF'}
+            {isGenerating ? (progressText || 'Membuat PDF…') : 'Pratinjau PDF'}
           </Button>
         </div>
       </div>
@@ -277,13 +277,13 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
       <PdfExportOptionsModal
         isOpen={isSectionPickerOpen}
         onClose={() => setIsSectionPickerOpen(false)}
-        title="Preview Album Foto"
+        title="Pratinjau album foto"
         description={`${filteredAlbums.length} album siap diekspor. Pilih bagian yang ingin disertakan.`}
         sections={ALBUM_SECTION_OPTIONS}
         defaultSelected={['cover', 'header', 'photos', 'captions']}
         requiredSections={['photos']}
         onGenerate={handleGenerate}
-        generateLabel="Preview PDF"
+        generateLabel="Pratinjau PDF"
       />
     </ModalWrapper>
   );

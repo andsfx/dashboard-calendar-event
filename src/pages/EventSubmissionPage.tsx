@@ -59,7 +59,7 @@ const labelClass = 'mb-1 block! text-xs font-semibold leading-normal text-[var(-
 
 export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Ajukan Event - Metropolitan Mall Bekasi',
+    title: 'Ajukan event - Metropolitan Mall Bekasi',
     description: 'Ajukan event atau kegiatan komunitasmu untuk diselenggarakan di Metropolitan Mall Bekasi.',
   });
 
@@ -172,11 +172,11 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
               <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
             </div>
             <h1 className="mt-5 font-display text-2xl font-bold text-[var(--wf-ink)]">
-              Pengajuan Terkirim!
+              Pengajuan terkirim!
             </h1>
             {submittedName && (
               <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">
-                Event <span className="font-semibold">"{submittedName}"</span> sudah masuk antrian review.
+                Event <span className="font-semibold">"{submittedName}"</span> sudah masuk antrean tinjauan.
               </p>
             )}
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[var(--wf-ink-muted)]">
@@ -196,7 +196,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 to="/events"
                 className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-[var(--wf-board)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
               >
-                Jadwal Event
+                Jadwal event
               </Link>
             </div>
           </div>
@@ -206,10 +206,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
             <RevealSection as="div" className="mb-7">
               <img src={mallLogo} alt="Logo Metropolitan Mall Bekasi" className="mb-4 h-10 w-auto" />
               <h1 className="font-display text-2xl font-bold leading-tight text-[var(--wf-ink)] sm:text-3xl">
-                Ajukan Event di Metmal Bekasi
+                Ajukan event di Metmal Bekasi
               </h1>
               <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--wf-ink-muted)]">
-                Punya acara bazar, workshop, pameran, atau kegiatan komunitas? Kirim pengajuanmu. Tim Marcomm kami akan mereview dan menghubungimu.
+                Punya acara bazar, workshop, pameran, atau kegiatan komunitas? Kirim pengajuanmu. Tim Marcomm kami akan meninjau dan menghubungimu.
               </p>
             </RevealSection>
 
@@ -234,7 +234,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <Label htmlFor="sub-acara" className={labelClass}>
-                    Nama Acara <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
+                    Nama acara <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
                   </Label>
                   <Input
                     id="sub-acara"
@@ -251,7 +251,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
 
                 <div>
                   <Label htmlFor="sub-date" className={labelClass}>
-                    Tanggal Mulai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
+                    Tanggal mulai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
                   </Label>
                   <Input
                     id="sub-date"
@@ -266,7 +266,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
 
                 <div>
                   <Label htmlFor="sub-date-end" className={labelClass}>
-                    Tanggal Selesai (opsional)
+                    Tanggal selesai (opsional)
                   </Label>
                   <Input
                     id="sub-date-end"
@@ -310,7 +310,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
 
                 <div>
                   <Label htmlFor="sub-eo" className={labelClass}>
-                    Nama Organisasi / EO <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
+                    Nama organisasi / EO <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
                   </Label>
                   <Input
                     id="sub-eo"
@@ -411,12 +411,12 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 ) : (
                   <>
                     <CalendarPlus className="h-4 w-4" aria-hidden="true" />
-                    Kirim Pengajuan
+                    Kirim pengajuan
                   </>
                 )}
               </Button>
               <p className="mt-3 text-center text-xs text-[var(--wf-ink-muted)]">
-                Data PIC dan nomor HP hanya digunakan untuk proses review oleh tim Marcomm.
+                Data PIC dan nomor HP hanya dipakai tim Marcomm untuk meninjau pengajuan ini.
               </p>
             </form>
           </>

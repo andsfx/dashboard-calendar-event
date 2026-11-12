@@ -93,8 +93,8 @@ const focusRing = 'ui-focus-ring';
 
 export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Kolaborasi Tenant - Metropolitan Mall Bekasi',
-    description: 'Ajukan event kerja sama tenant Anda di Metropolitan Mall Bekasi: promo, workshop, pameran produk, hingga pertunjukan. Lampirkan proposal bila sudah siap.',
+    title: 'Kolaborasi tenant - Metropolitan Mall Bekasi',
+    description: 'Ajukan event kerja sama tenant kamu di Metropolitan Mall Bekasi: promo, workshop, pameran produk, hingga pertunjukan. Lampirkan proposal bila sudah siap.',
   });
 
   const [form, setForm] = useState<TenantEventProposalInput>({ ...EMPTY_FORM });
@@ -237,7 +237,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
     if (!phoneCheck.valid) errors.phone = phoneCheck.error || 'Nomor WhatsApp tidak valid.';
     if (form.email.trim()) {
       const emailCheck = validateEmail(form.email);
-      if (!emailCheck.valid) errors.email = emailCheck.error || 'Format email tidak valid.';
+      if (!emailCheck.valid) errors.email = emailCheck.error || 'Email belum sesuai format. Contoh yang benar: nama@email.com';
     }
     if (form.eventTitle.trim().length < 3) errors.eventTitle = 'Judul event minimal 3 karakter.';
     if (form.eventDescription.trim().length < 10) errors.eventDescription = 'Deskripsi event minimal 10 karakter.';
@@ -296,12 +296,12 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 pb-16 pt-10 outline-none sm:px-6">
         <RevealSection as="div">
           <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Ajukan Event Bersama Metropolitan Mall Bekasi
+            Ajukan event bersama Metropolitan Mall Bekasi
           </h1>
           <p className="mt-3 text-sm leading-7 ui-text-secondary">
             Halaman ini untuk tenant Metropolitan Mall Bekasi yang ingin mengadakan kegiatan di area mall,
             baik sebagai promo, workshop, pameran produk, pertunjukan, maupun peluncuran produk. Isi formulir di bawah,
-            tim Marcomm dan Casual Leasing akan meninjau pengajuan Anda.
+            tim Marcomm dan Casual Leasing akan meninjau pengajuan kamu.
           </p>
         </RevealSection>
 
@@ -314,16 +314,16 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
             </li>
             <li className="flex gap-3">
               <span className="shrink-0 font-semibold tabular-nums">2</span>
-              <span>Tim meninjau kelayakan jadwal, area, dan kebutuhan fasilitas. Bila perlu, kami menghubungi PIC untuk pendalaman.</span>
+              <span>Tim meninjau kelayakan jadwal, area, dan kebutuhan fasilitas. Bila perlu, kami menghubungi PIC untuk membahas detail.</span>
             </li>
             <li className="flex gap-3">
               <span className="shrink-0 font-semibold tabular-nums">3</span>
-              <span>Bila disetujui, jadwal event disusun bersama dan tanggal final dikonfirmasi tertulis. Pengajuan yang masuk belum berarti jadwal terkunci.</span>
+              <span>Bila disetujui, kami menyusun jadwal bersama dan mengonfirmasi tanggal final secara tertulis. Pengajuan yang masuk belum berarti jadwal terkunci.</span>
             </li>
           </ol>
           <p className="mt-4 flex items-start gap-2 rounded-[var(--radius-card)] bg-[var(--wf-board-2)] p-3 text-xs text-[var(--wf-ink-muted)]">
             <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            Siapkan perkiraan tanggal dan area yang diinginkan. Ajukan minimal dua pekan sebelum tanggal rencana agar penjadwalan dan perizinan sempat diproses.
+            Siapkan perkiraan tanggal dan area yang diinginkan. Ajukan minimal dua pekan sebelum tanggal rencana agar kami sempat memproses penjadwalan dan perizinan.
           </p>
         </RevealSection>
 
@@ -341,7 +341,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
             <div ref={successRef} tabIndex={-1} className="mt-4 flex items-start gap-3 rounded-[var(--radius-card)] bg-emerald-50 p-4 text-sm text-emerald-800 outline-none dark:bg-emerald-950/40 dark:text-emerald-200">
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
               <p>
-                Pengajuan Anda sudah terkirim dan masuk antrean tinjauan tim. Kami akan menghubungi PIC lewat nomor WhatsApp
+                Pengajuan kamu sudah terkirim dan masuk antrean tinjauan tim. Kami akan menghubungi PIC lewat nomor WhatsApp
                 yang dicantumkan. Pengajuan ini belum berarti jadwal atau area sudah dikonfirmasi.
               </p>
             </div>
@@ -511,7 +511,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       value={form.eventDescription}
                       onChange={(e) => setField('eventDescription', e.target.value)}
                       maxLength={4000}
-                      placeholder="Jelaskan bentuk kegiatannya, target peserta, dan bagaimana tenant Anda terlibat."
+                      placeholder="Jelaskan bentuk kegiatannya, target peserta, dan bagaimana tenant kamu terlibat."
                       aria-invalid={Boolean(fieldErrors.eventDescription)}
                       aria-describedby={fieldErrors.eventDescription ? 'tp-desc-err' : undefined}
                     />
@@ -613,7 +613,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                   className={`${focusRing} inline-flex h-auto items-center gap-2 whitespace-normal! rounded-full! bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! dark:hover:bg-[var(--wf-page)]! dark:hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60`}
                 >
                   {submitting ? <Send className="size-4" aria-hidden="true" /> : <Handshake className="size-4" aria-hidden="true" />}
-                  {submitting ? 'Mengirim…' : 'Kirim Pengajuan'}
+                  {submitting ? 'Mengirim…' : 'Kirim pengajuan'}
                 </Button>
                 <p className="mt-2 text-xs text-[var(--wf-ink-muted)]">
                   Data kontak hanya dipakai tim Metropolitan Mall Bekasi untuk menindaklanjuti pengajuan ini.

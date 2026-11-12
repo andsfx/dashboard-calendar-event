@@ -20,7 +20,7 @@ describe('MultiDayEventFields', () => {
 
   it('renders end date field', () => {
     render(<MultiDayEventFields {...mockProps} />)
-    expect(screen.getByText(/Tanggal Selesai/)).toBeInTheDocument()
+    expect(screen.getByText(/Tanggal selesai/)).toBeInTheDocument()
   })
 
   it('displays end date value', () => {

@@ -35,17 +35,17 @@ const NGO_FOCUS_AREAS = ['Pendidikan', 'Kesehatan', 'Lingkungan', 'Kemanusiaan',
  * Keys map to `typeSpecificData` entries; error keys are `typeSpecificData.<key>`.
  */
 export const TYPE_SPECIFIC_REQUIRED: Record<OrganizationType, { key: string; label: string }[]> = {
-  community: [{ key: 'communitySubType', label: 'Tipe Komunitas' }],
-  school: [{ key: 'educationLevel', label: 'Jenjang Pendidikan' }],
+  community: [{ key: 'communitySubType', label: 'Tipe komunitas' }],
+  school: [{ key: 'educationLevel', label: 'Jenjang pendidikan' }],
   company: [{ key: 'industry', label: 'Industri' }],
   eo: [{ key: 'specialization', label: 'Spesialisasi' }],
   campus: [
-    { key: 'universityName', label: 'Nama Universitas/Kampus' },
-    { key: 'campusOrgType', label: 'Tipe Organisasi' },
+    { key: 'universityName', label: 'Nama universitas/kampus' },
+    { key: 'campusOrgType', label: 'Tipe organisasi' },
   ],
-  government: [{ key: 'department', label: 'Departemen / Dinas' }],
-  ngo: [{ key: 'focusArea', label: 'Bidang Fokus' }],
-  other: [{ key: 'customOrgType', label: 'Tipe Organisasi' }],
+  government: [{ key: 'department', label: 'Departemen / dinas' }],
+  ngo: [{ key: 'focusArea', label: 'Bidang fokus' }],
+  other: [{ key: 'customOrgType', label: 'Tipe organisasi' }],
 };
 
 function FieldLabel({ id, label, required, labelClass }: {
@@ -138,19 +138,19 @@ export function TypeSpecificFields({ orgType, typeSpecificData, onChange, inputC
     case 'community':
       return (
         <>
-          <SelectField id="ts-community-type" label="Tipe Komunitas" value={String(d.communitySubType || '')} options={COMMUNITY_TYPES} onChange={v => set('communitySubType', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('communitySubType')} error={err('communitySubType')} />
-          <NumberField id="ts-member-count" label="Jumlah Anggota" value={d.memberCount || ''} onChange={v => set('memberCount', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Estimasi jumlah anggota" />
-          <TextField id="ts-social" label="Link Media Sosial" value={String(d.socialLinks || '')} onChange={v => set('socialLinks', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Link Instagram, TikTok, dll" />
+          <SelectField id="ts-community-type" label="Tipe komunitas" value={String(d.communitySubType || '')} options={COMMUNITY_TYPES} onChange={v => set('communitySubType', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('communitySubType')} error={err('communitySubType')} />
+          <NumberField id="ts-member-count" label="Jumlah anggota" value={d.memberCount || ''} onChange={v => set('memberCount', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Estimasi jumlah anggota" />
+          <TextField id="ts-social" label="Link media sosial" value={String(d.socialLinks || '')} onChange={v => set('socialLinks', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Link Instagram, TikTok, dan lainnya" />
         </>
       );
 
     case 'school':
       return (
         <>
-          <SelectField id="ts-edu-level" label="Jenjang Pendidikan" value={String(d.educationLevel || '')} options={EDUCATION_LEVELS} onChange={v => set('educationLevel', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('educationLevel')} error={err('educationLevel')} />
-          <SelectField id="ts-inst-type" label="Tipe Institusi" value={String(d.institutionType || '')} options={INSTITUTION_TYPES} onChange={v => set('institutionType', v)} inputClass={inputClass} labelClass={labelClass} />
-          <NumberField id="ts-student-count" label="Jumlah Siswa/Mahasiswa" value={d.studentCount || ''} onChange={v => set('studentCount', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Estimasi jumlah" />
-          <TextField id="ts-advisor" label="Nama Guru/Dosen Pembimbing" value={String(d.advisorName || '')} onChange={v => set('advisorName', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Nama pembimbing" />
+          <SelectField id="ts-edu-level" label="Jenjang pendidikan" value={String(d.educationLevel || '')} options={EDUCATION_LEVELS} onChange={v => set('educationLevel', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('educationLevel')} error={err('educationLevel')} />
+          <SelectField id="ts-inst-type" label="Tipe institusi" value={String(d.institutionType || '')} options={INSTITUTION_TYPES} onChange={v => set('institutionType', v)} inputClass={inputClass} labelClass={labelClass} />
+          <NumberField id="ts-student-count" label="Jumlah siswa/mahasiswa" value={d.studentCount || ''} onChange={v => set('studentCount', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Estimasi jumlah" />
+          <TextField id="ts-advisor" label="Nama guru/dosen pembimbing" value={String(d.advisorName || '')} onChange={v => set('advisorName', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Nama pembimbing" />
         </>
       );
 
@@ -158,8 +158,8 @@ export function TypeSpecificFields({ orgType, typeSpecificData, onChange, inputC
       return (
         <>
           <SelectField id="ts-industry" label="Industri" value={String(d.industry || '')} options={INDUSTRIES} onChange={v => set('industry', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('industry')} error={err('industry')} />
-          <NumberField id="ts-employee-count" label="Jumlah Karyawan" value={d.employeeCount || ''} onChange={v => set('employeeCount', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Estimasi jumlah" />
-          <SelectField id="ts-purpose" label="Tujuan Event" value={String(d.eventPurpose || '')} options={EVENT_PURPOSES} onChange={v => set('eventPurpose', v)} inputClass={inputClass} labelClass={labelClass} />
+          <NumberField id="ts-employee-count" label="Jumlah karyawan" value={d.employeeCount || ''} onChange={v => set('employeeCount', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Estimasi jumlah" />
+          <SelectField id="ts-purpose" label="Tujuan event" value={String(d.eventPurpose || '')} options={EVENT_PURPOSES} onChange={v => set('eventPurpose', v)} inputClass={inputClass} labelClass={labelClass} />
         </>
       );
 
@@ -167,43 +167,43 @@ export function TypeSpecificFields({ orgType, typeSpecificData, onChange, inputC
       return (
         <>
           <SelectField id="ts-specialization" label="Spesialisasi" value={String(d.specialization || '')} options={EO_SPECIALIZATIONS} onChange={v => set('specialization', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('specialization')} error={err('specialization')} />
-          <TextField id="ts-portfolio" label="Portfolio / Event Sebelumnya" value={String(d.portfolio || '')} onChange={v => set('portfolio', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Sebutkan event yang pernah dihandle" />
-          <NumberField id="ts-team-size" label="Jumlah Tim" value={d.teamSize || ''} onChange={v => set('teamSize', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Jumlah anggota tim" />
+          <TextField id="ts-portfolio" label="Portfolio / event sebelumnya" value={String(d.portfolio || '')} onChange={v => set('portfolio', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Sebutkan event yang pernah kamu tangani" />
+          <NumberField id="ts-team-size" label="Jumlah tim" value={d.teamSize || ''} onChange={v => set('teamSize', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Jumlah anggota tim" />
         </>
       );
 
     case 'campus':
       return (
         <>
-          <TextField id="ts-university" label="Nama Universitas/Kampus" value={String(d.universityName || '')} onChange={v => set('universityName', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Nama kampus" required={isRequired('universityName')} error={err('universityName')} />
-          <TextField id="ts-faculty" label="Fakultas / Jurusan" value={String(d.faculty || '')} onChange={v => set('faculty', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Fakultas atau jurusan" />
-          <SelectField id="ts-campus-org-type" label="Tipe Organisasi" value={String(d.campusOrgType || '')} options={CAMPUS_ORG_TYPES} onChange={v => set('campusOrgType', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('campusOrgType')} error={err('campusOrgType')} />
-          <NumberField id="ts-member-count" label="Jumlah Anggota" value={d.memberCount || ''} onChange={v => set('memberCount', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Estimasi jumlah" />
+          <TextField id="ts-university" label="Nama universitas/kampus" value={String(d.universityName || '')} onChange={v => set('universityName', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Nama kampus" required={isRequired('universityName')} error={err('universityName')} />
+          <TextField id="ts-faculty" label="Fakultas / jurusan" value={String(d.faculty || '')} onChange={v => set('faculty', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Fakultas atau jurusan" />
+          <SelectField id="ts-campus-org-type" label="Tipe organisasi" value={String(d.campusOrgType || '')} options={CAMPUS_ORG_TYPES} onChange={v => set('campusOrgType', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('campusOrgType')} error={err('campusOrgType')} />
+          <NumberField id="ts-member-count" label="Jumlah anggota" value={d.memberCount || ''} onChange={v => set('memberCount', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Estimasi jumlah" />
         </>
       );
 
     case 'government':
       return (
         <>
-          <TextField id="ts-department" label="Departemen / Dinas" value={String(d.department || '')} onChange={v => set('department', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Nama departemen" required={isRequired('department')} error={err('department')} />
-          <TextField id="ts-program" label="Nama Program" value={String(d.programName || '')} onChange={v => set('programName', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Program yang akan dijalankan" />
+          <TextField id="ts-department" label="Departemen / dinas" value={String(d.department || '')} onChange={v => set('department', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Nama departemen" required={isRequired('department')} error={err('department')} />
+          <TextField id="ts-program" label="Nama program" value={String(d.programName || '')} onChange={v => set('programName', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Program yang akan dijalankan" />
         </>
       );
 
     case 'ngo':
       return (
         <>
-          <SelectField id="ts-focus" label="Bidang Fokus" value={String(d.focusArea || '')} options={NGO_FOCUS_AREAS} onChange={v => set('focusArea', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('focusArea')} error={err('focusArea')} />
-          <TextField id="ts-reg-number" label="Nomor Registrasi (opsional)" value={String(d.registrationNumber || '')} onChange={v => set('registrationNumber', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Nomor akta/registrasi" />
-          <TextField id="ts-program" label="Deskripsi Program" value={String(d.programDescription || '')} onChange={v => set('programDescription', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Program yang akan dijalankan" />
+          <SelectField id="ts-focus" label="Bidang fokus" value={String(d.focusArea || '')} options={NGO_FOCUS_AREAS} onChange={v => set('focusArea', v)} inputClass={inputClass} labelClass={labelClass} required={isRequired('focusArea')} error={err('focusArea')} />
+          <TextField id="ts-reg-number" label="Nomor registrasi (opsional)" value={String(d.registrationNumber || '')} onChange={v => set('registrationNumber', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Nomor akta/registrasi" />
+          <TextField id="ts-program" label="Deskripsi program" value={String(d.programDescription || '')} onChange={v => set('programDescription', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Program yang akan dijalankan" />
         </>
       );
 
     case 'other':
       return (
         <>
-          <TextField id="ts-org-type-custom" label="Tipe Organisasi" value={String(d.customOrgType || '')} onChange={v => set('customOrgType', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Jelaskan tipe organisasi kamu" required={isRequired('customOrgType')} error={err('customOrgType')} />
-          <TextField id="ts-additional" label="Informasi Tambahan" value={String(d.additionalInfo || '')} onChange={v => set('additionalInfo', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Info tambahan yang relevan" />
+          <TextField id="ts-org-type-custom" label="Tipe organisasi" value={String(d.customOrgType || '')} onChange={v => set('customOrgType', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Jelaskan tipe organisasi kamu" required={isRequired('customOrgType')} error={err('customOrgType')} />
+          <TextField id="ts-additional" label="Informasi tambahan" value={String(d.additionalInfo || '')} onChange={v => set('additionalInfo', v)} inputClass={inputClass} labelClass={labelClass} placeholder="Info tambahan yang relevan" />
         </>
       );
 

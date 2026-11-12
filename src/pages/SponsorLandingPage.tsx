@@ -41,7 +41,7 @@ const labelClass = 'mb-1.5 block! text-xs font-semibold leading-normal text-[var
 
 export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Mitra & Sponsor - Metropolitan Mall Bekasi',
+    title: 'Mitra dan sponsor - Metropolitan Mall Bekasi',
     description: 'Ajukan proposal event dan jadi mitra sponsor Metropolitan Mall Bekasi.',
   });
 
@@ -118,7 +118,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
       setSubmitted(true);
     } catch (err) {
       // 400 validasi / 429 rate limit / 500 — tampilkan pesan dari server
-      setSubmitError(err instanceof ApiError ? err.message : 'Gagal mengirim minat support. Coba lagi nanti.');
+      setSubmitError(err instanceof ApiError ? err.message : 'Gagal mengirim minat dukungan. Coba lagi nanti.');
     } finally {
       setSubmitting(false);
     }
@@ -139,7 +139,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Hero */}
         <RevealSection as="div" className="mb-10 max-w-3xl" refreshKey={eventsWithProposals.length}>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Dukungan Sponsorship</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Dukungan sponsorship</h1>
           <p className="mt-3 text-base leading-7 text-[var(--wf-ink-muted)]">
             Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.
           </p>
@@ -212,7 +212,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                     className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[var(--border-subtle)] px-4 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]"
                   >
                     <FileText className="h-4 w-4" aria-hidden="true" />
-                    Lihat Proposal
+                    Lihat proposal
                   </a>
                   <a
                     href="#sponsor-form"
@@ -220,7 +220,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                     className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-4 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]"
                   >
                     <Handshake className="h-4 w-4" aria-hidden="true" />
-                    Saya Tertarik Support
+                    Saya tertarik mendukung event
                   </a>
                 </div>
               </div>
@@ -233,9 +233,9 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && eventsWithProposals.length > 0 && (
           <RevealSection as="div" id="sponsor-form" className="mx-auto mt-14 max-w-2xl scroll-mt-24">
             <div className="mb-6 text-center">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Tertarik Support Event?</h2>
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Tertarik mendukung event?</h2>
               <p className="mt-2 text-sm leading-6 text-[var(--wf-ink-muted)]">
-                Isi form di bawah. Tim Marcomm Metropolitan Mall Bekasi akan menghubungi Anda dalam 5 hari kerja.
+                Isi form di bawah. Tim Marcomm Metropolitan Mall Bekasi akan menghubungi kamu dalam 5 hari kerja.
               </p>
             </div>
 
@@ -244,9 +244,9 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
                   <CheckCircle2 className="h-8 w-8 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
                 </div>
-                <h3 className="mt-5 text-2xl font-bold text-[var(--wf-ink)]">Minat Support Terkirim!</h3>
+                <h3 className="mt-5 text-2xl font-bold text-[var(--wf-ink)]">Minat dukungan terkirim!</h3>
                 <p className="mt-3 text-sm leading-7 ui-text-secondary">
-                  Terima kasih! Tim Marcomm kami akan meninjau dan menghubungi Anda dalam 5 hari kerja.
+                  Terima kasih! Tim Marcomm kami akan meninjau dan menghubungi kamu dalam 5 hari kerja.
                 </p>
                 <Button
                   type="button"
@@ -254,7 +254,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                   onClick={() => { setSubmitted(false); setForm({ ...INITIAL_FORM }); }}
                   className="mt-6 h-auto items-center gap-2 rounded-full border! border-[var(--wf-rule)]! px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]! active:translate-y-0!"
                 >
-                  Kirim Minat Support Lain
+                  Kirim minat dukungan lain
                 </Button>
               </div>
             ) : (
@@ -267,7 +267,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="sp-event" className={labelClass}>Pilih Event <span className="text-rose-600" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></Label>
+                    <Label htmlFor="sp-event" className={labelClass}>Pilih event <span className="text-rose-600" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></Label>
                     <NativeSelect
                       id="sp-event"
                       value={form.eventId}
@@ -276,7 +276,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                       className="w-full [&>select]:h-auto [&>select]:rounded-2xl [&>select]:border-[var(--wf-rule)]! [&>select]:bg-[var(--wf-board-2)]! [&>select]:py-3 [&>select]:pl-4 [&>select]:focus-visible:ring-2! [&>select]:focus-visible:ring-[var(--brand-tosca)]!"
                       aria-invalid={!!fieldErrors.eventId}
                     >
-                      <option value="">- pilih event -</option>
+                      <option value="">Pilih event…</option>
                       {eventsWithProposals.map(({ event }) => (
                         <option key={event.id} value={event.id}>
                           {formatEventDate(event.dateStr)} · {event.acara}
@@ -289,12 +289,12 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                   </div>
 
                   <div>
-                    <Label htmlFor="sp-company" className={labelClass}>Nama Brand / Perusahaan <span className="text-rose-600" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></Label>
+                    <Label htmlFor="sp-company" className={labelClass}>Nama brand / perusahaan <span className="text-rose-600" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></Label>
                     <Input
                       id="sp-company"
                       value={form.companyName}
                       onChange={e => setField('companyName', e.target.value)}
-                      placeholder="Nama brand / perusahaan"
+                      placeholder="Contoh: PT Maju Jaya"
                       required
                       className={inputClass}
                       aria-invalid={!!fieldErrors.companyName}
@@ -311,7 +311,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                         id="sp-pic"
                         value={form.contactName}
                         onChange={e => setField('contactName', e.target.value)}
-                        placeholder="Nama penanggung jawab"
+                        placeholder="Contoh: Rani Putri"
                         required
                         className={inputClass}
                         aria-invalid={!!fieldErrors.contactName}
@@ -326,7 +326,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                         id="sp-phone"
                         value={form.phone}
                         onChange={e => setField('phone', e.target.value)}
-                        placeholder="Nomor WhatsApp"
+                        placeholder="Contoh: 08123456789"
                         type="tel"
                         autoComplete="tel"
                         required
@@ -345,7 +345,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                       id="sp-email"
                       value={form.email}
                       onChange={e => setField('email', e.target.value)}
-                      placeholder="Email (opsional)"
+                      placeholder="Contoh: rani@perusahaan.com"
                       type="email"
                       autoComplete="email"
                       className={inputClass}
@@ -363,7 +363,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                       value={form.message}
                       onChange={e => setField('message', e.target.value)}
                       rows={4}
-                      placeholder="Ceritakan ketertarikan Anda (opsional)"
+                      placeholder="Ceritakan ketertarikan kamu (opsional)"
                       className={`${inputClass} resize-none`}
                     />
                   </div>
@@ -382,7 +382,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                     ) : (
                       <>
                         <Handshake className="h-4 w-4" aria-hidden="true" />
-                        Kirim Minat Support
+                        Kirim minat dukungan
                       </>
                     )}
                   </Button>

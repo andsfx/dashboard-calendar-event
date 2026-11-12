@@ -84,7 +84,7 @@ export default function EventRatingSummary({ eventId, compact = false }: EventRa
         <div className="mt-3 space-y-3 border-t border-[var(--wf-rule)] pt-3">
           {/* Mall ratings */}
           <div>
-            <p className="mb-2 text-xs font-semibold ui-text-muted">Pengelola Tempat</p>
+            <p className="mb-2 text-xs font-semibold ui-text-muted">Pengelola tempat</p>
             <div className="grid grid-cols-2 gap-2">
               <RatingRow label="Kebersihan" value={summary.mall_avg?.cleanliness} />
               <RatingRow label="Pelayanan" value={summary.mall_avg?.staff_service} />
@@ -96,7 +96,7 @@ export default function EventRatingSummary({ eventId, compact = false }: EventRa
           {/* EO ratings */}
           {summary.eo_avg && (
             <div>
-              <p className="mb-2 text-xs font-semibold ui-text-muted">Penyelenggara Event</p>
+              <p className="mb-2 text-xs font-semibold ui-text-muted">Penyelenggara event</p>
               <div className="grid grid-cols-2 gap-2">
                 <RatingRow label="Kualitas" value={summary.eo_avg.event_quality} />
                 <RatingRow label="Organisasi" value={summary.eo_avg.organization} />

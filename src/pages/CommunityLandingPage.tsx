@@ -145,7 +145,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, instagramPosts, eve
                 to="/ajukan-event"
                 className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)] ui-focus-ring"
               >
-                Ajukan Event
+                Ajukan event
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
@@ -160,7 +160,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, instagramPosts, eve
               to="/daftar"
               className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold whitespace-nowrap text-[var(--wf-accent-ink)] shadow-lg hover:bg-[var(--wf-page)]"
             >
-              Daftar Event
+              Daftar event
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -172,7 +172,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, instagramPosts, eve
           <LogoMark className="h-auto w-[102px] opacity-90" />
           <div className="flex flex-col gap-2 sm:items-end">
             <Link to="/daftar" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">
-              Daftar Event
+              Daftar event
             </Link>
             <p className="text-sm font-medium text-[var(--wf-ink-muted)]">
               &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi

@@ -3,7 +3,7 @@ import { DraftProgress } from '../../types';
 
 const CONFIG: Record<DraftProgress, { label: string; className: string; dot: string }> = {
   draft: {
-    label: 'Draft',
+    label: 'Draf',
     className: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)] ring-1 ring-[var(--wf-action)]/30',
     dot: 'bg-[var(--wf-action)]',
   },

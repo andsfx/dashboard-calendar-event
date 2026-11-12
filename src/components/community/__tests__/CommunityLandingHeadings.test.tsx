@@ -110,7 +110,7 @@ describe('urutan heading beranda komunitas (M3)', () => {
     const { container } = renderLanding(EVENTS, ALBUMS);
     const h1s = container.querySelectorAll('h1');
     expect(h1s).toHaveLength(1);
-    expect(h1s[0]).toHaveTextContent('Panggung Gratis untuk Komunitas Bekasi');
+    expect(h1s[0]).toHaveTextContent('Panggung gratis untuk komunitas Bekasi');
   });
 
   it('heading pertama setelah h1 adalah h2 (dulu h3 dari kartu event)', () => {

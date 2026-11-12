@@ -304,10 +304,10 @@ export async function fetchPublicTenantSurveyResults(eventId?: string): Promise<
 export async function fetchTenantSurveyById(id: string): Promise<TenantEventSurvey> {
   try {
     const data = await apiGet<unknown>(`/tenant/get?id=${encodeURIComponent(id)}`);
-    if (!data) throw new ApiError('Survey tidak ditemukan');
+    if (!data) throw new ApiError('Survei tidak ditemukan');
     return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
   } catch (err) {
-    throw rewrapApiError(err, 'Survey tidak ditemukan');
+    throw rewrapApiError(err, 'Survei tidak ditemukan');
   }
 }
 
@@ -334,13 +334,13 @@ export async function createTenantSurvey(formData: TenantSurveyFormData): Promis
   const row = tenantSurveyFormToDbRow(formData, userId);
   try {
     const result = await apiPost<{ success: boolean; error?: string; data?: unknown }>('/tenant/create', row);
-    if (!result.success) throw new ApiError(result.error || 'Gagal membuat survey');
-    if (!result.data) throw new ApiError('Data survey tidak tersedia setelah disimpan');
+    if (!result.success) throw new ApiError(result.error || 'Gagal membuat survei');
+    if (!result.data) throw new ApiError('Data survei tidak tersedia setelah disimpan');
     return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
   } catch (err) {
     if (err instanceof ApiError) {
-      if (err.code === '409') throw new ApiError('Anda sudah pernah mengirimkan survey untuk event ini.', err.code, err.payload);
-      throw new ApiError(apiErrorMessage(err, 'Gagal membuat survey'), err.code, err.payload);
+      if (err.code === '409') throw new ApiError('Kamu sudah pernah mengirim survei untuk event ini.', err.code, err.payload);
+      throw new ApiError(apiErrorMessage(err, 'Gagal membuat survei'), err.code, err.payload);
     }
     throw err;
   }
@@ -359,14 +359,14 @@ export async function updateTenantSurvey(id: string, updates: Partial<TenantSurv
   if (updates.status !== undefined) { dbUpdates.status = updates.status; if (updates.status === 'submitted') dbUpdates.submitted_at = new Date().toISOString(); }
   try {
     const result = await apiPost<{ success: boolean; error?: string; data?: unknown }>('/tenant/update', { id, ...dbUpdates });
-    if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui survey');
-    if (!result.data) throw new ApiError('Data survey tidak tersedia setelah diperbarui');
+    if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui survei');
+    if (!result.data) throw new ApiError('Data survei tidak tersedia setelah diperbarui');
     return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
   } catch (err) {
     if (err instanceof ApiError) {
       // 23505 (unique event+user) — server kirim 409 dengan pesan ramah.
-      if (err.code === '409') throw new ApiError('Survey sudah pernah dikirim untuk event ini.', err.code, err.payload);
-      throw new ApiError(apiErrorMessage(err, 'Gagal memperbarui survey'), err.code, err.payload);
+      if (err.code === '409') throw new ApiError('Survei sudah pernah dikirim untuk event ini.', err.code, err.payload);
+      throw new ApiError(apiErrorMessage(err, 'Gagal memperbarui survei'), err.code, err.payload);
     }
     throw err;
   }
@@ -379,19 +379,19 @@ export async function submitTenantSurvey(id: string): Promise<TenantEventSurvey>
 export async function reviewTenantSurvey(id: string, reviewNotes = ''): Promise<TenantEventSurvey> {
   try {
     const result = await apiPost<{ success: boolean; error?: string; data?: unknown }>('/tenant/review', { id, review_notes: reviewNotes });
-    if (!result.success) throw new ApiError(result.error || 'Gagal me-review survey');
+    if (!result.success) throw new ApiError(result.error || 'Gagal meninjau survei');
     return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
   } catch (err) {
-    throw rewrapApiError(err, 'Gagal me-review survey');
+    throw rewrapApiError(err, 'Gagal meninjau survei');
   }
 }
 
 export async function deleteTenantSurvey(id: string): Promise<void> {
   try {
     const result = await apiPost<{ success: boolean; error?: string }>('/tenant/delete', { id });
-    if (!result.success) throw new ApiError(result.error || 'Gagal menghapus survey');
+    if (!result.success) throw new ApiError(result.error || 'Gagal menghapus survei');
   } catch (err) {
-    throw rewrapApiError(err, 'Gagal menghapus survey');
+    throw rewrapApiError(err, 'Gagal menghapus survei');
   }
 }
 
@@ -432,7 +432,7 @@ export async function fetchPublicTenantSurveyMonthlyTrend(eventId?: string): Pro
     const data = await apiGet<unknown>(`/tenant/results-analytics?${params.toString()}`);
     return Array.isArray(data) ? data as TenantSurveyMonthlyTrend[] : [];
   } catch (err) {
-    throw rewrapApiError(err, 'Gagal memuat trend bulanan');
+    throw rewrapApiError(err, 'Gagal memuat tren bulanan');
   }
 }
 
@@ -573,12 +573,12 @@ export async function submitPublicTenantSurvey(data: PublicTenantSurveySubmissio
   try {
     const result = await apiPost<{ success: boolean; error?: string; id?: string; created_at?: string }>('/tenant/submit', data);
     if (!result.success) {
-      // 409 duplikat → server kirim error "Anda sudah pernah mengirimkan survey..."
-      throw new ApiError(result.error || 'Gagal mengirim survey');
+      // 409 duplikat → server kirim error "Kamu sudah pernah mengirim survey..."
+      throw new ApiError(result.error || 'Gagal mengirim survei');
     }
     return { id: result.id || '', created_at: result.created_at || '' };
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal mengirim survey');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal mengirim survei');
     throw err;
   }
 }

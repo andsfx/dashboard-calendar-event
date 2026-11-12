@@ -96,7 +96,7 @@ describe('label statistik komunitas (C2)', () => {
     // "Total" telanjang adalah label yang dulu bikin dua angka terbaca sebagai satu metrik.
     expect(COMMUNITY_STAT_LABELS.total).not.toBe('Total');
     expect(COMMUNITY_STAT_LABELS.total).toMatch(/Total/);
-    expect(COMMUNITY_STAT_LABELS.completed).toMatch(/Terlaksana/);
+    expect(COMMUNITY_STAT_LABELS.completed).toMatch(/terlaksana/);
   });
 
   it('hero memakai label `completed`, bukan label `total`', () => {

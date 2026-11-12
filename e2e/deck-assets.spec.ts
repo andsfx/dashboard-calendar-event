@@ -34,7 +34,7 @@ maybe('regenerate deck screenshots', async ({}) => {
   // --- Four view modes ---
   await page.goto('/dashboard/events');
   await page.waitForLoadState('networkidle');
-  await expect(page.getByRole('heading', { name: 'Jadwal Event' })).toBeVisible({ timeout: 15000 });
+  await expect(page.getByRole('heading', { name: 'Jadwal event' })).toBeVisible({ timeout: 15000 });
 
   await page.getByRole('tab', { name: 'Tabel' }).click();
   await page.waitForTimeout(400);

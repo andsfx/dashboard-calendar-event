@@ -367,9 +367,9 @@ export function buildSchedulePdf({
   const enabled = new Set(sections);
   const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   doc.setProperties({
-    title: 'Jadwal Event - Metropolitan Mall Bekasi',
+    title: 'Jadwal event - Metropolitan Mall Bekasi',
     author: 'Metropolitan Mall Bekasi',
-    subject: 'Jadwal Event',
+    subject: 'Jadwal event',
     keywords: 'jadwal, event, Metropolitan Mall Bekasi',
     creator: 'Dashboard Event System',
   });
@@ -381,7 +381,7 @@ export function buildSchedulePdf({
   const past = sorted.filter((event) => event.status === 'past').length;
 
   let y = drawPdfHeader(doc, {
-    title: 'Jadwal Event',
+    title: 'Jadwal event',
     subtitle: 'Metropolitan Mall Bekasi',
     meta: `Diekspor ${generatedAt} · ${sorted.length} event`,
     logoDataUrl,
@@ -402,21 +402,21 @@ export function buildSchedulePdf({
     doc.setFontSize(10);
     doc.setTextColor(PDF_BRAND.muted);
     doc.text('Belum ada event untuk diekspor.', A4.w / 2, y + 24, { align: 'center' });
-    drawPdfFooter(doc, { label: 'Metropolitan Mall Bekasi · Jadwal Event' });
+    drawPdfFooter(doc, { label: 'Metropolitan Mall Bekasi · Jadwal event' });
     return doc;
   }
 
   if (enabled.has('table')) {
-    y = drawSectionHeading(doc, 'Tabel Jadwal', `${sorted.length} event`, y);
-    doc.outline.add(null, 'Tabel Jadwal', { pageNumber: doc.getNumberOfPages() });
+    y = drawSectionHeading(doc, 'Tabel jadwal', `${sorted.length} event`, y);
+    doc.outline.add(null, 'Tabel jadwal', { pageNumber: doc.getNumberOfPages() });
     drawScheduleTable(doc, rows, y);
     y = doc.lastAutoTable.finalY + 24;
   }
 
   if (enabled.has('areas')) {
     y = ensureSpace(doc, y, 60, {});
-    y = drawSectionHeading(doc, 'Agenda per Area', 'dikelompokkan menurut lokasi', y);
-    doc.outline.add(null, 'Agenda per Area', { pageNumber: doc.getNumberOfPages() });
+    y = drawSectionHeading(doc, 'Agenda per area', 'dikelompokkan menurut lokasi', y);
+    doc.outline.add(null, 'Agenda per area', { pageNumber: doc.getNumberOfPages() });
     y = drawAreaAgenda(doc, rows, y);
   }
 
@@ -430,10 +430,10 @@ export function buildSchedulePdf({
       // Lembar kontak selalu mulai di halaman baru: dipakai berdiri sendiri
       // oleh tim operasional, bukan dibaca menyambung dari tabel.
       doc.addPage();
-      doc.outline.add(null, 'Kontak Penyelenggara', { pageNumber: doc.getNumberOfPages() });
+      doc.outline.add(null, 'Kontak penyelenggara', { pageNumber: doc.getNumberOfPages() });
       const contactsY = drawSectionHeading(
         doc,
-        'Kontak Penyelenggara',
+        'Kontak penyelenggara',
         'untuk koordinasi teknis',
         PDF_MARGIN,
       );
@@ -441,6 +441,6 @@ export function buildSchedulePdf({
     }
   }
 
-  drawPdfFooter(doc, { label: 'Metropolitan Mall Bekasi · Jadwal Event' });
+  drawPdfFooter(doc, { label: 'Metropolitan Mall Bekasi · Jadwal event' });
   return doc;
 }

@@ -10,13 +10,13 @@ test.describe('Tenant Survey — Public Flow', () => {
     await page.goto(`/tenant-survey/${MOCK_EVENT.id}`);
 
     await expect(page.getByRole('heading', { name: MOCK_EVENT.acara })).toBeVisible();
-    await expect(page.getByText('Self-Assessment Tenant')).toBeVisible();
+    await expect(page.getByText('Penilaian mandiri tenant')).toBeVisible();
 
-    await expect(page.getByRole('heading', { name: 'Bagian 1: Informasi Tenant' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Evaluasi Traffic.*Sales/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Bagian 3: Umpan Balik' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Bagian 1: Informasi tenant' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Evaluasi kunjungan.*penjualan/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Bagian 3: Umpan balik' })).toBeVisible();
 
-    await expect(page.getByRole('button', { name: /Kirim Survey/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Kirim survei/ })).toBeVisible();
   });
 
   test('submit button disabled when required fields empty', async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe('Tenant Survey — Public Flow', () => {
     await expect(page.getByRole('heading', { name: MOCK_EVENT.acara })).toBeVisible();
 
     // Section 1: Nama tenant — pick from MID list (not free-text)
-    await page.getByPlaceholder('Cari & pilih tenant dari daftar').fill('Kopi Metmal');
+    await page.getByPlaceholder('Cari lalu pilih tenant dari daftar').fill('Kopi Metmal');
     await page.getByRole('option', { name: /Kopi Metmal/ }).click();
 
     // Lokasi — auto-filled from tenant, verify or select manually
@@ -60,10 +60,10 @@ test.describe('Tenant Survey — Public Flow', () => {
     await page.locator('label', { hasText: '10% - 30%' }).click();
 
     // Submit
-    await page.getByRole('button', { name: /Kirim Survey/ }).click();
+    await page.getByRole('button', { name: /Kirim survei/ }).click();
 
     // Success screen
-    await expect(page.getByRole('heading', { name: 'Survey Terkirim!' })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Survei terkirim!' })).toBeVisible({ timeout: 5000 });
     await expect(page.getByText(/Terima kasih/)).toBeVisible();
   });
 
@@ -85,7 +85,7 @@ test.describe('Tenant Survey — Public Flow', () => {
     await expect(page.getByText('0% selesai')).toBeVisible();
 
     // Fill nama_gerai via pick-from-list
-    await page.getByPlaceholder('Cari & pilih tenant dari daftar').fill('Kopi Metmal');
+    await page.getByPlaceholder('Cari lalu pilih tenant dari daftar').fill('Kopi Metmal');
     await page.getByRole('option', { name: /Kopi Metmal/ }).click();
 
     // After select + auto-filled lokasi + kategori = 3/5
@@ -113,7 +113,7 @@ test.describe('Tenant Survey — Public Flow', () => {
     await expect(page.getByRole('heading', { name: MOCK_EVENT.acara })).toBeVisible();
 
     // Type query (min 2 chars)
-    const searchInput = page.getByPlaceholder('Cari & pilih tenant dari daftar');
+    const searchInput = page.getByPlaceholder('Cari lalu pilih tenant dari daftar');
     await searchInput.fill('Kopi');
     await searchInput.focus();
 

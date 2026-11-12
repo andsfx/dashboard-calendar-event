@@ -3,12 +3,12 @@ import { Armchair, Gavel, Lightbulb, MapPin, Mic2, Speaker } from 'lucide-react'
 import { RevealSection } from './CommunityRevealPrimitives';
 
 const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
-  { icon: <Mic2 className="h-5 w-5" aria-hidden="true" />, title: 'Panggung & Backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
-  { icon: <Speaker className="h-5 w-5" aria-hidden="true" />, title: 'Sound System 10K Watt', detail: 'Sound system profesional 10.000 watt lengkap dengan operator berpengalaman.' },
-  { icon: <Lightbulb className="h-5 w-5" aria-hidden="true" />, title: 'Lighting System', detail: 'Lighting profesional yang bikin panggung kamu makin berkesan.' },
-  { icon: <Armchair className="h-5 w-5" aria-hidden="true" />, title: '50 Kursi Penonton', detail: '50 kursi penonton yang bisa ditata ulang sesuai kebutuhan acara kamu.' },
-  { icon: <MapPin className="h-5 w-5" aria-hidden="true" />, title: 'Area Lantai 3', detail: 'Lokasi strategis di lantai 3 Metropolitan Mall Bekasi, mudah diakses pengunjung.' },
-  { icon: <Gavel className="h-5 w-5" aria-hidden="true" />, title: 'Meja Juri', detail: 'Meja juri tersedia untuk kompetisi, audisi, atau ujian kenaikan kelas.' },
+  { icon: <Mic2 className="h-5 w-5" aria-hidden="true" />, title: 'Panggung dan backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
+  { icon: <Speaker className="h-5 w-5" aria-hidden="true" />, title: 'Sound system 10.000 watt', detail: 'Sound system profesional 10.000 watt lengkap dengan operator berpengalaman.' },
+  { icon: <Lightbulb className="h-5 w-5" aria-hidden="true" />, title: 'Lighting system', detail: 'Lighting profesional yang bikin panggung kamu makin berkesan.' },
+  { icon: <Armchair className="h-5 w-5" aria-hidden="true" />, title: '50 kursi penonton', detail: '50 kursi penonton yang bisa ditata ulang sesuai kebutuhan acara kamu.' },
+  { icon: <MapPin className="h-5 w-5" aria-hidden="true" />, title: 'Area lantai 3', detail: 'Lokasi strategis di lantai 3 Metropolitan Mall Bekasi, mudah diakses pengunjung.' },
+  { icon: <Gavel className="h-5 w-5" aria-hidden="true" />, title: 'Meja juri', detail: 'Meja juri tersedia untuk kompetisi, audisi, atau ujian kenaikan kelas.' },
 ];
 
 /* M4 (skill 4.7, Section-Layout-Repetition Ban): this section used to be a
@@ -17,8 +17,9 @@ const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
    each facility is one row of [title column | detail column] (icon + heading
    on the left, the detail on the right), so the label/value pairing is
    structural rather than card-shaped. No card surfaces, no borders under rows
-   (9.F); it collapses to a single column below `sm`. Strings, heading
-   text/level and the section anchor are unchanged. */
+   (9.F); it collapses to a single column below `sm`. String copy was later
+   reworded by plain-language alignment (sentence case, "&" → "dan"); heading
+   levels and the section anchor are unchanged. */
 export function CommunityFacilities() {
   return (
     <RevealSection id="facilities" className="scroll-mt-28 border-t border-[var(--wf-rule)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">

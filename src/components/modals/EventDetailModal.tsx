@@ -120,7 +120,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
                   <ClipboardCheckIcon />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[var(--wf-accent)]">Isi Survey Kepuasan</p>
+                  <p className="text-sm font-semibold text-[var(--wf-accent)]">Isi survei kepuasan</p>
                   <p className="text-[11px] text-[var(--wf-accent)]">Bantu kami meningkatkan kualitas layanan</p>
                 </div>
                 <span className="shrink-0 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)]">
@@ -132,7 +132,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             <details className="group">
 <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)]">
                 <QrCode className="h-3.5 w-3.5" />
-                <span>QR Code Survey</span>
+                <span>Kode QR survei</span>
                 <span className="ml-auto text-[10px] text-[var(--wf-ink-muted)] group-open:hidden">Tampilkan</span>
                 <span className="ml-auto text-[10px] text-[var(--wf-ink-muted)] hidden group-open:inline">Sembunyikan</span>
               </summary>
@@ -146,7 +146,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             <details className="group">
 <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)]">
                 <ClipboardCheckIcon />
-                <span>QR Code Self-Assessment Tenant</span>
+                <span>Kode QR penilaian mandiri tenant</span>
                 <span className="ml-auto text-[10px] text-[var(--wf-ink-muted)] group-open:hidden">Tampilkan</span>
                 <span className="ml-auto text-[10px] text-[var(--wf-ink-muted)] hidden group-open:inline">Sembunyikan</span>
               </summary>
@@ -156,7 +156,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
                     eventId={event.id}
                     eventName={event.acara}
                     basePath="/tenant-survey"
-                    label="Self-Assessment Tenant"
+                    label="Penilaian mandiri tenant"
                     showTypeTabs={false}
                   />
                 </Suspense>

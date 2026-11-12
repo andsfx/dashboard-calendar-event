@@ -88,7 +88,7 @@ const AUDIENCE_FILTERS: Array<{
  */
 export function DocsPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Dokumentasi Fitur - Metropolitan Mall Bekasi',
+    title: 'Dokumentasi fitur - Metropolitan Mall Bekasi',
     description:
       'Panduan lengkap fitur dan tutorial singkat dashboard event Metropolitan Mall Bekasi, untuk admin, tenant, dan pengunjung.',
   });
@@ -132,11 +132,11 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 outline-none sm:px-6 sm:py-12">
         <RevealSection as="div" className="mb-8 max-w-3xl">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Panduan Fitur</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Panduan fitur</h1>
           <p className="mt-3 text-base leading-7 text-[var(--wf-ink-muted)]">
             Penjelasan dan tutorial singkat untuk setiap fitur Metropolitan Mall Bekasi: dari mencari jadwal event
             dan mendaftar sebagai komunitas, sampai mengelola dashboard sebagai admin. Pilih "Saya melihat sebagai"
-            untuk menyaring sesuai peran Anda, atau cari langsung nama fiturnya.
+            untuk menyaring sesuai peran kamu, atau cari langsung nama fiturnya.
           </p>
         </RevealSection>
 
@@ -146,7 +146,7 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
             <nav aria-label="Daftar isi dokumentasi" className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--wf-board)] p-4">
               <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--wf-ink-muted)]">
                 <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
-                Daftar Isi
+                Daftar isi
               </p>
               <ul className="mt-3 space-y-2">
                 {DOC_SECTIONS.map(section => (
@@ -216,7 +216,7 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                   type="search"
                   value={query}
                   onChange={event => setQuery(event.target.value)}
-                  placeholder="Cari fitur, mis. kalender, sponsor, survey…"
+                  placeholder="Cari fitur, mis. kalender, sponsor, survei…"
                   className="w-full rounded-full border border-[var(--wf-rule)]! bg-[var(--wf-board)]! py-2.5 pl-10 pr-4 text-sm text-[var(--wf-ink)] outline-none transition focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! dark:placeholder-slate-400 h-auto rounded-full! dark:bg-[var(--wf-board)]!"
                 />
               </div>
@@ -269,7 +269,7 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                                 {feature.status === 'maintenance' && (
                                   <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
                                     <Wrench className="h-3 w-3" aria-hidden="true" />
-                                    Sedang Diperbaiki
+                                    Sedang diperbaiki
                                   </span>
                                 )}
                               </div>
@@ -294,7 +294,7 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                               <p className="mt-3 text-sm leading-6 text-[var(--wf-ink-muted)]">{feature.summary}</p>
 
                               <div className="mt-4">
-                                <p className="text-xs font-bold uppercase tracking-wider text-[var(--wf-ink-muted)]">Cara Pakai</p>
+                                <p className="text-xs font-bold uppercase tracking-wider text-[var(--wf-ink-muted)]">Cara pakai</p>
                                 <ol className="mt-2 space-y-1.5">
                                   {feature.steps.map((step, index) => (
                                     <li key={index} className="flex gap-2.5 text-sm leading-6 text-[var(--wf-ink-muted)]">
@@ -341,13 +341,13 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
               Beranda
             </Link>
             <Link to="/events" className="transition hover:text-[var(--wf-accent)]">
-              Jadwal Event
+              Jadwal event
             </Link>
             <Link to="/sponsor" className="transition hover:text-[var(--wf-accent)]">
               Sponsor
             </Link>
             <Link to="/tenant-survey" className="transition hover:text-[var(--wf-accent)]">
-              Evaluasi Tenant
+              Evaluasi tenant
             </Link>
           </div>
         </div>

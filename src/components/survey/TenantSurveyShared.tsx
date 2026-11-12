@@ -41,8 +41,8 @@ export function apiCategoryToKategori(apiCat: string): string {
 /** Descriptive labels for traffic radio options */
 export const TRAFFIC_LABELS: Record<string, string> = {
   'Signifikan': 'Signifikan (Toko jauh lebih ramai)',
-  'Sedikit Naik': 'Sedikit Naik (Ada tambahan pengunjung tapi tidak terlalu padat)',
-  'Tidak Ada': 'Tidak Ada (Kondisi sama seperti hari biasa)',
+  'Sedikit Naik': 'Sedikit naik (Ada tambahan pengunjung tapi tidak terlalu padat)',
+  'Tidak Ada': 'Tidak ada (Kondisi sama seperti hari biasa)',
   'Menurun': 'Menurun (Toko justru lebih sepi)',
 };
 
@@ -254,7 +254,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Cari & pilih tenant dari daftar"
+          placeholder="Cari lalu pilih tenant dari daftar"
           disabled={disabled}
           autoComplete="off"
           role="combobox"

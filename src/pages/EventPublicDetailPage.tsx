@@ -68,7 +68,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
     return parts.length > 0 ? `${event.acara} - ${parts.join(' · ')} di Metropolitan Mall Bekasi.` : `${event.acara} di Metropolitan Mall Bekasi.`;
   }, [event]);
   usePageMeta({
-    title: event ? `${event.acara} - Jadwal Event Metropolitan Mall Bekasi` : 'Jadwal Event - Metropolitan Mall Bekasi',
+    title: event ? `${event.acara} - Jadwal event Metropolitan Mall Bekasi` : 'Jadwal event - Metropolitan Mall Bekasi',
     description: metaDescription,
   });
 
@@ -146,7 +146,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
               <RefreshCw className="h-7 w-7 text-red-500 dark:text-red-400" aria-hidden="true" />
             </div>
             <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">Gagal memuat event</p>
-            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Terjadi kesalahan saat memuat data. Periksa koneksi internet Anda.</p>
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Terjadi kesalahan saat memuat data. Periksa koneksi internet kamu.</p>
             <Button
               type="button"
               variant="ghost"
@@ -172,7 +172,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)] ui-focus-ring"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              Jadwal Event
+              Jadwal event
             </Link>
           </div>
         )}
@@ -200,7 +200,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                 <CategoryBadges categories={event.categories} />
                 {event.status === 'ongoing' && (
                   <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                    <Zap className="h-3 w-3" aria-hidden="true" /> LIVE
+                    <Zap className="h-3 w-3" aria-hidden="true" /> Live
                   </span>
                 )}
                 {isMultiDay && (
@@ -248,7 +248,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                 className="inline-flex items-center gap-2 rounded-full border border-black/10! bg-[var(--wf-board)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! active:scale-95 ui-focus-ring h-auto rounded-full! active:translate-y-0! hover:text-[var(--wf-ink-muted)]!"
               >
                 {copied ? <Check className="size-4 text-emerald-500" aria-hidden="true" /> : <Link2 className="size-4" aria-hidden="true" />}
-                {copied ? 'Link tersalin' : 'Salin link'}
+                {copied ? 'Tautan tersalin' : 'Salin tautan'}
               </Button>
               {googleCalendarUrl && (
                 <a
@@ -284,10 +284,10 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                   <Check className="h-4 w-4 text-[var(--wf-accent)]" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[var(--wf-accent)]">Isi Survey Kepuasan</p>
+                  <p className="text-sm font-semibold text-[var(--wf-accent)]">Isi survei kepuasan</p>
                   <p className="text-[11px] text-[var(--wf-accent)]">Bantu kami meningkatkan kualitas layanan</p>
                 </div>
-                <span className="shrink-0 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)]">Isi Survey</span>
+                <span className="shrink-0 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)]">Isi survei</span>
               </a>
             )}
 
@@ -305,7 +305,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                 className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-[var(--wf-board)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                Jadwal Event
+                Jadwal event
               </Link>
             </div>
           </article>

@@ -41,7 +41,7 @@ describe('PdfExportOptionsModal', () => {
   it('mengirim bagian yang dipilih saat generate', async () => {
     const { onGenerate, onClose } = renderModal();
     fireEvent.click(screen.getByRole('checkbox', { name: /Agenda per Area/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Preview PDF/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Pratinjau PDF/ }));
 
     await vi.waitFor(() => expect(onGenerate).toHaveBeenCalledWith(['summary', 'table', 'areas']));
     // Generator tanpa hasil (menangani unduhannya sendiri) → dialog langsung tutup.
@@ -53,7 +53,7 @@ describe('PdfExportOptionsModal', () => {
     const generate = vi.fn(async () => result);
     const { onClose } = renderModal({ onGenerate: generate });
 
-    fireEvent.click(screen.getByRole('button', { name: /Preview PDF/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Pratinjau PDF/ }));
 
     await vi.waitFor(() => expect(generate).toHaveBeenCalledTimes(1));
     expect(await screen.findByTitle('Pratinjau PDF')).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('PdfExportOptionsModal', () => {
 
   it('menonaktifkan tombol saat tidak ada bagian dipilih', () => {
     renderModal({ defaultSelected: [] });
-    expect(screen.getByRole('button', { name: /Preview PDF/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Pratinjau PDF/ })).toBeDisabled();
   });
 
   it('Pilih semua / Kosongkan bekerja pada bagian yang bisa diubah', () => {
@@ -98,7 +98,7 @@ describe('PdfExportOptionsModal', () => {
       throw new Error('Gagal membuat PDF.');
     });
     renderModal({ onGenerate });
-    fireEvent.click(screen.getByRole('button', { name: /Preview PDF/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Pratinjau PDF/ }));
     expect(await screen.findByText('Gagal membuat PDF.')).toBeInTheDocument();
   });
 

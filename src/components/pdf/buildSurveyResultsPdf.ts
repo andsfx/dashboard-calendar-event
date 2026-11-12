@@ -106,10 +106,10 @@ function drawDistribution(doc: jsPDF, title: string, dist: DistMap, startY: numb
 /** Kartu KPI ringkas — dipakai untuk ringkasan eksekutif. */
 function drawKpis(doc: jsPDF, aggregate: ResultsAggregate, y: number): number {
   const kpis: Array<[string, string, string]> = [
-    ['Total Submisi', String(aggregate.total), PDF_BRAND.ink],
-    ['Tenant Mengisi', String(aggregate.uniqueGerai), PDF_BRAND.ink],
-    ['Traffic Positif', `${aggregate.trafficPosPct}%`, PDF_BRAND.live],
-    ['Sales Positif', `${aggregate.salesPosPct}%`, PDF_BRAND.live],
+    ['Total isian', String(aggregate.total), PDF_BRAND.ink],
+    ['Tenant mengisi', String(aggregate.uniqueGerai), PDF_BRAND.ink],
+    ['Kunjungan naik', `${aggregate.trafficPosPct}%`, PDF_BRAND.live],
+    ['Penjualan naik', `${aggregate.salesPosPct}%`, PDF_BRAND.live],
   ];
   const gap = 8;
   const width = (PDF_CONTENT_W - gap * 3) / 4;
@@ -188,7 +188,7 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
   // Periode & status memakai label Indonesia; nilai enum mentah
   // ("submitted+reviewed") tidak boleh muncul di dokumen cetak.
   const periode = filter.dateFrom || filter.dateTo
-    ? `${filter.dateFrom ? formatDateId(filter.dateFrom) : '-'} s/d ${filter.dateTo ? formatDateId(filter.dateTo) : '-'}`
+    ? `${filter.dateFrom ? formatDateId(filter.dateFrom) : '-'} sampai ${filter.dateTo ? formatDateId(filter.dateTo) : '-'}`
     : 'Semua periode';
   const filterLine = [
     `Periode: ${periode}`,
@@ -211,19 +211,19 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
   }
 
   if (enabled.has('distribution')) {
-    doc.outline.add(null, 'Distribusi Jawaban', { pageNumber: doc.getNumberOfPages() });
-    y = drawDistribution(doc, 'Distribusi Traffic', aggregate.trafficDist, y);
-    y = drawDistribution(doc, 'Distribusi Sales', aggregate.salesDist, y);
+    doc.outline.add(null, 'Sebaran jawaban', { pageNumber: doc.getNumberOfPages() });
+    y = drawDistribution(doc, 'Sebaran kunjungan', aggregate.trafficDist, y);
+    y = drawDistribution(doc, 'Sebaran penjualan', aggregate.salesDist, y);
     y = ensureSpace(doc, y, 140, {});
-    y = drawDistribution(doc, 'Distribusi Kategori', aggregate.kategoriDist, y);
+    y = drawDistribution(doc, 'Sebaran kategori', aggregate.kategoriDist, y);
     y = ensureSpace(doc, y, 140, {});
-    y = drawDistribution(doc, 'Distribusi Zona', aggregate.zonaDist, y);
+    y = drawDistribution(doc, 'Sebaran zona', aggregate.zonaDist, y);
   }
 
   if (enabled.has('topGerai')) {
     y = ensureSpace(doc, y, 90, {});
-    y = drawSectionTitle(doc, 'Top Tenant', 'diurutkan dari traffic + sales positif', y);
-    doc.outline.add(null, 'Top Tenant', { pageNumber: doc.getNumberOfPages() });
+    y = drawSectionTitle(doc, 'Tenant teratas', 'diurutkan dari kunjungan dan penjualan', y);
+    doc.outline.add(null, 'Tenant teratas', { pageNumber: doc.getNumberOfPages() });
     if (aggregate.topGerai.length === 0) {
       doc.setFont(FONT, 'normal');
       doc.setFontSize(8.5);
@@ -233,7 +233,7 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
     } else {
       y = drawTable(
         doc,
-        ['Tenant', 'Submisi', 'Traffic+', 'Sales+', 'Skor'],
+        ['Tenant', 'Isian', 'Kunjungan+', 'Penjualan+', 'Skor'],
         aggregate.topGerai.map((gerai) => [
           gerai.nama_gerai,
           String(gerai.count),
@@ -255,8 +255,8 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
 
   if (enabled.has('crossTab')) {
     y = ensureSpace(doc, y, 90, {});
-    y = drawSectionTitle(doc, 'Cross-tab Kategori × Sales', 'maksimal 20 baris teratas', y);
-    doc.outline.add(null, 'Cross-tab', { pageNumber: doc.getNumberOfPages() });
+    y = drawSectionTitle(doc, 'Silang kategori dan penjualan', 'maksimal 20 baris teratas', y);
+    doc.outline.add(null, 'Silang kategori dan penjualan', { pageNumber: doc.getNumberOfPages() });
     if (aggregate.crossTab.length === 0) {
       doc.setFont(FONT, 'normal');
       doc.setFontSize(8.5);
@@ -266,7 +266,7 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
     } else {
       y = drawTable(
         doc,
-        ['Kategori', 'Sales', 'Jumlah'],
+        ['Kategori', 'Penjualan', 'Jumlah'],
         aggregate.crossTab.slice(0, 20).map((row) => [row.kategori, row.sales, String(row.count)]),
         y,
         {
@@ -280,8 +280,8 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
 
   if (enabled.has('feedback')) {
     y = ensureSpace(doc, y, 60, {});
-    y = drawSectionTitle(doc, 'Cuplikan Feedback', 'maksimal 30 komentar', y);
-    doc.outline.add(null, 'Cuplikan Feedback', { pageNumber: doc.getNumberOfPages() });
+    y = drawSectionTitle(doc, 'Cuplikan umpan balik', 'maksimal 30 komentar', y);
+    doc.outline.add(null, 'Cuplikan umpan balik', { pageNumber: doc.getNumberOfPages() });
 
     if (aggregate.feedback.length === 0) {
       doc.setFont(FONT, 'normal');
@@ -314,6 +314,6 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
     }
   }
 
-  drawPdfFooter(doc, { label: 'Internal · Tenant Relation · tanpa data PIC' });
+  drawPdfFooter(doc, { label: 'Internal · Relasi tenant · tanpa data penanggung jawab' });
   return doc;
 }

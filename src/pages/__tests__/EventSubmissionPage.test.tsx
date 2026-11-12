@@ -28,9 +28,9 @@ function renderPage() {
 const createDraftEventMock = vi.mocked(createDraftEvent);
 
 async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText(/Nama Acara/), 'Workshop Batik Modern');
-  await user.type(screen.getByLabelText(/Tanggal Mulai/, { selector: '#sub-date' }), '2026-10-20');
-  await user.type(screen.getByLabelText(/Nama Organisasi/), 'Kriya Nusantara');
+  await user.type(screen.getByLabelText(/Nama acara/), 'Workshop Batik Modern');
+  await user.type(screen.getByLabelText(/Tanggal mulai/, { selector: '#sub-date' }), '2026-10-20');
+  await user.type(screen.getByLabelText(/Nama organisasi \/ EO/), 'Kriya Nusantara');
   await user.type(screen.getByLabelText(/Nama PIC/), 'Budi Santoso');
   await user.type(screen.getByLabelText(/No\. HP/), '081234567890');
 }
@@ -45,7 +45,7 @@ describe('EventSubmissionPage', () => {
     const user = userEvent.setup();
     renderPage();
     await fillValidForm(user);
-    await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/i }));
+    await user.click(screen.getByRole('button', { name: /Kirim pengajuan/i }));
 
     await waitFor(() => {
       expect(createDraftEventMock).toHaveBeenCalledTimes(1);
@@ -62,10 +62,10 @@ describe('EventSubmissionPage', () => {
     renderPage();
     await fillValidForm(user);
     await user.type(screen.getByLabelText(/Website/), 'http://spam.example');
-    await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/i }));
+    await user.click(screen.getByRole('button', { name: /Kirim pengajuan/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Pengajuan Terkirim/i)).toBeInTheDocument();
+      expect(screen.getByText(/Pengajuan terkirim/i)).toBeInTheDocument();
     });
     expect(createDraftEventMock).not.toHaveBeenCalled();
   });
@@ -73,12 +73,12 @@ describe('EventSubmissionPage', () => {
   it('HP invalid → error Indonesia, tidak submit', async () => {
     const user = userEvent.setup();
     renderPage();
-    await user.type(screen.getByLabelText(/Nama Acara/), 'Workshop Batik');
-    await user.type(screen.getByLabelText(/Tanggal Mulai/, { selector: '#sub-date' }), '2026-10-20');
-    await user.type(screen.getByLabelText(/Nama Organisasi/), 'Kriya Nusantara');
+    await user.type(screen.getByLabelText(/Nama acara/), 'Workshop Batik');
+    await user.type(screen.getByLabelText(/Tanggal mulai/, { selector: '#sub-date' }), '2026-10-20');
+    await user.type(screen.getByLabelText(/Nama organisasi \/ EO/), 'Kriya Nusantara');
     await user.type(screen.getByLabelText(/Nama PIC/), 'Budi');
     await user.type(screen.getByLabelText(/No\. HP/), 'abc');
-    await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/i }));
+    await user.click(screen.getByRole('button', { name: /Kirim pengajuan/i }));
 
     await waitFor(() => {
       expect(screen.getAllByRole('alert').length).toBeGreaterThan(0);
@@ -89,7 +89,7 @@ describe('EventSubmissionPage', () => {
   it('wajib diisi kosong → error per kolom, tidak submit', async () => {
     const user = userEvent.setup();
     renderPage();
-    await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/i }));
+    await user.click(screen.getByRole('button', { name: /Kirim pengajuan/i }));
     expect(await screen.findByText(/Periksa kolom yang ditandai/)).toBeInTheDocument();
     expect(createDraftEventMock).not.toHaveBeenCalled();
   });
@@ -98,7 +98,7 @@ describe('EventSubmissionPage', () => {
     const user = userEvent.setup();
     renderPage();
     await fillValidForm(user);
-    await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/i }));
+    await user.click(screen.getByRole('button', { name: /Kirim pengajuan/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/Workshop Batik Modern/)).toBeInTheDocument();
@@ -110,7 +110,7 @@ describe('EventSubmissionPage', () => {
     const user = userEvent.setup();
     renderPage();
     await fillValidForm(user);
-    await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/i }));
+    await user.click(screen.getByRole('button', { name: /Kirim pengajuan/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/Gagal mengirim pengajuan/i)).toBeInTheDocument();

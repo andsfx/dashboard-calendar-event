@@ -27,7 +27,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   usePageMeta({
-    title: album ? `${album.name} - Galeri Metropolitan Mall Bekasi` : 'Galeri Foto - Metropolitan Mall Bekasi',
+    title: album ? `${album.name} - Galeri Metropolitan Mall Bekasi` : 'Galeri foto - Metropolitan Mall Bekasi',
     description: album?.description || 'Galeri foto momen dan kegiatan event di Metropolitan Mall Bekasi.',
   });
 
@@ -89,7 +89,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
           className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-ink)]"
         >
           <ArrowLeft className="h-4 w-4" />
-          Kembali ke Galeri
+          Kembali ke galeri
         </Link>
 
         {/* Loading skeleton */}
@@ -116,7 +116,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
               Gagal memuat album
             </p>
             <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
-              Terjadi kesalahan saat memuat data. Periksa koneksi internet Anda.
+              Terjadi kesalahan saat memuat data. Periksa koneksi internet kamu.
             </p>
             <Button
               type="button"
@@ -147,7 +147,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
               className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)]"
             >
               <ArrowLeft className="h-4 w-4" />
-              Kembali ke Galeri
+              Kembali ke galeri
             </Link>
           </div>
         )}

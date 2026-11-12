@@ -124,7 +124,7 @@ describe('linkExhibitionActivation — tanggal event tidak valid', () => {
     });
 
     expect(status).toBe(400);
-    expect(body.error).toBe('Tanggal event tidak valid');
+    expect(body.error).toBe('Tanggal event tidak bisa dibaca (bukan format YYYY-MM-DD). Perbaiki tanggal event dulu, lalu tautkan.');
     // Tidak boleh ada INSERT aktivasi setelah penolakan.
     expect(dbState.queries.some((q) => q.sql.includes('INSERT INTO exhibition_activations'))).toBe(false);
   });

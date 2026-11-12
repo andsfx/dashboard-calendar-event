@@ -99,7 +99,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
                     </div>
                     <div className="mt-3">
                       <div className="flex justify-between text-xs text-[var(--wf-ink-muted)] mb-1">
-                        <span>Progress</span>
+                        <span>Progres</span>
                         <span className="font-medium">{Math.round(prog)}%</span>
                       </div>
                       <div className="h-1.5 bg-[var(--wf-board-2)] rounded-full overflow-hidden">
@@ -124,7 +124,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
             <div className="w-8 h-8 rounded-lg bg-[var(--wf-board-2)] flex items-center justify-center">
               <Clock className="w-4 h-4 text-[var(--wf-ink-muted)]" />
             </div>
-            <h3 className="text-sm font-semibold text-[var(--wf-ink-muted)] uppercase tracking-wider">Sedang Berlangsung</h3>
+            <h3 className="text-sm font-semibold text-[var(--wf-ink-muted)] uppercase tracking-wider">Sedang berlangsung</h3>
           </div>
           <p className="text-[var(--wf-ink-muted)] text-sm">Tidak ada acara yang sedang berlangsung saat ini.</p>
         </div>
@@ -133,7 +133,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
           <div className="flex items-center gap-2 mb-1">
             <Zap className="w-5 h-5 text-emerald-500" />
             <h3 className="text-sm font-semibold text-[var(--wf-ink-muted)] uppercase tracking-wider">
-              Sedang Berlangsung ({ongoingEvents.length})
+              Sedang berlangsung ({ongoingEvents.length})
             </h3>
           </div>
           {ongoingEvents.map(event => (
@@ -177,7 +177,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
                 {/* Progress bar */}
                 <div className="mt-5">
                   <div className="flex justify-between text-xs text-white/50 mb-1.5">
-                    <span>Progress Acara</span>
+                    <span>Progres acara</span>
                     <span>{Math.round(progress[event.id] || 0)}%</span>
                   </div>
                   <div className="h-2 bg-white/15 rounded-full overflow-hidden backdrop-blur-sm">

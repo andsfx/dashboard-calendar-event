@@ -295,7 +295,7 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                                 : 'rounded-full bg-[var(--wf-action)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-action)]'
                             }
                           >
-                            {article.status === 'published' ? 'Terbit' : 'Draft'}
+                            {article.status === 'published' ? 'Terbit' : 'Draf'}
                           </span>
                           <span>{formatDate(article.publishedAt || article.createdAt)}</span>
                         </div>

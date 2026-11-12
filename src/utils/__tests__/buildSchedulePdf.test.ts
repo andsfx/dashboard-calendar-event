@@ -60,16 +60,16 @@ describe('buildSchedulePdf', () => {
     const tableOnly = extractPdfStrings(
       buildSchedulePdf({ events: FIXTURE, generatedAt: 'x', sections: ['table'] }),
     );
-    expect(tableOnly).toContain('Tabel Jadwal');
-    expect(tableOnly).not.toContain('Agenda per Area');
-    expect(tableOnly).not.toContain('Kontak Penyelenggara');
+    expect(tableOnly).toContain('Tabel jadwal');
+    expect(tableOnly).not.toContain('Agenda per area');
+    expect(tableOnly).not.toContain('Kontak penyelenggara');
     expect(tableOnly).not.toContain('TOTAL EVENT');
 
     const summaryOnly = extractPdfStrings(
       buildSchedulePdf({ events: FIXTURE, generatedAt: 'x', sections: ['summary'] }),
     );
     expect(summaryOnly).toContain('TOTAL EVENT');
-    expect(summaryOnly).not.toContain('Tabel Jadwal');
+    expect(summaryOnly).not.toContain('Tabel jadwal');
   });
 
   it('membungkus nama acara panjang di dalam kolomnya', () => {
@@ -126,7 +126,7 @@ describe('buildSchedulePdf', () => {
     const doc = buildSchedulePdf({ events, generatedAt: 'x' });
     expect(doc.getNumberOfPages()).toBe(1);
     const text = extractPdfStrings(doc);
-    expect(text).not.toContain('Kontak Penyelenggara');
+    expect(text).not.toContain('Kontak penyelenggara');
     expect(text).not.toContain('Belum ada data penyelenggara');
   });
 
@@ -136,7 +136,7 @@ describe('buildSchedulePdf', () => {
       generatedAt: 'x',
     });
     const text = extractPdfStrings(doc);
-    expect(text).toContain('Kontak Penyelenggara');
+    expect(text).toContain('Kontak penyelenggara');
     expect(text).toContain('EO Kreatif');
   });
 

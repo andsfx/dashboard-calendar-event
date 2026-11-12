@@ -102,7 +102,7 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext, h
         data-lightbox-close
         onClick={(e) => { e.stopPropagation(); onClose(); }}
         className="absolute right-4 top-4 h-auto! rounded-full border-0 bg-white/10 p-2.5 text-white transition hover:bg-white/20 hover:text-white dark:hover:bg-white/20 active:translate-y-0! focus-visible:border-transparent"
-        aria-label="Tutup lightbox"
+        aria-label="Tutup pratinjau foto"
       >
         <X className="size-6" />
       </Button>

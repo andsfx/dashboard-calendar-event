@@ -28,7 +28,7 @@ const LEAD_STATUS_LABELS: Record<ExhibitionLead['status'], string> = {
 const LEAD_STATUSES = ['pending', 'contacted', 'approved', 'rejected'] as const satisfies readonly ExhibitionLead['status'][];
 
 const PUBLICATION_LABELS: Record<Exhibition['publication'], string> = {
-  draft: 'Draft internal',
+  draft: 'Draf internal',
   published: 'Tayang publik',
   archived: 'Diarsipkan',
 };
@@ -346,7 +346,7 @@ export function ExhibitionManager({
                     <ul className="mt-2 space-y-2">
                       {linkedActivations.length === 0 && (
                         <li className="text-sm text-[var(--wf-ink-muted)]">
-                          Belum ada event aktivasi. Buat event di Jadwal Event, lalu tautkan di sini.
+                          Belum ada event aktivasi. Buat event di Jadwal event, lalu tautkan di sini.
                         </li>
                       )}
                       {linkedActivations.map(item => (

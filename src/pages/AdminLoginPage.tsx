@@ -52,7 +52,7 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
           <div className="flex items-center gap-3">
             <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
             <div className="hidden sm:block">
-              <p className="text-xs font-semibold text-[var(--wf-ink)]">Event Ops Dashboard</p>
+              <p className="text-xs font-semibold text-[var(--wf-ink)]">Dashboard operasional event</p>
               <p className="text-[10px] text-[var(--wf-ink-muted)]">Metropolitan Mall Bekasi</p>
             </div>
           </div>
@@ -61,7 +61,7 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
             className="ui-focus-ring flex min-h-11 items-center gap-1.5 rounded-full border border-[var(--wf-rule)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board)]"
           >
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            Kembali ke Beranda
+            Kembali ke beranda
           </Link>
         </div>
       </header>
@@ -80,7 +80,7 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
                 <Lock className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 id="admin-login-title" className="font-bold text-[var(--wf-accent-ink)]">Login Admin</h1>
+                <h1 id="admin-login-title" className="font-bold text-[var(--wf-accent-ink)]">Masuk admin</h1>
                 <p className="text-xs text-[var(--wf-accent-ink)]/90">Masuk ke dashboard admin</p>
               </div>
             </div>
@@ -113,7 +113,7 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
                     type={showPw ? 'text' : 'password'}
                     value={pw}
                     onChange={e => { setPw(e.target.value); setError(''); }}
-                    placeholder="Masukkan password…"
+                    placeholder="Masukkan kata sandi…"
                     className={`w-full rounded-xl border h-auto bg-[var(--wf-board)] px-4 py-2.5 pr-10 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2   ${
                       error
                         ? 'border-red-400 focus:border-red-400 focus:ring-red-100 dark:focus:ring-red-900/30'
@@ -125,7 +125,7 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => setShowPw(v => !v)}
-                    aria-label={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
+                    aria-label={showPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--wf-ink-muted)] hover:bg-transparent"
                     tabIndex={-1}
                   >
@@ -150,7 +150,7 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
                     Memproses…
                   </span>
                 ) : (
-                  'Masuk sebagai Admin'
+                  'Masuk sebagai admin'
                 )}
               </Button>
             </form>

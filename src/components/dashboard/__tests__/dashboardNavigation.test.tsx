@@ -153,7 +153,7 @@ describe('Insight Cerdas vs role: demo disembunyikan, viewer & admin tetap', () 
   });
 });
 
-describe('getCommandCenterCards: antrian Antrian Draft', () => {
+describe('getCommandCenterCards: antrian Antrian draft', () => {
   it('menampilkan antrian yang gagal dimuat sebagai keadaan gagal, bukan kosong', () => {
     const cards = getCommandCenterCards({ ...baseParams, draftsError: 'Gagal memuat draft event.' });
     const draftsCard = cards.find(card => card.id === 'drafts');
@@ -182,18 +182,18 @@ describe('getCommandCenterCards: antrian Antrian Draft', () => {
 
     expect(cards.find(card => card.id === 'drafts')!.queue).toMatchObject({
       count: 2,
-      state: 'menunggu dipublikasikan',
+      state: 'menunggu penerbitan',
     });
   });
 });
 
-describe('getCommandCenterCards: modul Pameran & Aktivasi', () => {
+describe('getCommandCenterCards: modul Pameran dan aktivasi', () => {
   it('muncul di register agar modul ber-antrian bisa dijangkau dari Pusat Komando', () => {
     const cards = getCommandCenterCards({ ...baseParams });
     const card = cards.find(item => item.id === 'exhibitions');
 
     expect(card).toBeDefined();
-    expect(card!.title).toBe('Pameran & Aktivasi');
+    expect(card!.title).toBe('Pameran dan aktivasi');
     expect(card!.route).toBe('/dashboard/exhibitions');
   });
 
@@ -209,7 +209,7 @@ describe('getCommandCenterCards: modul Pameran & Aktivasi', () => {
 
     expect(cards.find(item => item.id === 'exhibitions')!.queue).toMatchObject({
       count: 2,
-      state: 'pengajuan menunggu review',
+      state: 'pengajuan menunggu tinjauan',
     });
   });
 
@@ -237,7 +237,7 @@ describe('getCommandCenterCards: register Pusat Komando (ADR-009)', () => {
     const cards = getCommandCenterCards({ ...baseParams });
     const allowed: Record<string, true> = {
       Ringkasan: true,
-      'Kelola Event': true,
+      'Kelola event': true,
       Interaksi: true,
       Sistem: true,
       Konten: true,
@@ -359,13 +359,13 @@ describe('getCommandCenterCards: register Pusat Komando (ADR-009)', () => {
   });
 });
 
-describe('getCommandCenterCards: modul Kolaborasi Tenant', () => {
+describe('getCommandCenterCards: modul Kolaborasi tenant', () => {
   it('muncul di register dengan plat lokasi yang sama', () => {
     const cards = getCommandCenterCards({ ...baseParams });
     const card = cards.find(item => item.id === 'tenant-proposals');
 
     expect(card).toBeDefined();
-    expect(card!.title).toBe('Kolaborasi Tenant');
+    expect(card!.title).toBe('Kolaborasi tenant');
     expect(card!.route).toBe('/dashboard/tenant-proposals');
     expect(card!.subtitle).toBe(getWayfindingMap('/tenant-proposals').current.description);
   });
@@ -382,7 +382,7 @@ describe('getCommandCenterCards: modul Kolaborasi Tenant', () => {
 
     expect(cards.find(item => item.id === 'tenant-proposals')!.queue).toMatchObject({
       count: 2,
-      state: 'pengajuan menunggu review',
+      state: 'pengajuan menunggu tinjauan',
     });
   });
 

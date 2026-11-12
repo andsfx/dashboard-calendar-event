@@ -301,7 +301,7 @@ describe('buildEventInsights', () => {
       expect(insight?.actions?.map((action) => action.path)).toEqual(['/drafts', '/registrations']);
     });
 
-    it('mengarahkan bentrok area ke Jadwal Event dengan filter pencarian area', () => {
+    it('mengarahkan bentrok area ke Jadwal event dengan filter pencarian area', () => {
       const result = buildEventInsights({
         events: [
           event({ id: 'e1', areaId: 'a1', dateStr: '2026-06-10', dateEnd: '2026-06-12' }),

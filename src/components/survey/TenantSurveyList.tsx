@@ -29,7 +29,7 @@ const PAGE_SIZE = 12;
 
 const STATUS_CONFIG = {
   draft: {
-    label: 'Draft',
+    label: 'Draf',
     icon: Clock,
     color: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]',
     dot: 'bg-[var(--wf-action)]',
@@ -41,7 +41,7 @@ const STATUS_CONFIG = {
     dot: 'bg-[var(--wf-accent)]',
   },
   reviewed: {
-    label: 'Direview',
+    label: 'Ditinjau',
     icon: Eye,
     color: 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]',
     dot: 'bg-[var(--wf-live)]',
@@ -50,9 +50,9 @@ const STATUS_CONFIG = {
 
 const STATUS_TABS: Array<{ key: TenantSurveyStatus | 'all'; label: string; dot?: string }> = [
   { key: 'all', label: 'Semua' },
-  { key: 'draft', label: 'Draft', dot: 'bg-[var(--wf-action)]' },
+  { key: 'draft', label: 'Draf', dot: 'bg-[var(--wf-action)]' },
   { key: 'submitted', label: 'Terkirim', dot: 'bg-[var(--wf-accent)]' },
-  { key: 'reviewed', label: 'Direview', dot: 'bg-[var(--wf-live)]' },
+  { key: 'reviewed', label: 'Ditinjau', dot: 'bg-[var(--wf-live)]' },
 ];
 
 function ratingColor(n: number | null | undefined): string {
@@ -213,7 +213,7 @@ export default function TenantSurveyList({
       try {
         await onSubmitDraft(id);
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Gagal mengirim draft';
+        const msg = err instanceof Error ? err.message : 'Gagal mengirim draf';
         setDraftError(msg);
       } finally {
         setSubmittingId(null);
@@ -277,7 +277,7 @@ export default function TenantSurveyList({
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KpiCard label="Total" value={counts.total} icon={<ClipboardCheck className="h-4 w-4" />} />
-        <KpiCard label="Draft" value={counts.draft} icon={<Clock className="h-4 w-4" />} accent="amber" />
+        <KpiCard label="Draf" value={counts.draft} icon={<Clock className="h-4 w-4" />} accent="amber" />
         <KpiCard label="Terkirim" value={counts.submitted} icon={<CheckCircle className="h-4 w-4" />} accent="emerald" />
         <KpiCard label="Tenant unik" value={counts.gerai} icon={<Store className="h-4 w-4" />} accent="brand" />
       </div>
@@ -291,11 +291,11 @@ export default function TenantSurveyList({
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari tenant, event, PIC, kategori…"
+              placeholder="Cari tenant, event, penanggung jawab, kategori…"
               // Placeholder hilang saat diketik dan bukan nama aksesibel
               // (axe: label-title-only). Label visual tidak ditambahkan karena
               // ikon kaca pembesar + placeholder sudah menandai fungsinya.
-              aria-label="Cari tenant, event, PIC, kategori"
+              aria-label="Cari tenant, event, penanggung jawab, kategori"
               className="w-full pl-9"
             />
           </div>
@@ -306,7 +306,7 @@ export default function TenantSurveyList({
           {isAdmin && <div className="relative shrink-0">
             <Button className="w-full sm:w-auto" onClick={() => setShowEventPicker(!showEventPicker)}>
               <ClipboardCheck className="size-4" />
-              Buat Self-Assessment
+              Buat penilaian mandiri
             </Button>
 
             {showEventPicker && (

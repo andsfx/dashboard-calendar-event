@@ -98,7 +98,7 @@ export function CommunityNews() {
                     )}
                     <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--wf-ink-muted)]">
                       <span>{formatNewsDate(article.publishedAt || article.createdAt)}</span>
-                      <span className="inline-flex items-center gap-1 font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Baca selengkapnya <ArrowRight className="h-3 w-3" aria-hidden="true" /></span>
+                      <span className="inline-flex items-center gap-1 font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Baca beritanya <ArrowRight className="h-3 w-3" aria-hidden="true" /></span>
                     </div>
                   </div>
                 </Link>
@@ -111,7 +111,7 @@ export function CommunityNews() {
                 className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] px-6 py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ${focusRing}`}
               >
                 <Newspaper className="h-4 w-4" aria-hidden="true" />
-                Lihat Semua Berita
+                Lihat semua berita
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>

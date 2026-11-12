@@ -41,8 +41,8 @@ function renderModal() {
  *  diambil lewat namanya, dan kueri di-scope ke dalamnya karena nama album
  *  juga tampil di modal utama. */
 async function openSectionPicker() {
-  fireEvent.click(screen.getByRole('button', { name: /Preview PDF/i }));
-  const dialog = await screen.findByRole('dialog', { name: 'Preview Album Foto' });
+  fireEvent.click(screen.getByRole('button', { name: /Pratinjau PDF/i }));
+  const dialog = await screen.findByRole('dialog', { name: /Pratinjau album foto/i });
   return within(dialog);
 }
 
@@ -88,7 +88,7 @@ describe('ExportPdfModal — cakupan album', () => {
     expect(screen.getByText('2 album siap diexport')).toBeInTheDocument();
 
     const dialog = await openSectionPicker();
-    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
+    fireEvent.click(dialog.getByRole('button', { name: /Pratinjau PDF/ }));
 
     await waitFor(() => expect(generateMock).toHaveBeenCalledTimes(1));
     const [payload] = generateMock.mock.calls[0] as unknown as [Array<{ album: PhotoAlbum }>];
@@ -99,7 +99,7 @@ describe('ExportPdfModal — cakupan album', () => {
     renderModal();
 
     const dialog = await openSectionPicker();
-    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
+    fireEvent.click(dialog.getByRole('button', { name: /Pratinjau PDF/ }));
 
     await waitFor(() => expect(generateMock).toHaveBeenCalledTimes(1));
     // Pemilih bagian menutup; modal album yang menampilkan pratinjau.
@@ -114,7 +114,7 @@ describe('ExportPdfModal — cakupan album', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Kosongkan pilihan album' }));
 
     expect(screen.getByText(/Pilih minimal satu album/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Preview PDF/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Pratinjau PDF/i })).toBeDisabled();
     expect(generateMock).not.toHaveBeenCalled();
   });
 

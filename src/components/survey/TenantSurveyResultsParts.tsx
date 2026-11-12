@@ -273,7 +273,7 @@ export function ResultsReadingGuide() {
               {
                 n: '1',
                 t: 'Pilih event',
-                d: 'Pilih event terlebih dahulu. Rentang tanggal, zona, dan kategori tenant dapat digunakan untuk mempersempit data.',
+                d: 'Pakai rentang tanggal, zona, dan kategori tenant untuk mempersempit data.',
               },
               {
                 n: '2',
@@ -288,7 +288,7 @@ export function ResultsReadingGuide() {
               {
                 n: '4',
                 t: 'Tindak lanjut',
-                d: 'Checklist untuk tenant yang belum mengisi. Bagikan untuk mengirim tautan atau kode QR. Detail untuk membaca komentar.',
+                d: 'Daftar periksa untuk tenant yang belum mengisi. Pakai Bagikan untuk mengirim tautan atau kode QR, dan Detail untuk membaca komentar.',
               },
             ].map((s) => (
               <li
@@ -331,14 +331,14 @@ export function ResultsReadingGuide() {
                 </li>
                 <li>
                   <strong className="font-semibold text-[var(--wf-ink)]">
-                    Traffic positif
+                    Kunjungan positif
                   </strong>
                   {': '}
                   persentase yang menyatakan pengunjung meningkat (Signifikan atau Sedikit Naik).
                 </li>
                 <li>
                   <strong className="font-semibold text-[var(--wf-ink)]">
-                    Sales positif
+                    Penjualan positif
                   </strong>
                   {': '}
                   persentase yang menyatakan omzet meningkat minimal 10%.
@@ -356,14 +356,14 @@ export function ResultsReadingGuide() {
                 </li>
                 <li>
                   <strong className="font-semibold text-[var(--wf-ink)]">
-                    Top Tenant
+                    Tenant teratas
                   </strong>
                   {' '}
                   diurut berdasarkan frekuensi laporan kenaikan pengunjung atau omzet, bukan nilai omzet tertinggi.
                 </li>
                 <li>
                   <strong className="font-semibold text-[var(--wf-ink)]">
-                    Kategori × Sales
+                    Kategori × Penjualan
                   </strong>
                   {' '}
                   menunjukkan jenis tenant yang paling sering melaporkan kenaikan omzet, beserta besarannya.
@@ -634,14 +634,14 @@ export function EventShareRow({
             variant="outline"
             onClick={handleCopy}
             className="ui-focus-ring h-auto inline-flex items-center justify-center gap-1 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-2 text-[11px] font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
-            title="Salin link form survey"
+            title="Salin tautan formulir survei"
           >
             {copied ? (
               <Check className="h-3.5 w-3.5 text-[var(--wf-live)]" aria-hidden />
             ) : (
               <Link2 className="h-3.5 w-3.5" aria-hidden />
             )}
-            {copied ? 'Tersalin' : 'Salin link'}
+            {copied ? 'Tersalin' : 'Salin tautan'}
           </Button>
           <Button
             type="button"
@@ -652,7 +652,7 @@ export function EventShareRow({
                 ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
                 : 'border-[var(--wf-rule)] bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'
             }`}
-            title="Tampilkan QR form survey"
+            title="Tampilkan kode QR formulir survei"
             aria-expanded={showQR}
           >
             <QrCode className="h-3.5 w-3.5" aria-hidden />
@@ -663,7 +663,7 @@ export function EventShareRow({
       {showQR && (
         <div className="border-t border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-4 sm:px-4">
           <p className="mb-3 text-center text-xs font-medium text-[var(--wf-ink-muted)]">
-            Form survey:{' '}
+            Formulir survei:{' '}
             <span className="font-semibold text-[var(--wf-ink)] [overflow-wrap:anywhere]">
               {event.acara}
             </span>
@@ -679,7 +679,7 @@ export function EventShareRow({
               eventId={event.id}
               eventName={event.acara}
               basePath="/tenant-survey"
-              label="Self-Assessment Tenant"
+              label="Penilaian mandiri tenant"
               showTypeTabs={false}
             />
           </Suspense>

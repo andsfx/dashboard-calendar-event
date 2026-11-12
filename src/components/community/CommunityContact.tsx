@@ -37,7 +37,7 @@ export function CommunityContact() {
           </h2>
           <p className="max-w-[65ch] text-sm leading-7 text-white/80">
             Telepon kantor: <strong className="text-white">021-8855555 ext 214</strong>
-            <span className="block text-white/70">Senin - Jumat, jam kerja</span>
+            <span className="block text-white/70">Senin sampai Jumat, jam kerja</span>
           </p>
         </div>
 

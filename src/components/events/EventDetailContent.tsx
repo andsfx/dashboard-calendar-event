@@ -21,9 +21,9 @@ export function InfoRow({ icon, label, value }: { icon: ReactNode; label: string
 }
 
 function getEventModelLabel(value: EventItem['eventModel']) {
-  if (value === 'free') return 'Free';
-  if (value === 'bayar') return 'Bayar';
-  if (value === 'support') return 'Support';
+  if (value === 'free') return 'Gratis';
+  if (value === 'bayar') return 'Berbayar';
+  if (value === 'support') return 'Dukungan';
   return '';
 }
 
@@ -72,41 +72,41 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
         />
         <InfoRow
           icon={<User className="h-4 w-4 text-amber-500" />}
-          label="Event Organizer"
+          label="Penyelenggara event"
           value={event.eo || '-'}
         />
         {!!isAdmin && event.pic && (
           <InfoRow
             icon={<User className="h-4 w-4 text-cyan-500" />}
-            label="Penanggung Jawab"
+            label="Penanggung jawab"
             value={event.pic}
           />
         )}
         {!!isAdmin && event.phone && (
           <InfoRow
             icon={<Tag className="h-4 w-4 text-teal-500" />}
-            label="Nomor Handphone"
+            label="Nomor telepon"
             value={event.phone}
           />
         )}
         {!!isAdmin && event.eventModel && (
           <InfoRow
             icon={<Tag className="h-4 w-4 text-emerald-500" />}
-            label="Model Event"
+            label="Model event"
             value={getEventModelLabel(event.eventModel)}
           />
         )}
         {!!isAdmin && event.eventNominal && (
           <InfoRow
             icon={<Tag className="h-4 w-4 text-blue-500" />}
-            label="Nominal Event"
+            label="Nominal event"
             value={formatNominal(event.eventNominal)}
           />
         )}
         {!!isAdmin && event.eventModelNotes && (
           <InfoRow
             icon={<Tag className="h-4 w-4 text-[var(--wf-accent)]" />}
-            label="Keterangan Model Event"
+            label="Keterangan model event"
             value={event.eventModelNotes}
           />
         )}

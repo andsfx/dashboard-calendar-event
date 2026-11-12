@@ -247,7 +247,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
       {uploading && (
         <div className="flex items-center gap-2 rounded-lg bg-[var(--wf-accent-soft)] px-3 py-2 text-xs text-[var(--wf-accent)]">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Mengupload foto…
+          Mengunggah foto…
         </div>
       )}
       {/* Galat muat untuk admin: sebab + retry, upload tetap tersedia */}
@@ -258,7 +258,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
       {/* Link album form */}
       {showLinkForm && (
         <div className="rounded-xl border border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] p-3">
-          <p className="mb-2 text-xs font-medium text-[var(--wf-ink-muted)]">Pilih album untuk di-link:</p>
+          <p className="mb-2 text-xs font-medium text-[var(--wf-ink-muted)]">Tautkan ke album:</p>
           <div className="max-h-40 space-y-1 overflow-y-auto">
             {albums.filter(a => !a.eventId || a.eventId === eventId).map(a => (
               <Button
@@ -330,8 +330,8 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
       {!hasContent && !!canUpload && (
         <Label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-8 font-normal leading-normal transition hover:border-[var(--wf-accent)]">
           <ImagePlus className="h-8 w-8 text-[var(--wf-rule-strong)]" />
-          <p className="text-xs text-[var(--wf-ink-muted)]">Klik untuk upload foto dokumentasi</p>
-          <p className="text-[10px] text-[var(--wf-ink-muted)]">JPG, PNG, WebP · Maks 10 foto</p>
+          <p className="text-xs text-[var(--wf-ink-muted)]">Klik untuk mengunggah foto dokumentasi</p>
+          <p className="text-[10px] text-[var(--wf-ink-muted)]">JPG, PNG, WebP · Maksimal 10 foto</p>
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"

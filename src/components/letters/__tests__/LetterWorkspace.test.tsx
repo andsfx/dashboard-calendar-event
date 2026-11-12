@@ -73,8 +73,8 @@ describe('LetterWorkspace — opens directly', () => {
     render(<LetterWorkspace events={[makeEvent()]} readOnly={false} />);
     expect(screen.queryByText('Pilih event untuk membuat surat.')).toBeNull();
     expect(screen.getAllByRole('tab')).toHaveLength(2);
-    expect(screen.getByText('Draft lokal')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /Surat Konfirmasi Event/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText('Draf lokal')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /Surat konfirmasi event/ })).toHaveAttribute('aria-selected', 'true');
   });
 
   it('nomor otomatis terisi dan tetap bisa ditimpa pengguna', () => {

@@ -90,7 +90,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-bold text-[var(--wf-ink)]">Pendaftaran Organisasi</p>
+            <p className="text-sm font-bold text-[var(--wf-ink)]">Pendaftaran organisasi</p>
             <p className="text-xs text-[var(--wf-ink-muted)]">Antrian pendaftaran dari landing page</p>
           </div>
         </div>
@@ -131,7 +131,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               pressed={orgTypeFilter === 'all'}
               onPressedChange={pressed => { if (pressed) setOrgTypeFilter('all'); }}
               className="rounded-full px-3 text-[var(--wf-ink-muted)] data-[state=on]:border-[var(--wf-accent)] data-[state=on]:bg-[var(--wf-accent-soft)] data-[state=on]:text-[var(--wf-accent)] aria-pressed:border-[var(--wf-accent)] aria-pressed:bg-[var(--wf-accent-soft)] aria-pressed:text-[var(--wf-accent)]"
-            >Semua Tipe</Toggle>
+            >Semua tipe</Toggle>
             {orgTypesInData.map(type => {
               const config = ORG_TYPE_CONFIG[type] || ORG_TYPE_CONFIG.other;
               return (

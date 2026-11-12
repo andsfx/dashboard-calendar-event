@@ -102,11 +102,11 @@ export function useAuth() {
         return { ok: true };
       }
 
-      return { ok: false, error: data.error || 'Login gagal' };
+      return { ok: false, error: data.error || 'Gagal masuk' };
     } catch (err) {
       // ApiError membawa pesan server (mis. "Email atau password salah")
       // atau fallback koneksi.
-      return { ok: false, error: err instanceof Error ? err.message : 'Tidak dapat terhubung ke server' };
+      return { ok: false, error: err instanceof Error ? err.message : 'Tidak bisa terhubung ke server. Periksa koneksi internetmu, lalu coba lagi.' };
     }
   }, []);
 

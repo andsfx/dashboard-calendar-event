@@ -88,29 +88,29 @@ describe('FilterBar', () => {
 
   it('renders month dropdown', () => {
     render(<FilterBar {...mockProps} />)
-    expect(screen.getByLabelText('Semua Bulan')).toBeInTheDocument()
+    expect(screen.getByLabelText('Semua bulan')).toBeInTheDocument()
   })
 
   it('renders category dropdown', () => {
     render(<FilterBar {...mockProps} />)
-    expect(screen.getByLabelText('Semua Kategori')).toBeInTheDocument()
+    expect(screen.getByLabelText('Semua kategori')).toBeInTheDocument()
   })
 
   it('renders priority dropdown when showPriority is true', () => {
     render(<FilterBar {...mockProps} />)
-    expect(screen.getByLabelText('Semua Prioritas')).toBeInTheDocument()
+    expect(screen.getByLabelText('Semua prioritas')).toBeInTheDocument()
   })
 
   it('hides priority dropdown when showPriority is false', () => {
     render(<FilterBar {...mockProps} showPriority={false} />)
-    expect(screen.queryByLabelText('Semua Prioritas')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Semua prioritas')).not.toBeInTheDocument()
   })
 
   it('dropdown bulan memuat semua opsi dan meneruskan perubahan', async () => {
     render(<FilterBar {...mockProps} />)
     const user = userEvent.setup({ pointerEventsCheck: 0 })
     // shadcn Select (Radix): trigger membuka portal daftar opsi.
-    await user.click(screen.getByLabelText('Semua Bulan'))
+    await user.click(screen.getByLabelText('Semua bulan'))
     const option = await screen.findByRole('option', { name: 'Januari' })
     await user.click(option)
     expect(mockProps.onMonthChange).toHaveBeenCalledWith('Januari')

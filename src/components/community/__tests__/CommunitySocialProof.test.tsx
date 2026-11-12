@@ -24,7 +24,7 @@ describe('CommunitySocialProof', () => {
 
   it('shows a skeleton instead of numbers while loading', () => {
     render(<CommunitySocialProof totalCompleted={0} totalOrganizers={0} totalEvents={0} isLoading />)
-    expect(screen.getByText('Event Terlaksana')).toBeInTheDocument()
-    expect(screen.queryByText('0+ Event Terlaksana')).not.toBeInTheDocument()
+    expect(screen.getByText('Event terlaksana')).toBeInTheDocument()
+    expect(screen.queryByText('0+ Event terlaksana')).not.toBeInTheDocument()
   })
 })

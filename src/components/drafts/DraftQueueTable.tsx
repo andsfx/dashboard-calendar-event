@@ -34,7 +34,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
           <caption className="sr-only">Tabel antrian draft event aktif</caption>
           <TableHeader>
             <TableRow className="border-b border-[var(--wf-rule)] bg-[var(--wf-board-2)]">
-              {['Tanggal', 'Event', 'Jam', 'EO', 'PIC', 'No. Telepon', 'Lokasi', 'Progress', 'Aksi'].map(label => (
+              {['Tanggal', 'Event', 'Jam', 'Penyelenggara', 'Penanggung jawab', 'Nomor telepon', 'Lokasi', 'Progres', 'Aksi'].map(label => (
                 <TableHead key={label} scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{label}</TableHead>
               ))}
             </TableRow>
@@ -64,9 +64,9 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                         <NativeSelect
                           value={draft.progress}
                           onChange={e => onProgressChange(draft, e.target.value as DraftProgress)}
-                          aria-label={`Progress ${draft.acara}`}
+                          aria-label={`Progres ${draft.acara}`}
                         >
-                          <option value="draft">Draft</option>
+                          <option value="draft">Draf</option>
                           <option value="confirm">Konfirmasi</option>
                           <option value="cancel">Batal</option>
                         </NativeSelect>

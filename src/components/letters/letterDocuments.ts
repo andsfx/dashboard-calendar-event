@@ -11,7 +11,7 @@ export { readDocType, isSikDocument, normalizeLetterData } from '../../lib/lette
 export type { LetterDocType, LetterDocument } from '../../types';
 
 export const DOC_TYPE_LABEL: Record<LetterDocType, string> = {
-  ske: 'Surat Konfirmasi Event',
+  ske: 'Surat konfirmasi event',
   sik: 'Surat Izin Kerja',
 };
 

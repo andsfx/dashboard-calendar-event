@@ -32,7 +32,7 @@ export default function TenantSurveyEventPicker() {
         if (!cancelled) {
           setEvents(data);
           if (data.length === 0) {
-            setError('Survey tenant belum dibuka admin, atau semua survey sudah ditutup. Coba lagi nanti.');
+            setError('Survei tenant belum dibuka admin, atau semua survei sudah ditutup. Coba lagi nanti.');
           }
         }
       } catch {
@@ -89,12 +89,12 @@ export default function TenantSurveyEventPicker() {
           <AlertTriangle className={`h-8 w-8 ${tone.icon}`} />
         </div>
         <h2 className="text-lg font-bold text-[var(--wf-ink)]">
-          {isEmptyList ? 'Survey Belum Tersedia' : 'Gagal Memuat'}
+          {isEmptyList ? 'Survei belum tersedia' : 'Gagal memuat'}
         </h2>
         <p className="mt-2 max-w-sm text-sm text-[var(--wf-ink-muted)]">{error}</p>
         {isEmptyList && (
           <p className="mt-3 max-w-sm text-xs text-[var(--wf-ink-muted)]">
-            Hanya event dengan survey aktif yang tampil di sini. Hubungi admin mall jika Anda menerima link/QR tapi event tidak muncul.
+            Hanya event dengan survei aktif yang tampil di sini. Hubungi admin mall jika kamu menerima tautan atau kode QR tapi event tidak muncul.
           </p>
         )}
       </div>
@@ -108,11 +108,11 @@ export default function TenantSurveyEventPicker() {
           lebih akhir di CSS; warna & ukuran asli --wf-* tetap dipakai. */}
       {/* Header description */}
       <p className="text-sm leading-relaxed text-[var(--wf-ink-muted)]">
-        Pilih event untuk menilai perubahan traffic dan penjualan tenant Anda.
+        Pilih event untuk menilai perubahan traffic dan penjualan tenant kamu.
       </p>
 
       <p className="text-xs text-[var(--wf-ink-muted)]">
-        Isi survey ini jika tenant Anda ikut dalam event yang dipilih. Waktu pengisian sekitar 2 menit.
+        Isi survey ini jika tenant kamu ikut dalam event yang dipilih. Waktu pengisian sekitar 2 menit.
       </p>
 
       {/* Search */}

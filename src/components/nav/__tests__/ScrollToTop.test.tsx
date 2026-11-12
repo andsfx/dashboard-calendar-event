@@ -29,7 +29,7 @@ function TestRoutes() {
         path="/events"
         element={
           <div>
-            <h1>Jadwal Event</h1>
+            <h1>Jadwal event</h1>
             <SearchProbe />
             <button type="button" onClick={() => navigate('/news')}>Ke berita</button>
             <button
@@ -98,7 +98,7 @@ describe('ScrollToTop', () => {
 
     await user.click(screen.getByRole('button', { name: 'Ke jadwal' }));
 
-    expect(await screen.findByRole('heading', { name: 'Jadwal Event' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Jadwal event' })).toBeInTheDocument();
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
   });
 
@@ -111,7 +111,7 @@ describe('ScrollToTop', () => {
 
     await user.click(screen.getByRole('button', { name: 'Kembali' }));
 
-    expect(await screen.findByRole('heading', { name: 'Jadwal Event' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Jadwal event' })).toBeInTheDocument();
     expect(window.scrollTo).not.toHaveBeenCalled();
   });
 
@@ -133,7 +133,7 @@ describe('ScrollToTop', () => {
 
     await user.click(screen.getByRole('button', { name: 'Kembali' }));
 
-    expect(await screen.findByRole('heading', { name: 'Jadwal Event' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Jadwal event' })).toBeInTheDocument();
     // Fokus diberikan sinkron di dalam effect saat bug hadir, jadi ini sinyal pasti.
     // Mock `scrollIntoView` di prototype bisa tersentuh rAF milik tes lain.
     expect(document.getElementById('calendar')).not.toHaveFocus();
@@ -151,7 +151,7 @@ describe('ScrollToTop', () => {
 
     await user.click(screen.getByRole('button', { name: 'Kembali' }));
 
-    expect(await screen.findByRole('heading', { name: 'Jadwal Event' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Jadwal event' })).toBeInTheDocument();
     expect(document.getElementById('calendar')).not.toHaveFocus();
     expect(window.scrollTo).not.toHaveBeenCalled();
   });
@@ -159,7 +159,7 @@ describe('ScrollToTop', () => {
   it('memproses hash pada direct entry (initial load bertipe POP)', async () => {
     renderApp(['/events#calendar']);
 
-    expect(await screen.findByRole('heading', { name: 'Jadwal Event' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Jadwal event' })).toBeInTheDocument();
     await waitFor(() => expect(scrollIntoViewMock).toHaveBeenCalled());
     expect(document.getElementById('calendar')).toHaveFocus();
     expect(window.scrollTo).not.toHaveBeenCalled();
@@ -190,7 +190,7 @@ describe('ScrollToTop', () => {
     const user = userEvent.setup();
     renderApp(['/events']);
 
-    expect(await screen.findByRole('heading', { name: 'Jadwal Event' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Jadwal event' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Filter musik' }));
 
@@ -220,7 +220,7 @@ describe('ScrollToTop', () => {
     const user = userEvent.setup();
     renderApp(['/events']);
 
-    expect(await screen.findByRole('heading', { name: 'Jadwal Event' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Jadwal event' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Anchor kalender' }));
 
@@ -233,7 +233,7 @@ describe('ScrollToTop', () => {
     renderApp(['/events', '/news'], 1);
 
     await user.click(screen.getByRole('button', { name: 'Kembali' }));
-    expect(await screen.findByRole('heading', { name: 'Jadwal Event' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Jadwal event' })).toBeInTheDocument();
     expect(window.scrollTo).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Ke berita' }));

@@ -205,7 +205,7 @@ export function DashboardViewsSection(props: Props) {
                   <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">Coba ubah atau reset filter.</EmptyDescription>
                 </EmptyHeader>
                 <Button type="button" onClick={resetFilters}>
-                  Reset Filter
+                  Reset filter
                 </Button>
               </Empty>
             </div>
@@ -246,7 +246,7 @@ export function DashboardViewsSection(props: Props) {
       <PdfExportOptionsModal
         isOpen={isExportOptionsOpen}
         onClose={() => setIsExportOptionsOpen(false)}
-        title="Export Jadwal Event"
+        title="Ekspor jadwal event"
         description={`${exportScope.selected.length} dari ${exportableEvents.length} event sesuai filter aktif. Atur periode dan event, lalu pilih bagian dokumen.`}
         sections={SCHEDULE_SECTION_OPTIONS}
         defaultSelected={['summary', 'table']}

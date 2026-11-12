@@ -64,7 +64,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
         <h2 id="cc-queue-title" className="font-display text-base font-semibold text-[var(--wf-ink)]">
           Perlu tindakan
         </h2>
-        <p className="text-xs text-[var(--wf-ink-muted)]">Modul yang menunggu keputusan manusia.</p>
+        <p className="text-xs text-[var(--wf-ink-muted)]">Modul yang menunggu keputusan kamu.</p>
       </div>
 
       {queues.length > 0 ? (
@@ -100,7 +100,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
       ) : (
         <p className="wf-queue-empty">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--wf-live)]" strokeWidth={1.5} aria-hidden />
-          Tidak ada modul yang menunggu tindakan. Antrian kosong.
+          Tidak ada modul yang menunggu tindakan.
         </p>
       )}
     </section>

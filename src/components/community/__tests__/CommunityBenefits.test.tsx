@@ -20,9 +20,9 @@ describe('CommunityBenefits', () => {
 
   it('renders all benefit cards', () => {
     renderWithRouter()
-    expect(screen.getByText('Promosi & Marketing')).toBeInTheDocument()
-    expect(screen.getByText('Kembangkan Komunitas')).toBeInTheDocument()
-    expect(screen.getByText('Venue & Peralatan Gratis')).toBeInTheDocument()
+    expect(screen.getByText('Promosi dan marketing')).toBeInTheDocument()
+    expect(screen.getByText('Kembangkan komunitas')).toBeInTheDocument()
+    expect(screen.getByText('Venue dan peralatan gratis')).toBeInTheDocument()
   })
 
   it('renders benefit descriptions', () => {
@@ -37,9 +37,9 @@ describe('CommunityBenefits', () => {
 
   it('renders sponsorship CTA card with link to /sponsor', () => {
     renderWithRouter()
-    expect(screen.getByText('Dukungan Sponsorship')).toBeInTheDocument()
+    expect(screen.getByText('Dukungan sponsorship')).toBeInTheDocument()
     expect(screen.getByText(/Dapatkan dukungan sponsorship/)).toBeInTheDocument()
-    const link = screen.getByRole('link', { name: /Lihat Peluang Sponsor/ })
+    const link = screen.getByRole('link', { name: /Lihat peluang sponsor/ })
     expect(link).toHaveAttribute('href', '/sponsor')
   })
 })

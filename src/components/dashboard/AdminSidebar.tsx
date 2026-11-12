@@ -210,12 +210,12 @@ export const AdminSidebar = memo(function AdminSidebar({
           {isDark ? (
             <>
               <Sun className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
-              <span>Mode Terang</span>
+              <span>Mode terang</span>
             </>
           ) : (
             <>
               <Moon className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
-              <span>Mode Gelap</span>
+              <span>Mode gelap</span>
             </>
           )}
         </Button>

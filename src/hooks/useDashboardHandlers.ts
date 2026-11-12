@@ -90,7 +90,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
 
   useEffect(() => {
     if (draftError && dashboardPath === '/drafts') {
-      showToast('error', 'Gagal memuat draft', draftError);
+      showToast('error', 'Gagal memuat draf', draftError);
     }
   }, [dashboardPath, draftError, showToast]);
 

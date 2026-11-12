@@ -63,11 +63,11 @@ function measureBlock(
 export function buildSikPdf(letter: SikRequestItem, logoDataUrl = PDF_LOGO_DATA_URL): jsPDF {
   const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   doc.setProperties({
-    title: `Surat Izin Kerja - ${letter.jenisKegiatan || 'Tanpa Kegiatan'}`,
+    title: `Surat izin kerja - ${letter.jenisKegiatan || 'Tanpa kegiatan'}`,
     author: 'Metropolitan Mall Bekasi',
-    subject: 'Surat Izin Kerja (Loading & Unloading)',
+    subject: 'Surat izin kerja (bongkar muat)',
     keywords: 'surat izin kerja, loading, unloading, Metropolitan Mall Bekasi',
-    creator: 'Dashboard Event System',
+    creator: 'Sistem jadwal event',
   });
 
   let y = MARGIN_TOP;
@@ -191,7 +191,7 @@ export function buildSikPdf(letter: SikRequestItem, logoDataUrl = PDF_LOGO_DATA_
   doc.text(letter.penandatanganJabatan || '-', MARGIN_X, y + 78);
 
   drawPdfFooter(doc, {
-    label: 'Surat Izin Kerja · Metropolitan Mall Bekasi',
+    label: 'Surat izin kerja · Metropolitan Mall Bekasi',
     margin: MARGIN_X,
   });
   return doc;

@@ -9,22 +9,22 @@ import type { PdfSectionOption } from './PdfExportOptionsModal';
 
 export const SCHEDULE_SECTION_OPTIONS: PdfSectionOption[] = [
   { id: 'summary', label: 'Ringkasan', hint: 'Kartu jumlah event per status' },
-  { id: 'table', label: 'Tabel Jadwal', hint: 'Daftar lengkap tanggal, acara, lokasi, status' },
-  { id: 'areas', label: 'Agenda per Area', hint: 'Dikelompokkan menurut lokasi' },
-  { id: 'contacts', label: 'Kontak Penyelenggara', hint: 'EO, PIC, dan nomor telepon' },
+  { id: 'table', label: 'Tabel jadwal', hint: 'Daftar lengkap tanggal, acara, lokasi, status' },
+  { id: 'areas', label: 'Agenda per area', hint: 'Dikelompokkan menurut lokasi' },
+  { id: 'contacts', label: 'Kontak penyelenggara', hint: 'EO, PIC, dan nomor telepon' },
 ];
 
 export const ALBUM_SECTION_OPTIONS: PdfSectionOption[] = [
-  { id: 'cover', label: 'Halaman Sampul', hint: 'Identitas laporan, periode, jumlah foto' },
-  { id: 'header', label: 'Judul Album', hint: 'Nama album, tanggal, lokasi di tiap halaman' },
-  { id: 'photos', label: 'Grid Foto', hint: 'Susunan foto per halaman' },
-  { id: 'captions', label: 'Keterangan Foto', hint: 'Caption di bawah tiap foto' },
+  { id: 'cover', label: 'Halaman sampul', hint: 'Identitas laporan, periode, jumlah foto' },
+  { id: 'header', label: 'Judul album', hint: 'Nama album, tanggal, lokasi di tiap halaman' },
+  { id: 'photos', label: 'Susunan foto', hint: 'Susunan foto per halaman' },
+  { id: 'captions', label: 'Keterangan foto', hint: 'Teks keterangan di bawah tiap foto' },
 ];
 
 export const SURVEY_SECTION_OPTIONS: PdfSectionOption[] = [
-  { id: 'kpi', label: 'Ringkasan KPI', hint: 'Total submisi, tenant, traffic & sales positif' },
-  { id: 'distribution', label: 'Distribusi Jawaban', hint: 'Traffic, sales, kategori, zona' },
-  { id: 'topGerai', label: 'Top Tenant', hint: 'Peringkat tenant berdasarkan skor' },
-  { id: 'crossTab', label: 'Cross-tab', hint: 'Kategori × sales, maksimal 20 baris' },
-  { id: 'feedback', label: 'Cuplikan Feedback', hint: 'Komentar teks, maksimal 30' },
+  { id: 'kpi', label: 'Ringkasan KPI', hint: 'Total isian, tenant, kunjungan naik, dan penjualan naik' },
+  { id: 'distribution', label: 'Sebaran jawaban', hint: 'Kunjungan, penjualan, kategori, zona' },
+  { id: 'topGerai', label: 'Tenant teratas', hint: 'Peringkat tenant berdasarkan skor' },
+  { id: 'crossTab', label: 'Tabel silang', hint: 'Kategori dan penjualan, maksimal 20 baris' },
+  { id: 'feedback', label: 'Cuplikan umpan balik', hint: 'Komentar teks, maksimal 30' },
 ];

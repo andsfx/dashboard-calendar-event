@@ -46,31 +46,31 @@ describe('Email Validation', () => {
     it('should reject empty string', () => {
       const result = validateEmail('');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak boleh kosong');
+      expect(result.error).toContain('belum diisi');
     });
 
     it('should reject whitespace only', () => {
       const result = validateEmail('   ');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak boleh kosong');
+      expect(result.error).toContain('belum diisi');
     });
 
     it('should reject email without @', () => {
       const result = validateEmail('userexample.com');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject email without domain', () => {
       const result = validateEmail('user@');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject email without local part', () => {
       const result = validateEmail('@example.com');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject too short email', () => {
@@ -89,13 +89,13 @@ describe('Email Validation', () => {
     it('should reject email with spaces', () => {
       const result = validateEmail('user name@example.com');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject multiple @ signs', () => {
       const result = validateEmail('user@@example.com');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
   });
 
@@ -160,25 +160,25 @@ describe('Phone Validation', () => {
     it('should reject empty string', () => {
       const result = validatePhone('');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak boleh kosong');
+      expect(result.error).toContain('belum diisi');
     });
 
     it('should reject whitespace only', () => {
       const result = validatePhone('   ');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak boleh kosong');
+      expect(result.error).toContain('belum diisi');
     });
 
     it('should reject too short phone', () => {
       const result = validatePhone('08123');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject too long phone', () => {
       const result = validatePhone('0812345678901234567890');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject phone with letters', () => {
@@ -196,19 +196,19 @@ describe('Phone Validation', () => {
     it('should reject phone not starting with 08/+628/628', () => {
       const result = validatePhone('1234567890');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject phone starting with 09 (not valid Indonesian)', () => {
       const result = validatePhone('091234567890');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject international non-Indonesian format', () => {
       const result = validatePhone('+1234567890');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
   });
 
@@ -305,37 +305,37 @@ describe('Instagram Validation', () => {
     it('should reject username with spaces', () => {
       const result = validateInstagram('@john doe');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject username with special characters', () => {
       const result = validateInstagram('@john#doe');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject non-Instagram URL', () => {
       const result = validateInstagram('https://facebook.com/johndoe');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('Hanya link Instagram');
+      expect(result.error).toContain('bukan Instagram');
     });
 
     it('should reject malicious URL', () => {
       const result = validateInstagram('https://malicious.com/phishing');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('Hanya link Instagram');
+      expect(result.error).toContain('bukan Instagram');
     });
 
     it('should reject random text', () => {
       const result = validateInstagram('random text here');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
 
     it('should reject URL with path beyond username', () => {
       const result = validateInstagram('https://instagram.com/johndoe/p/ABC123');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
   });
 
@@ -408,7 +408,7 @@ describe('Edge Cases', () => {
     it('validateInstagram should reject SQL injection', () => {
       const result = validateInstagram("@admin'; DROP TABLE users;--");
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
   });
 
@@ -422,7 +422,7 @@ describe('Edge Cases', () => {
     it('validateInstagram should reject SQL injection', () => {
       const result = validateInstagram("@admin'; DROP TABLE users;--");
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('tidak valid');
+      expect(result.error).toContain('belum sesuai format');
     });
   });
 

@@ -19,8 +19,8 @@ const PHONE_REGEX = /^(\+62|62|0)8[0-9]{8,12}$/;
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-const isoDate = z.string().trim().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD')
-  .refine(isRealDate, 'Tanggal tidak valid (mis. 31 Februari). Periksa kembali.');
+const isoDate = z.string().trim().regex(ISO_DATE, 'Isi tanggal dengan format YYYY-MM-DD, mis. 2026-07-12')
+  .refine(isRealDate, 'Tanggal ini tidak ada di kalender (mis. 31 Februari). Periksa bulan dan hari-nya.');
 
 /** Jenis kegiatan yang bisa diajukan tenant. `other` = tidak masuk daftar. */
 export const TENANT_EVENT_TYPES = ['promo', 'workshop', 'exhibition', 'performance', 'launching', 'other'];

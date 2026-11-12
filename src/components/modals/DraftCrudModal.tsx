@@ -357,7 +357,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       >
         <ModalHeader
           titleId="draft-crud-title"
-          title={isEdit ? 'Ubah Draft Event' : 'Tambah Draft Event'}
+          title={isEdit ? 'Ubah draf event' : 'Tambah draf event'}
           subtitle={isEdit && editingDraft ? `Mengubah: ${editingDraft.acara}` : 'Isi data antrian event untuk ditindaklanjuti'}
           icon={<FileEdit />}
           onClose={onClose}
@@ -520,7 +520,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               className="flex-1"
             >
               <Save className="h-4 w-4" />
-              {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan Draft Event' : 'Tambah Draft Event'}
+              {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan draf event' : 'Tambah draf event'}
             </Button>
           </div>
         </form>

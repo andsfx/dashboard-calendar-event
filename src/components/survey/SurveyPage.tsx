@@ -19,19 +19,19 @@ import { Textarea } from '../shadcn/textarea';
 
 /* ─── Mall rating aspects ──────────────────────────────────────── */
 const MALL_ASPECTS = [
-  { key: 'mall_cleanliness', label: 'Kebersihan & Fasilitas', desc: 'Kondisi venue, toilet, parkir, AC', icon: <Sparkles className="h-4 w-4" /> },
-  { key: 'mall_staff_service', label: 'Pelayanan Staff', desc: 'Responsivitas, keramahan, bantuan teknis', icon: <HeartHandshake className="h-4 w-4" /> },
-  { key: 'mall_coordination', label: 'Koordinasi & Komunikasi', desc: 'Kemudahan koordinasi sebelum/selama event', icon: <MessageCircle className="h-4 w-4" /> },
-  { key: 'mall_security', label: 'Keamanan', desc: 'Security, crowd management, prosedur darurat', icon: <ShieldCheck className="h-4 w-4" /> },
+  { key: 'mall_cleanliness', label: 'Kebersihan dan fasilitas', desc: 'Kondisi tempat, toilet, parkir, AC', icon: <Sparkles className="h-4 w-4" /> },
+  { key: 'mall_staff_service', label: 'Pelayanan staf', desc: 'Responsivitas, keramahan, bantuan teknis', icon: <HeartHandshake className="h-4 w-4" /> },
+  { key: 'mall_coordination', label: 'Koordinasi dan komunikasi', desc: 'Kemudahan koordinasi sebelum/selama event', icon: <MessageCircle className="h-4 w-4" /> },
+  { key: 'mall_security', label: 'Keamanan', desc: 'Petugas keamanan, pengaturan kerumunan, prosedur darurat', icon: <ShieldCheck className="h-4 w-4" /> },
 ] as const;
 
 /* ─── EO rating aspects ────────────────────────────────────────── */
 const EO_ASPECTS = [
-  { key: 'eo_event_quality', label: 'Kualitas Acara', desc: 'Kualitas konten, hiburan, pengalaman', icon: <Star className="h-4 w-4" /> },
-  { key: 'eo_organization', label: 'Organisasi & Kelancaran', desc: 'Registrasi, antrian, flow pengunjung', icon: <ListChecks className="h-4 w-4" /> },
-  { key: 'eo_committee_service', label: 'Pelayanan Panitia', desc: 'Keramahan panitia, bantuan informasi', icon: <Users className="h-4 w-4" /> },
-  { key: 'eo_promotion_accuracy', label: 'Kesesuaian Promosi', desc: 'Apakah sesuai ekspektasi dari promosi', icon: <Megaphone className="h-4 w-4" /> },
-  { key: 'eo_recommendation', label: 'Rekomendasi', desc: 'Seberapa besar Anda merekomendasikan event ini', icon: <ThumbsUp className="h-4 w-4" /> },
+  { key: 'eo_event_quality', label: 'Kualitas acara', desc: 'Kualitas konten, hiburan, pengalaman', icon: <Star className="h-4 w-4" /> },
+  { key: 'eo_organization', label: 'Organisasi dan kelancaran', desc: 'Registrasi, antrian, alur pengunjung', icon: <ListChecks className="h-4 w-4" /> },
+  { key: 'eo_committee_service', label: 'Pelayanan panitia', desc: 'Keramahan panitia, bantuan informasi', icon: <Users className="h-4 w-4" /> },
+  { key: 'eo_promotion_accuracy', label: 'Kesesuaian promosi', desc: 'Apakah sesuai ekspektasi dari promosi', icon: <Megaphone className="h-4 w-4" /> },
+  { key: 'eo_recommendation', label: 'Rekomendasi', desc: 'Seberapa besar kamu merekomendasikan event ini', icon: <ThumbsUp className="h-4 w-4" /> },
 ] as const;
 
 type RatingKey = typeof MALL_ASPECTS[number]['key'] | typeof EO_ASPECTS[number]['key'];
@@ -155,7 +155,7 @@ export default function SurveyPage() {
       const errs = err instanceof ApiError ? (err.payload?.errors as string[] | undefined) : undefined;
       setSubmitError(
         (Array.isArray(errs) ? errs.join(', ') : undefined)
-        || (err instanceof Error ? err.message : 'Gagal mengirim survey'),
+        || (err instanceof Error ? err.message : 'Gagal mengirim survei'),
       );
     } finally {
       setSubmitting(false);
@@ -173,7 +173,7 @@ export default function SurveyPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-[var(--wf-accent)]" />
-          <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">Memuat survey…</p>
+          <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">Memuat survei…</p>
         </div>
       </PageShell>
     );
@@ -200,9 +200,9 @@ export default function SurveyPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <ClipboardCheck className="h-12 w-12 text-emerald-500" />
-          <h2 className="mt-4 text-lg font-bold text-[var(--wf-ink)]">Anda Sudah Mengisi Survey</h2>
+          <h2 className="mt-4 text-lg font-bold text-[var(--wf-ink)]">Kamu sudah mengisi survei</h2>
           <p className="mt-2 max-w-xs text-sm text-[var(--wf-ink-muted)]">
-            Terima kasih! Anda sudah pernah mengisi survey untuk event "{event?.acara}".
+            Terima kasih! Kamu sudah pernah mengisi survei untuk event "{event?.acara}".
           </p>
           <Button onClick={() => navigate('/dashboard')} className="mt-6 h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]!">
             Kembali ke Dashboard
@@ -245,7 +245,7 @@ export default function SurveyPage() {
       {/* Survey type selector */}
       {!surveyType && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Anda mengisi sebagai:</h3>
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kamu mengisi sebagai:</h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <TypeCard
               title="Penyelenggara Event"
@@ -292,7 +292,7 @@ export default function SurveyPage() {
               </h3>
             </div>
             <p className="text-xs text-[var(--wf-ink-muted)]">
-              Berikan penilaian Anda terhadap Metropolitan Mall Bekasi
+              Berikan penilaian kamu untuk Metropolitan Mall Bekasi
             </p>
             <div className="space-y-5">
               {MALL_ASPECTS.map((a) => (
@@ -329,7 +329,7 @@ export default function SurveyPage() {
                 </h3>
               </div>
               <p className="text-xs text-[var(--wf-ink-muted)]">
-                Berikan penilaian Anda terhadap penyelenggara event: {event?.eo || '-'}
+                Berikan penilaian kamu untuk penyelenggara event: {event?.eo || '-'}
               </p>
               <div className="space-y-5">
                 {EO_ASPECTS.map((a) => (
@@ -388,10 +388,10 @@ export default function SurveyPage() {
                 onChange={(v) => setIdentity(prev => ({ ...prev, name: v }))} maxLength={100} />
               <InputField id="survey-email" label="Email" icon={<Mail className="h-4 w-4" />} placeholder="Email" type="email" value={identity.email}
                 onChange={(v) => setIdentity(prev => ({ ...prev, email: v }))} maxLength={254} />
-              <InputField id="survey-phone" label="No. Telepon" icon={<Phone className="h-4 w-4" />} placeholder="No. Telepon" type="tel" value={identity.phone}
+              <InputField id="survey-phone" label="Nomor telepon" icon={<Phone className="h-4 w-4" />} placeholder="Nomor telepon" type="tel" value={identity.phone}
                 onChange={(v) => setIdentity(prev => ({ ...prev, phone: v }))} maxLength={20} />
               {surveyType === 'organizer' && (
-                <InputField id="survey-organization" label="Nama Organisasi" icon={<Briefcase className="h-4 w-4" />} placeholder="Nama Organisasi" value={identity.organization}
+                <InputField id="survey-organization" label="Nama organisasi" icon={<Briefcase className="h-4 w-4" />} placeholder="Nama organisasi" value={identity.organization}
                   onChange={(v) => setIdentity(prev => ({ ...prev, organization: v }))} maxLength={200} />
               )}
             </div>
@@ -416,7 +416,7 @@ export default function SurveyPage() {
             ) : (
               <Send className="h-4 w-4" />
             )}
-            {submitting ? 'Mengirim…' : 'Kirim Survey'}
+            {submitting ? 'Mengirim…' : 'Kirim survei'}
           </Button>
         </div>
       )}
@@ -438,11 +438,11 @@ function PageShell({ children }: { children: React.ReactNode }) {
 className="touch-target relative flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg px-2 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink-muted)]"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Kembali ke Jadwal Event
+            Kembali ke Jadwal event
           </Link>
           <ClipboardCheck className="h-5 w-5 shrink-0 text-[var(--wf-accent)]" />
           <div>
-            <h1 className="text-sm font-bold text-[var(--wf-ink)]">Survey Kepuasan</h1>
+            <h1 className="text-sm font-bold text-[var(--wf-ink)]">Survei kepuasan</h1>
             <p className="text-[11px] text-[var(--wf-ink-muted)]">Metropolitan Mall Bekasi</p>
           </div>
         </div>

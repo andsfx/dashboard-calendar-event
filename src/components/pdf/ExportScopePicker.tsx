@@ -211,7 +211,7 @@ export function ExportScopePicker<T>({
       </fieldset>
 
       <fieldset disabled={disabled} className="min-w-0 space-y-2">
-        <legend className="sr-only">Item yang diekspor</legend>
+        <legend className="sr-only">Data yang diekspor</legend>
         {/* flex-wrap: label tombol memuat kata benda ("Kosongkan pilihan event"),
             yang pada panel sempit lebih dulu menembus batas daripada turun baris. */}
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">

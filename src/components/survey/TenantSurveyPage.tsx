@@ -222,7 +222,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
       setEditingSurvey(updated);
       setReviewOpen(false);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Gagal me-review survey');
+      setActionError(err instanceof Error ? err.message : 'Gagal meninjau survei');
     } finally {
       setActionLoading(null);
     }
@@ -236,7 +236,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
       await remove(editingSurvey.id);
       handleCancelForm();
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Gagal menghapus survey');
+      setActionError(err instanceof Error ? err.message : 'Gagal menghapus survei');
       setConfirmDelete(false);
     } finally {
       setActionLoading(null);
@@ -277,12 +277,12 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
       setFormStatus('success');
       await refreshSurveys();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Gagal menyimpan survey';
+      const msg = err instanceof Error ? err.message : 'Gagal menyimpan survei';
 
       // Duplikat (unique constraint) → pesan Indonesia baku, bukan mentah server.
       if (/sudah pernah|already|duplicate|23505/i.test(msg)) {
         setFormStatus('duplicate');
-        setDuplicateError('Anda sudah pernah mengirimkan survey untuk event ini.');
+        setDuplicateError('Kamu sudah pernah mengirim survei untuk event ini.');
         recheckDuplicate();
       } else {
         setFormStatus('error');
@@ -327,10 +327,10 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
       if (json.success) {
         setActiveConfigs(prev => ({ ...prev, [eventId]: !currentActive }));
       } else {
-        setActionError(json.error || 'Gagal mengubah status survey.');
+        setActionError(json.error || 'Gagal mengubah status survei.');
       }
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Gagal mengubah status survey.');
+      setActionError(err instanceof Error ? err.message : 'Gagal mengubah status survei.');
     }
     finally { setConfigLoading(null); configLoadingRef.current = null; }
   }, []);
@@ -356,13 +356,13 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
         credentials: 'include',
       });
       if (!res.ok) {
-        setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
+        setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet kamu.');
         return;
       }
       const blob = await res.blob();
       downloadBlob(blob, `tenant-survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`);
     } catch {
-      setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
+      setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet kamu.');
     }
   }, [canExportCsv]);
 
@@ -398,11 +398,11 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
           <TabsList aria-label="Tenant self-assessment" className="ui-dashboard-surface p-1">
             <TabsTrigger value="list">
               <List className="size-4 shrink-0" />
-              Self-Assessment
+              Penilaian mandiri
             </TabsTrigger>
             <TabsTrigger value="analytics">
               <BarChart3 className="size-4 shrink-0" />
-              Analytics
+              Analitik
             </TabsTrigger>
           </TabsList>
 
@@ -438,7 +438,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                 onChange={(e) => setAnalyticsEventFilter(e.target.value)}
                 aria-label="Filter event"
               >
-                <option value="all">Semua Event</option>
+                <option value="all">Semua event</option>
                 {events
                   .filter(ev => ev.status === 'past' || ev.status === 'ongoing')
                   .map(ev => <option key={ev.id} value={ev.id}>{ev.acara}</option>)}
@@ -525,7 +525,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                       const updated = await submit(editingSurvey.id);
                       setEditingSurvey(updated);
                     } catch (err) {
-                      setActionError(err instanceof Error ? err.message : 'Gagal mengirim draft');
+                      setActionError(err instanceof Error ? err.message : 'Gagal mengirim draf');
                     } finally {
                       setActionLoading(null);
                     }
@@ -544,7 +544,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                   }}
                 >
                   <Eye className="size-3.5" />
-                  {editingSurvey.status === 'reviewed' ? 'Update review' : 'Review'}
+                  {editingSurvey.status === 'reviewed' ? 'Perbarui tinjauan' : 'Tinjauan'}
                 </Button>
               )}
               {canDelete && (
@@ -574,7 +574,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
               <div className="flex items-start gap-2">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0 text-red-700 dark:text-red-300" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-red-700 dark:text-red-300">Hapus response ini?</p>
+                  <p className="text-sm font-semibold text-red-700 dark:text-red-300">Hapus respons ini?</p>
                   <p className="mt-0.5 text-xs text-red-700 dark:text-red-300">
                     Permanen. Tidak bisa dibatalkan.
                   </p>
@@ -603,7 +603,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
           {reviewOpen && canReview && (
             <div className="mb-4 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-4">
               <div className="w-full">
-                <Label htmlFor="review-notes" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan review</Label>
+                <Label htmlFor="review-notes" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan tinjauan</Label>
                 <Textarea
                   id="review-notes"
                   value={reviewNotes}
@@ -620,7 +620,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                   onClick={handleReview}
                 >
                   {actionLoading === 'review' ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
-                  Simpan review
+                  Simpan tinjauan
                 </Button>
                 <Button
                   variant="outline"
@@ -653,12 +653,12 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] px-3 py-3">
                 <TrendingUp className="mb-1 size-4 text-[var(--wf-ink-muted)]" />
-                <span className="text-xs text-[var(--wf-ink-muted)]">Traffic</span>
+                <span className="text-xs text-[var(--wf-ink-muted)]">Kunjungan</span>
                 <span className="mt-1 text-sm font-bold text-[var(--wf-ink)]">{editingSurvey.kenaikan_traffic || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] px-3 py-3">
                 <DollarSign className="mb-1 size-4 text-[var(--wf-ink-muted)]" />
-                <span className="text-xs text-[var(--wf-ink-muted)]">Sales</span>
+                <span className="text-xs text-[var(--wf-ink-muted)]">Penjualan</span>
                 <span className="mt-1 text-sm font-bold text-[var(--wf-ink)]">{editingSurvey.kenaikan_sales || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] px-3 py-3">
@@ -675,10 +675,10 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
           ) : (
             <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {([
-                ['venue_rating', 'Venue'],
+                ['venue_rating', 'Tempat'],
                 ['management_rating', 'Manajemen'],
                 ['event_organization_rating', 'Organisasi'],
-                ['booth_facility_rating', 'Fasilitas Booth'],
+                ['booth_facility_rating', 'Fasilitas booth'],
               ] as const).map(([key, label]) => {
                 const val = editingSurvey[key];
                 return (
@@ -702,9 +702,9 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
 
           {/* Comments (v2) / Feedback (v3) */}
           {isV3Survey(editingSurvey) ? (
-            editingSurvey.feedback_teks && (
+              editingSurvey.feedback_teks && (
               <div>
-                <h4 className="text-xs font-semibold text-[var(--wf-live)]">Feedback</h4>
+                <h4 className="text-xs font-semibold text-[var(--wf-live)]">Umpan balik</h4>
                 <p className="mt-1 whitespace-pre-line text-sm text-[var(--wf-ink)]">
                   {editingSurvey.feedback_teks}
                 </p>
@@ -715,7 +715,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
               <div className="space-y-3">
                 {editingSurvey.feedback_comment && (
                   <div>
-                    <h4 className="text-xs font-semibold text-[var(--wf-live)]">Feedback</h4>
+                    <h4 className="text-xs font-semibold text-[var(--wf-live)]">Umpan balik</h4>
                     <p className="mt-1 whitespace-pre-line text-sm text-[var(--wf-ink)]">
                       {editingSurvey.feedback_comment}
                     </p>
@@ -723,7 +723,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                 )}
                 {editingSurvey.improvement_suggestion && (
                   <div>
-                    <h4 className="text-xs font-semibold text-[var(--wf-accent)]">Saran Perbaikan</h4>
+                    <h4 className="text-xs font-semibold text-[var(--wf-accent)]">Saran perbaikan</h4>
                     <p className="mt-1 whitespace-pre-line text-sm text-[var(--wf-ink)]">
                       {editingSurvey.improvement_suggestion}
                     </p>
@@ -736,7 +736,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
           {/* Review notes */}
           {editingSurvey.status === 'reviewed' && editingSurvey.review_notes && !reviewOpen && (
             <div className="mt-4 rounded-[var(--wf-radius-board)] bg-[var(--wf-accent-soft)] p-4">
-              <h4 className="text-xs font-semibold text-[var(--wf-accent)]">Review Admin</h4>
+              <h4 className="text-xs font-semibold text-[var(--wf-accent)]">Tinjauan admin</h4>
               <p className="mt-1 text-sm text-[var(--wf-ink)]">
                 {editingSurvey.review_notes}
               </p>
@@ -751,7 +751,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
 
   // LOADING (initial event fetch or duplicate check)
   if (formStatus === 'submitting' && !editingSurvey && !selectedEvent) {
-    return <TenantSurveyLoading message="Menyimpan survey…" />;
+    return <TenantSurveyLoading message="Menyimpan survei…" />;
   }
 
   if (duplicateLoading && !editingSurvey && viewMode === 'form') {
@@ -915,7 +915,7 @@ function TenantSurveyEventRow({
           <p className="truncate text-xs font-medium text-[var(--wf-ink)]">{event.acara}</p>
           <p className="text-[10px] text-[var(--wf-ink-muted)]">
             {event.status === 'ongoing' ? 'Berlangsung' : 'Selesai'}
-            {isActive ? ' · Survey aktif' : ' · Survey mati'}
+            {isActive ? ' · Survei aktif' : ' · Survei nonaktif'}
           </p>
         </div>
 
@@ -923,8 +923,8 @@ function TenantSurveyEventRow({
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
-            title={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
+            aria-label={isActive ? 'Survei aktif - klik untuk nonaktifkan' : 'Survei nonaktif - klik untuk aktifkan'}
+            title={isActive ? 'Survei aktif - klik untuk nonaktifkan' : 'Survei nonaktif - klik untuk aktifkan'}
             disabled={isToggling}
             onClick={() => onToggleConfig(event.id, isActive)}
             className={isActive
@@ -944,17 +944,17 @@ function TenantSurveyEventRow({
         <Button
           variant="ghost"
           className={isCopied ? 'shrink-0 text-[var(--wf-live)] hover:text-[var(--wf-live)]' : 'shrink-0'}
-          title="Copy survey link"
+          title="Salin tautan survei"
           onClick={() => onCopyLink(event.id)}
         >
           {isCopied ? <Check className="size-3" /> : <Link2 className="size-3" />}
-          {isCopied ? 'Tersalin!' : 'Link'}
+          {isCopied ? 'Tersalin!' : 'Tautan'}
         </Button>
 
         {canExportCsv && (
           <Button variant="ghost"
             className="shrink-0"
-            title="Export CSV"
+            title="Ekspor CSV"
             onClick={() => onExport(event.id)}
           >
             <Download className="size-3" />
@@ -965,7 +965,7 @@ function TenantSurveyEventRow({
         <Button
           variant="ghost"
           className="shrink-0"
-          title="QR Code"
+          title="Kode QR"
           onClick={() => setShowQR(!showQR)}
         >
           <QrCode className="size-3" />
@@ -980,7 +980,7 @@ function TenantSurveyEventRow({
               eventId={event.id}
               eventName={event.acara}
               basePath="/tenant-survey"
-              label="Self-Assessment Tenant"
+              label="Penilaian mandiri tenant"
               showTypeTabs={false}
               compact
             />
@@ -1043,9 +1043,9 @@ function TenantSurveyManagementSection({
       <div className="ui-dashboard-surface p-4">
         {/* `<h2>`, sama dengan cabang non-empty di bawah: dulu `<h3>` sehingga
             urutan heading melompat h1 → h3 persis saat daftar event kosong. */}
-        <h2 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola Self-Assessment per Event</h2>
+        <h2 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola penilaian mandiri per event</h2>
         <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
-          Belum ada event berstatus ongoing/past. Event draft/upcoming tidak bisa dibuka untuk survey tenant.
+          Belum ada event berstatus ongoing/past. Event draft/upcoming tidak bisa dibuka untuk survei tenant.
         </p>
       </div>
     );
@@ -1068,7 +1068,7 @@ function TenantSurveyManagementSection({
       >
         <div className="min-w-0 flex-1">
           <h2 className="text-sm font-semibold text-[var(--wf-ink)]">
-            Kelola Self-Assessment per Event
+            Kelola penilaian mandiri per event
           </h2>
           <p className="text-[10px] text-[var(--wf-ink-muted)]">
             {activeCount} aktif · {surveyableEvents.length} event (ongoing + past) · toggle, link, QR{canExportCsv ? ', export' : ''}

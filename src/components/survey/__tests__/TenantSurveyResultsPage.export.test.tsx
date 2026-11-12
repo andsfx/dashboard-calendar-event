@@ -49,7 +49,7 @@ describe('TenantSurveyResultsPage — ekspor PDF', () => {
   it('membuka pemilih bagian dengan seluruh bagian hasil evaluasi', async () => {
     surveyHook.surveys = SURVEYS;
     render(<TenantSurveyResultsPage events={EVENTS} canExport />);
-    fireEvent.click(screen.getByRole('button', { name: /Export PDF/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Ekspor PDF/i }));
 
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
@@ -57,23 +57,23 @@ describe('TenantSurveyResultsPage — ekspor PDF', () => {
     // judul seksi di halaman.
     const labels = [...dialog.querySelectorAll('span')].map((el) => el.textContent);
     expect(labels).toContain('Ringkasan KPI');
-    expect(labels).toContain('Distribusi Jawaban');
-    expect(labels).toContain('Top Tenant');
-    expect(labels).toContain('Cross-tab');
-    expect(labels).toContain('Cuplikan Feedback');
+    expect(labels).toContain('Sebaran jawaban');
+    expect(labels).toContain('Tenant teratas');
+    expect(labels).toContain('Tabel silang');
+    expect(labels).toContain('Cuplikan umpan balik');
     expect(resultMock).not.toHaveBeenCalled();
   });
 
   it('meneruskan bagian terpilih lalu menahan hasilnya di pratinjau', async () => {
     surveyHook.surveys = SURVEYS;
     render(<TenantSurveyResultsPage events={EVENTS} canExport />);
-    fireEvent.click(screen.getByRole('button', { name: /Export PDF/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Ekspor PDF/i }));
     await screen.findByRole('dialog');
 
     const dialog = await screen.findByRole('dialog');
     fireEvent.click(within(dialog).getByRole('button', { name: /Kosongkan/ }));
     fireEvent.click(within(dialog).getByRole('checkbox', { name: /Ringkasan KPI/ }));
-    fireEvent.click(within(dialog).getByRole('button', { name: /Preview PDF/ }));
+    fireEvent.click(within(dialog).getByRole('button', { name: /Pratinjau PDF/ }));
 
     await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
     const [, options] = resultMock.mock.calls[0] as unknown as [unknown, { sections: string[] }];

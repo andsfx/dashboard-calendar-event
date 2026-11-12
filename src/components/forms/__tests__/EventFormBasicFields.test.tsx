@@ -32,7 +32,7 @@ describe('EventFormBasicFields', () => {
     render(<EventFormBasicFields {...mockProps} />)
     expect(screen.getByText(/Tanggal/)).toBeInTheDocument()
     expect(screen.getByText('Jam')).toBeInTheDocument()
-    expect(screen.getByText(/Nama Acara/)).toBeInTheDocument()
+    expect(screen.getByText(/Nama acara/)).toBeInTheDocument()
     expect(screen.getByText(/Lokasi/)).toBeInTheDocument()
   })
 
@@ -65,7 +65,7 @@ describe('EventFormBasicFields', () => {
 
   it('renders draft mode labels', () => {
     render(<EventFormBasicFields {...mockProps} isDraft={true} />)
-    expect(screen.getByText(/Nama Event/)).toBeInTheDocument()
+    expect(screen.getByText(/Nama event/)).toBeInTheDocument()
   })
 
   it('memilih area memanggil onAreaChange dengan id dan nama', () => {

@@ -264,8 +264,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-400" />Berlangsung</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" />Mendatang</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--wf-rule-strong)]" />Selesai</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-rose-500" />Libur Nasional</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-sky-500" />Cuti Bersama</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-rose-500" />Libur nasional</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-sky-500" />Cuti bersama</span>
         </div>
         </div>
 
@@ -285,9 +285,9 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
               <section className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Event</h3>
+                    <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Acara</h3>
                     <p className="text-xs text-[var(--wf-ink-muted)] ">
-                      {monthEvents.length} event di bulan ini
+                      {monthEvents.length} acara di bulan ini
                       {monthEvents.length > 0 && (
                         <span>
                           {' '}({[
@@ -433,7 +433,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                   <div className="ui-empty-panel px-4 py-6 text-sm text-[var(--wf-ink-muted)]">
                     <Empty className="border-0 bg-transparent p-0">
                       <EmptyHeader>
-                        <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada event di bulan ini.</EmptyTitle>
+                        <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada acara di bulan ini.</EmptyTitle>
                       </EmptyHeader>
                     </Empty>
                   </div>
@@ -443,7 +443,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
               <section className="space-y-3 border-t border-[var(--wf-rule)] pt-5 ">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Hari Libur</h3>
+                    <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Hari libur</h3>
                     <p className="text-xs text-[var(--wf-ink-muted)] ">{monthHolidays.length} hari libur di bulan ini</p>
                   </div>
                 </div>
@@ -470,7 +470,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                               {holiday.day}, {holiday.tanggal}
                             </p>
                             <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
-                              {holiday.type === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
+                              {holiday.type === 'libur_nasional' ? 'Libur nasional' : 'Cuti bersama'}
                             </span>
                           </div>
                           <p className="font-semibold text-[var(--wf-ink)] ">{holiday.name}</p>
@@ -500,8 +500,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                 <CalendarDays className="h-10 w-10 opacity-50" />
               </EmptyMedia>
               <EmptyHeader>
-                <EmptyTitle className="text-sm font-medium">Belum ada agenda atau hari libur di {MONTH_ID[month]} {year}</EmptyTitle>
-                <EmptyDescription className="mt-1 text-xs">Coba pindah bulan untuk melihat informasi lainnya</EmptyDescription>
+                <EmptyTitle className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada agenda atau hari libur di {MONTH_ID[month]} {year}</EmptyTitle>
+                <EmptyDescription className="mt-1 text-xs text-[var(--wf-ink-muted)]">Coba pindah bulan untuk melihat informasi lainnya.</EmptyDescription>
               </EmptyHeader>
             </Empty>
           </div>
@@ -536,18 +536,18 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
           <div className="flex items-center justify-between border-b border-[var(--wf-rule)] px-4 py-4 sm:px-6 ">
             <div>
               <p id="calendar-day-title" className="font-bold text-[var(--wf-ink)] ">Agenda {selectedDayTitle}</p>
-              <p className="text-xs text-[var(--wf-ink-muted)] ">{selectedDayEvents.length} event pada tanggal ini</p>
+              <p className="text-xs text-[var(--wf-ink-muted)] ">{selectedDayEvents.length} acara pada tanggal ini</p>
             </div>
             <Button variant="ghost" size="icon-sm" onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-[var(--wf-ink-muted)]  transition-colors hover:bg-[var(--wf-board-2)] " aria-label="Tutup">
               <X className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
 
-          <div className="space-y-5 px-4 py-5 sm:px-6">
+            <div className="space-y-5 px-4 py-5 sm:px-6">
             <section className="space-y-3">
               <div>
-                <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Event</h3>
-                <p className="text-xs text-[var(--wf-ink-muted)] ">{selectedDayEvents.length} event pada tanggal ini</p>
+                <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Acara</h3>
+                <p className="text-xs text-[var(--wf-ink-muted)] ">{selectedDayEvents.length} acara pada tanggal ini</p>
               </div>
 
               {selectedDayEvents.length > 0 ? (
@@ -677,7 +677,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                 <div className="ui-empty-panel px-4 py-6 text-sm text-[var(--wf-ink-muted)]">
                   <Empty className="border-0 bg-transparent p-0">
                     <EmptyHeader>
-                      <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada event pada tanggal ini.</EmptyTitle>
+                      <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada acara pada tanggal ini.</EmptyTitle>
                     </EmptyHeader>
                   </Empty>
                 </div>
@@ -686,7 +686,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
 
             <section className="space-y-3 border-t border-[var(--wf-rule)] pt-5 ">
               <div>
-                <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Hari Libur</h3>
+                <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Hari libur</h3>
                 <p className="text-xs text-[var(--wf-ink-muted)] ">{selectedDayHolidays.length} hari libur pada tanggal ini</p>
               </div>
 
@@ -702,7 +702,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                           <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">{holiday.day}, {holiday.tanggal}</p>
                           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
-                            {holiday.type === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
+                            {holiday.type === 'libur_nasional' ? 'Libur nasional' : 'Cuti bersama'}
                           </span>
                         </div>
                         <p className="font-semibold text-[var(--wf-ink)] ">{holiday.name}</p>

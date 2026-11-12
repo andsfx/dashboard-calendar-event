@@ -1,9 +1,9 @@
 import { RevealSection } from './CommunityRevealPrimitives';
 
 const STEPS: Array<{ num: string; title: string; desc: string }> = [
-  { num: '01', title: 'Daftar & Kirim', desc: 'Pilih tipe organisasi, isi form pendaftaran, dan ceritakan rencana event kamu.' },
-  { num: '02', title: 'Review Tim Mall', desc: 'Tim kami meninjau proposal kamu dan diskusi soal jadwal, kebutuhan, dan konsep acara.' },
-  { num: '03', title: 'Konfirmasi & Persiapan', desc: 'Setelah deal, kami siapkan venue dan semua perlengkapan yang kamu butuhkan.' },
+  { num: '01', title: 'Daftar dan kirim', desc: 'Pilih tipe organisasi, isi form pendaftaran, dan ceritakan rencana event kamu.' },
+  { num: '02', title: 'Review tim mall', desc: 'Tim kami meninjau proposal kamu dan diskusi soal jadwal, kebutuhan, dan konsep acara.' },
+  { num: '03', title: 'Konfirmasi dan persiapan', desc: 'Setelah deal, kami siapkan venue dan semua perlengkapan yang kamu butuhkan.' },
   { num: '04', title: 'Hari H!', desc: 'Hari H tiba! Kamu tinggal bikin seru, sisanya diurus tim mall.' },
 ];
 

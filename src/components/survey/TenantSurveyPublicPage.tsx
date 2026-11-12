@@ -125,7 +125,7 @@ export default function TenantSurveyPublicPage() {
 
   useEffect(() => {
     if (!eventId) {
-      setError('Event ID tidak ditemukan di URL');
+      setError('Tautan event tidak lengkap');
       setLoading(false);
       return;
     }
@@ -210,7 +210,7 @@ export default function TenantSurveyPublicPage() {
       await submitPublicTenantSurvey(submission);
       setFormStatus('success');
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Gagal mengirim survey';
+      const msg = err instanceof Error ? err.message : 'Gagal mengirim survei';
       if (/sudah|already/i.test(msg) || /23505|duplicate/i.test(msg)) {
         setFormStatus('duplicate');
         setAlreadySubmitted(true);
@@ -234,7 +234,7 @@ export default function TenantSurveyPublicPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-12">
           <Loader2 className="h-8 w-8 animate-spin text-[var(--wf-accent)]" />
-          <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">Memuat survey…</p>
+          <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">Memuat survei…</p>
         </div>
       </PageShell>
     );
@@ -247,9 +247,9 @@ export default function TenantSurveyPublicPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Event Tidak Ditemukan</h2>
+          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Event tidak ditemukan</h2>
           <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">
-            {error || 'Event yang Anda cari tidak tersedia.'}
+            {error || 'Event yang kamu cari tidak tersedia.'}
           </p>
           <Button
             type="button"
@@ -257,7 +257,7 @@ export default function TenantSurveyPublicPage() {
             className="mt-6 h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-sm transition-colors hover:bg-[var(--wf-accent)]"
           >
             <ChevronLeft className="h-4 w-4" />
-            Ke Beranda
+            Ke beranda
           </Button>
         </div>
       </PageShell>
@@ -271,9 +271,9 @@ export default function TenantSurveyPublicPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-board-2)]">
             <Shield className="h-8 w-8 text-[var(--wf-ink-muted)]" />
           </div>
-          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Survey Ditutup</h2>
+          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Survei ditutup</h2>
           <p className="mt-2 max-w-md text-sm text-[var(--wf-ink-muted)]">
-            Self-assessment tenant untuk event
+            Penilaian mandiri tenant untuk event
             <span className="mx-1 font-semibold text-[var(--wf-accent)]">
               &quot;{event.acara}&quot;
             </span>
@@ -285,7 +285,7 @@ export default function TenantSurveyPublicPage() {
             className="mt-6 h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-sm transition-colors hover:bg-[var(--wf-accent)]"
           >
             <ChevronLeft className="h-4 w-4" />
-            Pilih Event Lain
+            Pilih event lain
           </Button>
         </div>
       </PageShell>
@@ -300,14 +300,14 @@ export default function TenantSurveyPublicPage() {
             <CheckCircle2 className="h-8 w-8 text-amber-500" />
           </div>
           <h2 className="text-lg font-bold text-[var(--wf-ink)]">
-            Anda Sudah Mengisi Survey
+            Kamu sudah mengisi survei
           </h2>
           <p className="mt-2 max-w-md text-sm text-[var(--wf-ink-muted)]">
-            Anda sudah pernah mengirimkan self-assessment untuk event
+            Kamu sudah pernah mengirim penilaian mandiri untuk event
             <span className="mx-1 font-semibold text-[var(--wf-accent)]">
               &quot;{event.acara}&quot;
             </span>
-            dari perangkat ini. Setiap tenant hanya dapat mengirimkan satu survey per event.
+            dari perangkat ini. Setiap tenant hanya dapat mengirimkan satu survei per event.
           </p>
           <p className="mt-3 text-xs text-[var(--wf-ink-muted)]">
             Jika ini adalah kesalahan, hubungi tim Metropolitan Mall Bekasi.
@@ -324,15 +324,15 @@ export default function TenantSurveyPublicPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
             <CheckCircle2 className="h-8 w-8 text-emerald-500" />
           </div>
-          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Survey Terkirim!</h2>
+          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Survei terkirim!</h2>
           <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
-            Terima kasih telah mengirimkan self-assessment untuk event
+            Terima kasih telah mengirimkan penilaian mandiri untuk event
           </p>
           <p className="mt-0.5 text-sm font-semibold text-[var(--wf-accent)]">
             &quot;{event.acara}&quot;
           </p>
           <p className="mt-4 max-w-md text-xs text-[var(--wf-ink-muted)]">
-            Masukan Anda sangat berharga untuk meningkatkan kerjasama dan pelayanan kami.
+            Masukan kamu sangat berharga untuk meningkatkan kerja sama dan pelayanan kami.
           </p>
           <Button
             type="button"
@@ -354,7 +354,7 @@ export default function TenantSurveyPublicPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Terjadi Kesalahan</h2>
+          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Terjadi kesalahan</h2>
           <p className="mt-2 max-w-md text-sm text-[var(--wf-ink-muted)]">
             {submitError}
           </p>
@@ -366,7 +366,7 @@ export default function TenantSurveyPublicPage() {
               className="h-auto inline-flex items-center gap-2 rounded-xl border border-[var(--wf-rule-strong)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
             >
               <RefreshCw className="h-4 w-4" />
-              Coba Lagi
+              Coba lagi
             </Button>
             <Button
               type="button"
@@ -374,7 +374,7 @@ export default function TenantSurveyPublicPage() {
               className="h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-sm transition-colors hover:bg-[var(--wf-accent)]"
             >
               <ChevronLeft className="h-4 w-4" />
-              Ke Beranda
+              Ke beranda
             </Button>
           </div>
         </div>
@@ -434,7 +434,7 @@ export default function TenantSurveyPublicPage() {
           </div>
           <div className="flex-1 min-w-0">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-accent)]">
-              Self-Assessment Tenant
+              Penilaian mandiri tenant
             </span>
             <h1 className="mt-0.5 break-words text-lg font-bold leading-snug text-[var(--wf-accent)]">
               {event.acara}
@@ -463,9 +463,9 @@ export default function TenantSurveyPublicPage() {
       {/* Section stepper */}
         <div className="grid grid-cols-3 gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3">
           {[
-            { num: 1, label: 'Informasi Tenant', filled: !!(selectedTenant && formData.lokasi_zona && formData.kategori) },
+            { num: 1, label: 'Informasi tenant', filled: !!(selectedTenant && formData.lokasi_zona && formData.kategori) },
             { num: 2, label: 'Evaluasi', filled: !!(formData.kenaikan_traffic && formData.kenaikan_sales) },
-            { num: 3, label: 'Umpan Balik', filled: formData.feedback_teks.trim().length > 0 },
+            { num: 3, label: 'Umpan balik', filled: formData.feedback_teks.trim().length > 0 },
           ].map(step => (
             <div key={step.num} className="flex items-center gap-2">
               <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors ${
@@ -503,10 +503,10 @@ export default function TenantSurveyPublicPage() {
         {/* Section 1: Informasi Tenant */}
         <section className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
           <h2 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
-            Bagian 1: Informasi Tenant
+            Bagian 1: Informasi tenant
           </h2>
           <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
-            Isi informasi dasar dan lokasi tenant Anda di Metropolitan Mall Bekasi.
+            Isi informasi dasar dan lokasi tenant kamu di Metropolitan Mall Bekasi.
           </p>
 
           <div className="space-y-4">
@@ -549,7 +549,7 @@ export default function TenantSurveyPublicPage() {
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  <span>Lokasi tidak terdeteksi otomatis. Silakan pilih manual dari dropdown.</span>
+                  <span>Lokasi tidak terdeteksi otomatis. Silakan pilih dari daftar.</span>
                 </div>
               </div>
             )}
@@ -566,10 +566,10 @@ export default function TenantSurveyPublicPage() {
             <div className="relative">
               <Label htmlFor="tenant-survey-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
                 <MapPin className="h-3.5 w-3.5" />
-                Lokasi / Zona
+                Zona
                 <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                 {autoFilled.lokasi_zona && (
-                    <span className="ml-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto</span>
+                    <span className="ml-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Otomatis</span>
                 )}
               </Label>
               <NativeSelect
@@ -581,7 +581,7 @@ export default function TenantSurveyPublicPage() {
                 aria-describedby={fieldErrorMap.lokasi_zona ? 'tenant-survey-lokasi-error' : undefined}
                 className="w-full [&>select]:h-auto [&>select]:rounded-xl [&>select]:border-[var(--wf-rule-strong)] [&>select]:bg-[var(--wf-board)] [&>select]:px-3 [&>select]:py-2 [&>select]:pr-9 [&>select]:text-sm [&>select]:text-[var(--wf-ink)] [&>select:hover]:border-[var(--wf-rule-control)] [&>select:focus]:border-[var(--wf-accent)] [&>select:focus]:ring-1 [&>select:focus]:ring-[var(--wf-accent)]"
               >
-                <option value="">Pilih lokasi / zona</option>
+                <option value="">Pilih zona</option>
                 {SURVEY_OPTIONS.lokasi_zona.map((z) => (
                   <option key={z} value={z}>{z}</option>
                 ))}
@@ -598,11 +598,11 @@ export default function TenantSurveyPublicPage() {
             <div>
               {autoFilled.kategori && (
                 <div className="mb-1">
-                    <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto · terdeteksi dari data tenant</span>
+                    <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Otomatis · terdeteksi dari data tenant</span>
                 </div>
               )}
               <RadioGroup
-                label="Kategori Tenant"
+                label="Kategori tenant"
                 options={SURVEY_OPTIONS.kategori}
                 value={formData.kategori}
                 onChange={updateField('kategori')}
@@ -614,13 +614,13 @@ export default function TenantSurveyPublicPage() {
             {/* PIC fields (optional) */}
             <div className="mt-4 border-t border-[var(--wf-rule)] pt-4">
               <p className="mb-3 text-xs font-medium text-[var(--wf-ink-muted)]">
-                Informasi PIC (opsional)
+                Informasi penanggung jawab (opsional)
               </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="tenant-survey-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
                     <User className="h-3.5 w-3.5" />
-                    Nama PIC
+                    Nama penanggung jawab
                   </Label>
                   <Input
                     id="tenant-survey-pic-name"
@@ -636,7 +636,7 @@ export default function TenantSurveyPublicPage() {
                 <div>
                   <Label htmlFor="tenant-survey-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
                     <Phone className="h-3.5 w-3.5" />
-                    No. Telepon PIC
+                    Nomor telepon penanggung jawab
                   </Label>
                 <Input
                   id="tenant-survey-pic-phone"
@@ -658,15 +658,15 @@ export default function TenantSurveyPublicPage() {
         {/* Section 2: Evaluasi Traffic & Sales */}
         <section className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
           <h2 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
-            Bagian 2: Evaluasi Traffic &amp; Sales
+            Bagian 2: Evaluasi kunjungan dan penjualan
           </h2>
           <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
-            Bandingkan kondisi traffic pengunjung dan penjualan selama event berlangsung dibanding hari biasa.
+            Bandingkan kondisi kunjungan pengunjung dan penjualan selama event berlangsung dibanding hari biasa.
           </p>
 
           <div className="space-y-4">
             <RadioGroup
-              label="Kenaikan Traffic Pengunjung"
+              label="Kenaikan kunjungan pengunjung"
               options={SURVEY_OPTIONS.kenaikan_traffic}
               value={formData.kenaikan_traffic}
               onChange={updateField('kenaikan_traffic')}
@@ -676,7 +676,7 @@ export default function TenantSurveyPublicPage() {
             />
 
             <RadioGroup
-              label="Kenaikan Sales / Penjualan"
+              label="Kenaikan penjualan"
               options={SURVEY_OPTIONS.kenaikan_sales}
               value={formData.kenaikan_sales}
               onChange={updateField('kenaikan_sales')}
@@ -689,19 +689,19 @@ export default function TenantSurveyPublicPage() {
         {/* Section 3: Umpan Balik */}
         <section className="scroll-mb-28 rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4 sm:scroll-mb-0">
           <h2 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
-            Bagian 3: Umpan Balik
+            Bagian 3: Umpan balik
           </h2>
           <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
-            Sampaikan masukan Anda tentang event ini secara bebas (opsional).
+            Sampaikan masukan kamu tentang event ini secara bebas (opsional).
           </p>
 
           <div>
             <Textarea
               id="tenant-survey-feedback"
-              aria-label="Masukan / Feedback"
+              aria-label="Masukan dan umpan balik"
               value={formData.feedback_teks}
               onChange={(e) => updateField('feedback_teks')(e.target.value)}
-              placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
+              placeholder="Ceritakan kesan atau saran kamu tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
               className="w-full rounded-xl border border-[var(--wf-rule-strong)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-control)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)]"
@@ -758,14 +758,14 @@ export default function TenantSurveyPublicPage() {
               ) : (
                 <Send className="h-4 w-4" />
               )}
-              Kirim Survey
+              Kirim survei
             </Button>
           </div>
         </div>
 
         <p className="text-center text-[11px] text-[var(--wf-ink-muted)]">
           <Shield className="mr-1 inline h-3 w-3" />
-          Survey ini dapat diakses tanpa login. Nama tenant dan kontak PIC yang Anda isi tersimpan teridentifikasi untuk verifikasi.
+          Survei ini dapat diakses tanpa login. Nama tenant dan kontak penanggung jawab yang kamu isi tersimpan teridentifikasi untuk verifikasi.
         </p>
       </form>
       </div>

@@ -134,7 +134,7 @@ export function DashboardShell({
               <div className="flex flex-col gap-2 text-left text-xs text-[var(--wf-ink-muted)] sm:flex-row sm:items-center sm:justify-between">
                 <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
                 <p className="sm:text-right">
-                  {isAdmin ? 'Jadwal Event \u00b7 Panel Admin' : 'Jadwal Event'}
+                  {isAdmin ? 'Jadwal event \u00b7 Panel admin' : 'Jadwal event'}
                 </p>
               </div>
             </footer>

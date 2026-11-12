@@ -288,7 +288,7 @@ export async function fetchAllTenantParticipationOptions(): Promise<TenantPartic
   const result = await adminAction<{ success: boolean; error?: string; data?: Record<string, unknown>[] }>(
     'listTenantParticipationOptions', {},
   );
-  if (!result.success) throw new ApiError(result.error || 'Gagal memuat opsi form partisipasi');
+  if (!result.success) throw new ApiError(result.error || 'Gagal memuat opsi formulir partisipasi');
   return (result.data || []).map(mapOption);
 }
 

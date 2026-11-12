@@ -122,7 +122,7 @@ export function SikPaper({ letter, onChange, readOnly = false, errors = {} }: Si
             <EditableText
               value={letter.catatan}
               onChange={set('catatan')}
-              placeholder="Catatan (opsional): denda keterlambatan, batas pengosongan, dll."
+              placeholder="Catatan (opsional): denda keterlambatan atau batas pengosongan."
               disabled={disabled}
               id="sik-catatan"
               ariaLabel="Catatan"

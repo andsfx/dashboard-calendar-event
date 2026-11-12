@@ -103,7 +103,7 @@ export const CommandCenterAgenda = memo(function CommandCenterAgenda({
           <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
             {hasOngoing
               ? 'Yang sedang berjalan dan yang berjalan berikutnya.'
-              : 'Tidak ada event yang sedang berlangsung sekarang. Buka Jadwal Event untuk melihat agenda berikutnya.'}
+              : 'Tidak ada event yang sedang berlangsung sekarang. Buka Jadwal event untuk melihat agenda berikutnya.'}
           </p>
         </div>
         <Button
@@ -112,7 +112,7 @@ export const CommandCenterAgenda = memo(function CommandCenterAgenda({
           className="wf-btn wf-btn--quiet h-auto shrink-0 rounded-[var(--wf-radius-control)] px-3.5 py-2 font-semibold focus-visible:ring-0 active:translate-y-0"
         >
           <Link to="/dashboard/events">
-            <span>Buka Jadwal Event</span>
+            <span>Buka Jadwal event</span>
             <ArrowRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
           </Link>
         </Button>
@@ -122,7 +122,7 @@ export const CommandCenterAgenda = memo(function CommandCenterAgenda({
         <p className="wf-agenda__error">
           <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
           <span>
-            Jadwal event gagal dimuat: {error}. Buka Jadwal Event untuk mencoba lagi.
+            Jadwal event gagal dimuat: {error}. Buka Jadwal event untuk mencoba lagi.
           </span>
         </p>
       ) : (
@@ -140,7 +140,7 @@ export const CommandCenterAgenda = memo(function CommandCenterAgenda({
               <ul className="wf-register">{upcoming.map(event => renderRow(event, 'idle'))}</ul>
             ) : (
               <p className="wf-agenda__empty">
-                Belum ada event mendatang di jadwal. Tambahkan event lewat Jadwal Event.
+                Belum ada event mendatang di jadwal. Tambahkan event lewat Jadwal event.
               </p>
             )}
           </div>

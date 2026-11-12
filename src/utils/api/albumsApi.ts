@@ -133,14 +133,14 @@ export async function uploadToR2(file: File, folder = 'gallery/'): Promise<strin
       size: file.size,
     });
   } catch (err) {
-    throw rewrapApiError(err, 'Gagal menyiapkan upload');
+    throw rewrapApiError(err, 'Gagal menyiapkan unggahan');
   }
-  if (!presignResult.success) throw new ApiError(presignResult.error || 'Gagal menyiapkan upload');
-  if (!presignResult.uploadUrl || !presignResult.publicUrl) throw new ApiError('Gagal menyiapkan upload');
+  if (!presignResult.success) throw new ApiError(presignResult.error || 'Gagal menyiapkan unggahan');
+  if (!presignResult.uploadUrl || !presignResult.publicUrl) throw new ApiError('Gagal menyiapkan unggahan');
   const uploadRes = await fetch(presignResult.uploadUrl, {
     method: 'PUT', headers: { 'Content-Type': file.type }, body: file,
   });
-  if (!uploadRes.ok) throw new ApiError('Gagal mengunggah file');
+  if (!uploadRes.ok) throw new ApiError('Gagal mengunggah berkas');
   return presignResult.publicUrl;
 }
 
@@ -152,10 +152,10 @@ export async function deleteFromR2(url: string): Promise<void> {
   try {
     const result = await apiPost<{ success: boolean; error?: string }>('/r2/delete', { fileName });
     if (!result.success) {
-      throw new ApiError(result.error || 'Gagal menghapus file');
+      throw new ApiError(result.error || 'Gagal menghapus berkas');
     }
   } catch (err) {
-    throw rewrapApiError(err, 'Gagal menghapus file');
+    throw rewrapApiError(err, 'Gagal menghapus berkas');
   }
 }
 

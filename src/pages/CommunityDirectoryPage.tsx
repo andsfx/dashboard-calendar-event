@@ -48,7 +48,7 @@ function initials(name: string): string {
 
 export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Direktori Komunitas - Metropolitan Mall Bekasi',
+    title: 'Direktori komunitas - Metropolitan Mall Bekasi',
     description: 'Direktori komunitas aktif yang bekerja sama dengan Metropolitan Mall Bekasi.',
   });
 
@@ -146,11 +146,11 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
               </div>
               <div className="bg-[var(--wf-board)]/80 px-3 py-2 ">
                 <p className="text-2xl font-bold tabular-nums text-[var(--wf-ink)]">{stats.totalEvents}</p>
-                <p className="text-xs text-[var(--wf-ink-muted)]">Total Acara</p>
+                <p className="text-xs text-[var(--wf-ink-muted)]">Total acara</p>
               </div>
               <div className="bg-[var(--wf-board)]/80 px-3 py-2 ">
                 <p className="text-2xl font-bold tabular-nums text-[var(--wf-accent)]">{stats.upcomingEvents}</p>
-                <p className="text-xs text-[var(--wf-ink-muted)]">Acara Mendatang</p>
+                <p className="text-xs text-[var(--wf-ink-muted)]">Acara mendatang</p>
               </div>
             </div>
           )}

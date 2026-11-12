@@ -13,8 +13,8 @@ describe('CommunityHero', () => {
       </MemoryRouter>,
     )
     const heading = screen.getByRole('heading', { level: 1 })
-    expect(heading).toHaveTextContent('Panggung Gratis untuk Komunitas Bekasi')
-    const highlight = screen.getByText('Gratis')
+    expect(heading).toHaveTextContent('Panggung gratis untuk komunitas Bekasi')
+    const highlight = screen.getByText('gratis')
     expect(highlight).toHaveClass('text-brand-primary-300')
   })
 
@@ -24,8 +24,8 @@ describe('CommunityHero', () => {
         <CommunityHero />
       </MemoryRouter>,
     )
-    expect(screen.getByText('Daftar Event')).toBeInTheDocument()
-    expect(screen.getByText('Cek Event')).toBeInTheDocument()
+    expect(screen.getByText('Daftar event')).toBeInTheDocument()
+    expect(screen.getByText('Cek event')).toBeInTheDocument()
   })
 
   it('renders quick stats', () => {
@@ -34,8 +34,8 @@ describe('CommunityHero', () => {
         <CommunityHero />
       </MemoryRouter>,
     )
-    expect(screen.getByText('100% Gratis')).toBeInTheDocument()
-    expect(screen.getByText('Sound 10K Watt')).toBeInTheDocument()
+    expect(screen.getByText('100% gratis')).toBeInTheDocument()
+    expect(screen.getByText('Sound 10.000 watt')).toBeInTheDocument()
   })
 
   it('renders hero image when provided', () => {

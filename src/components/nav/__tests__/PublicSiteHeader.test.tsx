@@ -82,10 +82,10 @@ describe('PublicSiteHeader', () => {
     );
   });
 
-  it('menandai Jadwal Event aktif pada /events/:id dengan tepat satu aria-current', () => {
+  it('menandai Jadwal event aktif pada /events/:id dengan tepat satu aria-current', () => {
     renderHeader({ path: '/events/evt-1' });
 
-    expect(within(screen.getByRole('banner')).getByRole('link', { name: 'Jadwal Event' })).toHaveAttribute(
+    expect(within(screen.getByRole('banner')).getByRole('link', { name: 'Jadwal event' })).toHaveAttribute(
       'aria-current',
       'page',
     );
@@ -96,21 +96,21 @@ describe('PublicSiteHeader', () => {
     expect(current).toHaveLength(1);
   });
 
-  it('merender CTA Daftar Event ke /daftar dan menghilangkannya di /daftar', async () => {
+  it('merender CTA Daftar event ke /daftar dan menghilangkannya di /daftar', async () => {
     const user = userEvent.setup();
     const gallery = renderHeader({ path: '/gallery' });
-    expect(within(screen.getByRole('banner')).getByRole('link', { name: 'Daftar Event' })).toHaveAttribute(
+    expect(within(screen.getByRole('banner')).getByRole('link', { name: 'Daftar event' })).toHaveAttribute(
       'href',
       '/daftar',
     );
     gallery.unmount();
 
     renderHeader({ path: '/daftar' });
-    expect(screen.queryByRole('link', { name: 'Daftar Event' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Daftar event' })).toBeNull();
 
     const panel = await openPanel(user);
-    expect(within(panel).queryByRole('link', { name: 'Daftar Event' })).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Daftar Event' })).toBeNull();
+    expect(within(panel).queryByRole('link', { name: 'Daftar event' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Daftar event' })).toBeNull();
   });
 
   it('memanggil onToggleDark dan memakai label toggle berbahasa Indonesia', async () => {
@@ -147,7 +147,7 @@ describe('PublicSiteHeader', () => {
       // Target sentuh minimum 44 px.
       expect(item).toHaveClass('min-h-11');
     }
-    expect(within(panel).getByRole('link', { name: 'Jadwal Event' })).toHaveFocus();
+    expect(within(panel).getByRole('link', { name: 'Jadwal event' })).toHaveFocus();
 
     await user.keyboard('{Escape}');
 

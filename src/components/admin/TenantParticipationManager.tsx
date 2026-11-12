@@ -287,7 +287,7 @@ export function TenantParticipationManager({
     <div className="space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <div className="flex items-center gap-1.5">
-          <h2 className="font-display text-lg font-bold text-[var(--wf-ink)]">Partisipasi Tenant</h2>
+          <h2 className="font-display text-lg font-bold text-[var(--wf-ink)]">Partisipasi tenant</h2>
           <InfoTip
             label="Penjelasan alur tinjauan"
             content="Alur: tinjau isian, hubungi tenant bila perlu, lalu Setujui atau Tolak. Disetujui berarti partisipasi tampil di halaman event publik; tenant memantau statusnya lewat kode pengajuan."

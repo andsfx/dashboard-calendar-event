@@ -54,10 +54,10 @@ const router = Router();
  * `PG_INPUT_ERRORS` di routes/admin.js — ubah keduanya bersamaan.
  */
 const PG_INPUT_ERRORS = new Map([
-  ['22007', 'Format tanggal tidak valid. Gunakan format YYYY-MM-DD.'],
-  ['22008', 'Tanggal atau waktu di luar jangkauan yang didukung.'],
-  ['22P02', 'Format nilai tidak valid. Periksa kembali isian Anda.'],
-  ['23503', 'Data terkait tidak ditemukan atau masih dipakai data lain.'],
+  ['22007', 'Tanggal atau jam belum sesuai format. Isi tanggal dengan format YYYY-MM-DD.'],
+  ['22008', 'Tanggal yang diisi terlalu jauh dari rentang yang didukung sistem. Gunakan tanggal kalender yang wajar (mis. 2026-07-12).'],
+  ['22P02', 'Ada isian yang tidak cocok dengan pilihan yang tersedia (mis. kategori atau status). Periksa kolom yang ditandai, lalu coba lagi dengan isian kamu.'],
+  ['23503', 'Data yang dirujuk tidak ada, misal event atau tenant sudah dihapus. Muat ulang halaman lalu pilih ulang datanya.'],
 ]);
 
 /** @returns {{status:number,error:string}|null} null = bukan error input klien */
@@ -189,7 +189,7 @@ function pushTextLimitErrors(body, errors) {
   for (const [field, max] of limits) {
     const raw = body[field];
     if (raw != null && String(raw).length > max) {
-      errors.push(`${LABELS[field] ?? field} maksimal ${max} karakter`);
+      errors.push(`${LABELS[field] ?? field} terlalu panjang, maksimal ${max} huruf.`);
     }
   }
 }
@@ -198,26 +198,26 @@ function validatePublicSubmission(body) {
   const errors = [];
 
   if (!body.event_id || typeof body.event_id !== 'string' || !body.event_id.trim()) {
-    errors.push('ID event wajib diisi.');
+    errors.push('Event survey belum terpilih. Buka ulang tautan survey.');
   }
 
   if (!body.nama_gerai || typeof body.nama_gerai !== 'string' || !sanitize(body.nama_gerai).length) {
-    errors.push('Nama tenant wajib diisi.');
+    errors.push('Nama tenant belum diisi. Tulis nama gerai kamu.');
   } else if (sanitize(body.nama_gerai).length > 100) {
-    errors.push('Nama tenant maksimal 100 karakter.');
+    errors.push('Nama tenant terlalu panjang, maksimal 100 huruf.');
   }
 
   if (!body.lokasi_zona || !SURVEY_OPTIONS.lokasi_zona.includes(body.lokasi_zona)) {
-    errors.push('Lokasi/zona wajib dipilih dari daftar yang tersedia.');
+    errors.push('Pilih lokasi/zona dari daftar yang tersedia.');
   }
   if (!body.kategori || !SURVEY_OPTIONS.kategori.includes(body.kategori)) {
-    errors.push('Kategori wajib dipilih dari daftar yang tersedia.');
+    errors.push('Pilih kategori gerai dari daftar yang tersedia.');
   }
   if (!body.kenaikan_traffic || !SURVEY_OPTIONS.kenaikan_traffic.includes(body.kenaikan_traffic)) {
-    errors.push('Kenaikan traffic wajib dipilih dari daftar yang tersedia.');
+    errors.push('Pilih perkiraan kenaikan pengunjung dari daftar yang tersedia.');
   }
   if (!body.kenaikan_sales || !SURVEY_OPTIONS.kenaikan_sales.includes(body.kenaikan_sales)) {
-    errors.push('Kenaikan sales wajib dipilih dari daftar yang tersedia.');
+    errors.push('Pilih perkiraan kenaikan penjualan dari daftar yang tersedia.');
   }
 
   pushTextLimitErrors(body, errors);
@@ -235,7 +235,7 @@ function validateDraftSubmission(body) {
   const errors = [];
 
   if (!body.event_id || typeof body.event_id !== 'string' || !body.event_id.trim()) {
-    errors.push('ID event wajib diisi.');
+    errors.push('Event survey belum terpilih. Buka ulang tautan survey.');
   }
 
   const enumFields = ['lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales'];
@@ -243,12 +243,12 @@ function validateDraftSubmission(body) {
     const value = body[field];
     if (value == null || value === '') continue; // draft: boleh belum diisi
     if (!SURVEY_OPTIONS[field].includes(value)) {
-      errors.push(`${LABELS[field] ?? field} tidak dikenal.`);
+      errors.push(`${LABELS[field] ?? field} tidak ada di daftar pilihan. Pilih ulang dari daftar.`);
     }
   }
 
   if (body.nama_gerai != null && sanitize(body.nama_gerai).length > 100) {
-    errors.push('Nama tenant maksimal 100 karakter.');
+    errors.push('Nama tenant terlalu panjang, maksimal 100 huruf.');
   }
 
   pushTextLimitErrors(body, errors);
@@ -343,7 +343,7 @@ router.get('/events', async (req, res, next) => {
 router.get('/event-info', async (req, res, next) => {
   if (!enforceRateLimit(req, res, 'tenant-event-info', 60, 60_000)) return;
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
 
   try {
     // Draft tidak pernah publik: tanpa guard ini siapa pun yang menebak/melihat
@@ -352,7 +352,7 @@ router.get('/event-info', async (req, res, next) => {
       "SELECT id, acara, tanggal, lokasi, eo, status FROM events WHERE id = $1 AND status <> 'draft' LIMIT 1",
       [eventId],
     );
-    if (!rows[0]) return res.status(404).json({ success: false, error: 'Event tidak ditemukan' });
+    if (!rows[0]) return res.status(404).json({ success: false, error: 'Event ini tidak ada atau sudah dihapus. Buka ulang tautan survey.' });
     const isActive = await tenantSurveyActive(eventId);
     return res.json({ success: true, data: { ...rows[0], is_active: isActive } });
   } catch (err) {
@@ -368,7 +368,7 @@ router.get('/tenants', async (req, res, next) => {
   if (q.length < 2) {
     return res.status(400).json({
       success: false,
-      error: 'Query pencarian minimal 2 karakter',
+      error: 'Tulis minimal 2 huruf untuk mencari tenant.',
       data: [],
     });
   }
@@ -388,9 +388,9 @@ router.get('/tenants', async (req, res, next) => {
     return res.json({ success: true, data: tenants });
   } catch (err) {
     console.error('[tenant/tenants]', err);
-    if (!midConfigured()) return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
-    if (err?.code === 'UPSTREAM') return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
-    return res.status(500).json({ success: false, error: 'Gagal mengambil data tenant' });
+    if (!midConfigured()) return res.status(500).json({ success: false, error: 'Layanan data tenant belum terhubung. Coba lagi beberapa saat atau hubungi admin.' });
+    if (err?.code === 'UPSTREAM') return res.status(502).json({ success: false, error: 'Server belum bisa mengambil daftar tenant. Coba lagi sebentar.' });
+    return res.status(500).json({ success: false, error: 'Server belum bisa mengambil daftar tenant. Coba lagi sebentar.' });
   }
 });
 
@@ -401,19 +401,19 @@ router.get('/tenants', async (req, res, next) => {
 router.get('/tenant-detail', async (req, res, next) => {
   if (!enforceRateLimit(req, res, 'tenant-detail', 30, 60_000)) return;
   const id = String(req.query?.id || '').trim();
-  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
-  if (!midConfigured()) return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+  if (!id) return res.status(400).json({ success: false, error: 'Data belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' });
+  if (!midConfigured()) return res.status(500).json({ success: false, error: 'Layanan data tenant belum terhubung. Coba lagi beberapa saat atau hubungi admin.' });
 
   try {
     const resp = await fetch(MID_API_URL, {
       headers: { 'mid-api-key': MID_API_KEY },
       signal: AbortSignal.timeout(8000),
     });
-    if (!resp.ok) return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
+    if (!resp.ok) return res.status(502).json({ success: false, error: 'Server belum bisa mengambil daftar tenant. Coba lagi sebentar.' });
     const json = await resp.json();
     const list = Array.isArray(json.data) ? json.data : [];
     const t = list.find((x) => String(x.TENANT_ID ?? '') === id);
-    if (!t) return res.status(404).json({ success: false, error: 'Tenant tidak ditemukan' });
+    if (!t) return res.status(404).json({ success: false, error: 'Tenant ini tidak ada di daftar. Cari ulang dengan nama lain.' });
 
     return res.json({
       success: true,
@@ -424,7 +424,7 @@ router.get('/tenant-detail', async (req, res, next) => {
     });
   } catch (err) {
     console.error('[tenant/tenant-detail]', err);
-    return res.status(500).json({ success: false, error: 'Gagal mengambil data tenant' });
+    return res.status(500).json({ success: false, error: 'Server belum bisa mengambil daftar tenant. Coba lagi sebentar.' });
   }
 });
 
@@ -435,7 +435,7 @@ router.get('/check', async (req, res, next) => {
   if (!enforceRateLimit(req, res, 'tenant-check', 30, 60_000)) return;
   const eventId = String(req.query?.event_id || '').trim();
   const fingerprint = String(req.query?.fingerprint || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
   if (!fingerprint) return res.json({ success: true, data: { submitted: false } });
 
   try {
@@ -469,7 +469,7 @@ router.post('/submit', async (req, res, next) => {
   if (!fingerprint) {
     return res.status(400).json({
       success: false,
-      error: 'device_fingerprint wajib diisi (digunakan untuk mencegah pengiriman duplikat)',
+      error: 'Perangkat kamu belum terdaftar dengan benar. Muat ulang halaman lalu kirim ulang survey.',
     });
   }
 
@@ -487,19 +487,19 @@ router.post('/submit', async (req, res, next) => {
     if (dup[0]) {
       return res.status(409).json({
         success: false,
-        error: 'Anda sudah pernah mengirimkan survey untuk event ini dari perangkat ini.',
+        error: 'Perangkat ini sudah mengirim survey untuk event ini. Terima kasih sudah berpartisipasi.',
         already_submitted: true,
       });
     }
 
     const { rows: eventRow } = await db.query('SELECT id FROM events WHERE id = $1 LIMIT 1', [eventId]);
-    if (!eventRow[0]) return res.status(404).json({ success: false, error: 'Event tidak ditemukan' });
+    if (!eventRow[0]) return res.status(404).json({ success: false, error: 'Event ini tidak ada atau sudah dihapus. Buka ulang tautan survey.' });
 
     const active = await tenantSurveyActive(eventId);
     if (!active) {
       return res.status(403).json({
         success: false,
-        error: 'Survey tenant untuk event ini tidak aktif atau sudah ditutup.',
+        error: 'Periode survey untuk event ini sudah ditutup. Terima kasih atas ketertarikannya.',
       });
     }
 
@@ -547,7 +547,7 @@ router.post('/submit', async (req, res, next) => {
     if (String(err?.code) === '23505') {
       return res.status(409).json({
         success: false,
-        error: 'Anda sudah pernah mengirimkan survey untuk event ini dari perangkat ini.',
+        error: 'Perangkat ini sudah mengirim survey untuk event ini. Terima kasih sudah berpartisipasi.',
         already_submitted: true,
       });
     }
@@ -693,7 +693,7 @@ router.get('/results-analytics', async (req, res, next) => {
 router.get('/results-roster', async (req, res, next) => {
   // MID upstream mahal — limit ketat.
   if (!enforceRateLimit(req, res, 'results-roster', 12, 60_000)) return;
-  if (!midConfigured()) return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+  if (!midConfigured()) return res.status(500).json({ success: false, error: 'Layanan data tenant belum terhubung. Coba lagi beberapa saat atau hubungi admin.' });
 
   try {
     const tenants = await fetchMidActiveTenants();
@@ -701,15 +701,15 @@ router.get('/results-roster', async (req, res, next) => {
     return res.json({ success: true, data: tenants });
   } catch (err) {
     console.error('[tenant/results-roster]', err);
-    if (err?.code === 'UPSTREAM') return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
-    return res.status(500).json({ success: false, error: 'Gagal mengambil roster tenant' });
+    if (err?.code === 'UPSTREAM') return res.status(502).json({ success: false, error: 'Server belum bisa mengambil daftar tenant. Coba lagi sebentar.' });
+    return res.status(500).json({ success: false, error: 'Server belum bisa mengambil daftar tenant. Coba lagi sebentar.' });
   }
 });
 
 // ─── GET /directory — direktori tenant MID (publik) ────────────────
 router.get('/directory', async (req, res, next) => {
   if (!enforceRateLimit(req, res, 'directory', 12, 60_000)) return;
-  if (!midConfigured()) return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+  if (!midConfigured()) return res.status(500).json({ success: false, error: 'Layanan data tenant belum terhubung. Coba lagi beberapa saat atau hubungi admin.' });
 
   try {
     const tenants = await fetchMidActiveTenants();
@@ -717,8 +717,8 @@ router.get('/directory', async (req, res, next) => {
     return res.json({ success: true, data: tenants });
   } catch (err) {
     console.error('[tenant/directory]', err);
-    if (err?.code === 'UPSTREAM') return res.status(502).json({ success: false, error: 'Layanan data tenant sedang bermasalah' });
-    return res.status(500).json({ success: false, error: 'Gagal mengambil direktori tenant' });
+    if (err?.code === 'UPSTREAM') return res.status(502).json({ success: false, error: 'Layanan data tenant sedang bermasalah. Coba lagi beberapa saat.' });
+    return res.status(500).json({ success: false, error: 'Server belum bisa mengambil direktori tenant. Coba lagi sebentar.' });
   }
 });
 
@@ -761,23 +761,23 @@ router.get('/list', requireRole(LIST_READ_ROLES_WITH_DEMO), async (req, res, nex
 // ─── GET /get ──────────────────────────────────────────────────────
 router.get('/get', requireRole(LIST_READ_ROLES_WITH_DEMO), async (req, res, next) => {
   const id = String(req.query?.id || '').trim();
-  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
+  if (!id) return res.status(400).json({ success: false, error: 'Data belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' });
 
   const { user } = req.auth;
   const role = user?.role;
   try {
     const { rows } = await db.query('SELECT * FROM tenant_event_surveys WHERE id = $1 LIMIT 1', [id]);
     const row = rows[0] || null;
-    if (!row) return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
+    if (!row) return res.status(404).json({ success: false, error: 'Survey ini tidak ada atau sudah dihapus. Muat ulang daftar survey.' });
 
     // Demo = akun peragaan: boleh melihat baris siapa pun (read-only), dengan
     // PII disamarkan seperti tenant_relation.
     const canSeeAll = STAFF_ROLES.includes(role) || role === 'tenant_relation' || role === DEMO_ROLE;
     if (!canSeeAll && row.tenant_user_id !== user.id) {
-      return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey ini.' });
+      return res.status(403).json({ success: false, error: 'Survey ini tidak termasuk cakupan akun kamu. Minta admin atau hubungi pemilik survey.' });
     }
     if (role === 'tenant_relation' && row.status === 'draft') {
-      return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey ini.' });
+      return res.status(403).json({ success: false, error: 'Survey ini tidak termasuk cakupan akun kamu. Minta admin atau hubungi pemilik survey.' });
     }
     const masked = role === 'tenant_relation' || role === DEMO_ROLE;
     return res.json({ success: true, data: masked ? stripSurveyPii(row) : row });
@@ -801,7 +801,7 @@ router.post('/create', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
   if (!canAccessSurveyEvent(user, eventId)) {
     return res.status(403).json({
       success: false,
-      error: 'Anda tidak memiliki akses ke event ini. Minta admin menambahkan event tersebut ke akun Anda.',
+      error: 'Event ini belum ditugaskan ke akun kamu. Minta admin untuk menambahkannya.',
     });
   }
 
@@ -866,7 +866,7 @@ router.post('/create', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
 router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, res, next) => {
   const body = req.body || {};
   const id = sanitize(body.id || '', 100);
-  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
+  if (!id) return res.status(400).json({ success: false, error: 'Data belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' });
 
   const { user } = req.auth;
   const role = user?.role;
@@ -876,11 +876,11 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
       [id],
     );
     const existing = rows[0] || null;
-    if (!existing) return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
+    if (!existing) return res.status(404).json({ success: false, error: 'Survey ini tidak ada atau sudah dihapus. Muat ulang daftar survey.' });
 
     const isStaff = STAFF_ROLES.includes(role);
     if (!isStaff && existing.tenant_user_id !== user.id) {
-      return res.status(403).json({ success: false, error: 'Tidak berhak melakukan aksi ini.' });
+      return res.status(403).json({ success: false, error: 'Survey ini milik pengguna lain. Kamu hanya bisa mengubah survey buatanmu sendiri.' });
     }
     // Event juga harus ditugaskan ke EO ini (`users.assigned_events`). Baris
     // miliknya sendiri tidak cukup: survey lama bisa menunjuk event yang sudah
@@ -888,7 +888,7 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
     if (!canAccessSurveyEvent(user, existing.event_id)) {
       return res.status(403).json({
         success: false,
-        error: 'Anda tidak memiliki akses ke event survey ini. Minta admin menambahkan event tersebut ke akun Anda.',
+        error: 'Event survey ini belum ditugaskan ke akun kamu. Minta admin untuk menambahkannya.',
       });
     }
     if (!isStaff && existing.status !== 'draft') {
@@ -939,7 +939,7 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
       }
     }
 
-    if (sets.length === 0) return res.status(400).json({ success: false, error: 'Tidak ada perubahan' });
+    if (sets.length === 0) return res.status(400).json({ success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' });
 
     values.push(id);
     const { rows: updated } = await db.query(
@@ -952,7 +952,7 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
     return res.json({ success: true, data: updated[0] || null });
   } catch (err) {
     if (String(err?.code) === '23505') {
-      return res.status(409).json({ success: false, error: 'Survey sudah pernah dikirim untuk event ini.' });
+      return res.status(409).json({ success: false, error: 'Survey untuk event ini sudah terkirim sebelumnya. Buka daftar survey untuk melihat isinya.' });
     }
     const mapped = mapPgInputError(err);
     if (mapped) return res.status(mapped.status).json({ success: false, error: mapped.error });
@@ -970,7 +970,7 @@ router.post('/review', requireRole(STAFF_ROLES), async (req, res, next) => {
   const body = req.body || {};
   const id = sanitize(body.id || '', 100);
   const reviewNotes = sanitize(body.review_notes || '', 2000);
-  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
+  if (!id) return res.status(400).json({ success: false, error: 'Data belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' });
 
   try {
     const { rows } = await db.query(
@@ -980,7 +980,7 @@ router.post('/review', requireRole(STAFF_ROLES), async (req, res, next) => {
        RETURNING *`,
       [req.auth.user.id, new Date().toISOString(), reviewNotes, id],
     );
-    if (!rows[0]) return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
+    if (!rows[0]) return res.status(404).json({ success: false, error: 'Survey ini tidak ada atau sudah dihapus. Muat ulang daftar survey.' });
     logActivity(req.auth.user, 'review_tenant_survey', 'tenant_survey', id, { status: 'reviewed' }, req);
     return res.json({ success: true, data: rows[0] });
   } catch (err) {
@@ -992,11 +992,11 @@ router.post('/review', requireRole(STAFF_ROLES), async (req, res, next) => {
 router.post('/delete', requireRole(STAFF_ROLES), async (req, res, next) => {
   const body = req.body || {};
   const id = sanitize(body.id || '', 100);
-  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
+  if (!id) return res.status(400).json({ success: false, error: 'Data belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' });
 
   try {
     const { rows } = await db.query('SELECT id FROM tenant_event_surveys WHERE id = $1 LIMIT 1', [id]);
-    if (!rows[0]) return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
+    if (!rows[0]) return res.status(404).json({ success: false, error: 'Survey ini tidak ada atau sudah dihapus. Muat ulang daftar survey.' });
 
     await db.query('DELETE FROM tenant_event_surveys WHERE id = $1', [id]);
     logActivity(req.auth.user, 'delete_tenant_survey', 'tenant_survey', id, null, req);
@@ -1115,7 +1115,7 @@ router.get('/analytics', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (req
 // ─── GET /summary — ringkasan per-event (tenant + visitor) ─────────
 router.get('/summary', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
 
   try {
     const { rows } = await db.query(
@@ -1170,22 +1170,22 @@ router.get('/summary', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (req, 
 
 // ─── GET /roster — roster tenant penuh untuk TR/staff (tanpa PIC) ──
 router.get('/roster', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (_req, res, next) => {
-  if (!midConfigured()) return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+  if (!midConfigured()) return res.status(500).json({ success: false, error: 'Layanan data tenant belum terhubung. Coba lagi beberapa saat atau hubungi admin.' });
   try {
     const tenants = await fetchMidActiveTenants();
     tenants.sort((a, b) => a.name.localeCompare(b.name, 'id'));
     return res.json({ success: true, data: tenants });
   } catch (err) {
     console.error('[tenant/roster]', err);
-    if (err?.code === 'UPSTREAM') return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
-    return res.status(500).json({ success: false, error: 'Gagal mengambil roster tenant' });
+    if (err?.code === 'UPSTREAM') return res.status(502).json({ success: false, error: 'Server belum bisa mengambil daftar tenant. Coba lagi sebentar.' });
+    return res.status(500).json({ success: false, error: 'Server belum bisa mengambil daftar tenant. Coba lagi sebentar.' });
   }
 });
 
 // ─── GET /config — staff + EO ─────────────────────────────────────
 router.get('/config', requireRole([...LIST_READ_ROLES_WITH_DEMO, 'eo_tenant']), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
 
   try {
     const { rows } = await db.query('SELECT * FROM tenant_survey_config WHERE event_id = $1 LIMIT 1', [eventId]);
@@ -1207,7 +1207,7 @@ router.get('/config', requireRole([...LIST_READ_ROLES_WITH_DEMO, 'eo_tenant']), 
 router.post('/config-set', requireRole(STAFF_ROLES), async (req, res, next) => {
   const body = req.body || {};
   const eventId = sanitize(body.event_id || '', 200);
-  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
 
   const now = new Date().toISOString();
   const isActive = !!body.is_active;
@@ -1237,7 +1237,7 @@ router.post('/config-set', requireRole(STAFF_ROLES), async (req, res, next) => {
 // bukan endpoint ini.
 router.get('/export', requireRole(TENANT_EXPORT_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
 
   try {
     const { rows } = await db.query(
@@ -1248,7 +1248,7 @@ router.get('/export', requireRole(TENANT_EXPORT_ROLES), async (req, res, next) =
       [eventId],
     );
     if (rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Tidak ada data survey untuk event ini' });
+      return res.status(404).json({ success: false, error: 'Belum ada respons survey untuk event ini. Unduhan akan tersedia setelah ada yang mengisi.' });
     }
 
     const headers = [

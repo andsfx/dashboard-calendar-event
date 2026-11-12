@@ -62,7 +62,7 @@ export function useTenantSurveys(
       setError(
         err instanceof Error && err.message
           ? err.message
-          : 'Gagal memuat survey tenant.',
+          : 'Gagal memuat survei tenant.',
       );
     } finally {
       if (!opts?.silent && epoch === requestEpochRef.current) setIsLoading(false);
@@ -169,7 +169,7 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
     } catch (err) {
       if (epoch !== requestEpochRef.current) return;
       console.error('Fetch tenant analytics error:', err);
-      setError('Gagal memuat analytics tenant.');
+      setError('Gagal memuat analitik tenant.');
     } finally {
       if (!opts?.silent && epoch === requestEpochRef.current) setIsLoading(false);
     }
@@ -253,7 +253,7 @@ export function useTenantSurveyMonthlyTrend(
       setTrend(data);
     } catch (err) {
       console.error('Fetch monthly trend error:', err);
-      setError('Gagal memuat trend bulanan.');
+      setError('Gagal memuat tren bulanan.');
     } finally {
       setIsLoading(false);
     }
@@ -288,7 +288,7 @@ export function useTenantSurveyDuplicate(eventId: string | null, tenantUserId: s
       setDuplicate(result);
     } catch (err) {
       console.error('Duplicate check error:', err);
-      setError('Gagal memeriksa status survey.');
+      setError('Gagal memeriksa status survei.');
     } finally {
       setIsLoading(false);
     }

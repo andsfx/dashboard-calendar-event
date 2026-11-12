@@ -74,7 +74,7 @@ const STATUS_CONFIRM: Partial<Record<TenantEventProposalStatus, (item: TenantEve
 }>> = {
   approved: (item) => ({
     title: 'Setujui pengajuan ini?',
-    message: `Pengajuan "${item.eventTitle}" dari ${item.tenantName} akan ditandai disetujui. Menyetujui tidak membuat event otomatis, jadwalnya tetap disusun di Jadwal Event.`,
+    message: `Pengajuan "${item.eventTitle}" dari ${item.tenantName} akan ditandai disetujui. Menyetujui tidak membuat event otomatis, jadwalnya tetap disusun di Jadwal event.`,
     confirmLabel: 'Setujui',
     // Keputusan konsekuensial, bukan destruktif: dialog tosca, bukan merah.
     tone: 'neutral',
@@ -197,7 +197,7 @@ export function TenantProposalManager({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h2 className="font-display text-lg font-bold text-[var(--wf-ink)]">Kolaborasi Tenant</h2>
+        <h2 className="font-display text-lg font-bold text-[var(--wf-ink)]">Kolaborasi tenant</h2>
         <p className="text-xs text-[var(--wf-ink-muted)]">
           {pendingCount > 0
             ? `${pendingCount} dari ${proposals.length} pengajuan menunggu tinjauan.`
@@ -423,7 +423,7 @@ export function TenantProposalManager({
                       </div>
 
                       <p className="text-[11px] text-[var(--wf-ink-muted)]">
-                        Menyetujui pengajuan tidak membuat event. Susun jadwalnya di Jadwal Event setelah tanggal disepakati.
+                        Menyetujui pengajuan tidak membuat event. Susun jadwalnya di Jadwal event setelah tanggal disepakati.
                       </p>
                     </>
                   )}

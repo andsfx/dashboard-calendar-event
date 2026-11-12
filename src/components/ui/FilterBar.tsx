@@ -15,7 +15,7 @@ const STATUS_TABS: Array<{ key: EventStatus | 'Semua'; label: string; dot?: stri
 
 
 const PRIORITY_OPTIONS = [
-  { key: 'Semua',  label: 'Semua Prioritas' },
+  { key: 'Semua',  label: 'Semua prioritas' },
   { key: 'high',   label: 'Tinggi' },
   { key: 'medium', label: 'Sedang' },
   { key: 'low',    label: 'Rendah' },
@@ -67,8 +67,8 @@ export function FilterBar({
   showDraft = true,
   showPriority = true,
 }: Props) {
-  const categoryOptions = normalizeOptionKeys(categories ?? []).map(c => ({ value: c, label: c === 'Semua' ? 'Semua Kategori' : c }));
-  const monthOptions = (months ?? []).map(m => ({ value: m, label: m === 'Semua' ? 'Semua Bulan' : m }));
+  const categoryOptions = normalizeOptionKeys(categories ?? []).map(c => ({ value: c, label: c === 'Semua' ? 'Semua kategori' : c }));
+  const monthOptions = (months ?? []).map(m => ({ value: m, label: m === 'Semua' ? 'Semua bulan' : m }));
   const priorityOptions = PRIORITY_OPTIONS.map(o => ({ value: o.key, label: o.label }));
   const statusTabs = showDraft ? STATUS_TABS : STATUS_TABS.filter(tab => tab.key !== 'draft');
   const dropdownCols = showPriority ? 'grid grid-cols-1 gap-2 sm:grid-cols-3' : 'grid grid-cols-1 gap-2 sm:grid-cols-2';
@@ -108,7 +108,7 @@ export function FilterBar({
       {/* Dropdowns row - wrap on mobile */}
       <div className={dropdownCols}>
         <Select value={activeMonth} onValueChange={onMonthChange}>
-          <SelectTrigger aria-label="Semua Bulan" className="w-full">
+          <SelectTrigger aria-label="Semua bulan" className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -120,7 +120,7 @@ export function FilterBar({
           </SelectContent>
         </Select>
         <Select value={activeCategory} onValueChange={onCategoryChange}>
-          <SelectTrigger aria-label="Semua Kategori" className="w-full">
+          <SelectTrigger aria-label="Semua kategori" className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -133,7 +133,7 @@ export function FilterBar({
         </Select>
         {showPriority && (
           <Select value={activePriority} onValueChange={onPriorityChange}>
-            <SelectTrigger aria-label="Semua Prioritas" className="w-full">
+            <SelectTrigger aria-label="Semua prioritas" className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

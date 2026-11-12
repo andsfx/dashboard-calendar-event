@@ -85,8 +85,8 @@ describe('DashboardViewsSection — ekspor PDF', () => {
     fireEvent.click(screen.getByRole('button', { name: /Unduh jadwal event sebagai PDF/i }));
     await screen.findByRole('dialog');
 
-    fireEvent.click(screen.getByRole('checkbox', { name: /Agenda per Area/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Preview PDF/ }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /Agenda per area/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Pratinjau PDF/ }));
 
     await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
     const [, options] = resultMock.mock.calls[0] as unknown as [EventItem[], { sections: string[] }];

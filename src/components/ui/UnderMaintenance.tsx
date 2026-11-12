@@ -26,7 +26,7 @@ export function UnderMaintenance({ title, reason, next, className = '' }: UnderM
       <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--wf-action)]/12 text-[var(--wf-action)]">
         <Wrench className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
       </span>
-      <p className="wf-key wf-key--action mt-4">Sedang Diperbaiki</p>
+      <p className="wf-key wf-key--action mt-4">Sedang diperbaiki</p>
       <h2 className="mt-2 font-display text-xl font-bold text-[var(--wf-ink)]">{title}</h2>
       <p className="mt-2 max-w-md text-sm leading-6 text-[var(--wf-ink-muted)]">{reason}</p>
       {next ? <div className="mt-5 text-sm text-[var(--wf-ink-muted)]">{next}</div> : null}

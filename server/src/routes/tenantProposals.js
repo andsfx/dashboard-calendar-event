@@ -58,7 +58,7 @@ async function verifyAttachment(url, mimeType) {
   const prefix = `${R2_PUBLIC_URL}/`;
   const key = String(url || '').slice(prefix.length);
   if (!R2_PUBLIC_URL || !String(url || '').startsWith(prefix) || !key.startsWith(ATTACHMENT_FOLDER)) {
-    return { ok: false, error: 'Lampiran tidak valid. Unggah ulang file Anda.' };
+    return { ok: false, error: 'Lampiran tidak terbaca dari storage. Unggah ulang berkasnya lalu kirim ulang.' };
   }
   if (!ALLOWED_ATTACHMENT_MIME.has(String(mimeType || '').toLowerCase())) {
     return { ok: false, error: 'Lampiran harus PDF, Word (DOC/DOCX), PNG, atau JPEG.' };

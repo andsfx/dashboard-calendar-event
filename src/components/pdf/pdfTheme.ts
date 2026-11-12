@@ -181,7 +181,7 @@ export function drawPdfFooter(doc: jsPDF, options: PdfFooterOptions = {}): void 
   const margin = options.margin ?? PDF_MARGIN;
   const pageHeight = options.pageHeight ?? A4.h;
   const pageWidth = options.pageWidth ?? A4.w;
-  const label = options.label ?? 'Metropolitan Mall Bekasi · Sistem Event';
+  const label = options.label ?? 'Metropolitan Mall Bekasi · Sistem event';
   const from = options.fromPage ?? 1;
   const total = doc.getNumberOfPages();
   const y = pageHeight - 24;
@@ -227,15 +227,15 @@ export function fitWithin(
 
 export const EVENT_STATUS_LABEL: Record<string, string> = {
   ongoing: 'Berlangsung',
-  upcoming: 'Akan Datang',
+  upcoming: 'Akan datang',
   past: 'Selesai',
   draft: 'Internal',
 };
 
 export const SURVEY_STATUS_LABEL: Record<string, string> = {
-  all: 'Terkirim & Ditinjau',
-  submitted: 'Telah Dikirim',
-  reviewed: 'Telah Ditinjau',
+  all: 'Terkirim dan ditinjau',
+  submitted: 'Telah dikirim',
+  reviewed: 'Telah ditinjau',
 };
 
 export function eventStatusColor(status: string): string {

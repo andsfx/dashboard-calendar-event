@@ -45,23 +45,23 @@ export const INSTAGRAM_REGEX = /^(@?[\w.]{1,30}|https?:\/\/(www\.)?instagram\.co
 export function validateEmail(email: string): ValidationResult {
   // Handle empty/null/undefined
   if (!email || email.trim() === '') {
-    return { valid: false, error: 'Email tidak boleh kosong.' };
+    return { valid: false, error: 'Email belum diisi. Isi dulu ya.' };
   }
 
   const trimmedEmail = email.trim();
 
   // Check length constraints
   if (trimmedEmail.length < 5) {
-    return { valid: false, error: 'Email terlalu pendek (minimal 5 karakter).' };
+    return { valid: false, error: 'Email terlalu pendek, minimal 5 karakter.' };
   }
 
   if (trimmedEmail.length > 254) {
-    return { valid: false, error: 'Email terlalu panjang (maksimal 254 karakter).' };
+    return { valid: false, error: 'Email terlalu panjang, maksimal 254 karakter.' };
   }
 
   // Validate format
   if (!EMAIL_REGEX.test(trimmedEmail)) {
-    return { valid: false, error: 'Format email tidak valid. Contoh: user@domain.com' };
+    return { valid: false, error: 'Email belum sesuai format. Contoh yang benar: nama@email.com' };
   }
 
   return { valid: true };
@@ -81,7 +81,7 @@ export function validateEmail(email: string): ValidationResult {
 export function validatePhone(phone: string): ValidationResult {
   // Handle empty/null/undefined
   if (!phone || phone.trim() === '') {
-    return { valid: false, error: 'Nomor telepon tidak boleh kosong.' };
+    return { valid: false, error: 'Nomor telepon belum diisi. Isi nomor WhatsApp yang aktif.' };
   }
 
   // Normalize: remove spaces and dashes
@@ -89,14 +89,14 @@ export function validatePhone(phone: string): ValidationResult {
 
   // Check if contains only valid characters
   if (!/^[\+0-9]+$/.test(normalized)) {
-    return { valid: false, error: 'Nomor telepon hanya boleh berisi angka, +, spasi, atau -.' };
+    return { valid: false, error: 'Nomor telepon hanya boleh berisi angka, tanda +, spasi, atau tanda -.' };
   }
 
   // Validate format
   if (!PHONE_REGEX.test(normalized)) {
-    return { 
-      valid: false, 
-      error: 'Format nomor telepon tidak valid. Gunakan format: 08xxx, +628xxx, atau 628xxx (10-15 digit).' 
+    return {
+      valid: false,
+      error: 'Nomor telepon belum sesuai format. Gunakan 08xxx, +628xxx, atau 628xxx dengan 10-15 digit angka.'
     };
   }
 
@@ -125,23 +125,23 @@ export function validateInstagram(instagram: string): ValidationResult {
 
   // Check length constraints
   if (trimmed.length < 3) {
-    return { valid: false, error: 'Username Instagram terlalu pendek (minimal 3 karakter).' };
+    return { valid: false, error: 'Username Instagram terlalu pendek, minimal 3 karakter.' };
   }
 
   if (trimmed.length > 100) {
-    return { valid: false, error: 'Input Instagram terlalu panjang (maksimal 100 karakter).' };
+    return { valid: false, error: 'Isian Instagram terlalu panjang, maksimal 100 karakter.' };
   }
 
   // Additional security check: prevent non-Instagram URLs (check before regex)
   if (trimmed.includes('http') && !trimmed.includes('instagram.com')) {
-    return { valid: false, error: 'Hanya link Instagram yang diperbolehkan.' };
+    return { valid: false, error: 'Tautan yang dikirim bukan Instagram. Isi tautan dari instagram.com atau tulis @username-nya.' };
   }
 
   // Validate format
   if (!INSTAGRAM_REGEX.test(trimmed)) {
-    return { 
-      valid: false, 
-      error: 'Format Instagram tidak valid. Gunakan @username, link Instagram, atau username saja.' 
+    return {
+      valid: false,
+      error: 'Isian Instagram belum sesuai format. Isi @username, username biasa, atau tautan profil Instagram.'
     };
   }
 
@@ -178,40 +178,40 @@ export function validateTenantSurvey(
 
   // event_id always required
   if (!data.event_id || typeof data.event_id !== 'string' || !data.event_id.trim()) {
-    errors.push('ID event wajib diisi.');
+    errors.push('Event survei belum terpilih. Buka ulang tautan survei.');
   }
 
   // nama_gerai: required, 1-100 chars after trim
   const namaGerai = (data.nama_gerai as string || '').trim();
   if (!isDraft && !namaGerai) {
-    errors.push('Nama tenant wajib diisi.');
+    errors.push('Nama tenant belum diisi. Tulis nama gerai kamu.');
   }
   if (namaGerai.length > 100) {
-    errors.push('Nama tenant maksimal 100 karakter.');
+    errors.push('Nama tenant terlalu panjang, maksimal 100 huruf.');
   }
 
   // lokasi_zona: required, must be in SURVEY_OPTIONS.lokasi_zona
   const lokasiZona = (data.lokasi_zona as string || '').trim();
   if (!isDraft && (!lokasiZona || !SURVEY_OPTIONS.lokasi_zona.includes(lokasiZona as typeof SURVEY_OPTIONS.lokasi_zona[number]))) {
-    errors.push('Lokasi zona wajib dipilih dari daftar yang tersedia.');
+    errors.push('Pilih lokasi/zona dari daftar yang tersedia.');
   }
 
   // kategori: required, must be in SURVEY_OPTIONS.kategori
   const kategori = (data.kategori as string || '').trim();
   if (!isDraft && (!kategori || !SURVEY_OPTIONS.kategori.includes(kategori as typeof SURVEY_OPTIONS.kategori[number]))) {
-    errors.push('Kategori wajib dipilih dari daftar yang tersedia.');
+    errors.push('Pilih kategori gerai dari daftar yang tersedia.');
   }
 
   // kenaikan_traffic: required, must be in SURVEY_OPTIONS.kenaikan_traffic
   const kenaikanTraffic = (data.kenaikan_traffic as string || '').trim();
   if (!isDraft && (!kenaikanTraffic || !SURVEY_OPTIONS.kenaikan_traffic.includes(kenaikanTraffic as typeof SURVEY_OPTIONS.kenaikan_traffic[number]))) {
-    errors.push('Kenaikan traffic wajib dipilih dari daftar yang tersedia.');
+    errors.push('Pilih perkiraan kenaikan pengunjung dari daftar yang tersedia.');
   }
 
   // kenaikan_sales: required, must be in SURVEY_OPTIONS.kenaikan_sales
   const kenaikanSales = (data.kenaikan_sales as string || '').trim();
   if (!isDraft && (!kenaikanSales || !SURVEY_OPTIONS.kenaikan_sales.includes(kenaikanSales as typeof SURVEY_OPTIONS.kenaikan_sales[number]))) {
-    errors.push('Kenaikan sales wajib dipilih dari daftar yang tersedia.');
+    errors.push('Pilih perkiraan kenaikan penjualan dari daftar yang tersedia.');
   }
 
   // Text field length limits (v3 + legacy)
@@ -237,7 +237,7 @@ export function validateTenantSurvey(
   for (const [field, maxLen] of textLimits) {
     const val = data[field] as string;
     if (val && val.length > maxLen) {
-      errors.push(`Kolom "${TEXT_FIELD_LABELS[field] ?? field}" maksimal ${maxLen} karakter.`);
+      errors.push(`Kolom "${TEXT_FIELD_LABELS[field] ?? field}" terlalu panjang, maksimal ${maxLen} huruf.`);
     }
   }
 

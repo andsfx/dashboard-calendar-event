@@ -95,7 +95,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
       {/* Event Name */}
       <div>
         <Label htmlFor={`${datalistId}-name`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
-          {isDraft ? 'Nama Event' : 'Nama Acara'} <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+          {isDraft ? 'Nama event' : 'Nama acara'} <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
         </Label>
         <Input
           id={`${datalistId}-name`}
@@ -119,7 +119,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
           onChange={e => onAreaChange(e.target.value, areaOptions.find(o => o.id === e.target.value)?.name || null)}
           className="w-full"
         >
-          <option value="">- Pilih area -</option>
+          <option value="">Pilih area…</option>
           {areaOptions.map(area => <option key={area.id} value={area.id}>{area.name}</option>)}
         </NativeSelect>
         {areaId && conflictEvents.length > 0 && (
@@ -130,7 +130,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
             </p>
             <ul className="mt-1 list-inside list-disc">
               {conflictEvents.slice(0, 3).map(ev => (
-                <li key={ev.id}>{ev.acara} - {ev.dateStr}{ev.dateEnd ? ` s/d ${ev.dateEnd}` : ''}</li>
+                <li key={ev.id}>{ev.acara} - {ev.dateStr}{ev.dateEnd ? ` sampai ${ev.dateEnd}` : ''}</li>
               ))}
             </ul>
             <Label className="mt-2 flex cursor-pointer items-center gap-1.5 text-xs font-semibold">

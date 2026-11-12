@@ -240,7 +240,7 @@ describe('survey — eo_tenant hanya event yang ditugaskan', () => {
     });
 
     expect(status).toBe(403);
-    expect(body.error).toMatch(/Tidak berhak/);
+    expect(body.error).toMatch(/belum ditugaskan/);
     // Tidak boleh ada query data sebelum penolakan.
     expect(dbState.queries.some((q) => q.sql.includes('FROM survey_responses'))).toBe(false);
   });

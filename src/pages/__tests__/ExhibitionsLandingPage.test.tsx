@@ -45,7 +45,7 @@ describe('ExhibitionsLandingPage', () => {
       </MemoryRouter>,
     );
     await waitFor(() => expect(screen.getByText('Beauty Fair')).toBeInTheDocument());
-    expect(screen.getByRole('link', { name: /Ajukan Kolaborasi/ })).toHaveAttribute('href', '/pameran/exh-1');
+    expect(screen.getByRole('link', { name: /Ajukan kolaborasi/ })).toHaveAttribute('href', '/pameran/exh-1');
   });
 
   it('mengirim pengajuan kolaborasi brand/EO', async () => {
@@ -75,7 +75,7 @@ describe('ExhibitionsLandingPage', () => {
     await user.type(screen.getByLabelText(/Nama brand/), 'Brand A');
     await user.type(screen.getByLabelText(/Nama PIC/), 'Rani');
     await user.type(screen.getByLabelText(/Nomor WhatsApp/), '08123456789');
-    await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/ }));
+    await user.click(screen.getByRole('button', { name: /Kirim pengajuan/ }));
     await waitFor(() => expect(screen.getByText(/Pengajuan terkirim/)).toBeInTheDocument());
   });
 });

@@ -107,7 +107,7 @@ describe('TenantCollaborationPage — pemilihan tenant', () => {
     mockFetchRoutes(areasRoute);
     renderPage();
 
-    await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/ }));
+    await user.click(screen.getByRole('button', { name: /Kirim pengajuan/ }));
 
     expect(await screen.findByText('Pilih tenant dari daftar, atau isi manual.', undefined, { timeout: ASYNC_TIMEOUT })).toBeInTheDocument();
   });

@@ -65,69 +65,69 @@ function sanitizeString(value, maxLength) {
 const VALID_ORG_TYPES = ['community', 'school', 'company', 'eo', 'campus', 'government', 'ngo', 'other'];
 
 function validateOrgType(value) {
-  if (!value || typeof value !== 'string') return { valid: false, error: 'Tipe organisasi harus diisi.' };
+  if (!value || typeof value !== 'string') return { valid: false, error: 'Pilih dulu tipe organisasinya di bagian atas form.' };
   const sanitized = sanitizeString(value, 50);
   if (!VALID_ORG_TYPES.includes(sanitized)) {
-    return { valid: false, error: `Tipe organisasi tidak valid. Pilih salah satu: ${VALID_ORG_TYPES.join(', ')}.` };
+    return { valid: false, error: `Pilih tipe organisasi dari daftar: ${VALID_ORG_TYPES.join(', ')}.` };
   }
   return { valid: true, value: sanitized };
 }
 
 function validateOrgName(value) {
-  if (!value || typeof value !== 'string') return { valid: false, error: 'Nama organisasi harus diisi.' };
+  if (!value || typeof value !== 'string') return { valid: false, error: 'Nama organisasi belum diisi. Tulis namanya.' };
   const sanitized = sanitizeString(value, 200);
-  if (sanitized.length < 3) return { valid: false, error: 'Nama organisasi terlalu pendek (minimal 3 karakter).' };
-  if (sanitized.length > 200) return { valid: false, error: 'Nama organisasi terlalu panjang (maksimal 200 karakter).' };
+  if (sanitized.length < 3) return { valid: false, error: 'Nama organisasi terlalu pendek, minimal 3 huruf.' };
+  if (sanitized.length > 200) return { valid: false, error: 'Nama organisasi terlalu panjang, maksimal 200 huruf.' };
   return { valid: true, value: sanitized };
 }
 
 function validatePic(value) {
-  if (!value || typeof value !== 'string') return { valid: false, error: 'Nama penanggung jawab harus diisi.' };
+  if (!value || typeof value !== 'string') return { valid: false, error: 'Nama penanggung jawab belum diisi. Tulis namanya.' };
   const sanitized = sanitizeString(value, 100);
-  if (sanitized.length < 3) return { valid: false, error: 'Nama penanggung jawab terlalu pendek (minimal 3 karakter).' };
-  if (sanitized.length > 100) return { valid: false, error: 'Nama penanggung jawab terlalu panjang (maksimal 100 karakter).' };
+  if (sanitized.length < 3) return { valid: false, error: 'Nama penanggung jawab terlalu pendek, minimal 3 huruf.' };
+  if (sanitized.length > 100) return { valid: false, error: 'Nama penanggung jawab terlalu panjang, maksimal 100 huruf.' };
   return { valid: true, value: sanitized };
 }
 
 function validatePhone(value) {
-  if (!value || typeof value !== 'string') return { valid: false, error: 'Nomor telepon harus diisi.' };
+  if (!value || typeof value !== 'string') return { valid: false, error: 'Nomor telepon belum diisi. Isi nomor WhatsApp yang aktif.' };
   const normalized = value.trim().replace(/[\s-]/g, '');
   if (!/^[\+0-9]+$/.test(normalized)) {
-    return { valid: false, error: 'Nomor telepon hanya boleh berisi angka, +, spasi, atau -.' };
+    return { valid: false, error: 'Nomor telepon hanya boleh berisi angka, tanda +, spasi, atau tanda -.' };
   }
   if (!PHONE_REGEX.test(normalized)) {
-    return { valid: false, error: 'Format nomor telepon tidak valid. Gunakan format: 08xxx, +628xxx, atau 628xxx (10-15 digit).' };
+    return { valid: false, error: 'Nomor telepon belum sesuai format. Gunakan 08xxx, +628xxx, atau 628xxx dengan 10-15 digit angka.' };
   }
   return { valid: true, value: normalized };
 }
 
 function validateEmail(value) {
   if (!value || value === '') return { valid: true, value: '' };
-  if (typeof value !== 'string') return { valid: false, error: 'Format email tidak valid.' };
+  if (typeof value !== 'string') return { valid: false, error: 'Email belum sesuai format. Contoh yang benar: nama@email.com.' };
   const sanitized = sanitizeString(value, 254);
-  if (sanitized.length < 5) return { valid: false, error: 'Email terlalu pendek (minimal 5 karakter).' };
-  if (!EMAIL_REGEX.test(sanitized)) return { valid: false, error: 'Format email tidak valid. Contoh: user@domain.com' };
+  if (sanitized.length < 5) return { valid: false, error: 'Email terlalu pendek, minimal 5 huruf.' };
+  if (!EMAIL_REGEX.test(sanitized)) return { valid: false, error: 'Email belum sesuai format. Contoh yang benar: nama@email.com.' };
   return { valid: true, value: sanitized };
 }
 
 function validateInstagram(value) {
   if (!value || value === '') return { valid: true, value: '' };
-  if (typeof value !== 'string') return { valid: false, error: 'Format Instagram tidak valid.' };
+  if (typeof value !== 'string') return { valid: false, error: 'Isian Instagram belum sesuai format. Isi @username atau tautan profil Instagram.' };
   const sanitized = sanitizeString(value, 100);
-  if (sanitized.length < 3) return { valid: false, error: 'Username Instagram terlalu pendek (minimal 3 karakter).' };
-  if (sanitized.length > 100) return { valid: false, error: 'Input Instagram terlalu panjang (maksimal 100 karakter).' };
+  if (sanitized.length < 3) return { valid: false, error: 'Username Instagram terlalu pendek, minimal 3 huruf.' };
+  if (sanitized.length > 100) return { valid: false, error: 'Isian Instagram terlalu panjang, maksimal 100 huruf.' };
   if (sanitized.includes('http') && !sanitized.includes('instagram.com')) {
-    return { valid: false, error: 'Hanya link Instagram yang diperbolehkan.' };
+    return { valid: false, error: 'Tautan yang dikirim bukan Instagram. Isi tautan dari instagram.com atau tulis @username-nya.' };
   }
   if (!INSTAGRAM_REGEX.test(sanitized)) {
-    return { valid: false, error: 'Format Instagram tidak valid. Gunakan @username, link Instagram, atau username saja.' };
+    return { valid: false, error: 'Isian Instagram belum sesuai format. Isi @username, username biasa, atau tautan profil Instagram.' };
   }
   return { valid: true, value: sanitized };
 }
 
 function validateOptionalText(value, maxLen, label) {
   if (!value || value === '') return { valid: true, value: '' };
-  if (typeof value !== 'string') return { valid: false, error: `Format ${label} tidak valid.` };
+  if (typeof value !== 'string') return { valid: false, error: `Isian ${label} tidak bisa dibaca. Periksa kembali penulisannya.` };
   return { valid: true, value: sanitizeString(value, maxLen) };
 }
 
@@ -179,21 +179,21 @@ async function verifyRegistrationAttachment(url, mimeType) {
   const key = String(url || '').slice(prefix.length);
   const ownObject = Boolean(R2_PUBLIC_URL) && String(url || '').startsWith(prefix);
   if (!ownObject) {
-    return { ok: false, ownObject: false, error: 'Lampiran tidak valid. Unggah ulang file Anda.' };
+    return { ok: false, ownObject: false, error: 'Lampiran tidak terbaca dari storage. Unggah ulang berkasnya lalu kirim ulang.' };
   }
   if (!key.startsWith(REGISTRATION_ATTACHMENT_FOLDER)) {
-    return { ok: false, ownObject: false, error: 'Lampiran tidak valid. Unggah ulang file Anda.' };
+    return { ok: false, ownObject: false, error: 'Lampiran tidak terbaca dari storage. Unggah ulang berkasnya lalu kirim ulang.' };
   }
 
   const ct = String(mimeType || '').toLowerCase();
   if (!REGISTRATION_ATTACHMENT_MIME.has(ct)) {
-    return { ok: false, ownObject: true, error: 'Lampiran harus PDF, Word (DOC/DOCX), PNG, atau JPEG.' };
+    return { ok: false, ownObject: true, error: 'Lampiran harus berupa PDF, Word (DOC/DOCX), PNG, atau JPEG. Konversi berkasnya lalu unggah ulang.' };
   }
 
   const head = await headR2File(url);
   if (!head.ok) return { ok: false, ownObject: true, error: head.error };
   if (head.contentLength > MAX_PROPOSAL_BYTES) {
-    return { ok: false, ownObject: true, error: 'Lampiran melebihi 20MB.' };
+    return { ok: false, ownObject: true, error: 'Lampiran melebihi 20MB. Kompres berkasnya lalu unggah ulang.' };
   }
 
   const magic = await verifyMimeMagicBytes(url, ct);
@@ -209,18 +209,18 @@ router.post('/registrations/attachment', async (req, res, next) => {
   // 10 unggahan / 15 menit per IP — sejajar submit pendaftaran.
   if (!enforceRateLimit(req, res, 'registration-attachment', 10, 15 * 60 * 1000)) return;
   if (!r2Ready) {
-    return res.status(503).json({ success: false, error: 'Layanan upload sedang tidak tersedia.' });
+    return res.status(503).json({ success: false, error: 'Layanan unggah sedang tidak tersedia. Coba lagi beberapa saat.' });
   }
 
   const body = req.body || {};
   const contentType = String(body.contentType || '').split(';')[0].trim().toLowerCase();
   if (!REGISTRATION_ATTACHMENT_MIME.has(contentType)) {
-    return res.status(400).json({ success: false, error: 'Lampiran harus PDF, Word (DOC/DOCX), PNG, atau JPEG.' });
+    return res.status(400).json({ success: false, error: 'Lampiran harus berupa PDF, Word (DOC/DOCX), PNG, atau JPEG. Konversi berkasnya lalu unggah ulang.' });
   }
 
   const originalName = sanitizeString(body.originalName || '', 255);
   if (!originalName) {
-    return res.status(400).json({ success: false, error: 'Nama file tidak valid.' });
+    return res.status(400).json({ success: false, error: 'Nama berkas tidak bisa dibaca. Ganti nama berkasnya (huruf/angka) lalu unggah ulang.' });
   }
 
   try {
@@ -286,7 +286,7 @@ router.post('/registrations', async (req, res) => {
   if (Object.keys(errors).length > 0) {
     return res.status(400).json({
       success: false,
-      error: 'Validasi gagal. Periksa kembali data yang Anda masukkan.',
+      error: 'Beberapa isian belum benar. Perbaiki kolom yang ditandai lalu kirim ulang.',
       details: errors,
     });
   }
@@ -312,7 +312,7 @@ router.post('/registrations', async (req, res) => {
       if (!mimeType) {
         return res.status(400).json({
           success: false,
-          error: 'Tipe lampiran tidak dikenali. Unggah ulang file Anda.',
+          error: 'Tipe lampiran tidak dikenali karena berkas tidak punya ekstensi. Unggah ulang berkas PDF/Word/gambar.',
           details: { proposal_file_url: 'Tipe lampiran tidak dikenali' },
         });
       }
@@ -357,7 +357,7 @@ router.post('/registrations', async (req, res) => {
     return res.status(200).json({
       success: true,
       id: rows[0]?.id || '',
-      message: 'Pendaftaran berhasil disimpan.',
+      message: 'Pendaftaran kamu sudah tersimpan. Tim kami akan menghubungi lewat WhatsApp.',
     });
   } catch (err) {
     // Jangan log objek error Postgres utuh: `detail` memuat nilai kolom
@@ -366,18 +366,18 @@ router.post('/registrations', async (req, res) => {
     if (String(err?.code) === '23505') {
       return res.status(409).json({
         success: false,
-        error: 'Pendaftaran dengan email dan nomor telepon ini sudah ada.',
+        error: 'Pendaftaran dengan email dan nomor telepon ini sudah pernah dikirim. Tim kami akan menghubungi lewat WhatsApp.',
       });
     }
     if (String(err?.code) === '23514') {
       return res.status(400).json({
         success: false,
-        error: 'Data tidak memenuhi persyaratan database. Periksa kembali input Anda.',
+        error: 'Isian form belum sesuai ketentuan data. Perbaiki kolom yang ditandai lalu kirim ulang.',
       });
     }
     return res.status(500).json({
       success: false,
-      error: 'Gagal menyimpan pendaftaran. Silakan coba lagi.',
+      error: 'Server belum bisa menyimpan pendaftaran. Coba lagi, atau hubungi tim kami bila tetap gagal.',
     });
   }
 });
@@ -516,7 +516,7 @@ router.get('/directory', async (req, res) => {
     return res.status(200).json({ success: true, data: { organizations: orgs, categories } });
   } catch (err) {
     console.error('[directory]', err);
-    return res.status(500).json({ success: false, error: 'Terjadi kesalahan saat mengambil direktori organisasi.' });
+    return res.status(500).json({ success: false, error: 'Server belum bisa memuat direktori organisasi. Muat ulang halaman sebentar lagi.' });
   }
 });
 
@@ -554,7 +554,7 @@ router.get('/sponsor/events', async (req, res) => {
     return res.status(200).json({ success: true, data: rows });
   } catch (err) {
     console.error('[sponsor/events]', err);
-    return res.status(500).json({ success: false, error: 'Terjadi kesalahan saat mengambil daftar event sponsorship.' });
+    return res.status(500).json({ success: false, error: 'Server belum bisa memuat daftar event. Muat ulang halaman sebentar lagi.' });
   }
 });
 
@@ -564,39 +564,39 @@ router.get('/sponsor/events', async (req, res) => {
 
 /** Port persis api/sponsor-lead.js — validasi zod penuh, strip key tak dikenal. */
 const sponsorLeadSchema = z.object({
-  eventId: z.string().trim().min(1, 'Pilih event terlebih dahulu.'),
+  eventId: z.string().trim().min(1, 'Pilih dulu event yang ingin didukung.'),
   companyName: z
     .string()
     .trim()
-    .min(1, 'Nama brand / perusahaan wajib diisi.')
-    .max(200, 'Nama terlalu panjang (maksimal 200 karakter).'),
+    .min(1, 'Nama brand atau perusahaan belum diisi. Tulis namanya.')
+    .max(200, 'Nama brand terlalu panjang, maksimal 200 huruf.'),
   contactName: z
     .string()
     .trim()
-    .min(1, 'Nama PIC wajib diisi.')
-    .max(100, 'Nama PIC terlalu panjang (maksimal 100 karakter).'),
+    .min(1, 'Nama PIC belum diisi. Tulis namanya.')
+    .max(100, 'Nama PIC terlalu panjang, maksimal 100 huruf.'),
   phone: z
     .string()
     .refine(
       (v) => /^[+0-9]+$/.test(v.trim().replace(/[\s-]/g, '')),
-      'Nomor telepon hanya boleh berisi angka, +, spasi, atau -.',
+      'Nomor telepon hanya boleh berisi angka, tanda +, spasi, atau tanda -.',
     )
     .refine(
       (v) => PHONE_REGEX.test(v.trim().replace(/[\s-]/g, '')),
-      'Format nomor telepon tidak valid. Gunakan format: 08xxx, +628xxx, atau 628xxx (10-15 digit).',
+      'Nomor telepon belum sesuai format. Gunakan 08xxx, +628xxx, atau 628xxx dengan 10-15 digit angka.',
     ),
   email: z
     .string()
     .trim()
-    .max(254, 'Email terlalu panjang (maksimal 254 karakter).')
+    .max(254, 'Email terlalu panjang, maksimal 254 huruf.')
     .refine(
       (v) => v === '' || (v.length >= 5 && EMAIL_REGEX.test(v)),
-      'Format email tidak valid. Contoh: user@domain.com',
+      'Email belum sesuai format. Contoh yang benar: nama@email.com.',
     )
     .optional(),
   message: z
     .string()
-    .max(2000, 'Pesan terlalu panjang (maksimal 2000 karakter).')
+    .max(2000, 'Pesan terlalu panjang, maksimal 2000 huruf.')
     .optional(),
 });
 
@@ -618,7 +618,7 @@ router.post('/sponsor-leads', async (req, res) => {
       }
       return res.status(400).json({
         success: false,
-        error: 'Validasi gagal. Periksa kembali data yang Anda masukkan.',
+        error: 'Beberapa isian belum benar. Perbaiki kolom yang ditandai lalu kirim ulang.',
         details,
       });
     }
@@ -644,9 +644,9 @@ router.post('/sponsor-leads', async (req, res) => {
     console.error('[sponsor-leads] Database error:', err?.code, err?.message);
     if (String(err?.code) === '23503') {
       // FK event_id tidak ada.
-      return res.status(400).json({ success: false, error: 'Event tidak ditemukan. Pilih event lain.' });
+      return res.status(400).json({ success: false, error: 'Event yang dipilih tidak ada atau sudah dihapus. Pilih ulang event dari daftar.' });
     }
-    return res.status(500).json({ success: false, error: 'Gagal menyimpan minat support. Silakan coba lagi.' });
+    return res.status(500).json({ success: false, error: 'Server belum bisa menyimpan pengajuan sponsor. Coba lagi, atau hubungi tim kami bila tetap gagal.' });
   }
 });
 
@@ -693,15 +693,15 @@ router.post('/users-invite', requireRole(['superadmin']), async (req, res, next)
   const displayName = sanitizeString(body.display_name || '', 100) || email.split('@')[0] || '';
   const eoOrganization = sanitizeString(body.eo_organization || '', 200);
 
-  if (!email || !role) return res.status(400).json({ success: false, error: 'email dan role wajib diisi' });
-  if (!VALID_ROLES.includes(role)) return res.status(400).json({ success: false, error: 'Role tidak valid' });
+  if (!email || !role) return res.status(400).json({ success: false, error: 'Isi email dan pilih role untuk mengundang pengguna baru.' });
+  if (!VALID_ROLES.includes(role)) return res.status(400).json({ success: false, error: 'Role belum tersedia di daftar. Pilih salah satu dari pilihan role yang ada.' });
   if (!EMAIL_REGEX.test(email) || email.length < 5) {
-    return res.status(400).json({ success: false, error: 'Format email tidak valid.' });
+    return res.status(400).json({ success: false, error: 'Email belum sesuai format. Contoh yang benar: nama@email.com.' });
   }
 
   try {
     const { rows: existing } = await db.query('SELECT id FROM users WHERE lower(email) = $1 LIMIT 1', [email]);
-    if (existing[0]) return res.status(409).json({ success: false, error: 'Email sudah terdaftar' });
+    if (existing[0]) return res.status(409).json({ success: false, error: 'Email ini sudah terdaftar. Gunakan email lain, atau buka data pengguna yang sudah ada.' });
 
     const { rows } = await db.query(
       `INSERT INTO users (email, display_name, role, is_active, password_hash, eo_organization, created_by, created_at, updated_at)
@@ -713,7 +713,7 @@ router.post('/users-invite', requireRole(['superadmin']), async (req, res, next)
     return res.json({
       success: true,
       user_id: rows[0]?.id || '',
-      message: 'Undangan dibuat. User harus mendapatkan password via buat manual/seed.',
+      message: 'Undangan dibuat. Pengguna baru masih tanpa password, atur lewat menu buat manual.',
     });
   } catch (err) {
     return next(err);
@@ -730,17 +730,17 @@ router.post('/users-create', requireRole(['superadmin']), async (req, res, next)
   const eoOrganization = sanitizeString(body.eo_organization || '', 200);
 
   if (!email || !password || !role) {
-    return res.status(400).json({ success: false, error: 'email, password, dan role wajib diisi' });
+    return res.status(400).json({ success: false, error: 'Isi email, password, dan pilih role untuk membuat pengguna baru.' });
   }
-  if (!VALID_ROLES.includes(role)) return res.status(400).json({ success: false, error: 'Role tidak valid' });
-  if (password.length < 6) return res.status(400).json({ success: false, error: 'Password minimal 6 karakter' });
+  if (!VALID_ROLES.includes(role)) return res.status(400).json({ success: false, error: 'Role belum tersedia di daftar. Pilih salah satu dari pilihan role yang ada.' });
+  if (password.length < 6) return res.status(400).json({ success: false, error: 'Password terlalu pendek. Gunakan minimal 6 huruf.' });
   if (!EMAIL_REGEX.test(email) || email.length < 5) {
-    return res.status(400).json({ success: false, error: 'Format email tidak valid.' });
+    return res.status(400).json({ success: false, error: 'Email belum sesuai format. Contoh yang benar: nama@email.com.' });
   }
 
   try {
     const { rows: existing } = await db.query('SELECT id FROM users WHERE lower(email) = $1 LIMIT 1', [email]);
-    if (existing[0]) return res.status(409).json({ success: false, error: 'Email sudah terdaftar' });
+    if (existing[0]) return res.status(409).json({ success: false, error: 'Email ini sudah terdaftar. Gunakan email lain, atau buka data pengguna yang sudah ada.' });
 
     const hash = await bcrypt.hash(password, 12);
     const { rows } = await db.query(
@@ -760,16 +760,16 @@ router.post('/users-create', requireRole(['superadmin']), async (req, res, next)
 router.post('/users-update', requireRole(['superadmin']), async (req, res, next) => {
   const body = req.body || {};
   const userId = String(body.user_id || '').trim();
-  if (!userId) return res.status(400).json({ success: false, error: 'ID pengguna wajib diisi.' });
+  if (!userId) return res.status(400).json({ success: false, error: 'Pengguna belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' });
 
   // Jangan biarkan superadmin menurunkan role sendiri.
   if (userId === req.auth.user.id && body.role && body.role !== 'superadmin') {
-    return res.status(400).json({ success: false, error: 'Tidak bisa mengubah role sendiri' });
+    return res.status(400).json({ success: false, error: 'Role akun sendiri tidak bisa diturunkan dari sini. Minta superadmin lain untuk mengubahnya.' });
   }
 
   // Konsisten dengan /users-delete: jangan menonaktifkan akun sendiri.
   if (userId === req.auth.user.id && body.is_active === false) {
-    return res.status(400).json({ success: false, error: 'Tidak bisa menonaktifkan akun sendiri' });
+    return res.status(400).json({ success: false, error: 'Akun sendiri tidak bisa dinonaktifkan. Minta superadmin lain untuk mengubahnya.' });
   }
 
   const updates = {};
@@ -778,7 +778,7 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
     // hasilnya 'Tidak ada perubahan' yang menyesatkan). Sekarang 400 eksplisit.
     const role = String(body.role).trim();
     if (!ALL_VALID_ROLES.includes(role)) {
-      return res.status(400).json({ success: false, error: 'Role tidak valid' });
+      return res.status(400).json({ success: false, error: 'Role belum tersedia di daftar. Pilih salah satu dari pilihan role yang ada.' });
     }
     updates.role = role;
   }
@@ -788,12 +788,12 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
   if (body.password !== undefined && String(body.password).length >= 6) {
     updates.password_hash = await bcrypt.hash(String(body.password), 12);
   } else if (body.password !== undefined) {
-    return res.status(400).json({ success: false, error: 'Password minimal 6 karakter' });
+    return res.status(400).json({ success: false, error: 'Password terlalu pendek. Gunakan minimal 6 huruf.' });
   }
   if (body.email !== undefined) {
     const email = String(body.email).trim().toLowerCase();
     if (!EMAIL_REGEX.test(email) || email.length < 5) {
-      return res.status(400).json({ success: false, error: 'Format email tidak valid.' });
+      return res.status(400).json({ success: false, error: 'Email belum sesuai format. Contoh yang benar: nama@email.com.' });
     }
     updates.email = email;
   }
@@ -828,7 +828,7 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
         if ((countRows[0]?.n ?? 0) <= 1) {
           return res.status(400).json({
             success: false,
-            error: 'Ini satu-satunya superadmin aktif. Angkat superadmin lain dulu sebelum mengubah akun ini.',
+            error: 'Akun ini satu-satunya superadmin aktif. Angkat superadmin lain dulu, baru ubah akun ini.',
           });
         }
       }
@@ -841,7 +841,7 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
         'SELECT id FROM users WHERE lower(email) = $1 AND id <> $2 LIMIT 1',
         [updates.email, userId],
       );
-      if (rows[0]) return res.status(409).json({ success: false, error: 'Email sudah terdaftar' });
+      if (rows[0]) return res.status(409).json({ success: false, error: 'Email ini sudah terdaftar. Gunakan email lain, atau buka data pengguna yang sudah ada.' });
     }
 
     const keys = Object.keys(updates);
@@ -858,7 +858,7 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
       `UPDATE users SET ${sets.join(', ')}${bumpTokenVersion}, updated_at = NOW() WHERE id = $${values.length}`,
       values,
     );
-    if (rowCount === 0) return res.status(404).json({ success: false, error: 'Pengguna tidak ditemukan' });
+    if (rowCount === 0) return res.status(404).json({ success: false, error: 'Pengguna ini tidak ada atau sudah dihapus. Muat ulang daftar pengguna.' });
 
     // Catat nama field saja — nilai password/email tidak pernah masuk log.
     logActivity(req.auth.user, 'update', 'user', userId, { changes: keys }, req);
@@ -872,9 +872,9 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
 router.post('/users-delete', requireRole(['superadmin']), async (req, res, next) => {
   const body = req.body || {};
   const userId = String(body.user_id || '').trim();
-  if (!userId) return res.status(400).json({ success: false, error: 'ID pengguna wajib diisi.' });
+  if (!userId) return res.status(400).json({ success: false, error: 'Pengguna belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' });
   if (userId === req.auth.user.id) {
-    return res.status(400).json({ success: false, error: 'Tidak bisa menghapus akun sendiri' });
+    return res.status(400).json({ success: false, error: 'Akun sendiri tidak bisa dihapus. Minta superadmin lain untuk mengubahnya.' });
   }
 
   try {
@@ -892,7 +892,7 @@ router.post('/users-delete', requireRole(['superadmin']), async (req, res, next)
       if ((countRows[0]?.n ?? 0) <= 1) {
         return res.status(400).json({
           success: false,
-          error: 'Ini satu-satunya superadmin aktif. Angkat superadmin lain dulu sebelum menonaktifkan akun ini.',
+          error: 'Akun ini satu-satunya superadmin aktif. Angkat superadmin lain dulu, baru nonaktifkan akun ini.',
         });
       }
     }
@@ -1008,11 +1008,11 @@ const R2 = new S3Client({
 router.post('/instagram-sync', requireRole(['superadmin', 'admin']), async (req, res) => {
   const { urls } = req.body || {};
   if (!urls || !Array.isArray(urls) || urls.length === 0) {
-    return res.status(400).json({ success: false, error: 'Parameter urls wajib diisi' });
+    return res.status(400).json({ success: false, error: 'Daftar tautan Instagram belum diisi. Masukkan minimal satu tautan lalu sinkronkan.' });
   }
   const APIFY_TOKEN = process.env.APIFY_API_TOKEN;
   if (!APIFY_TOKEN) {
-    return res.status(500).json({ success: false, error: 'APIFY_API_TOKEN belum dikonfigurasi' });
+    return res.status(500).json({ success: false, error: 'Layanan sinkronisasi Instagram belum terhubung. Lengkapi kunci Apify di pengaturan server.' });
   }
 
   try {
@@ -1033,11 +1033,11 @@ router.post('/instagram-sync', requireRole(['superadmin', 'admin']), async (req,
     );
     if (!runResponse.ok) {
       const errText = await runResponse.text();
-      return res.status(502).json({ success: false, error: `Apify request failed (${runResponse.status})` });
+      return res.status(502).json({ success: false, error: `Layanan Apify gagal memproses permintaan (status ${runResponse.status}). Coba lagi beberapa saat.` });
     }
     const posts = await runResponse.json();
     if (!Array.isArray(posts) || posts.length === 0) {
-      return res.json({ success: true, data: { synced: 0, posts: [], message: 'No posts returned from Apify' } });
+      return res.json({ success: true, data: { synced: 0, posts: [], message: 'Tidak ada postingan yang berhasil diambil dari Apify. Cek tautannya lalu coba lagi.' } });
     }
 
     // 2. Proses tiap post: cache gambar ke R2 (opsional, gagal-lanjut).
@@ -1092,7 +1092,7 @@ router.post('/instagram-sync', requireRole(['superadmin', 'admin']), async (req,
     return res.json({ success: true, data: { synced: cachedPosts.length, posts: cachedPosts } });
   } catch (err) {
     console.error('[instagram-sync]', err);
-    return res.status(500).json({ success: false, error: 'Sinkronisasi gagal' });
+    return res.status(500).json({ success: false, error: 'Sinkronisasi Instagram terganggu. Coba lagi, atau cek log server untuk detailnya.' });
   }
 });
 
@@ -1219,7 +1219,7 @@ function readShellHtml() {
     return readFileSync('./dist/index.html', 'utf8');
   } catch (err) {
     console.error('[event-og] dist/index.html tidak terbaca:', err?.message);
-    return '<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Metropolitan Mall Bekasi — Jadwal Event</title></head><body><div id="root"></div></body></html>';
+    return '<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Metropolitan Mall Bekasi: Jadwal event</title></head><body><div id="root"></div></body></html>';
   }
 }
 
@@ -1356,7 +1356,7 @@ router.get('/event-og', async (req, res) => {
   const description = descParts.length > 0
     ? `${event.acara} — ${descParts.join(' · ')} di ${SITE_NAME}.`
     : `${event.acara} di ${SITE_NAME}.`;
-  const title = `${event.acara} — Jadwal Event ${SITE_NAME}`;
+  const title = `${event.acara}: Jadwal event ${SITE_NAME}`;
   const ogImage = event.poster_url
     ? (String(event.poster_url).startsWith('http') ? event.poster_url : `${origin}${event.poster_url}`)
     : `${origin}${DEFAULT_OG_IMAGE_PATH}`;

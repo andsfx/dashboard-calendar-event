@@ -5,9 +5,9 @@ import { NativeSelect } from '../shadcn/native-select';
 
 const EVENT_MODELS: Array<{ value: EventModel; label: string }> = [
   { value: '', label: 'Pilih model' },
-  { value: 'free', label: 'Free' },
+  { value: 'free', label: 'Gratis' },
   { value: 'bayar', label: 'Bayar' },
-  { value: 'support', label: 'Support' },
+  { value: 'support', label: 'Dukungan' },
 ];
 
 interface EventFormModelFieldsProps {
@@ -30,7 +30,7 @@ export function EventFormModelFields({
   return (
     <>
       <div>
-        <Label htmlFor="event-model" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Model Event</Label>
+        <Label htmlFor="event-model" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Model event</Label>
         <NativeSelect
           id="event-model"
           value={eventModel}
@@ -61,7 +61,7 @@ export function EventFormModelFields({
           </div>
           <div>
             <Label htmlFor="event-model-notes" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
-              Keterangan Model Event <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+              Keterangan model event <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
             </Label>
             <Input
               id="event-model-notes"

@@ -59,13 +59,13 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <StatCard
           icon={<Clock3 className="h-5 w-5" strokeWidth={1.5} aria-hidden />}
-          label="Akan Datang"
+          label="Akan datang"
           value={stats.upcoming}
           variant="amber"
         />
         <StatCard
           icon={<Radio className="h-5 w-5" strokeWidth={1.5} aria-hidden />}
-          label="Sedang Berlangsung"
+          label="Sedang berlangsung"
           value={stats.ongoing}
           variant="emerald"
           pulse
@@ -75,8 +75,8 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
   }
 
   const today: StatEntry[] = [
-    { label: 'Sedang Berlangsung', value: stats.ongoing, icon: <Radio className="h-4 w-4" strokeWidth={1.5} aria-hidden />, tone: 'live' },
-    { label: 'Akan Datang', value: stats.upcoming, icon: <Clock3 className="h-4 w-4" strokeWidth={1.5} aria-hidden />, tone: 'accent' },
+    { label: 'Sedang berlangsung', value: stats.ongoing, icon: <Radio className="h-4 w-4" strokeWidth={1.5} aria-hidden />, tone: 'live' },
+    { label: 'Akan datang', value: stats.upcoming, icon: <Clock3 className="h-4 w-4" strokeWidth={1.5} aria-hidden />, tone: 'accent' },
   ];
 
   const pendingTotal = attention
@@ -102,7 +102,7 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
           <CardDescription className="wf-metric__hint">
             {attention.draftsError
               ? `Sebagian antrian gagal dimuat: ${attention.draftsError}`
-              : 'Antrian yang menunggu keputusan manusia hari ini.'}
+              : 'Antrian yang menunggu keputusan kamu hari ini.'}
           </CardDescription>
         </Card>
       )}
@@ -127,7 +127,7 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
       <p className="wf-reference">
         <span className="wf-reference__item">
           <CalendarDays className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} aria-hidden />
-          <span>Total Acara</span>
+          <span>Total acara</span>
           <span className="wf-code">{stats.total}</span>
         </span>
         <span aria-hidden>·</span>

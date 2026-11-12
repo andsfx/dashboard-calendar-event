@@ -51,14 +51,14 @@ test.describe('Tenant Survey Results — public + TR', () => {
     await expect(page.getByRole('button', { name: /Salin link/i }).first()).toBeVisible({ timeout: 15000 });
     await expect(page.getByRole('button', { name: /^QR$/i }).first()).toBeVisible();
     await page.getByRole('tab', { name: /Checklist/i }).click();
-    await expect(page.getByRole('heading', { name: /Checklist tenant/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Daftar periksa tenant/i })).toBeVisible();
     await page.getByRole('tab', { name: /Detail/i }).click();
     // Mobile uses cards; desktop uses table cells — match either
     await expect(
       page.getByText(MOCK_SURVEY_V3.nama_gerai!, { exact: true }).first(),
     ).toBeVisible({ timeout: 15000 });
     // export off for guests
-    await expect(page.getByRole('button', { name: /Export PDF/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Ekspor PDF/i })).toHaveCount(0);
   });
 
   test('tenant_relation still lands on results when opening dashboard', async ({ page }) => {
@@ -71,7 +71,7 @@ test.describe('Tenant Survey Results — public + TR', () => {
 
     await expect(page).toHaveURL(/\/tenant-survey-results$/);
     await expect(page.getByRole('heading', { name: 'Hasil Evaluasi Tenant' })).toBeVisible({ timeout: 10000 });
-    await expect(page.getByRole('button', { name: /Export PDF/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Ekspor PDF/i })).toBeVisible();
   });
 
   test('admin can export PDF on public page', async ({ page }) => {
@@ -83,7 +83,7 @@ test.describe('Tenant Survey Results — public + TR', () => {
     await page.waitForLoadState('networkidle');
 
     await expect(page.getByRole('heading', { name: 'Hasil Evaluasi Tenant' })).toBeVisible({ timeout: 10000 });
-    await expect(page.getByRole('button', { name: /Export PDF/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Ekspor PDF/i })).toBeVisible();
   });
 
   test('legacy /dashboard/tenant-survey-results redirects to standalone', async ({ page }) => {

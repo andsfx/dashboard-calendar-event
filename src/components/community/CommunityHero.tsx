@@ -24,9 +24,9 @@ const focusRing = 'ui-focus-ring';
  * as their own band directly below it — content and icons preserved.
  */
 const HIGHLIGHTS: Array<{ icon: typeof CheckCircle2; label: string; emerald?: boolean }> = [
-  { icon: CheckCircle2, label: '100% Gratis', emerald: true },
-  { icon: Music, label: 'Sound 10K Watt' },
-  { icon: Users, label: 'Terbuka untuk Semua' },
+  { icon: CheckCircle2, label: '100% gratis', emerald: true },
+  { icon: Music, label: 'Sound 10.000 watt' },
+  { icon: Users, label: 'Terbuka untuk semua' },
 ];
 
 interface CommunityHeroProps {
@@ -141,7 +141,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                 line` mengukur tinggi konten hero, dan headline 4 baris akan
                 mendorongnya ke pita transisi gradient. */}
             <h1 className="community-hero-in mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl">
-              Panggung <strong className="text-brand-primary-300">Gratis</strong> untuk Komunitas Bekasi
+              Panggung <strong className="text-brand-primary-300">gratis</strong> untuk komunitas Bekasi
             </h1>
 
             {/* M2: three subtext paragraphs (30 words / 5 lines) collapsed to one (12 words). */}
@@ -154,14 +154,14 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                 to="/daftar"
                 className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-8 py-4 text-base font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-page)] active:scale-[0.98] motion-reduce:active:scale-100 ${focusRing}`}
               >
-                Daftar Event
+                Daftar event
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
               </Link>
               <a
                 href="#upcoming-events"
                 className={`inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-3.5 text-base font-semibold text-white transition hover:border-white/40 hover:bg-white/15 ${focusRing}`}
               >
-                Cek Event
+                Cek event
               </a>
             </div>
           </div>
@@ -208,7 +208,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                 agenda lengkap ada di section tepat di bawah hero. */}
             <div className="mt-5 hidden border-t border-white/15 pt-4 lg:block">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/70">
-                Sedang & akan berlangsung
+                Sedang dan akan berlangsung
               </p>
               {loading ? (
                 <ul className="mt-3 space-y-2.5">

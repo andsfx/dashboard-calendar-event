@@ -25,7 +25,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
   const [fetchError, setFetchError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   usePageMeta({
-    title: article ? `${article.title} - Berita Metropolitan Mall Bekasi` : 'Berita & Pengumuman - Metropolitan Mall Bekasi',
+    title: article ? `${article.title} - Berita Metropolitan Mall Bekasi` : 'Berita dan pengumuman - Metropolitan Mall Bekasi',
     description: article?.excerpt || 'Berita terbaru dan pengumuman resmi dari Metropolitan Mall Bekasi.',
   });
 
@@ -87,7 +87,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
                 className="inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)]"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Kembali ke Berita
+                Kembali ke berita
               </Link>
               {fetchError && (
                 <Button
@@ -134,7 +134,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
                 className="inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)]"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Kembali ke Berita
+                Kembali ke berita
               </Link>
             </div>
           </RevealSection>

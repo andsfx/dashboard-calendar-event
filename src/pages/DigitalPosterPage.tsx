@@ -15,7 +15,7 @@ const DISPLAY_URL = 'https://slideshow-digitalposter.vercel.app/display';
 
 export function DigitalPosterPage() {
   usePageMeta({
-    title: 'Poster Digital - Metropolitan Mall Bekasi',
+    title: 'Poster digital - Metropolitan Mall Bekasi',
     description: 'Slideshow materi promosi tenant untuk Samsung The Sero.',
   });
 

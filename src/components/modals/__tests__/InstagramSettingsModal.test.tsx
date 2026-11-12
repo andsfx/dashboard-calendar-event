@@ -19,7 +19,7 @@ describe('InstagramSettingsModal — pesan galat sync', () => {
     render(<InstagramSettingsModal posts={['https://instagram.com/p/abc']} onSave={async () => true} />);
 
   const clickSync = () =>
-    fireEvent.click(screen.getByRole('button', { name: /Sync & Cache Instagram Posts/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Sinkron dan simpan unggahan Instagram/ }));
 
   it('menampilkan pesan asli server (500 token Apify kosong), bukan pesan generik', async () => {
     vi.stubGlobal(

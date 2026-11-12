@@ -44,7 +44,7 @@ router.post('/:action', requireRole(ADMIN_READ_ROLES), async (req, res, next) =>
   if (!canPerformAdminAction(req.auth?.user?.role, action)) {
     return res.status(403).json({
       success: false,
-      error: 'Akun baca-saja hanya dapat melihat data (read-only).',
+      error: 'Akun kamu hanya bisa melihat data, tidak bisa mengubah. Minta admin untuk membuka akses tulis.',
     });
   }
 
@@ -75,12 +75,12 @@ router.post('/:action', requireRole(ADMIN_READ_ROLES), async (req, res, next) =>
     if (err?.code === 'DB_UNAVAILABLE') return next(err);
     // 23505 = unique violation; terjemahkan ramah pengguna (pola legacy).
     if (String(err?.code) === '23505') {
-      return res.status(409).json({ success: false, error: 'Data sudah ada (duplikat). Periksa kembali.' });
+      return res.status(409).json({ success: false, error: 'Data dengan isi yang sama sudah ada. Gunakan data yang sudah ada atau ubah isian yang dobel.' });
     }
     // 23514 = check violation — termasuk trigger periode aktivasi pameran
     // (pesan trigger sudah Indonesia dan aman ditampilkan).
     if (String(err?.code) === '23514') {
-      return res.status(409).json({ success: false, error: err?.message || 'Perubahan ditolak: melanggar periode pameran.' });
+      return res.status(409).json({ success: false, error: err?.message || 'Perubahan ditolak karena berada di luar periode pameran. Sesuaikan tanggal event atau pameran dulu.' });
     }
     // SQLSTATE dari INPUT pengguna → 400 dengan pesan yang bisa ditindaklanjuti.
     // Sebelumnya 22P02/22008/23503 jatuh ke 500 "Terjadi kesalahan server",
@@ -91,7 +91,7 @@ router.post('/:action', requireRole(ADMIN_READ_ROLES), async (req, res, next) =>
     }
     console.error(`[admin/${action}]`, err);
     // Pesan internal (termasuk teks Postgres) tidak dikirim ke klien.
-    res.status(500).json({ success: false, error: 'Terjadi kesalahan server. Coba lagi.' });
+    res.status(500).json({ success: false, error: 'Server sedang bermasalah saat memproses permintaan. Coba lagi, atau hubungi admin bila berlanjut.' });
   }
 });
 
@@ -105,10 +105,10 @@ router.post('/:action', requireRole(ADMIN_READ_ROLES), async (req, res, next) =>
  *   23503 foreign key tidak ada / masih dipakai
  */
 const PG_INPUT_ERRORS = new Map([
-  ['22007', 'Format tanggal tidak valid. Gunakan format YYYY-MM-DD.'],
-  ['22008', 'Tanggal atau waktu di luar jangkauan yang didukung.'],
-  ['22P02', 'Format nilai tidak valid. Periksa kembali isian Anda.'],
-  ['23503', 'Data terkait tidak ditemukan atau masih dipakai data lain.'],
+  ['22007', 'Tanggal atau jam belum sesuai format. Isi tanggal dengan format YYYY-MM-DD.'],
+  ['22008', 'Tanggal yang diisi terlalu jauh dari rentang yang didukung sistem. Gunakan tanggal kalender yang wajar (mis. 2026-07-12).'],
+  ['22P02', 'Ada isian yang tidak cocok dengan pilihan yang tersedia (mis. kategori atau status). Periksa kolom yang ditandai, lalu coba lagi dengan isian kamu.'],
+  ['23503', 'Data yang dirujuk tidak ada, misal event atau tenant sudah dihapus. Muat ulang halaman lalu pilih ulang datanya.'],
 ]);
 
 // ─── Kolom yang boleh di-insert/update via payload passthrough (hindari
@@ -235,10 +235,10 @@ async function switchAction(action, req) {
     }
 
     case 'updateEvent': {
-      if (!body.id) return { success: false, error: 'ID event wajib diisi' };
+      if (!body.id) return { success: false, error: 'Event belum terpilih. Pilih dulu eventnya lalu ulangi aksinya.' };
       const data = body.data || {};
       const keys = Object.keys(data);
-      if (keys.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (keys.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
 
       // Whitelist kolom yang boleh di-update (hindari overwrite PK/timestamp).
       // `status` SENGAJA TIDAK ada di sini: nilai temporal (upcoming/ongoing/past)
@@ -280,7 +280,7 @@ async function switchAction(action, req) {
         values.push(value);
         sets.push(`${key} = $${values.length}`);
       }
-      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (sets.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       values.push(body.id);
 
       await db.query(`UPDATE events SET ${sets.join(', ')} WHERE id = $${values.length}`, values);
@@ -289,7 +289,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteEvent': {
-      if (!body.id) return { success: false, error: 'ID event wajib diisi' };
+      if (!body.id) return { success: false, error: 'Event belum terpilih. Pilih dulu eventnya lalu ulangi aksinya.' };
       await db.query('DELETE FROM events WHERE id = $1', [body.id]);
       logActivity(auth.user, 'delete_event', 'event', body.id, null, req);
       return { success: true };
@@ -297,7 +297,7 @@ async function switchAction(action, req) {
 
     case 'batchCreateEvents': {
       const rows = body.data;
-      if (!Array.isArray(rows) || rows.length === 0) return { success: false, error: 'Data event tidak tersedia' };
+      if (!Array.isArray(rows) || rows.length === 0) return { success: false, error: 'Daftar event yang dikirim kosong. Isi minimal satu event lalu simpan ulang.' };
 
       // Satu transaksi untuk SELURUH batch: kegagalan di baris ke-n tidak
       // boleh menyisakan separuh event terbit (dulu tiap INSERT berdiri sendiri,
@@ -335,7 +335,7 @@ async function switchAction(action, req) {
 
     case 'deleteRecurringSeries': {
       const groupId = body.groupId;
-      if (!groupId) return { success: false, error: 'ID grup wajib diisi' };
+      if (!groupId) return { success: false, error: 'Seri event berulang belum terpilih. Muat ulang halaman lalu ulangi penghapusannya.' };
       const { rowCount } = await db.query('DELETE FROM events WHERE recurrence_group_id = $1', [groupId]);
       logActivity(auth.user, 'delete_recurring_series', 'event', groupId, { deletedCount: rowCount || 0 }, req);
       return { success: true, deletedCount: rowCount || 0 };
@@ -354,10 +354,10 @@ async function switchAction(action, req) {
     }
 
     case 'updateTheme': {
-      if (!body.id) return { success: false, error: 'ID tema wajib diisi' };
+      if (!body.id) return { success: false, error: 'Tema belum terpilih. Pilih dulu temanya lalu ulangi aksinya.' };
       const data = body.data || {};
       const keys = Object.keys(data);
-      if (keys.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (keys.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       const sets = [];
       const values = [];
       for (const key of keys) {
@@ -365,7 +365,7 @@ async function switchAction(action, req) {
         values.push(data[key] ?? null);
         sets.push(`${key} = $${values.length}`);
       }
-      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (sets.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       values.push(body.id);
       await db.query(`UPDATE annual_themes SET ${sets.join(', ')} WHERE id = $${values.length}`, values);
       logActivity(auth.user, 'update_theme', 'theme', body.id, null, req);
@@ -373,7 +373,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteTheme': {
-      if (!body.id) return { success: false, error: 'ID tema wajib diisi' };
+      if (!body.id) return { success: false, error: 'Tema belum terpilih. Pilih dulu temanya lalu ulangi aksinya.' };
       await db.query('DELETE FROM annual_themes WHERE id = $1', [body.id]);
       logActivity(auth.user, 'delete_theme', 'theme', body.id, null, req);
       return { success: true };
@@ -396,14 +396,14 @@ async function switchAction(action, req) {
 
     case 'publishDraft': {
       const draftId = body.id;
-      if (!draftId) return { success: false, error: 'ID draft wajib diisi' };
+      if (!draftId) return { success: false, error: 'Draft belum terpilih. Pilih dulu draftnya lalu ulangi aksinya.' };
       const { rows } = await db.query('SELECT * FROM draft_events WHERE id = $1 LIMIT 1', [draftId]);
       const draft = rows[0];
-      if (!draft) return { success: false, error: 'Draft tidak ditemukan' };
+      if (!draft) return { success: false, error: 'Draft ini tidak ada atau sudah dihapus. Muat ulang daftar draft.' };
       // Hard forbid re-publish (T-002 / ADR 001).
-      if (draft.published) return { success: false, error: 'Draft sudah diterbitkan' };
-      if (draft.deleted) return { success: false, error: 'Draft sudah dihapus' };
-      if (draft.progress !== 'confirm') return { success: false, error: 'Draft harus berstatus Konfirmasi sebelum diterbitkan' };
+      if (draft.published) return { success: false, error: 'Draft ini sudah diterbitkan sebelumnya dan tidak bisa diterbitkan lagi.' };
+      if (draft.deleted) return { success: false, error: 'Draft ini sudah dihapus. Pulihkan dulu lewat aksi pulihkan draft.' };
+      if (draft.progress !== 'confirm') return { success: false, error: 'Draft masih berstatus selain Konfirmasi. Ubah statusnya ke Konfirmasi dulu, lalu terbitkan.' };
 
       // INSERT event + tandai draft terbit HARUS satu transaksi. Sebelumnya dua
       // `db.query` terpisah: kalau UPDATE gagal setelah INSERT sukses, event
@@ -456,7 +456,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteDraft': {
-      if (!body.id) return { success: false, error: 'ID draft wajib diisi' };
+      if (!body.id) return { success: false, error: 'Draft belum terpilih. Pilih dulu draftnya lalu ulangi aksinya.' };
       await db.query(
         `UPDATE draft_events SET progress = 'cancel', deleted = true, deleted_at = NOW() WHERE id = $1`,
         [body.id],
@@ -466,7 +466,7 @@ async function switchAction(action, req) {
     }
 
     case 'restoreDraft': {
-      if (!body.id) return { success: false, error: 'ID draft wajib diisi' };
+      if (!body.id) return { success: false, error: 'Draft belum terpilih. Pilih dulu draftnya lalu ulangi aksinya.' };
       await db.query(
         `UPDATE draft_events SET progress = 'draft', deleted = false, deleted_at = NULL WHERE id = $1`,
         [body.id],
@@ -502,7 +502,7 @@ async function switchAction(action, req) {
         values.push(value);
         columns.push(key);
       }
-      if (columns.length === 0) return { success: false, error: 'Data draft tidak tersedia' };
+      if (columns.length === 0) return { success: false, error: 'Isian draft yang dikirim kosong. Isi minimal satu kolom lalu simpan ulang.' };
       const { rows } = await db.query(
         `INSERT INTO draft_events (${columns.join(', ')})
          VALUES (${columns.map((_, i) => `$${i + 1}`).join(', ')})
@@ -515,7 +515,7 @@ async function switchAction(action, req) {
     }
 
     case 'updateDraft': {
-      if (!body.id) return { success: false, error: 'ID draft wajib diisi' };
+      if (!body.id) return { success: false, error: 'Draft belum terpilih. Pilih dulu draftnya lalu ulangi aksinya.' };
       const data = body.data || {};
       // Kontrak "tolak hanya bila berubah" — lihat lifecycleValueChanged.
       // Nilai lifecycle yang sama dengan baris saat ini diabaikan (bukan masuk
@@ -529,7 +529,7 @@ async function switchAction(action, req) {
           [body.id],
         );
         const current = rows[0];
-        if (!current) return { success: false, error: 'Draft tidak ditemukan' };
+        if (!current) return { success: false, error: 'Draft ini tidak ada atau sudah dihapus. Muat ulang daftar draft.' };
         const changed = lifecycleKeys.filter(
           (key) => lifecycleValueChanged(key, data[key], current[key]),
         );
@@ -552,7 +552,7 @@ async function switchAction(action, req) {
         values.push(value);
         sets.push(`${key} = $${values.length}`);
       }
-      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (sets.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       values.push(body.id);
       await db.query(`UPDATE draft_events SET ${sets.join(', ')} WHERE id = $${values.length}`, values);
       // Hanya kolom yang benar-benar masuk SET — flag lifecycle no-op dari SPA
@@ -565,7 +565,7 @@ async function switchAction(action, req) {
 
     // ══════════ SITE SETTINGS ══════════
     case 'updateSiteSettings': {
-      if (!body.key) return { success: false, error: 'Key pengaturan wajib diisi' };
+      if (!body.key) return { success: false, error: 'Pengaturan yang akan disimpan belum punya nama (key). Muat ulang halaman lalu coba lagi.' };
       await db.query(
         `INSERT INTO site_settings (key, value, updated_at)
          VALUES ($1, $2, NOW())
@@ -587,7 +587,7 @@ async function switchAction(action, req) {
         values.push(data[key] === null ? null : data[key]);
         columns.push(key);
       }
-      if (columns.length === 0) return { success: false, error: 'Data album tidak tersedia' };
+      if (columns.length === 0) return { success: false, error: 'Isian album yang dikirim kosong. Isi minimal satu kolom lalu simpan ulang.' };
       const { rows } = await db.query(
         `INSERT INTO photo_albums (${columns.join(', ')})
          VALUES (${columns.map((_, i) => `$${i + 1}`).join(', ')})
@@ -600,7 +600,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteAlbum': {
-      if (!body.id) return { success: false, error: 'ID album wajib diisi' };
+      if (!body.id) return { success: false, error: 'Album belum terpilih. Pilih dulu albumnya lalu ulangi aksinya.' };
       // Baris DB dulu, SATU transaksi: foto + album. File R2 baru dihapus
       // setelah commit sukses (pola deleteNewsArticle). Urutan sebaliknya
       // meninggalkan file yatim setiap kali DELETE gagal, dan di sini
@@ -623,7 +623,7 @@ async function switchAction(action, req) {
     }
 
     case 'setAlbumCover': {
-      if (!body.id) return { success: false, error: 'ID album wajib diisi' };
+      if (!body.id) return { success: false, error: 'Album belum terpilih. Pilih dulu albumnya lalu ulangi aksinya.' };
       await db.query(
         'UPDATE photo_albums SET cover_photo_url = $1 WHERE id = $2',
         [body.coverPhotoUrl || '', body.id],
@@ -634,7 +634,7 @@ async function switchAction(action, req) {
 
     case 'createAlbumPhoto': {
       const data = body.data || {};
-      if (!data.album_id) return { success: false, error: 'ID album wajib diisi' };
+      if (!data.album_id) return { success: false, error: 'Album belum terpilih. Pilih dulu albumnya lalu ulangi aksinya.' };
       // sort_order = max album + 1 (mirror legacy: (max ?? -1) + 1 → foto pertama 0).
       const { rows: maxRows } = await db.query(
         'SELECT COALESCE(MAX(sort_order), -1) AS m FROM event_photos WHERE album_id = $1',
@@ -642,7 +642,7 @@ async function switchAction(action, req) {
       );
       const nextOrder = Number(maxRows[0]?.m ?? -1) + 1;
       const url = data.url;
-      if (!url) return { success: false, error: 'URL foto wajib diisi' };
+      if (!url) return { success: false, error: 'Foto belum punya alamat (URL). Unggah ulang fotonya lalu simpan.' };
       const { rows } = await db.query(
         `INSERT INTO event_photos (url, caption, event_date, album_id, sort_order)
          VALUES ($1, $2, $3, $4, $5)
@@ -661,7 +661,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteAlbumPhoto': {
-      if (!body.id) return { success: false, error: 'ID foto wajib diisi' };
+      if (!body.id) return { success: false, error: 'Foto belum terpilih. Pilih dulu fotonya lalu ulangi aksinya.' };
       const { rows } = await db.query('SELECT url FROM event_photos WHERE id = $1', [body.id]);
       await db.query('DELETE FROM event_photos WHERE id = $1', [body.id]);
       if (rows[0]?.url) await deleteR2File(rows[0].url);
@@ -672,7 +672,7 @@ async function switchAction(action, req) {
     case 'linkAlbumToEvent': {
       const albumId = body.id;
       const eventId = body.eventId;
-      if (!albumId || !eventId) return { success: false, error: 'albumId dan eventId wajib diisi' };
+      if (!albumId || !eventId) return { success: false, error: 'Album atau event belum terpilih. Pilih keduanya lalu ulangi penautannya.' };
       await db.query('UPDATE photo_albums SET event_id = $1 WHERE id = $2', [eventId, albumId]);
       logActivity(auth.user, 'link_album_event', 'album', albumId, { event_id: eventId }, req);
       return { success: true };
@@ -687,7 +687,7 @@ async function switchAction(action, req) {
       );
       const nextOrder = Number(maxRows[0]?.m ?? -1) + 1;
       const url = data.url;
-      if (!url) return { success: false, error: 'URL foto wajib diisi' };
+      if (!url) return { success: false, error: 'Foto belum punya alamat (URL). Unggah ulang fotonya lalu simpan.' };
       const { rows } = await db.query(
         `INSERT INTO event_photos (url, caption, event_date, album_id, event_id, sort_order)
          VALUES ($1, $2, $3, $4, $5, $6)
@@ -707,7 +707,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteEventPhoto': {
-      if (!body.id) return { success: false, error: 'ID foto wajib diisi' };
+      if (!body.id) return { success: false, error: 'Foto belum terpilih. Pilih dulu fotonya lalu ulangi aksinya.' };
       const { rows } = await db.query('SELECT url FROM event_photos WHERE id = $1', [body.id]);
       await db.query('DELETE FROM event_photos WHERE id = $1', [body.id]);
       const url = rows[0]?.url || body.url || '';
@@ -718,7 +718,7 @@ async function switchAction(action, req) {
 
     case 'updateEventPhotoOrder': {
       const updates = body.data;
-      if (!Array.isArray(updates)) return { success: false, error: 'Data tidak valid' };
+      if (!Array.isArray(updates)) return { success: false, error: 'Daftar foto yang dikirim tidak bisa dibaca server. Muat ulang halaman lalu coba lagi.' };
       // Satu transaksi: urutan antar-foto saling bergantung, separuh tersimpan
       // berarti urutan tampilan rusak/duplikat sampai ada simpan berikutnya.
       await db.withTransaction(async (client) => {
@@ -755,7 +755,7 @@ async function switchAction(action, req) {
         values.push(data[key] === null ? null : data[key]);
         columns.push(key);
       }
-      if (columns.length === 0) return { success: false, error: 'Data area tidak tersedia' };
+      if (columns.length === 0) return { success: false, error: 'Isian area yang dikirim kosong. Isi minimal satu kolom lalu simpan ulang.' };
       const { rows } = await db.query(
         `INSERT INTO event_areas (${columns.join(', ')})
          VALUES (${columns.map((_, i) => `$${i + 1}`).join(', ')})
@@ -768,7 +768,7 @@ async function switchAction(action, req) {
     }
 
     case 'updateEventArea': {
-      if (!body.id) return { success: false, error: 'ID area wajib diisi' };
+      if (!body.id) return { success: false, error: 'Area belum terpilih. Pilih dulu areanya lalu ulangi aksinya.' };
       const data = body.data || {};
       const sets = [];
       const values = [];
@@ -777,7 +777,7 @@ async function switchAction(action, req) {
         values.push(data[key] === null || data[key] === undefined ? null : data[key]);
         sets.push(`${key} = $${values.length}`);
       }
-      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (sets.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       values.push(body.id);
       await db.query(`UPDATE event_areas SET ${sets.join(', ')} WHERE id = $${values.length}`, values);
       logActivity(auth.user, 'update_event_area', 'event_area', body.id, { fields: Object.keys(data) }, req);
@@ -785,7 +785,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteEventArea': {
-      if (!body.id) return { success: false, error: 'ID area wajib diisi' };
+      if (!body.id) return { success: false, error: 'Area belum terpilih. Pilih dulu areanya lalu ulangi aksinya.' };
       // Sama seperti deleteAlbum: hapus baris (foto + area) dalam satu
       // transaksi, file R2 hanya setelah commit. area_photos punya FK CASCADE,
       // tapi URL-nya harus dibaca SEBELUM barisnya hilang.
@@ -807,14 +807,14 @@ async function switchAction(action, req) {
 
     case 'createAreaPhoto': {
       const data = body.data || {};
-      if (!data.area_id) return { success: false, error: 'ID area wajib diisi' };
+      if (!data.area_id) return { success: false, error: 'Area belum terpilih. Pilih dulu areanya lalu ulangi aksinya.' };
       const { rows: maxRows } = await db.query(
         'SELECT COALESCE(MAX(sort_order), -1) AS m FROM area_photos WHERE area_id = $1',
         [data.area_id],
       );
       const nextOrder = Number(maxRows[0]?.m ?? -1) + 1;
       const url = data.url;
-      if (!url) return { success: false, error: 'URL foto wajib diisi' };
+      if (!url) return { success: false, error: 'Foto belum punya alamat (URL). Unggah ulang fotonya lalu simpan.' };
       const { rows } = await db.query(
         `INSERT INTO area_photos (area_id, url, caption, sort_order)
          VALUES ($1, $2, $3, $4)
@@ -827,7 +827,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteAreaPhoto': {
-      if (!body.id) return { success: false, error: 'ID foto wajib diisi' };
+      if (!body.id) return { success: false, error: 'Foto belum terpilih. Pilih dulu fotonya lalu ulangi aksinya.' };
       const { rows } = await db.query('SELECT url FROM area_photos WHERE id = $1', [body.id]);
       await db.query('DELETE FROM area_photos WHERE id = $1', [body.id]);
       if (rows[0]?.url) await deleteR2File(rows[0].url);
@@ -837,7 +837,7 @@ async function switchAction(action, req) {
 
     case 'updateAreaPhotoOrder': {
       const updates = body.data;
-      if (!Array.isArray(updates)) return { success: false, error: 'Data tidak valid' };
+      if (!Array.isArray(updates)) return { success: false, error: 'Daftar foto yang dikirim tidak bisa dibaca server. Muat ulang halaman lalu coba lagi.' };
       await db.withTransaction(async (client) => {
         for (const item of updates) {
           await client.query(
@@ -884,7 +884,7 @@ async function switchAction(action, req) {
 
     case 'applyLocationMapping': {
       const mappings = body.mappings;
-      if (!Array.isArray(mappings) || mappings.length === 0) return { success: false, error: 'Data pemetaan tidak valid' };
+      if (!Array.isArray(mappings) || mappings.length === 0) return { success: false, error: 'Daftar pemetaan yang dikirim kosong. Pilih minimal satu lokasi lalu terapkan.' };
       let updated = 0;
       let renamed = 0;
 
@@ -937,7 +937,7 @@ async function switchAction(action, req) {
 
     // ══════════ COMMUNITY REGISTRATIONS ══════════
     case 'updateRegistrationStatus': {
-      if (!body.id) return { success: false, error: 'ID registrasi wajib diisi' };
+      if (!body.id) return { success: false, error: 'Pendaftaran belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' };
       const updates = ['status'];
       const values = [body.status];
       if (body.adminNote !== undefined) {
@@ -963,7 +963,7 @@ async function switchAction(action, req) {
         values.push(data[key] === null ? null : data[key]);
         columns.push(key);
       }
-      if (columns.length === 0) return { success: false, error: 'Data berita tidak tersedia' };
+      if (columns.length === 0) return { success: false, error: 'Isian berita yang dikirim kosong. Isi minimal satu kolom lalu simpan ulang.' };
       const { rows } = await db.query(
         `INSERT INTO news_articles (${columns.join(', ')})
          VALUES (${columns.map((_, i) => `$${i + 1}`).join(', ')})
@@ -976,7 +976,7 @@ async function switchAction(action, req) {
     }
 
     case 'updateNewsArticle': {
-      if (!body.id) return { success: false, error: 'ID berita wajib diisi' };
+      if (!body.id) return { success: false, error: 'Artikel belum terpilih. Pilih dulu artikelnya lalu ulangi aksinya.' };
       const data = body.data || {};
       const sets = [];
       const values = [];
@@ -995,7 +995,7 @@ async function switchAction(action, req) {
         values.push(value);
         sets.push(`${key} = $${values.length}`);
       }
-      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (sets.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       values.push(body.id);
       await db.query(`UPDATE news_articles SET ${sets.join(', ')} WHERE id = $${values.length}`, values);
       logActivity(auth.user, 'update_news', 'news', body.id, { fields: Object.keys(data) }, req);
@@ -1003,7 +1003,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteNewsArticle': {
-      if (!body.id) return { success: false, error: 'ID berita wajib diisi' };
+      if (!body.id) return { success: false, error: 'Artikel belum terpilih. Pilih dulu artikelnya lalu ulangi aksinya.' };
       const { rows } = await db.query(
         'SELECT cover_image_url FROM news_articles WHERE id = $1',
         [body.id],
@@ -1017,7 +1017,7 @@ async function switchAction(action, req) {
     // ══════════ SPONSORSHIP / PROPOSAL EVENT ══════════
     case 'setEventProposal': {
       const { eventId, fileUrl, fileName, mimeType } = body;
-      if (!eventId || !fileUrl) return { success: false, error: 'eventId dan fileUrl wajib diisi' };
+      if (!eventId || !fileUrl) return { success: false, error: 'Event atau berkas proposal belum terpilih. Pilih event dan unggah berkasnya dulu.' };
       // m-1 (audit): baca file lama sebelum upsert agar bisa dihapus dari R2.
       const { rows: existingRows } = await db.query(
         'SELECT file_url FROM event_proposals WHERE event_id = $1 LIMIT 1',
@@ -1035,7 +1035,7 @@ async function switchAction(action, req) {
       if (head.contentLength > MAX_PROPOSAL_BYTES) {
         // Bersihkan object yang terlalu besar, tolak referensinya.
         await deleteR2File(fileUrl);
-        return { success: false, error: 'File melebihi 20MB' };
+        return { success: false, error: 'Ukuran berkas melebihi 20MB. Kompres atau kurangi isinya lalu unggah ulang.' };
       }
 
       // m-3 (audit): verifikasi magic bytes — isi harus cocok dengan tipe yang diklaim.
@@ -1070,7 +1070,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteEventProposal': {
-      if (!body.eventId) return { success: false, error: 'ID event wajib diisi' };
+      if (!body.eventId) return { success: false, error: 'Event belum terpilih. Pilih dulu eventnya lalu ulangi aksinya.' };
       const { rows } = await db.query(
         'SELECT file_url FROM event_proposals WHERE event_id = $1 LIMIT 1',
         [body.eventId],
@@ -1092,7 +1092,7 @@ async function switchAction(action, req) {
     }
 
     case 'updateSponsorLeadStatus': {
-      if (!body.id) return { success: false, error: 'ID lead wajib diisi' };
+      if (!body.id) return { success: false, error: 'Data lead belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' };
       if (body.internalNotes !== undefined) {
         await db.query(
           'UPDATE sponsor_leads SET status = $1, internal_notes = $2 WHERE id = $3',
@@ -1106,7 +1106,7 @@ async function switchAction(action, req) {
     }
 
     case 'deleteSponsorLead': {
-      if (!body.id) return { success: false, error: 'ID lead wajib diisi' };
+      if (!body.id) return { success: false, error: 'Data lead belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' };
       await db.query('DELETE FROM sponsor_leads WHERE id = $1', [body.id]);
       logActivity(auth.user, 'delete_sponsor_lead', 'sponsor_lead', body.id, null, req);
       return { success: true };
@@ -1228,7 +1228,7 @@ async function switchAction(action, req) {
         `UPDATE generated_letters SET ${sets.join(', ')} WHERE id = $${params.length} RETURNING *`,
         params,
       );
-      if (!rows[0]) return { success: false, error: 'Surat tidak ditemukan' };
+      if (!rows[0]) return { success: false, error: 'Surat ini tidak ada atau sudah dihapus. Muat ulang daftar surat.' };
       logActivity(auth.user, 'update_letter', 'generated_letter', body.id, { fields: Object.keys(u) }, req);
       return { success: true, data: rows[0] };
     }
@@ -1239,7 +1239,7 @@ async function switchAction(action, req) {
         `UPDATE generated_letters SET status = 'deleted' WHERE id = $1`,
         [body.id],
       );
-      if (!rowCount) return { success: false, error: 'Surat tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Surat ini tidak ada atau sudah dihapus. Muat ulang daftar surat.' };
       logActivity(auth.user, 'delete_letter', 'generated_letter', body.id, null, req);
       return { success: true };
     }
@@ -1320,7 +1320,7 @@ async function switchAction(action, req) {
           d.acceptingApplications, body.id,
         ],
       );
-      if (!rowCount) return { success: false, error: 'Pameran tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Pameran ini tidak ada atau sudah dihapus. Muat ulang daftar pameran.' };
       logActivity(auth.user, 'update_exhibition', 'exhibition', body.id, { title: d.title }, req);
       return { success: true };
     }
@@ -1331,10 +1331,10 @@ async function switchAction(action, req) {
         [body.id],
       );
       if ((linked[0]?.total || 0) > 0) {
-        return { success: false, error: 'Pameran masih punya event aktivasi. Lepas tautan aktivasi terlebih dahulu.' };
+        return { success: false, error: 'Pameran ini masih menautkan event aktivasi. Lepas tautannya dulu, baru hapus pameran.' };
       }
       const { rowCount } = await db.query('DELETE FROM exhibitions WHERE id = $1', [body.id]);
-      if (!rowCount) return { success: false, error: 'Pameran tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Pameran ini tidak ada atau sudah dihapus. Muat ulang daftar pameran.' };
       logActivity(auth.user, 'delete_exhibition', 'exhibition', body.id, null, req);
       return { success: true };
     }
@@ -1368,7 +1368,7 @@ async function switchAction(action, req) {
          WHERE id = $3`,
         [body.status, body.internalNotes ?? null, body.id],
       );
-      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Pengajuan ini tidak ada atau sudah dihapus. Muat ulang daftar pengajuan.' };
       // Catatan: approve TIDAK membuat event (ADR 003) — penjadwalan tetap eksplisit.
       logActivity(auth.user, 'update_exhibition_lead', 'exhibition_lead', body.id, { status: body.status }, req);
       return { success: true };
@@ -1384,19 +1384,19 @@ async function switchAction(action, req) {
         [body.exhibitionId, body.eventId],
       );
       const pair = rows[0];
-      if (!pair) return { success: false, error: 'Pameran atau event tidak ditemukan' };
+      if (!pair) return { success: false, error: 'Pameran atau event yang dipilih tidak ada. Muat ulang halaman lalu pilih ulang datanya.' };
       // Tanggal event tak bisa di-cast (bukan YYYY-MM-DD) → tolak eksplisit,
       // bukan membandingkan null (yang dulu berarti lolos dari guard).
-      if (pair.event_start == null) return { success: false, status: 400, error: 'Tanggal event tidak valid' };
+      if (pair.event_start == null) return { success: false, status: 400, error: 'Tanggal event tidak bisa dibaca (bukan format YYYY-MM-DD). Perbaiki tanggal event dulu, lalu tautkan.' };
       if (String(pair.event_start) < String(pair.date_start) || String(pair.event_end) > String(pair.date_end)) {
-        return { success: false, error: 'Tanggal event berada di luar periode pameran' };
+        return { success: false, error: 'Tanggal event di luar rentang tanggal pameran. Geser tanggal event atau rentang pameran.' };
       }
       const { rows: existing } = await db.query(
         'SELECT exhibition_id FROM exhibition_activations WHERE event_id = $1 LIMIT 1',
         [body.eventId],
       );
       if (existing[0] && existing[0].exhibition_id !== body.exhibitionId) {
-        return { success: false, error: 'Event ini sudah menjadi aktivasi pameran lain' };
+        return { success: false, error: 'Event ini sudah ditautkan ke pameran lain. Lepas tautannya di sana dulu.' };
       }
       await db.query(
         `INSERT INTO exhibition_activations (event_id, exhibition_id) VALUES ($1, $2)
@@ -1412,7 +1412,7 @@ async function switchAction(action, req) {
         'DELETE FROM exhibition_activations WHERE event_id = $1',
         [body.eventId],
       );
-      if (!rowCount) return { success: false, error: 'Aktivasi tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Tautan aktivasi ini tidak ada atau sudah dilepas. Muat ulang daftar pameran.' };
       logActivity(auth.user, 'unlink_exhibition_activation', 'event', body.eventId, null, req);
       return { success: true };
     }
@@ -1438,7 +1438,7 @@ async function switchAction(action, req) {
       const values = [];
       if (body.status !== undefined) { values.push(body.status); sets.push(`status = $${values.length}`); }
       if (body.internalNotes !== undefined) { values.push(body.internalNotes); sets.push(`internal_notes = $${values.length}`); }
-      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (sets.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       sets.push('updated_at = NOW()');
       values.push(body.id);
 
@@ -1446,7 +1446,7 @@ async function switchAction(action, req) {
         `UPDATE tenant_event_proposals SET ${sets.join(', ')} WHERE id = $${values.length}`,
         values,
       );
-      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Pengajuan ini tidak ada atau sudah dihapus. Muat ulang daftar pengajuan.' };
       logActivity(auth.user, 'update_tenant_event_proposal', 'tenant_event_proposal', body.id, { status: body.status }, req);
       return { success: true };
     }
@@ -1457,7 +1457,7 @@ async function switchAction(action, req) {
         [body.id],
       );
       const { rowCount } = await db.query('DELETE FROM tenant_event_proposals WHERE id = $1', [body.id]);
-      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Pengajuan ini tidak ada atau sudah dihapus. Muat ulang daftar pengajuan.' };
       if (rows[0]?.proposal_file_url) await deleteR2File(rows[0].proposal_file_url);
       logActivity(auth.user, 'delete_tenant_event_proposal', 'tenant_event_proposal', body.id, null, req);
       return { success: true };
@@ -1499,7 +1499,7 @@ async function switchAction(action, req) {
       if (body.voucherTerms !== undefined) push('voucher_terms', body.voucherTerms);
       if (body.voucherQuota !== undefined) push('voucher_quota', body.voucherQuota);
       if (body.voucherFormat !== undefined) push('voucher_format', body.voucherFormat);
-      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (sets.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       sets.push('updated_at = NOW()');
       values.push(body.id);
 
@@ -1507,14 +1507,14 @@ async function switchAction(action, req) {
         `UPDATE tenant_participations SET ${sets.join(', ')} WHERE id = $${values.length}`,
         values,
       );
-      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Pengajuan ini tidak ada atau sudah dihapus. Muat ulang daftar pengajuan.' };
       logActivity(auth.user, 'update_tenant_participation', 'tenant_participation', body.id, { status: body.status }, req);
       return { success: true };
     }
 
     case 'deleteTenantParticipation': {
       const { rowCount } = await db.query('DELETE FROM tenant_participations WHERE id = $1', [body.id]);
-      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Pengajuan ini tidak ada atau sudah dihapus. Muat ulang daftar pengajuan.' };
       logActivity(auth.user, 'delete_tenant_participation', 'tenant_participation', body.id, null, req);
       return { success: true };
     }
@@ -1553,7 +1553,7 @@ async function switchAction(action, req) {
       if (body.label !== undefined) push('label', body.label);
       if (body.sortOrder !== undefined) push('sort_order', body.sortOrder);
       if (body.isActive !== undefined) push('is_active', body.isActive);
-      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      if (sets.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       sets.push('updated_at = NOW()');
       values.push(body.id);
 
@@ -1561,14 +1561,14 @@ async function switchAction(action, req) {
         `UPDATE tenant_participation_options SET ${sets.join(', ')} WHERE id = $${values.length}`,
         values,
       );
-      if (!rowCount) return { success: false, error: 'Opsi tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Opsi ini tidak ada atau sudah dihapus. Muat ulang daftar opsi.' };
       logActivity(auth.user, 'update_tenant_participation_option', 'tenant_participation_option', body.id, { isActive: body.isActive }, req);
       return { success: true };
     }
 
     case 'deleteTenantParticipationOption': {
       const { rowCount } = await db.query('DELETE FROM tenant_participation_options WHERE id = $1', [body.id]);
-      if (!rowCount) return { success: false, error: 'Opsi tidak ditemukan' };
+      if (!rowCount) return { success: false, error: 'Opsi ini tidak ada atau sudah dihapus. Muat ulang daftar opsi.' };
       logActivity(auth.user, 'delete_tenant_participation_option', 'tenant_participation_option', body.id, null, req);
       return { success: true };
     }

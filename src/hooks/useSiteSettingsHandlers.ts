@@ -122,10 +122,10 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
     try {
       await updateSiteSettings('instagram_posts', posts);
       setInstagramPosts(posts);
-      showToast('success', 'Instagram diperbarui', 'Link Instagram gallery berhasil disimpan.');
+      showToast('success', 'Instagram diperbarui', 'Tautan galeri Instagram berhasil disimpan.');
       return true;
     } catch {
-      showToast('error', 'Gagal menyimpan', 'Link Instagram belum tersimpan. Coba lagi.');
+      showToast('error', 'Gagal menyimpan', 'Tautan galeri Instagram belum tersimpan. Coba lagi.');
       return false;
     }
   }, [showToast]);
@@ -136,7 +136,7 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
       setHeroImageUrl(url);
       return true;
     } catch {
-      showToast('error', 'Gagal menyimpan', 'Hero image belum tersimpan. Coba lagi.');
+      showToast('error', 'Gagal menyimpan', 'Gambar utama belum tersimpan. Coba lagi.');
       return false;
     }
   }, [showToast]);

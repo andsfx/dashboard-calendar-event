@@ -17,7 +17,7 @@ const ALL_CATEGORIES = 'Semua';
 
 export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Direktori Tenant - Metropolitan Mall Bekasi',
+    title: 'Direktori tenant - Metropolitan Mall Bekasi',
     description: 'Direktori tenant resmi di Metropolitan Mall Bekasi.',
   });
 
@@ -89,13 +89,13 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Hero */}
         <RevealSection as="div" className="mb-8" refreshKey={tenants.length}>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Direktori Tenant Metropolitan Mall Bekasi</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Direktori tenant Metropolitan Mall Bekasi</h1>
           <p className="mt-2 text-base text-[var(--wf-ink-muted)]">Jelajahi tenant yang tersedia di Metropolitan Mall Bekasi</p>
           {!isLoading && !fetchError && (
             <div className="mt-6 flex flex-wrap gap-3">
               <div className="rounded-xl bg-[var(--wf-board)] px-4 py-3 shadow-sm ">
                 <p className="text-2xl font-bold tabular-nums text-[var(--wf-ink)]">{tenants.length}</p>
-                <p className="text-xs text-[var(--wf-ink-muted)]">Total Tenant</p>
+                <p className="text-xs text-[var(--wf-ink-muted)]">Total tenant</p>
               </div>
               <div className="rounded-xl bg-[var(--wf-board)] px-4 py-3 shadow-sm ">
                 <p className="text-2xl font-bold tabular-nums text-[var(--wf-ink)]">{categories.length}</p>
@@ -189,7 +189,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-board-2)]">
               <Search className="h-7 w-7 text-[var(--wf-ink-muted)]" />
             </div>
-            <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">Tidak ada tenant cocok.</p>
+            <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">Tidak ada tenant yang cocok.</p>
           </div>
         )}
 

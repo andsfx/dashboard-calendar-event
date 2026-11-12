@@ -104,8 +104,8 @@ function resolveBoothArea(lokasi: string, areas: string[]): string {
 
 export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Partisipasi Tenant - Metropolitan Mall Bekasi',
-    description: 'Ajukan open booth atau voucher tenant Anda untuk event di Metropolitan Mall Bekasi. Pantau status pengajuan dengan kode pengajuan.',
+    title: 'Partisipasi tenant - Metropolitan Mall Bekasi',
+    description: 'Ajukan booth terbuka atau voucher tenant kamu untuk event di Metropolitan Mall Bekasi. Pantau status pengajuan dengan kode pengajuan.',
   });
 
   const [searchParams] = useSearchParams();
@@ -333,7 +333,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
     if (!phoneCheck.valid) errors.phone = phoneCheck.error || 'Nomor WhatsApp tidak valid.';
     if (form.email.trim()) {
       const emailCheck = validateEmail(form.email);
-      if (!emailCheck.valid) errors.email = emailCheck.error || 'Format email tidak valid.';
+      if (!emailCheck.valid) errors.email = emailCheck.error || 'Email belum sesuai format. Contoh yang benar: nama@email.com';
     }
     if (includeBooth) {
       if (!form.boothArea.trim()) errors.boothArea = 'Area booth wajib diisi.';
@@ -422,11 +422,11 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 pb-16 pt-10 outline-none sm:px-6">
         <RevealSection as="div">
           <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Ikut Event sebagai Tenant
+            Ikut event sebagai tenant
           </h1>
           <p className="mt-3 text-sm leading-7 ui-text-secondary">
-            Ajukan <strong>open booth</strong> untuk berjualan atau promosi di area event, dan/atau{' '}
-            <strong>voucher</strong> untuk menarik pengunjung datang ke tenant Anda. Pengajuan ditinjau tim Marcomm;
+            Ajukan <strong>booth terbuka</strong> untuk berjualan atau promosi di area event, atau{' '}
+            <strong>voucher</strong> untuk menarik pengunjung datang ke tenant kamu. Pengajuan ditinjau tim Marcomm;
             yang disetujui tampil di halaman detail event.
           </p>
         </RevealSection>
@@ -436,7 +436,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
           <ol className="mt-3 space-y-3 text-sm ui-text-secondary">
             <li className="flex gap-3">
               <span className="shrink-0 font-semibold tabular-nums">1</span>
-              <span>Pilih event yang belum berjalan, lalu isi data booth dan/atau voucher. Pengajuan ditutup paling lambat sehari sebelum event mulai.</span>
+              <span>Pilih event yang belum berjalan, lalu isi data booth atau voucher. Pengajuan ditutup paling lambat sehari sebelum event mulai.</span>
             </li>
             <li className="flex gap-3">
               <span className="shrink-0 font-semibold tabular-nums">2</span>
@@ -444,7 +444,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
             </li>
             <li className="flex gap-3">
               <span className="shrink-0 font-semibold tabular-nums">3</span>
-              <span>Bila disetujui, booth dan voucher Anda tampil di halaman event dan tim menghubungi PIC lewat nomor yang dicantumkan.</span>
+              <span>Bila disetujui, booth dan voucher kamu tampil di halaman event dan tim menghubungi PIC lewat nomor yang dicantumkan.</span>
             </li>
           </ol>
         </RevealSection>
@@ -457,8 +457,8 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               <p className="flex items-start gap-3">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
                 <span>
-                  Pengajuan Anda sudah terkirim dan masuk antrean tinjauan tim. Simpan kode pengajuan ini.
-                  Anda butuh kode dan nomor telepon untuk memantau statusnya.
+                  Pengajuan kamu sudah terkirim dan masuk antrean tinjauan tim. Simpan kode pengajuan ini.
+                  Kamu butuh kode dan nomor telepon untuk memantau statusnya.
                 </span>
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -924,7 +924,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                   className={`${focusRing} inline-flex h-auto items-center gap-2 whitespace-normal! rounded-full! bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! dark:hover:bg-[var(--wf-page)]! dark:hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60`}
                 >
                   <Send className="size-4" aria-hidden="true" />
-                  {submitting ? 'Mengirim…' : 'Kirim Pengajuan'}
+                  {submitting ? 'Mengirim…' : 'Kirim pengajuan'}
                 </Button>
                 <p className="mt-2 text-xs text-[var(--wf-ink-muted)]">
                   Data kontak hanya dipakai tim Metropolitan Mall Bekasi untuk menindaklanjuti pengajuan ini.
@@ -977,7 +977,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               className={`${focusRing} inline-flex h-auto items-center justify-center gap-2 whitespace-normal! rounded-full! border border-[var(--brand-tosca-600)] px-5 py-3 text-sm font-bold! text-[var(--brand-tosca-600)] transition hover:bg-[var(--wf-accent-soft)]! hover:text-[var(--brand-tosca-600)]! focus-visible:border-[var(--brand-tosca-600)]! dark:hover:bg-[var(--wf-accent-soft)]! dark:hover:text-[var(--brand-tosca-600)]! active:translate-y-0! disabled:opacity-60`}
             >
               <Search className="size-4" aria-hidden="true" />
-              {statusChecking ? 'Memeriksa…' : 'Cek Status'}
+              {statusChecking ? 'Memeriksa…' : 'Cek status'}
             </Button>
           </form>
 
@@ -1022,7 +1022,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               )}
               {statusResult.status === 'approved' && (
                 <p className="mt-3 text-xs opacity-80">
-                  Partisipasi Anda tampil di halaman event. Tim akan menghubungi PIC untuk detail teknis bila diperlukan.
+                  Partisipasi kamu tampil di halaman event. Tim akan menghubungi PIC untuk detail teknis bila diperlukan.
                 </p>
               )}
             </div>

@@ -18,13 +18,13 @@ const TONE_CLASS: Record<OrgTypeOption['tone'], string> = {
 };
 
 const ORG_TYPES: OrgTypeOption[] = [
-  { value: 'community', label: 'Komunitas', description: 'Musik, dance, seni, gaming, dll', icon: Users, tone: 'tosca' },
-  { value: 'school', label: 'Sekolah / Universitas', description: 'SD, SMP, SMA, Perguruan Tinggi', icon: GraduationCap, tone: 'tosca' },
+  { value: 'community', label: 'Komunitas', description: 'Musik, dance, seni, gaming, dan lainnya', icon: Users, tone: 'tosca' },
+  { value: 'school', label: 'Sekolah / universitas', description: 'SD, SMP, SMA, dan perguruan tinggi', icon: GraduationCap, tone: 'tosca' },
   { value: 'company', label: 'Perusahaan', description: 'Corporate, UMKM, startup', icon: Building2, tone: 'pink' },
-  { value: 'eo', label: 'Event Organizer', description: 'EO profesional & freelance', icon: PartyPopper, tone: 'pink' },
-  { value: 'campus', label: 'Organisasi Kampus', description: 'BEM, UKM, Himpunan', icon: School, tone: 'tosca' },
-  { value: 'government', label: 'Instansi Pemerintah', description: 'Dinas, kementerian, BUMN', icon: Landmark, tone: 'pink' },
-  { value: 'ngo', label: 'NGO / Yayasan', description: 'Non-profit, sosial, kemanusiaan', icon: Heart, tone: 'tosca' },
+  { value: 'eo', label: 'Event organizer', description: 'EO profesional dan freelance', icon: PartyPopper, tone: 'pink' },
+  { value: 'campus', label: 'Organisasi kampus', description: 'BEM, UKM, dan himpunan', icon: School, tone: 'tosca' },
+  { value: 'government', label: 'Instansi pemerintah', description: 'Dinas, kementerian, BUMN', icon: Landmark, tone: 'pink' },
+  { value: 'ngo', label: 'NGO / yayasan', description: 'Non-profit, sosial, kemanusiaan', icon: Heart, tone: 'tosca' },
   { value: 'other', label: 'Lainnya', description: 'Tipe organisasi lain', icon: MoreHorizontal, tone: 'muted' },
 ];
 
@@ -61,7 +61,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
   return (
     <div className="space-y-3">
       <p id="organization-type-label" className="text-xs font-semibold text-[var(--wf-ink-muted)]">
-        Tipe Organisasi <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+        Tipe organisasi <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
       </p>
       <div
         className="grid grid-cols-2 gap-2.5 sm:grid-cols-4"

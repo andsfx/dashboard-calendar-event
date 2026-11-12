@@ -44,7 +44,7 @@ export function DashboardHeader({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-xl font-extrabold tracking-tight text-[var(--wf-ink)] sm:text-2xl">
-            Jadwal Event
+            Jadwal event
           </h1>
           <p className="mt-0.5 text-sm font-medium text-[var(--wf-ink-muted)]">
             Jadwal acara publik Metropolitan Mall Bekasi

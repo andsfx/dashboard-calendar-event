@@ -38,8 +38,8 @@ const selectClass = 'w-full [&>select]:h-auto [&>select]:rounded-[var(--radius-c
 export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
   const { id } = useParams<{ id: string }>();
   usePageMeta({
-    title: 'Pameran & Kolaborasi - Metropolitan Mall Bekasi',
-    description: 'Ajak brand dan EO berkolaborasi mengisi pameran serta aktivasi di Metropolitan Mall Bekasi.',
+    title: 'Pameran dan kolaborasi - Metropolitan Mall Bekasi',
+    description: 'Ajak brand dan EO bekerja sama mengisi pameran serta aktivasi di Metropolitan Mall Bekasi.',
   });
 
   const [list, setList] = useState<Exhibition[]>([]);
@@ -81,10 +81,10 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
     if (form.organizationName.trim().length < 3) errs.organizationName = 'Nama brand/EO minimal 3 karakter';
     if (form.contactName.trim().length < 3) errs.contactName = 'Nama PIC minimal 3 karakter';
     const phoneCheck = validatePhone(form.phone);
-    if (!phoneCheck.valid) errs.phone = phoneCheck.error || 'Format nomor telepon tidak valid';
+    if (!phoneCheck.valid) errs.phone = phoneCheck.error || 'Nomor telepon belum sesuai format. Gunakan 08xxx, +628xxx, atau 628xxx.';
     if (form.email) {
       const emailCheck = validateEmail(form.email);
-      if (!emailCheck.valid) errs.email = emailCheck.error || 'Format email tidak valid';
+      if (!emailCheck.valid) errs.email = emailCheck.error || 'Email belum sesuai format. Contoh yang benar: nama@email.com';
     }
     if (form.participation !== 'booth' && form.proposal.trim().length < 10) {
       errs.proposal = 'Jelaskan konsep aktivasi minimal 10 karakter';
@@ -135,7 +135,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
 
         {!isLoading && !loadError && !id && (
           <RevealSection as="div" refreshKey={`${list.length}:${list[0]?.id ?? ''}`}>
-            <h1 className="font-display text-3xl font-extrabold sm:text-4xl">Kolaborasi Pameran</h1>
+            <h1 className="font-display text-3xl font-extrabold sm:text-4xl">Kolaborasi pameran</h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">
               Metropolitan Mall Bekasi mengajak brand dan event organizer mengisi pameran bersama tim Casual Leasing dan Marcomm, baik sebagai peserta booth maupun pengisi aktivasi.
             </p>
@@ -156,7 +156,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                   {item.description && <p className="mt-3 text-sm leading-6 text-[var(--wf-ink-muted)]">{item.description}</p>}
                   <Link to={`/pameran/${item.id}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]">
                     <Handshake className="h-4 w-4" aria-hidden="true" />
-                    {item.acceptingApplications ? 'Ajukan Kolaborasi' : 'Lihat Detail'}
+                    {item.acceptingApplications ? 'Ajukan kolaborasi' : 'Lihat detail'}
                   </Link>
                 </li>
               ))}
@@ -187,13 +187,13 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
 
             {exhibition.collaborationBrief && (
               <RevealSection className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-[var(--wf-board)] p-5">
-                <h2 className="font-display text-lg font-bold">Yang Kami Cari</h2>
+                <h2 className="font-display text-lg font-bold">Yang kami cari</h2>
                 <p className="mt-2 whitespace-pre-line text-sm leading-6 text-[var(--wf-ink-muted)]">{exhibition.collaborationBrief}</p>
               </RevealSection>
             )}
 
             <RevealSection className="mt-8" refreshKey={detail?.activations.length ?? 0}>
-              <h2 className="font-display text-lg font-bold">Agenda Aktivasi</h2>
+              <h2 className="font-display text-lg font-bold">Agenda aktivasi</h2>
               {detail && detail.activations.length === 0 && (
                 <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">
                   Agenda aktivasi belum diumumkan. Konsep kegiatan dari mitra masih kami kurasi.
@@ -215,7 +215,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
 
             <section id="ajukan" className="mt-10 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-[var(--wf-board)] p-5 sm:p-6">
               <RevealSection as="div">
-                <h2 className="font-display text-lg font-bold">Ajukan Kolaborasi</h2>
+                <h2 className="font-display text-lg font-bold">Ajukan kolaborasi</h2>
               </RevealSection>
 
               {!exhibition.acceptingApplications && (
@@ -227,7 +227,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
               {exhibition.acceptingApplications && submitted && (
                 <div className="mt-3 flex items-start gap-3 rounded-[var(--radius-card)] bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-                  <p>Pengajuan terkirim. Tim kami akan meninjau dan menghubungi Anda. Pengajuan ini belum berarti booth atau jadwal sudah dikonfirmasi.</p>
+                  <p>Pengajuan terkirim. Tim kami akan meninjau dan menghubungi kamu. Pengajuan ini belum berarti booth atau jadwal sudah dikonfirmasi.</p>
                 </div>
               )}
 
@@ -245,7 +245,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                     <Label className={labelClass} htmlFor="lead-type">Jenis organisasi</Label>
                     <NativeSelect id="lead-type" className={selectClass} value={form.organizationType} onChange={e => setForm({ ...form, organizationType: e.target.value as ExhibitionLeadInput['organizationType'] })}>
                       <option value="brand">Brand</option>
-                      <option value="eo">Event Organizer</option>
+                      <option value="eo">Event organizer</option>
                     </NativeSelect>
                   </div>
 
@@ -296,7 +296,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                       className="h-auto items-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60"
                     >
                       <Handshake className="h-4 w-4" aria-hidden="true" />
-                      {submitting ? 'Mengirim…' : 'Kirim Pengajuan'}
+                      {submitting ? 'Mengirim…' : 'Kirim pengajuan'}
                     </Button>
                     <p className="mt-2 text-xs text-[var(--wf-ink-muted)]">
                       Data kontak hanya dipakai tim Metropolitan Mall Bekasi untuk menindaklanjuti pengajuan ini.

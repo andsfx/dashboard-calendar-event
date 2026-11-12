@@ -326,7 +326,7 @@ describe('useEvents', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(fetchEvents).not.toHaveBeenCalled();
-    expect(result.current.error).toBe('Gagal memuat jadwal internal. Coba lagi beberapa saat lagi.');
+    expect(result.current.error).toBe('Jadwal internal belum termuat. Muat ulang halaman ini.');
   });
 
   // ─── Hapus: mutasi vs refresh ──────────────────────────────────

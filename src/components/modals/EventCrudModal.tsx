@@ -248,7 +248,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
       const url = await uploadToR2(file);
       setForm(prev => ({ ...prev, posterUrl: url }));
     } catch (err) {
-      setPosterError(err instanceof Error ? err.message : 'Upload gagal. Coba lagi.');
+      setPosterError(err instanceof Error ? err.message : 'Unggahan gagal. Coba lagi.');
     } finally {
       setPosterUploading(false);
       if (posterInputRef.current) posterInputRef.current.value = '';

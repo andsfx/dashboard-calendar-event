@@ -37,8 +37,8 @@ export function isRealDate(value) {
     && parsed.getUTCDate() === day;
 }
 
-const isoDate = z.string().trim().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD')
-  .refine(isRealDate, 'Tanggal tidak valid');
+const isoDate = z.string().trim().regex(ISO_DATE, 'Isi tanggal dengan format YYYY-MM-DD, mis. 2026-07-12')
+  .refine(isRealDate, 'Tanggal ini tidak ada di kalender. Periksa bulan dan hari-nya.');
 
 const isoDateOptional = isoDate.or(z.literal('')).optional().default('');
 

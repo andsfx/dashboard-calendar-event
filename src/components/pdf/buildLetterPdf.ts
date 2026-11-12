@@ -165,11 +165,11 @@ export interface LetterPdfPayload {
 export function buildLetterPdf(letter: LetterRequestItem, logoDataUrl = PDF_LOGO_DATA_URL): jsPDF {
   const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   doc.setProperties({
-    title: `Surat Konfirmasi Event - ${letter.namaEvent || 'Tanpa Judul'}`,
+    title: `Surat konfirmasi event - ${letter.namaEvent || 'Tanpa judul'}`,
     author: 'Metropolitan Mall Bekasi',
-    subject: 'Surat Konfirmasi Pelaksanaan Event',
+    subject: 'Surat konfirmasi pelaksanaan event',
     keywords: 'surat konfirmasi, event, Metropolitan Mall Bekasi',
-    creator: 'Dashboard Event System',
+    creator: 'Sistem jadwal event',
   });
 
   const tanggalFormatted = formatTanggalSurat(letter.tanggalSurat);
