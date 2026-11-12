@@ -365,3 +365,63 @@ describe('EventsLandingPage — abaikan filter halaman', () => {
     expect(dialog.getByText(/Filter halaman diabaikan/)).toBeInTheDocument();
   });
 });
+
+describe('EventsLandingPage — pencarian ikut menyaring ekspor', () => {
+  // `?q=` adalah filter halaman ketiga: ia menyempitkan daftar ekspor dengan
+  // aturan yang sama dengan tampilan (AND dengan waktu + kategori).
+  const SEARCHABLE = [
+    ev({ id: 'q1', status: 'upcoming', acara: 'Kompetisi Tari Tradisional', categories: ['Anak'] }),
+    ev({ id: 'q2', status: 'upcoming', acara: 'Bazar Kuliner', lokasi: 'Lantai Dasar', categories: ['Anak'] }),
+  ];
+
+  function renderWith(entry: string) {
+    render(
+      <MemoryRouter initialEntries={[entry]}>
+        <EventsLandingPage
+          isDark={false}
+          onToggleDark={() => {}}
+          events={SEARCHABLE}
+          holidays={[]}
+          onDetail={() => {}}
+        />
+      </MemoryRouter>,
+    );
+  }
+
+  it('menawarkan hanya event yang cocok dengan kata kunci', async () => {
+    renderWith('/events?q=tari');
+    const dialog = await openExportDialog();
+
+    expect(dialog.getByText('1 event pada periode ini')).toBeInTheDocument();
+    expect(dialog.getByText('Kompetisi Tari Tradisional')).toBeInTheDocument();
+    expect(dialog.queryByText('Bazar Kuliner')).not.toBeInTheDocument();
+  });
+
+  it('mencocokkan lokasi, bukan hanya nama acara', async () => {
+    renderWith('/events?q=lantai%20dasar');
+    const dialog = await openExportDialog();
+
+    expect(dialog.getByText('Bazar Kuliner')).toBeInTheDocument();
+    expect(dialog.queryByText('Kompetisi Tari Tradisional')).not.toBeInTheDocument();
+  });
+
+  it('menghitung q sebagai filter halaman, jadi sakelar pelepasnya ditawarkan', async () => {
+    renderWith('/events?q=tari');
+    const dialog = await openExportDialog();
+
+    expect(dialog.getByText(/Filter halaman aktif/)).toBeInTheDocument();
+    const toggle = dialog.getByRole('checkbox', { name: /Abaikan filter halaman/ });
+    expect(toggle).not.toBeChecked();
+
+    fireEvent.click(toggle);
+    expect(dialog.getByText('2 event pada periode ini')).toBeInTheDocument();
+    expect(dialog.getByText('Bazar Kuliner')).toBeInTheDocument();
+  });
+
+  it('menggabungkan q dengan filter kategori', async () => {
+    renderWith('/events?q=tari&kategori=Seni');
+    const dialog = await openExportDialog();
+
+    expect(dialog.getByText('0 event pada periode ini')).toBeInTheDocument();
+  });
+});

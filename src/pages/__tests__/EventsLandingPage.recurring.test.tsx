@@ -10,7 +10,7 @@ import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { render, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import type { EventItem } from '../../types';
+import type { EventArea, EventItem } from '../../types';
 import { EventsLandingPage } from '../EventsLandingPage';
 
 vi.mock('../../utils/eventsSchedulePdf', () => ({
@@ -49,5 +49,38 @@ describe('EventsLandingPage — rangkaian reguler dirangkum', () => {
     expect(scope.getAllByText('Angklung Perempuan Indonesia')).toHaveLength(1);
     // Label jadwal menggantikan tanggal/countdown per kemunculan.
     expect(scope.getByText('Setiap hari Selasa')).toBeInTheDocument();
+  });
+  it('tetap satu kartu saat representatif seri jatuh di blok "Lokasi Lainnya"', () => {
+    // Area utama punya hero; seri reguler ada di area kedua, jadi kartunya
+    // dirender oleh blok "Lokasi Lainnya di Metmal" — bukan Area Utama.
+    const areas: EventArea[] = [
+      { id: 'main', name: 'Main Atrium', description: '', coverPhotoUrl: '', sortOrder: 1, isActive: true },
+      { id: 'musolla', name: 'Musholla Lt. 3', description: '', coverPhotoUrl: '', sortOrder: 2, isActive: true },
+    ];
+    const events = [
+      ev({ id: 'hero', acara: 'Event Utama', posterUrl: 'https://cdn/hero.jpg', areaId: 'main' }),
+      ev({ id: 'b1', acara: 'Angklung Perempuan Indonesia', isRecurring: true, recurrenceGroupId: 'rg-angklung', areaId: 'musolla' }),
+      ev({ id: 'b2', acara: 'Angklung Perempuan Indonesia', isRecurring: true, recurrenceGroupId: 'rg-angklung', areaId: 'musolla', dateStr: '2026-11-10' }),
+      ev({ id: 'b3', acara: 'Angklung Perempuan Indonesia', isRecurring: true, recurrenceGroupId: 'rg-angklung', areaId: 'musolla', dateStr: '2026-11-17' }),
+    ];
+    render(
+      <MemoryRouter>
+        <EventsLandingPage
+          isDark={false}
+          onToggleDark={() => {}}
+          events={events}
+          holidays={[]}
+          areas={areas}
+          onDetail={() => {}}
+        />
+      </MemoryRouter>,
+    );
+
+    const scope = within(document.getElementById('featured')!);
+    expect(scope.getAllByText('Angklung Perempuan Indonesia')).toHaveLength(1);
+    expect(scope.getByText('Setiap hari Selasa')).toBeInTheDocument();
+    expect(scope.getByText('Lokasi Lainnya di Metmal')).toBeInTheDocument();
+    expect(scope.getByText('Musholla Lt. 3')).toBeInTheDocument();
+    expect(scope.getByText('Area Utama')).toBeInTheDocument();
   });
 });

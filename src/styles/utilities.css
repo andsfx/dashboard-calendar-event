@@ -224,3 +224,20 @@
   font-weight: 500;
   z-index: 100;
 }
+
+/* Offset anchor halaman /events: stack lengket di rute ini = header publik
+   65px + strip filter (103px di >=768px, 141px di bawahnya). Dipasang lewat
+   kelas halaman supaya `section[id] { scroll-margin-top: 6rem }` global tetap
+   berlaku di rute yang tidak punya strip. Utilitas Tailwind tidak dipakai di
+   sini: spesifisitasnya seri dengan aturan global dan kalah urutan layer. */
+.events-page section[id] {
+  scroll-margin-top: 13rem;
+}
+
+/* Scroll horizontal tanpa scrollbar terlihat (strip filter /events). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

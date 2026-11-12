@@ -2,7 +2,7 @@
  * design-system: DESIGN.md · designed-as-app
  * pre-emit critique: P4 H4 E4 S4 R4 V4
  */
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -15,6 +15,7 @@ import {
   Radio,
   RefreshCw,
   Repeat,
+  Search,
   Timer,
   X,
   Zap,
@@ -24,7 +25,8 @@ import { CATEGORY_COLORS, collapseRecurringSeries, isRecurringEvent, recurringSc
 import { resolveEventPoster } from '../utils/eventPoster';
 import { EventPosterBanner } from '../components/events/EventPosterBanner';
 import { Button } from '../components/shadcn/button';
-import { groupEventsByArea, resolveAreaDisplay } from '../utils/areaGrouping';
+import { Input } from '../components/shadcn/input';
+import { resolveAreaDisplay } from '../utils/areaGrouping';
 import { usePageMeta } from '../utils/pageMeta';
 import { EventItem, HolidayItem, PhotoAlbum, EventArea, AnnualTheme } from '../types';
 import { renderEventsSchedulePdfResult } from '../utils/eventsSchedulePdf';
@@ -73,8 +75,19 @@ interface Props {
 
 const PRIORITY_RANK = { high: 0, medium: 1, low: 2 } as const;
 
-function getCountdown(targetDate: string, now: number) {
-  const target = new Date(`${targetDate}T00:00:00`).getTime();
+/** Jam mulai event ("10:00 - 21:00" / "13.00 WIB") → "10:00"; null bila tak terbaca. */
+function parseStartTime(jam: string | undefined): string | null {
+  const match = /(\d{1,2})[.:](\d{2})/.exec(jam ?? '');
+  if (!match) return null;
+  const [, h, m] = match;
+  return `${String(Number(h)).padStart(2, '0')}:${m}`;
+}
+
+function getCountdown(targetDate: string, now: number, jam?: string) {
+  // Target memakai jam mulai event bila terbaca; hitung mundur bersel "Detik"
+  // akan salah bila patokannya tengah malam.
+  const start = parseStartTime(jam) ?? '00:00';
+  const target = new Date(`${targetDate}T${start}:00`).getTime();
   const diff = Math.max(0, target - now);
   const dayMs = 24 * 60 * 60 * 1000;
   const hourMs = 60 * 60 * 1000;
@@ -83,6 +96,7 @@ function getCountdown(targetDate: string, now: number) {
     days: Math.floor(diff / dayMs),
     hours: Math.floor((diff % dayMs) / hourMs),
     minutes: Math.floor((diff % hourMs) / minuteMs),
+    seconds: Math.floor((diff % minuteMs) / 1000),
   };
 }
 
@@ -166,13 +180,15 @@ function HighlightEventCard({
 }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const t = window.setInterval(() => setNow(Date.now()), 60_000);
+    // Sel "Detik" butuh detak per detik; interval 60 s membuat angka detik
+    // melompat 60 seperti jam rusak.
+    const t = window.setInterval(() => setNow(Date.now()), 1_000);
     return () => window.clearInterval(t);
   }, []);
 
   const cat = (event.categories?.length ? event.categories[0] : event.category) || 'Umum';
   const catColor = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.Umum ?? '#00918e';
-  const countdown = getCountdown(event.dateStr, now);
+  const countdown = getCountdown(event.dateStr, now, event.jam);
   const isLive = event.status === 'ongoing';
   const isRecurring = isRecurringEvent(event);
 
@@ -280,18 +296,19 @@ function HighlightEventCard({
                   } as React.CSSProperties
                 }
               >
-                Countdown
+                Hitung mundur acara
               </p>
-              <div className="grid w-full max-w-sm grid-cols-3 gap-2.5">
+              <div className="grid w-full max-w-sm grid-cols-4 gap-2">
                 <CountdownCell label="Hari" value={countdown.days} />
                 <CountdownCell label="Jam" value={countdown.hours} />
                 <CountdownCell label="Menit" value={countdown.minutes} />
+                <CountdownCell label="Detik" value={countdown.seconds} />
               </div>
             </>
           )}
           {isLive && (
-            <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-              <Zap className="h-4 w-4 animate-pulse motion-reduce:animate-none" aria-hidden="true" />
+            <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--wf-ink)]">
+              <Zap className="h-4 w-4 animate-pulse motion-reduce:animate-none text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               Sedang berlangsung
             </p>
           )}
@@ -452,7 +469,8 @@ export function EventsLandingPage({
   });
   // Rangkaian reguler dirangkum jadi satu entri per seri: kartu jadwal publik
   // tidak membanjir dengan satu kartu per kemunculan. Kalender bulanan tetap
-  // memakai `events` asli supaya tiap tanggal kemunculan tetap tampil.
+  // memakai daftar yang belum dirangkum (`events`, atau `filteredEvents` saat
+  // filter aktif) supaya tiap tanggal kemunculan tetap tampil.
   const displayEvents = useMemo(() => collapseRecurringSeries(events), [events]);
   const ongoing = useMemo(
     () => sortHighlightCandidates(displayEvents.filter(e => e.status === 'ongoing')),
@@ -488,13 +506,6 @@ export function EventsLandingPage({
   const railEvents = railRest.slice(0, 6);
   const railOverflow = Math.max(0, railRest.length - 6);
 
-  /** Per-area grouping of ongoing+upcoming events (excl. highlight). */
-  const areaGroups = useMemo(
-    () => (areas.length > 0 ? groupEventsByArea(railRest, areas) : []),
-    [railRest, areas],
-  );
-  /** Section per lokasi hanya bila ada area yang benar-benar terpetakan. */
-  const hasMappedAreas = useMemo(() => areaGroups.some(g => g.area !== null), [areaGroups]);
 
   const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
 
@@ -502,6 +513,15 @@ export function EventsLandingPage({
   const [searchParams, setSearchParams] = useSearchParams();
   const waktu = searchParams.get('waktu'); // 'hari-ini' | 'besok' | 'akhir-pekan' | null
   const kategori = searchParams.get('kategori'); // label kategori | null
+
+  // ─── Pencarian (?q=) — ketikan lokal, URL diperbarui setelah 300 ms ───
+  // Input dikendalikan state lokal supaya tiap huruf tidak menulis riwayat;
+  // URL tetap menjadi sumber kebenaran filter (deep-link, tombol kembali).
+  const qParam = searchParams.get('q') ?? '';
+  const [searchInput, setSearchInput] = useState(qParam);
+  /** Nilai q yang terakhir kita tulis sendiri: hidrasi dari URL tidak boleh
+   *  menimpa ketikan yang lebih baru saat URL menyusul. */
+  const lastPushedQ = useRef(qParam);
 
   const categoryOptions = useMemo(() => {
     const set = new Set<string>();
@@ -517,12 +537,18 @@ export function EventsLandingPage({
       : waktu === 'besok'
         ? { start: getTomorrowIsoLocal(), end: getTomorrowIsoLocal() }
         : waktu === 'akhir-pekan' ? weekend : null;
+    const needle = qParam.trim().toLowerCase();
     return events.filter(ev => {
       if (win && !eventOverlapsWindow(ev.dateStr, ev.dateEnd, win.start, win.end)) return false;
       if (kategori && !(ev.categories || []).includes(kategori)) return false;
+      if (needle) {
+        // Substring tanpa beda huruf besar/kecil atas nama, lokasi, keterangan.
+        const haystack = [ev.acara, ev.lokasi, ev.keterangan];
+        if (!haystack.some(field => (field || '').toLowerCase().includes(needle))) return false;
+      }
       return true;
     }).sort((a, b) => a.dateStr.localeCompare(b.dateStr));
-  }, [events, waktu, kategori]);
+  }, [events, waktu, kategori, qParam]);
   // Filter menjaga semantik tanggal (seri reguler cocok bila salah satu
   // kemunculannya masuk window), lalu dirangkum untuk tampilan.
   const displayFilteredEvents = useMemo(
@@ -530,7 +556,47 @@ export function EventsLandingPage({
     [filteredEvents],
   );
 
-  const isFilterActive = Boolean(waktu || kategori);
+  /**
+   * Venue untuk bagian Sorotan: area utama = area (urut `sortOrder`) pertama
+   * yang punya event, sisanya masuk "Lokasi Lainnya di Metmal" bersama event
+   * tanpa area. `displayFilteredEvents` sudah dirangkum per seri, jadi satu
+   * rangkaian tidak pernah muncul dua kali walau anggotanya beda area.
+   */
+  const venueSections = useMemo(() => {
+    const areaById = new Map(areas.map(a => [a.id, a]));
+    const byArea = new Map<string, EventItem[]>();
+    const unmapped: EventItem[] = [];
+    for (const ev of displayFilteredEvents) {
+      const area = ev.areaId ? areaById.get(ev.areaId) : undefined;
+      if (!area) {
+        unmapped.push(ev);
+        continue;
+      }
+      const bucket = byArea.get(area.id);
+      if (bucket) bucket.push(ev);
+      else byArea.set(area.id, [ev]);
+    }
+    const ordered = [...areas]
+      .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'id'))
+      .flatMap(area => {
+        const events = byArea.get(area.id);
+        return events && events.length > 0 ? [{ area, events }] : [];
+      });
+    const primary = ordered[0] ?? null;
+    const otherAreas = ordered.slice(1).map(group => group.area);
+    const others = [...ordered.slice(1).flatMap(group => group.events), ...unmapped];
+    return { primary, otherAreas, others };
+  }, [displayFilteredEvents, areas]);
+
+  const { primary: primaryVenue, others, otherAreas: otherVenueAreas } = venueSections;
+  // Subjudul "Lokasi Lainnya": maksimal tiga nama lokasi, sisanya diringkas.
+  const shownVenueNames = otherVenueAreas.slice(0, 3).map(area => area.name);
+  const hiddenVenueCount = otherVenueAreas.length - shownVenueNames.length;
+  const otherVenueSummary = shownVenueNames.length > 0
+    ? `${shownVenueNames.join(', ')}${hiddenVenueCount > 0 ? ` +${hiddenVenueCount} lainnya` : ''}`
+    : 'lokasi lain';
+
+  const isFilterActive = Boolean(waktu || kategori || qParam.trim());
 
   // Cakupan ekspor: periode (hari/minggu/bulan/tahun/tema/kustom) lalu pilih
   // per event.
@@ -561,7 +627,7 @@ export function EventsLandingPage({
     return renderEventsSchedulePdfResult(exportScope.selected, { sections: sections as SchedulePdfSection[] });
   };
 
-  const setParam = (key: 'waktu' | 'kategori', value: string | null) => {
+  const setParam = (key: 'waktu' | 'kategori' | 'q', value: string | null) => {
     const next = new URLSearchParams(searchParams);
     if (value) next.set(key, value);
     else next.delete(key);
@@ -569,6 +635,32 @@ export function EventsLandingPage({
   };
 
   const resetFilter = () => setSearchParams(new URLSearchParams(), { replace: true });
+
+  // Hidrasi dari URL untuk `?q=`: hanya bila nilainya datang dari luar
+  // (deep-link, "Reset filter", tombol kembali), bukan gema tulisan kita.
+  useEffect(() => {
+    if (qParam === lastPushedQ.current) return;
+    lastPushedQ.current = qParam;
+    setSearchInput(qParam);
+  }, [qParam]);
+
+  // Ketikan → URL setelah 300 ms; `replace` supaya riwayat tidak berisi satu
+  // entri per huruf. String kosong menghapus parameter.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const nextQ = searchInput.trim();
+      if (nextQ === qParam) return;
+      lastPushedQ.current = nextQ;
+      setParam('q', nextQ || null);
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [searchInput, qParam]);
+
+  const clearSearch = () => {
+    setSearchInput('');
+    lastPushedQ.current = '';
+    setParam('q', null);
+  };
 
   return (
     <div className="events-landing min-h-screen overflow-x-clip bg-[var(--wf-page)] text-[var(--wf-ink)] transition-colors duration-300">
@@ -585,7 +677,7 @@ export function EventsLandingPage({
         sectionLinks={EVENTS_SECTION_LINKS}
       />
 
-      <main id="konten-utama" tabIndex={-1} className="outline-none">
+      <main id="konten-utama" tabIndex={-1} className="events-page outline-none">
         {/* Split Studio hero */}
         <RevealSection
           className="border-b border-black/5 "
@@ -623,17 +715,17 @@ export function EventsLandingPage({
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <a
-                  href="#featured"
-                  className="group inline-flex items-center gap-2 rounded-full border border-black/10 bg-[var(--wf-board)] px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
+                  href="#calendar"
+                  className="group inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)] hover:text-[var(--wf-ink)] ui-focus-ring"
                 >
-                  Sorotan
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
+                  <CalendarDays className="h-4 w-4" aria-hidden="true" />
+                  Kalender lengkap
                 </a>
                 <Link
                   to="/daftar"
                   className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-[var(--wf-board)] px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
                 >
-                  Daftar event
+                  Daftar ikut acara
                 </Link>
                 <Button
                   type="button"
@@ -644,7 +736,7 @@ export function EventsLandingPage({
                   aria-label="Unduh jadwal event sebagai PDF"
                 >
                   <Download className="size-4" aria-hidden="true" />
-                  Unduh PDF
+                  Unduh brosur PDF
                 </Button>
               </div>
 
@@ -712,34 +804,68 @@ export function EventsLandingPage({
         </RevealSection>
 
         {/* Filter URL-shareable — preset waktu + kategori (riset Skedda "today/this weekend") */}
-        <RevealSection id="filter" aria-label="Filter jadwal event" className="scroll-mt-28 border-t border-black/5 px-4 py-8  sm:px-6">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter waktu">
-              {([['', 'Semua'], ['hari-ini', 'Hari ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir pekan ini']] as const).map(([value, label]) => (
-                <Button
-                  key={value || 'semua'}
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setParam('waktu', value || null)}
-                  aria-pressed={(waktu || '') === value}
-                  className={`rounded-full px-4 py-1.5 text-xs font-bold transition ui-focus-ring h-auto rounded-full! font-bold! active:translate-y-0! ${
-                    (waktu || '') === value
-                      ? 'border-0 bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]!'
-                      : 'border border-black/10! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
-                  }`}
-                >
-                  {label}
-                </Button>
-              ))}
+        <section id="filter" aria-label="Filter jadwal event" className="sticky top-[calc(4rem+1px)] z-30 border-y border-black/5 bg-[var(--wf-page)]/95 px-4 py-2 backdrop-blur-sm sm:px-6 sm:py-4">
+          <div className="mx-auto flex max-w-7xl flex-col gap-1.5 sm:gap-3">
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+              {/* Baris tunggal: tab tidak membungkus (4 tab butuh ~361px di 390px),
+                  jadi strip tetap pendek dan anchor `scroll-margin-top` 13rem sah. */}
+              <div className="no-scrollbar flex flex-nowrap items-center gap-2 overflow-x-auto" role="group" aria-label="Filter waktu">
+                {([['', 'Semua'], ['hari-ini', 'Hari ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir pekan ini']] as const).map(([value, label]) => (
+                  <Button
+                    key={value || 'semua'}
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setParam('waktu', value || null)}
+                    aria-pressed={(waktu || '') === value}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold transition ui-focus-ring h-auto rounded-full! font-bold! active:translate-y-0! sm:py-1.5 ${
+                      (waktu || '') === value
+                        ? 'border-0 bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]!'
+                        : 'border border-black/10! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
+                    }`}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Kolom cari: menyaring nama, lokasi, dan keterangan acara lewat `?q=`. */}
+              <div className="relative w-full sm:w-72">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]"
+                  aria-hidden="true"
+                />
+                <Input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  aria-label="Cari event"
+                  placeholder="Cari nama lomba, workshop, kajian..."
+                  className="ui-focus-ring h-10! w-full! rounded-lg border border-[var(--wf-rule)]! bg-[var(--wf-board)]! pl-9! pr-8! text-sm! text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus-visible:border-[var(--wf-accent)]! dark:bg-[var(--wf-board)]!"
+                />
+                {searchInput && (
+                  <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={clearSearch}
+                      aria-label="Hapus pencarian"
+                      className="rounded-full! text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink)]!"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
             {categoryOptions.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter kategori">
+              <div className="no-scrollbar flex items-center gap-2 overflow-x-auto" role="group" aria-label="Filter kategori">
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() => setParam('kategori', null)}
                   aria-pressed={!kategori}
-                  className={`rounded-full px-3.5 py-1 text-[11px] md:text-[11px] font-semibold transition ui-focus-ring h-auto gap-0! rounded-full! leading-normal active:translate-y-0! ${
+                  className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1 text-[11px] md:text-[11px] font-semibold transition ui-focus-ring h-auto gap-0! rounded-full! leading-normal active:translate-y-0! ${
                     !kategori
                       ? 'border-0 bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]!'
                       : 'border border-black/10! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
@@ -754,7 +880,7 @@ export function EventsLandingPage({
                     variant="ghost"
                     onClick={() => setParam('kategori', kategori === cat ? null : cat)}
                     aria-pressed={kategori === cat}
-                    className={`rounded-full px-3.5 py-1 text-[11px] md:text-[11px] font-semibold transition ui-focus-ring h-auto gap-0! rounded-full! leading-normal active:translate-y-0! ${
+                    className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1 text-[11px] md:text-[11px] font-semibold transition ui-focus-ring h-auto gap-0! rounded-full! leading-normal active:translate-y-0! ${
                       kategori === cat
                         ? 'border-0 bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]!'
                         : 'border border-black/10! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
@@ -766,10 +892,10 @@ export function EventsLandingPage({
               </div>
             )}
           </div>
-        </RevealSection>
+        </section>
 
         {/* Event rail */}
-        <RevealSection id="featured" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32" refreshKey={`${events.length}:${filteredEvents.length}`}>
+        <RevealSection id="featured" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32" refreshKey={`${events.length}:${filteredEvents.length}`}>
           <div className="mx-auto max-w-7xl">
             {isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -781,33 +907,39 @@ export function EventsLandingPage({
               <div className="rounded-[var(--radius-card-lg)] border border-red-200 bg-[var(--wf-board)]/60 px-6 py-10  ">
                 <EventsErrorState message={error} onRetry={onRetry} />
               </div>
-            ) : isFilterActive ? (
+            ) : isFilterActive || primaryVenue ? (
               <>
+                {/* Satu H2 menjaga kerangka dokumen; venue jadi H3 di bawahnya.
+                    Filter aktif hanya mengganti judul dan aksi kanan — isinya
+                    tetap pengelompokan venue yang sama, bukan grid datar kedua. */}
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl">
-                      {displayFilteredEvents.length} acara ditemukan
-                    </h2>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={resetFilter}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-black/10! bg-[var(--wf-board)] px-4 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! ui-focus-ring h-auto rounded-full! active:translate-y-0! hover:text-[var(--wf-ink-muted)]!"
-                  >
-                    <X className="size-3.5" aria-hidden="true" /> Reset filter
-                  </Button>
+                  <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
+                    {isFilterActive
+                      ? `${displayFilteredEvents.length} acara ditemukan`
+                      : 'Mendatang dan berlangsung'}
+                  </h2>
+                  {isFilterActive ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={resetFilter}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-black/10! bg-[var(--wf-board)] px-4 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! ui-focus-ring h-auto rounded-full! active:translate-y-0! hover:text-[var(--wf-ink-muted)]!"
+                    >
+                      <X className="size-3.5" aria-hidden="true" /> Reset filter
+                    </Button>
+                  ) : (
+                    <p className="text-sm text-[var(--wf-ink-muted)]">
+                      {displayFilteredEvents.length} event
+                    </p>
+                  )}
                 </div>
-                {displayFilteredEvents.length > 0 ? (
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {displayFilteredEvents.map(ev => (
-                      <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
-                    ))}
-                  </div>
-                ) : (
+
+                {isFilterActive && displayFilteredEvents.length === 0 ? (
                   <div className="rounded-[var(--radius-card-lg)] border border-dashed border-[var(--wf-rule)] bg-[var(--wf-board)]/60 px-6 py-10 text-center">
                     <p className="text-sm font-medium text-[var(--wf-ink-muted)]">
-                      Tidak ada acara yang cocok dengan filter ini.
+                      {qParam.trim()
+                        ? `Tidak ada acara yang cocok dengan pencarian "${qParam.trim()}".`
+                        : 'Tidak ada acara yang cocok dengan filter ini.'}
                     </p>
                     <Button
                       type="button"
@@ -818,46 +950,65 @@ export function EventsLandingPage({
                       Tampilkan semua event
                     </Button>
                   </div>
-                )}
-              </>
-            ) : hasMappedAreas ? (
-              <>
-                {/* Location nav chips — skip to section */}
-                <div className="mb-8 flex flex-wrap items-center gap-2" role="group" aria-label="Pilih lokasi">
-                  {areaGroups.map(g => (
-                    <a
-                      key={g.key}
-                      href={`#lokasi-${g.key}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-[var(--wf-board)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
-                    >
-                      <MapPin className="h-3 w-3 text-[var(--brand-tosca)]" aria-hidden="true" />
-                      {g.name}
-                      <span className="ml-0.5 rounded-full bg-[var(--wf-board-2)] px-1.5 py-px text-[10px] font-bold text-[var(--wf-ink-muted)]">
-                        {g.events.length}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-
-                {areaGroups.map(g => (
-                  <div key={g.key} id={`lokasi-${g.key}`} className="mb-12 scroll-mt-28">
-                    <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
-                      <div>
-                        <p className="text-xl font-bold tracking-tight text-[var(--wf-ink)]">
-                          {g.area ? g.name : 'Lokasi lainnya'}
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-[var(--wf-ink-muted)]">
-                          {g.events.length} acara
-                        </p>
+                ) : (
+                  <>
+                    {primaryVenue && (
+                      <div className="mb-12">
+                        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <span
+                              className="mt-2 size-3 shrink-0 rounded-full bg-[var(--wf-accent)]"
+                              aria-hidden="true"
+                            />
+                            <div>
+                              <h3 className="font-display text-2xl font-bold tracking-tight text-[var(--wf-ink)]">
+                                {primaryVenue.area.name}
+                              </h3>
+                              <p className="mt-1 text-sm font-medium text-[var(--wf-ink-muted)]">
+                                {primaryVenue.events.length} acara dijadwalkan
+                                {primaryVenue.area.description ? ` · ${primaryVenue.area.description}` : ''}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="shrink-0 rounded-full bg-[var(--wf-accent)] px-3 py-1 text-xs font-semibold text-[var(--wf-accent-ink)]">
+                            Area Utama
+                          </span>
+                        </div>
+                        <div className="grid gap-4 md:grid-cols-2">
+                          {primaryVenue.events.map(ev => (
+                            <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {g.events.map(ev => (
-                        <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                    )}
+
+                    {others.length > 0 && (
+                      <div>
+                        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <span
+                              className="mt-2 size-3 shrink-0 rounded-full bg-[color-mix(in_srgb,var(--wf-accent)_45%,transparent)]"
+                              aria-hidden="true"
+                            />
+                            <div>
+                              <h3 className="font-display text-xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-2xl">
+                                Lokasi Lainnya di Metmal
+                              </h3>
+                              <p className="mt-1 text-sm font-medium text-[var(--wf-ink-muted)]">
+                                {others.length} agenda di {otherVenueSummary}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                          {others.map(ev => (
+                            <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </>
             ) : railEvents.length > 0 ? (
               <>
@@ -905,7 +1056,7 @@ export function EventsLandingPage({
         </RevealSection>
 
         {/* Calendar */}
-        <RevealSection id="calendar" tabIndex={-1} className="scroll-mt-28 border-t border-black/5 bg-[var(--wf-board)]/50 px-4 py-16 outline-none   sm:px-6 sm:py-24 lg:py-32" refreshKey={events.length}>
+        <RevealSection id="calendar" tabIndex={-1} className="border-t border-black/5 bg-[var(--wf-board)]/50 px-4 py-16 outline-none   sm:px-6 sm:py-24 lg:py-32" refreshKey={events.length}>
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="max-w-2xl">
               <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
@@ -923,7 +1074,7 @@ export function EventsLandingPage({
                 <EventsErrorState message={error} onRetry={onRetry} />
               </div>
             ) : (
-              <CalendarView events={events} holidays={holidays} onDetail={onDetail} variant="public" />
+              <CalendarView events={filteredEvents} holidays={holidays} onDetail={onDetail} variant="public" />
             )}
           </div>
         </RevealSection>
