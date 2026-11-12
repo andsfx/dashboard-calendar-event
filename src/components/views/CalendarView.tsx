@@ -21,14 +21,20 @@ import { Empty, EmptyHeader, EmptyTitle, EmptyMedia, EmptyDescription } from '..
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAY_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 const DAY_FULL = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-const STATUS_ORDER: Record<string, number> = { ongoing: 0, upcoming: 1, past: 2, draft: 3 };
 // Hanya dua status yang bisa muncul di sini: `/events` tidak pernah mengirim
 // event `past` (lihat `liveEvents` di EventsLandingPage), jadi entri "Selesai"
-// sengaja tidak ada. `STATUS_ORDER` tetap lengkap karena dipakai mengurutkan.
+// sengaja tidak ada.
 const STATUS_GROUPS = [
   { key: 'ongoing' as const, label: 'Berlangsung', dot: 'bg-emerald-500' },
   { key: 'upcoming' as const, label: 'Mendatang', dot: 'bg-amber-400' },
 ];
+
+/** Peringkat status diturunkan dari urutan `STATUS_GROUPS`; status yang tidak
+ *  punya grup (tidak pernah tampil di sini) mendapat peringkat paling akhir. */
+function getStatusRank(status: string) {
+  const index = STATUS_GROUPS.findIndex(group => group.key === status);
+  return index === -1 ? STATUS_GROUPS.length : index;
+}
 
 function getTimeSortValue(jam: string) {
   const match = jam?.match(/(\d{1,2})[:.](\d{2})/);
@@ -115,7 +121,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
       return e.dateStr.startsWith(monthStr);
     })
     .sort((a, b) => {
-      const statusCompare = (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);
+      const statusCompare = getStatusRank(a.status) - getStatusRank(b.status);
       if (statusCompare !== 0) return statusCompare;
       const dateCompare = a.dateStr.localeCompare(b.dateStr);
       if (dateCompare !== 0) return dateCompare;
@@ -136,7 +142,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
     const singleDay = getSingleDayEventsForDate(events, selectedDate);
     const multiDay = getMultiDayEventsForDate(events, selectedDate);
     return [...singleDay, ...multiDay].sort((a, b) => {
-      const statusCompare = (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);
+      const statusCompare = getStatusRank(a.status) - getStatusRank(b.status);
       if (statusCompare !== 0) return statusCompare;
       const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
       if (timeCompare !== 0) return timeCompare;
@@ -372,7 +378,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                       const groupEvents = monthEvents.filter(ev => ev.status === group.key && !isMultiDayEvent(ev));
                       if (groupEvents.length === 0) return null;
                       return (
-                        <div key={group.key} className={groupIdx > 0 && monthEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-5 border-t border-[var(--wf-rule)] pt-5 ' : ''}>
+                        <div key={group.key} className={groupIdx > 0 && STATUS_GROUPS.slice(0, groupIdx).some(g => monthEvents.some(ev => ev.status === g.key)) ? 'mt-5 border-t border-[var(--wf-rule)] pt-5 ' : ''}>
                           <div className="mb-3 flex items-center gap-2">
                             <span className={`h-2 w-2 rounded-full ${group.dot}`} />
                             <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">
@@ -624,7 +630,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                     const groupEvents = selectedDayEvents.filter(ev => ev.status === group.key && !isMultiDayEvent(ev));
                     if (groupEvents.length === 0) return null;
                     return (
-                      <div key={group.key} className={groupIdx > 0 && selectedDayEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-4 border-t border-[var(--wf-rule)] pt-4 ' : ''}>
+                      <div key={group.key} className={groupIdx > 0 && STATUS_GROUPS.slice(0, groupIdx).some(g => selectedDayEvents.some(ev => ev.status === g.key)) ? 'mt-4 border-t border-[var(--wf-rule)] pt-4 ' : ''}>
                         <div className="mb-3 flex items-center gap-2">
                           <span className={`h-2 w-2 rounded-full ${group.dot}`} />
                           <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">

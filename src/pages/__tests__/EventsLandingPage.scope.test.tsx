@@ -144,3 +144,21 @@ describe('EventsLandingPage — hanya event yang belum selesai', () => {
     expect(totalValue).toHaveTextContent('0');
   });
 });
+
+describe('EventsLandingPage — urutan grup kalender', () => {
+  it('menampilkan grup Berlangsung sebelum Mendatang', () => {
+    renderPage([
+      ev({ id: 'o1', status: 'ongoing', acara: 'Festival Berlangsung', areaId: 'main' }),
+      ev({ id: 'u1', status: 'upcoming', acara: 'Bazar Mendatang', areaId: 'main', dateStr: dayInThisMonth('20') }),
+    ]);
+
+    const calendar = section('calendar');
+    const ongoingHeading = calendar.getByText(/^Berlangsung \(\d+\)$/);
+    const upcomingHeading = calendar.getByText(/^Mendatang \(\d+\)$/);
+
+    // Urutan grup mengikuti `STATUS_GROUPS`: Berlangsung dulu, lalu Mendatang.
+    expect(
+      ongoingHeading.compareDocumentPosition(upcomingHeading) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+});
