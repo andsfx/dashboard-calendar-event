@@ -341,6 +341,10 @@ import { SkipLink } from './components/ui';
 </SkipLink>
 ```
 
+### Pola `/events` — venue-first, kalender sebagai pelengkap
+
+Halaman `/events` disusun venue-first: Sorotan memecah event per lokasi (area `sortOrder` pertama jadi "Area Utama" berlabel `--wf-accent`, sisanya "Lokasi Lainnya di Metmal" dalam grid 4 kolom), lalu kalender bulanan tampil di bawah sebagai rujukan, bukan navigasi utama. Tiap kartu list tetap membawa chip kategori per-kartu; baris filter kategori tidak ada. Di `lg` kolom matriks kalender sticky di bawah chrome (`4rem+1px` header + strip filter terukur + 8px), di bawah `lg` kolom bertumpuk tanpa sticky.
+
 ---
 
 ## 📊 Dashboard Components

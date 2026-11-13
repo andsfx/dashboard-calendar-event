@@ -162,3 +162,29 @@ describe('EventsLandingPage — urutan grup kalender', () => {
     ).toBeTruthy();
   });
 });
+
+describe('EventsLandingPage — chrome blok Lokasi Lainnya', () => {
+  it('menampilkan badge mingguan non-kontrol dan glif kategori dekoratif di kartu list', () => {
+    const { container } = renderPage([
+      // Area utama: satu-satunya area terpetakan → jadi blok "Area Utama".
+      ev({ id: 'u1', status: 'upcoming', acara: 'Bazar Kuliner', areaId: 'main' }),
+      // Tanpa area → masuk bucket "Lokasi Lainnya di Metmal".
+      ev({
+        id: 'u2', status: 'upcoming', acara: 'Konser Akustik', areaId: null,
+        dateStr: dayInThisMonth('09'), categories: ['Konser'], category: 'Konser',
+      }),
+    ]);
+
+    const badge = screen.getByText('Diperbarui setiap minggu');
+    expect(badge.parentElement).toContainElement(screen.getByText('Lokasi Lainnya di Metmal'));
+    // Pill status, bukan kontrol: tidak ada peran tombol/link dan tidak fokusable.
+    expect(badge.tagName).toBe('SPAN');
+    expect(badge.closest('button, a')).toBeNull();
+    expect(badge).not.toHaveAttribute('tabindex');
+
+    // Glif kategori: satu per kartu, murni dekoratif.
+    const glyphs = container.querySelectorAll('[data-category-glyph] svg');
+    expect(glyphs.length).toBeGreaterThanOrEqual(2);
+    glyphs.forEach(glyph => expect(glyph).toHaveAttribute('aria-hidden', 'true'));
+  });
+});

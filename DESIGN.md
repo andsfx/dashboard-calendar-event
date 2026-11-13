@@ -32,6 +32,10 @@ Public marketing surfaces should feel like a polished community campaign, not a 
 
 Use tosca for structure, focus, links, selected states, primary CTAs, and brand continuity. Pink is secondary only — see rules below. Legacy CSS vars `--brand-violet` / `--brand-orange` alias to tosca/pink (compatibility only; new code uses `--brand-tosca` / `--brand-pink`).
 
+### Palet Stitch — belum diadopsi
+
+`redesign/DESIGN.md` (ekspor Stitch) memakai palet sendiri: `#006769` primary, `#855300` secondary, `#004D4A` teal-dark, `#fdfcff` surface. Palet itu **belum** masuk tokens; komponen tidak boleh memakai hex-nya. Padanan yang berlaku: `#006769`/`#004D4A` → `--wf-accent` (+ `--wf-accent-ink` untuk teks di atasnya), `#855300` → `--wf-action`. `#fdfcff` → `--wf-board`. `redesign/` adalah bahan rujukan struktur, bukan sumber warna.
+
 ### Pink secondary — allow / deny
 
 | Allow | Deny |

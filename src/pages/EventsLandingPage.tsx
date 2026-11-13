@@ -7,18 +7,38 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
   ArrowRight,
+  Baby,
+  Briefcase,
   CalendarDays,
+  Clapperboard,
   Clock,
   Clock3,
+  Cpu,
   Download,
+  Dumbbell,
+  Frame,
+  Hammer,
+  HeartPulse,
   MapPin,
+  Music,
+  Package,
+  Palette,
+  PartyPopper,
+  Presentation,
   Radio,
   RefreshCw,
   Repeat,
   Search,
+  Shirt,
+  Sparkles,
+  Store,
   Timer,
+  Trophy,
+  Users,
+  UtensilsCrossed,
   X,
   Zap,
+  type LucideIcon,
 } from 'lucide-react';
 import { countdownLabel, eventOverlapsWindow, getTodayIsoLocal, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../utils/eventDateTime';
 import { CATEGORY_COLORS, collapseRecurringSeries, isRecurringEvent, recurringScheduleLabel } from '../utils/eventUtils';
@@ -166,6 +186,43 @@ function CountdownCell({ label, value }: { label: string; value: number }) {
         {label}
       </p>
     </div>
+  );
+}
+
+// ─── Ikon kategori kartu list ───
+/** Kunci = nama kategori nyata: `CATEGORY_COLORS` (`utils/eventUtils`) memuat
+ *  daftar lengkapnya, dan `detectCategory` (`utils/api/_shared`) adalah satu-satunya
+ *  produsen nilai lain. Glif ini dekoratif — kartu utuh sudah satu tombol, jadi
+ *  ikon tidak boleh menangkap klik maupun menambah tab stop. */
+const CATEGORY_GLYPHS: Record<string, LucideIcon> = {
+  Bazaar: Store,
+  Festival: PartyPopper,
+  Workshop: Hammer,
+  Kompetisi: Trophy,
+  Fashion: Shirt,
+  Seminar: Presentation,
+  Pameran: Frame,
+  Konser: Music,
+  Sosial: Users,
+  Seni: Palette,
+  Hiburan: Clapperboard,
+  Karir: Briefcase,
+  Produk: Package,
+  Anak: Baby,
+  Kuliner: UtensilsCrossed,
+  Olahraga: Dumbbell,
+  Teknologi: Cpu,
+  Kesehatan: HeartPulse,
+  Umum: Sparkles,
+};
+
+/** Glif kategori di slot kanan-atas kartu list; kategori tak dikenal jatuh ke `Sparkles`. */
+function CategoryGlyph({ category }: { category: string }) {
+  const Icon = CATEGORY_GLYPHS[category] ?? Sparkles;
+  return (
+    <span className="inline-flex shrink-0 items-center text-[var(--wf-ink-muted)]" data-category-glyph="">
+      <Icon className="size-[18px]" aria-hidden="true" />
+    </span>
   );
 }
 
@@ -392,6 +449,11 @@ function EventRailCard({
             {cdLabel}
           </span>
         )}
+        {/* Glif kategori menempati slot kanan-atas seperti `code.html:270,308`.
+            Kartu ini BUKAN overlay-link: seluruh badan kartu sudah satu tombol,
+            jadi tidak ada `.row-link` yang bisa tertabrak — glif cukup ikut baris
+            header (dekoratif, `aria-hidden`, tanpa tab stop). */}
+        <CategoryGlyph category={cat} />
         <ArrowRight
           className="size-4 shrink-0 text-[var(--wf-rule-strong)] transition-transform group-hover:translate-x-1 group-hover:text-[var(--wf-ink-muted)] motion-reduce:transform-none"
           aria-hidden="true"
@@ -971,6 +1033,14 @@ export function EventsLandingPage({
                               </p>
                             </div>
                           </div>
+                          {/* Pengganti strip "Update berkala per minggu" (`code.html:259-261`):
+                              paritas struktur, bukan kontrol — tidak ada tab stop/44px target. */}
+                          <span
+                            data-weekly-update-badge=""
+                            className="shrink-0 rounded-full bg-[var(--wf-accent)] px-3 py-1 text-xs font-semibold text-[var(--wf-accent-ink)]"
+                          >
+                            Diperbarui setiap minggu
+                          </span>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                           {others.map(ev => (

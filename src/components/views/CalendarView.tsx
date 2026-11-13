@@ -165,9 +165,14 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
 
   return (
     <>
+      {/* Dua kolom hanya berdampingan di `lg` (flex-row); di bawah itu kolom
+          bertumpuk, jadi sticky dipasang `lg:` saja. Offset = header sticky
+          `h-16` + border 1px + strip filter (`#filter`, terukur 74px di 1440)
+          + jarak 8px → 4rem+1px+82px. Diukur lewat probe Playwright, bukan
+          salinan `top-44` dari `redesign/code.html:454`. */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
         {/* Calendar grid */}
-        <div className={`${surfaceClass} lg:w-96 lg:shrink-0`}>
+        <div className={`${surfaceClass} lg:sticky lg:top-[calc(4rem+1px+82px)] lg:w-96 lg:shrink-0`}>
         {/* Header */}
         <div className={headerClass}>
           <Button type="button" variant="ghost" size="icon-sm" onClick={prevMonth} aria-label="Bulan sebelumnya" className={headerBtnClass}>
