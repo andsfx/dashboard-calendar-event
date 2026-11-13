@@ -19,7 +19,7 @@ export function NotFoundPage() {
           type="button"
           variant="ghost"
           onClick={() => navigate('/')}
-          className="ui-focus-ring mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-page)]! h-auto border-0 rounded-full! font-bold! active:translate-y-0! hover:text-[var(--wf-accent-ink)]!"
+          className="ui-focus-ring mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! h-auto border-0 rounded-full! font-bold! active:translate-y-0!"
         >
           <ArrowLeft className="size-4" />
           Kembali ke beranda

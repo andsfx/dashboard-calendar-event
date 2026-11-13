@@ -154,7 +154,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                     {item.location && <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" aria-hidden="true" />{item.location}</span>}
                   </p>
                   {item.description && <p className="mt-3 text-sm leading-6 text-[var(--wf-ink-muted)]">{item.description}</p>}
-                  <Link to={`/pameran/${item.id}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]">
+                  <Link to={`/pameran/${item.id}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]">
                     <Handshake className="h-4 w-4" aria-hidden="true" />
                     {item.acceptingApplications ? 'Ajukan kolaborasi' : 'Lihat detail'}
                   </Link>
@@ -293,7 +293,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                       type="submit"
                       variant="ghost"
                       disabled={submitting}
-                      className="h-auto items-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60"
+                      className="h-auto items-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60"
                     >
                       <Handshake className="h-4 w-4" aria-hidden="true" />
                       {submitting ? 'Mengirim…' : 'Kirim pengajuan'}

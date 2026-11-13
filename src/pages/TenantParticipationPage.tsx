@@ -921,7 +921,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                   type="submit"
                   variant="ghost"
                   disabled={submitting || events.length === 0}
-                  className={`${focusRing} inline-flex h-auto items-center gap-2 whitespace-normal! rounded-full! bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! dark:hover:bg-[var(--wf-page)]! dark:hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60`}
+                  className={`${focusRing} inline-flex h-auto items-center gap-2 whitespace-normal! rounded-full! bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60`}
                 >
                   <Send className="size-4" aria-hidden="true" />
                   {submitting ? 'Mengirim…' : 'Kirim pengajuan'}

@@ -493,7 +493,7 @@ export function RegistrationForm() {
         <Button
           type="submit"
           disabled={submitting}
-          className={`inline-flex h-auto items-center justify-center gap-2 whitespace-normal rounded-full bg-[var(--wf-accent)] px-7 py-3.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-page)] disabled:opacity-60 motion-reduce:transition-none active:translate-y-0 ${focusRing} focus-visible:ring-0`}
+          className={`inline-flex h-auto items-center justify-center gap-2 whitespace-normal rounded-full bg-[var(--wf-accent)] px-7 py-3.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-accent-hover)]! disabled:opacity-60 motion-reduce:transition-none active:translate-y-0 ${focusRing} focus-visible:ring-0`}
         >
           <Send className="h-4 w-4" />
           {submitting ? 'Mengirim…' : 'Kirim pendaftaran'}

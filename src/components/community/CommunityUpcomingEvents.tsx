@@ -19,7 +19,7 @@ function EmptyEvents() {
       <p className="mt-2 max-w-xs text-sm text-[var(--wf-ink-muted)]">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
       <a
         href="#contact"
-        className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-page)]"
+        className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]"
       >
         Hubungi kami <ArrowRight className="h-4 w-4" />
       </a>
@@ -200,7 +200,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                   </p>
                 </div>
               )}
-              <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] transition-colors group-hover:bg-[var(--wf-page)]">
+              <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] transition-colors group-hover:bg-[var(--wf-accent-hover)]">
                 Lihat detail event <ArrowRight className="size-4" />
               </span>
             </div>

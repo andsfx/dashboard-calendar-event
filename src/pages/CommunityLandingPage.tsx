@@ -143,7 +143,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, instagramPosts, eve
               </div>
               <Link
                 to="/ajukan-event"
-                className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)] ui-focus-ring"
+                className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)] ui-focus-ring"
               >
                 Ajukan event
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -158,7 +158,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, instagramPosts, eve
           <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--wf-rule)] bg-[var(--wf-board)]/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-lg sm:hidden">
             <Link
               to="/daftar"
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold whitespace-nowrap text-[var(--wf-accent-ink)] shadow-lg hover:bg-[var(--wf-page)]"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold whitespace-nowrap text-[var(--wf-accent-ink)] shadow-lg hover:bg-[var(--wf-accent-hover)]"
             >
               Daftar event
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

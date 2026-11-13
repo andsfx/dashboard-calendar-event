@@ -152,7 +152,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
             <div className="community-hero-in mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-center">
               <Link
                 to="/daftar"
-                className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-8 py-4 text-base font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-page)] active:scale-[0.98] motion-reduce:active:scale-100 ${focusRing}`}
+                className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-8 py-4 text-base font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-accent-hover)] active:scale-[0.98] motion-reduce:active:scale-100 ${focusRing}`}
               >
                 Daftar event
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />

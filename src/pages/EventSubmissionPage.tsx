@@ -187,7 +187,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 type="button"
                 variant="ghost"
                 onClick={handleReset}
-                className="h-auto items-center gap-2 rounded-full bg-[var(--wf-accent)]! px-5 py-2.5 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! ui-focus-ring"
+                className="h-auto items-center gap-2 rounded-full bg-[var(--wf-accent)]! px-5 py-2.5 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! ui-focus-ring"
               >
                 <CalendarPlus className="h-4 w-4" aria-hidden="true" />
                 Ajukan event lain
@@ -401,7 +401,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 type="submit"
                 variant="ghost"
                 disabled={isSubmitting}
-                className="mt-6 h-auto w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60 ui-focus-ring"
+                className="mt-6 h-auto w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60 ui-focus-ring"
               >
                 {isSubmitting ? (
                   <>

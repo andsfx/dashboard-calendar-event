@@ -217,7 +217,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                   <a
                     href="#sponsor-form"
                     onClick={() => setField('eventId', event.id)}
-                    className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-4 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]"
+                    className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-4 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]"
                   >
                     <Handshake className="h-4 w-4" aria-hidden="true" />
                     Saya tertarik mendukung event
@@ -372,7 +372,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                     type="submit"
                     variant="ghost"
                     disabled={submitting}
-                    className="h-auto w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60"
+                    className="h-auto w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60"
                   >
                     {submitting ? (
                       <>

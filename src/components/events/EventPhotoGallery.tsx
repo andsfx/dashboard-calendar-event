@@ -65,7 +65,7 @@ function GalleryErrorState({ message, onRetry }: { message: string; onRetry: () 
         type="button"
         variant="default"
         onClick={onRetry}
-        className="mt-3 h-auto! min-h-11 gap-2 rounded-full border-0 bg-[var(--wf-accent)] px-5 py-2.5 text-xs font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! active:translate-y-0! focus-visible:ring-0 ui-focus-ring"
+        className="mt-3 h-auto! min-h-11 gap-2 rounded-full border-0 bg-[var(--wf-accent)] px-5 py-2.5 text-xs font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]! active:translate-y-0! focus-visible:ring-0 ui-focus-ring"
       >
         <RefreshCw className="size-4" aria-hidden="true" />
         Coba lagi
