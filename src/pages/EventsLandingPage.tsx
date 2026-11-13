@@ -46,7 +46,6 @@ import { resolveEventPoster } from '../utils/eventPoster';
 import { EventPosterBanner } from '../components/events/EventPosterBanner';
 import { Button } from '../components/shadcn/button';
 import { Input } from '../components/shadcn/input';
-import { resolveAreaDisplay } from '../utils/areaGrouping';
 import { usePageMeta } from '../utils/pageMeta';
 import { EventItem, HolidayItem, PhotoAlbum, EventArea, AnnualTheme } from '../types';
 import { renderEventsSchedulePdfResult } from '../utils/eventsSchedulePdf';
@@ -102,6 +101,32 @@ function parseStartTime(jam: string | undefined): string | null {
   const [, h, m] = match;
   return `${String(Number(h)).padStart(2, '0')}:${m}`;
 }
+
+const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'] as const;
+
+/**
+ * `2026-11-20` → `20 Nov 2026`; string kosong bila bukan tanggal ISO.
+ *
+ * Chip kartu harus muat satu baris tanpa terlipat, jadi tanggal panjang
+ * ("20 November 2026") diganti bentuk pendek. Sumbernya `dateStr` (bukan
+ * `tanggal`) supaya formatnya tidak bergantung pada string tersimpan.
+ */
+function shortDateLabel(dateStr: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr);
+  if (!match) return '';
+  const [, year, monthNumber, day] = match;
+  const monthName = SHORT_MONTHS[Number(monthNumber) - 1];
+  if (!year || !monthName || !day) return '';
+  return `${Number(day)} ${monthName} ${year}`;
+}
+
+/**
+ * Satu bahasa chip untuk seluruh baris: ukuran teks, radius, padding, dan
+ * ketebalan identik. Warna tetap berbeda per peran — tint kategori untuk chip
+ * tipe/tanggal, tint status (amber) untuk hitung mundur.
+ */
+const CARD_CHIP =
+  'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-control)] px-2.5 py-1 text-xs font-bold uppercase tracking-wider';
 
 function getCountdown(targetDate: string, now: number, jam?: string) {
   // Target memakai jam mulai event bila terbaca; hitung mundur bersel "Detik"
@@ -373,7 +398,7 @@ function HighlightEventCard({
             type="button"
             variant="ghost"
             onClick={() => onDetail(event)}
-            className="group inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-page)]! ui-focus-ring h-auto border-0 rounded-full! font-bold! active:translate-y-0! hover:text-[var(--wf-accent-ink)]!"
+            className="group inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! ui-focus-ring h-auto border-0 rounded-full! font-bold! active:translate-y-0!"
           >
             Lihat detail event
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
@@ -386,12 +411,10 @@ function HighlightEventCard({
 
 function EventRailCard({
   event,
-  areas,
   albums,
   onDetail,
 }: {
   event: EventItem;
-  areas: EventArea[];
   albums: PhotoAlbum[];
   onDetail: (ev: EventItem) => void;
 }) {
@@ -402,90 +425,123 @@ function EventRailCard({
   const relLabel = !isRecurring && event.status === 'upcoming' ? relativeDayLabel(event.dateStr) : null;
   const cdLabel = !isRecurring && event.status === 'upcoming' && !relLabel ? countdownLabel(event.dateStr, event.jam) : null;
   const posterUrl = resolveEventPoster(event, albums);
+  const shortDate = shortDateLabel(event.dateStr);
+  const dateChipLabel = relLabel ?? (shortDate || event.tanggal);
+  const MediaGlyph = CATEGORY_GLYPHS[cat] ?? Sparkles;
 
+  /**
+   * Akar kartu sengaja `<div>`, bukan `<Button>`: `button` hanya menerima
+   * phrasing content, jadi heading di dalamnya tidak sah dan tidak terbaca
+   * sebagai heading. Satu kontrol tetap ada di dalam `h4` dengan overlay
+   * `after:inset-0` (area klik selebar kartu). Tombol tidak diberi
+   * `position: relative` supaya pseudo-elemennya memakai kartu sebagai
+   * containing block — itu sumber area klik selebar kartu.
+   */
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      onClick={() => onDetail(event)}
+    <div
       data-reveal-item
-      className="group flex min-w-0 flex-col items-start overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-[var(--wf-board)] text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-raised)] ui-focus-ring motion-reduce:hover:translate-y-0 flex! h-auto gap-0! p-0! whitespace-normal! rounded-[var(--radius-card-lg)]! border-[var(--border-subtle)]! hover:bg-[var(--wf-board)]! active:translate-y-0!  "
+      className="group relative flex min-w-0 flex-col items-start overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-[var(--wf-board)] text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-raised)] motion-reduce:hover:translate-y-0"
     >
-      {posterUrl && <EventPosterBanner src={posterUrl} alt={event.acara} />}
-      <div className="flex w-full min-w-0 flex-col items-start gap-4 p-5">
-      <div className="flex w-full items-center justify-between gap-3">
-        <span
-          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider"
-          data-chip-tone=""
-          style={
-            {
-              color: darkenChipText(color),
-              '--chip-tone-dark': lightenChipText(color),
-              backgroundColor: `${color}15`,
-            } as React.CSSProperties
-          }
-        >
-          {isLive ? (
-            <>
-              <Radio className="size-3 animate-pulse motion-reduce:animate-none" aria-hidden="true" />
-              Berlangsung
-            </>
-          ) : isRecurring ? (
-            <>
-              <Repeat className="size-3" aria-hidden="true" />
-              {recurringScheduleLabel(event)}
-            </>
-          ) : (
-            <>
-              <Clock3 className="size-3" aria-hidden="true" />
-              {relLabel ?? event.tanggal}
-              {relLabel && event.tanggal && <span className="sr-only">{event.tanggal}</span>}
-            </>
-          )}
+      {/* Media slot bertinggi tetap: tinggi kartu dan tinggi baris grid tidak
+          lagi bergantung pada ada/tidaknya poster. Placeholder bertint kategori
+          selalu ada di belakang poster, jadi URL poster yang gagal (banner
+          menyembunyikan diri) tidak meninggalkan kotak kosong. */}
+      <div
+        className="relative h-36 w-full shrink-0 overflow-hidden"
+        style={{ backgroundColor: `${color}14` }}
+      >
+        <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+          <MediaGlyph className="size-8 opacity-40" style={{ color: darkenChipText(color) }} />
         </span>
-        {cdLabel && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-            <Timer className="size-3" aria-hidden="true" />
-            {cdLabel}
-          </span>
-        )}
-        {/* Glif kategori menempati slot kanan-atas seperti `code.html:270,308`.
-            Kartu ini BUKAN overlay-link: seluruh badan kartu sudah satu tombol,
-            jadi tidak ada `.row-link` yang bisa tertabrak — glif cukup ikut baris
-            header (dekoratif, `aria-hidden`, tanpa tab stop). */}
-        <CategoryGlyph category={cat} />
-        <ArrowRight
-          className="size-4 shrink-0 text-[var(--wf-rule-strong)] transition-transform group-hover:translate-x-1 group-hover:text-[var(--wf-ink-muted)] motion-reduce:transform-none"
-          aria-hidden="true"
-        />
+        {posterUrl && <EventPosterBanner src={posterUrl} alt="" className="aspect-auto! h-full" />}
       </div>
-      <div className="min-w-0">
-        <h3 className="line-clamp-2 text-lg font-bold leading-tight text-[var(--wf-ink)]">
-          {event.acara}
-        </h3>
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-[var(--wf-ink-muted)]">
-          {isLive && event.tanggal && (
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarDays className="size-3" aria-hidden="true" />
-              {event.tanggal}
-            </span>
-          )}
-          {event.jam && (
-            <span className="inline-flex items-center gap-1.5">
-              <Clock className="size-3" aria-hidden="true" />
-              {event.jam}
-            </span>
-          )}
-          {event.lokasi && (
-            <span className="inline-flex min-w-0 items-center gap-1.5">
-              <MapPin className="size-3 shrink-0" aria-hidden="true" />
-              <span className="line-clamp-1">{resolveAreaDisplay(event.areaId, event.lokasi, areas)}</span>
-            </span>
-          )}
+
+      <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-4 p-5">
+        <div className="flex w-full flex-nowrap items-center gap-2">
+          <span
+            className={CARD_CHIP}
+            data-chip-tone=""
+            style={
+              {
+                color: darkenChipText(color),
+                '--chip-tone-dark': lightenChipText(color),
+                backgroundColor: `${color}15`,
+              } as React.CSSProperties
+            }
+          >
+            {isLive ? (
+              <>
+                <Radio className="size-3 animate-pulse motion-reduce:animate-none" aria-hidden="true" />
+                Berlangsung
+              </>
+            ) : isRecurring ? (
+              <>
+                <Repeat className="size-3" aria-hidden="true" />
+                {recurringScheduleLabel(event)}
+              </>
+            ) : (
+              <>
+                <Clock3 className="size-3" aria-hidden="true" />
+                {dateChipLabel}
+                {relLabel && event.tanggal && <span className="sr-only">{event.tanggal}</span>}
+              </>
+            )}
+          </span>
+          {/* Zona kanan memakai `ml-auto`: glif dan panah selalu menempel kanan
+              walau chip hitung mundur tidak ada (kartu berulang/berlangsung). */}
+          <span className="ml-auto flex shrink-0 items-center gap-2">
+            {cdLabel && (
+              <span className={`${CARD_CHIP} bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300`}>
+                <Timer className="size-3" aria-hidden="true" />
+                {cdLabel}
+              </span>
+            )}
+            <CategoryGlyph category={cat} />
+            <ArrowRight
+              className="size-4 shrink-0 text-[var(--wf-ink-muted)] transition-transform group-hover:translate-x-1 group-hover:text-[var(--wf-ink)] motion-reduce:transform-none"
+              aria-hidden="true"
+            />
+          </span>
+        </div>
+
+        <div className="flex w-full min-w-0 flex-1 flex-col">
+          {/* Kotak judul selalu dua baris (`2lh` = 2× line-height, jadi ikut
+              `text-base`/`sm:text-lg`): kartu berjudul pendek tidak menyusut,
+              sehingga tinggi kartu dan `top` meta tidak bergantung data. */}
+          <h4 className="min-h-[2lh] text-base font-bold leading-tight text-[var(--wf-ink)] sm:text-lg">
+            <button
+              type="button"
+              onClick={() => onDetail(event)}
+              aria-label={event.acara}
+              aria-haspopup="dialog"
+              className="block w-full overflow-visible text-left ui-focus-ring rounded-sm after:absolute after:inset-0 after:content-['']"
+            >
+              {/* Clamp di span, bukan di tombol: `overflow: hidden` milik
+                  `line-clamp` akan memotong overlay `after:inset-0` sehingga
+                  area klik menyusut jadi seukuran judul. */}
+              <span className="line-clamp-2">{event.acara}</span>
+            </button>
+          </h4>
+          {/* Meta = jam saja; lokasi sudah dipindahkan ke judul grup area.
+              Sisa tinggi baris jatuh di antara judul dan meta, bukan di
+              atas/bawah blok isi. */}
+          <div className="mt-auto flex min-h-6 flex-wrap gap-x-4 gap-y-1 pt-2 text-xs font-medium text-[var(--wf-ink-muted)]">
+            {isLive && event.tanggal && (
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays className="size-3" aria-hidden="true" />
+                {event.tanggal}
+              </span>
+            )}
+            {event.jam && (
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="size-3" aria-hidden="true" />
+                {event.jam}
+              </span>
+            )}
+          </div>
         </div>
       </div>
-      </div>
-    </Button>
+    </div>
   );
 }
 
@@ -502,7 +558,7 @@ function EventsErrorState({ message, onRetry }: { message: string; onRetry?: () 
           type="button"
           variant="ghost"
           onClick={onRetry}
-          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-page)]! ui-focus-ring h-auto border-0 rounded-full! font-bold! active:translate-y-0! hover:text-[var(--wf-accent-ink)]!"
+          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! ui-focus-ring h-auto border-0 rounded-full! font-bold! active:translate-y-0!"
         >
           <RefreshCw className="size-4" aria-hidden="true" />
           Coba lagi
@@ -648,18 +704,21 @@ export function EventsLandingPage({
         return events && events.length > 0 ? [{ area, events }] : [];
       });
     const primary = ordered[0] ?? null;
-    const otherAreas = ordered.slice(1).map(group => group.area);
-    const others = [...ordered.slice(1).flatMap(group => group.events), ...unmapped];
-    return { primary, otherAreas, others };
+    // Blok "Lokasi Lainnya" dikelompokkan per area, bukan grid datar: judul
+    // grup menyebut area + jumlah agendanya, sehingga subjudul section cukup
+    // menyebut total area/agenda (tidak ada lagi "+N lainnya" yang tidak
+    // dijelaskan isi grid). Event tanpa area tetap tampil di grup sendiri.
+    const otherGroups = [
+      ...ordered.slice(1).map(group => ({ key: group.area.id, name: group.area.name, events: group.events })),
+      ...(unmapped.length > 0
+        ? [{ key: '__unmapped', name: 'Area belum ditentukan', events: unmapped }]
+        : []),
+    ];
+    const others = otherGroups.flatMap(group => group.events);
+    return { primary, otherGroups, others };
   }, [displayFilteredEvents, areas]);
 
-  const { primary: primaryVenue, others, otherAreas: otherVenueAreas } = venueSections;
-  // Subjudul "Lokasi Lainnya": maksimal tiga nama lokasi, sisanya diringkas.
-  const shownVenueNames = otherVenueAreas.slice(0, 3).map(area => area.name);
-  const hiddenVenueCount = otherVenueAreas.length - shownVenueNames.length;
-  const otherVenueSummary = shownVenueNames.length > 0
-    ? `${shownVenueNames.join(', ')}${hiddenVenueCount > 0 ? ` +${hiddenVenueCount} lainnya` : ''}`
-    : 'lokasi lain';
+  const { primary: primaryVenue, others, otherGroups: otherVenueGroups } = venueSections;
 
   // Filter aktif hanya bila preset waktu atau kata kunci pencarian terisi.
   const isFilterActive = Boolean(waktu || qParam.trim());
@@ -932,9 +991,9 @@ export function EventsLandingPage({
         <RevealSection id="featured" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32" refreshKey={`${liveEvents.length}:${filteredEvents.length}`}>
           <div className="mx-auto max-w-7xl">
             {isLoading ? (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {[0, 1, 2].map(i => (
-                  <div key={i} className="h-36 animate-pulse rounded-[var(--radius-card-lg)] border border-[var(--wf-rule)] bg-[var(--wf-rule)]" />
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className="h-36 animate-pulse rounded-[var(--radius-campaign-card)] border border-[var(--wf-rule)] bg-[var(--wf-rule)]" />
                 ))}
               </div>
             ) : error ? (
@@ -943,7 +1002,8 @@ export function EventsLandingPage({
               </div>
             ) : isFilterActive || primaryVenue ? (
               <>
-                {/* Satu H2 menjaga kerangka dokumen; venue jadi H3 di bawahnya.
+                {/* Satu H2 menjaga kerangka dokumen; venue jadi H3 di bawahnya
+                    dan judul kartu H4 — tiga level, tiga tag berbeda.
                     Filter aktif hanya mengganti judul dan aksi kanan — isinya
                     tetap pengelompokan venue yang sama, bukan grid datar kedua. */}
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
@@ -1008,9 +1068,9 @@ export function EventsLandingPage({
                             Area Utama
                           </span>
                         </div>
-                        <div className="grid gap-4 md:grid-cols-2">
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                           {primaryVenue.events.map(ev => (
-                            <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
+                            <EventRailCard key={ev.id} event={ev} albums={albums} onDetail={onDetail} />
                           ))}
                         </div>
                       </div>
@@ -1018,18 +1078,22 @@ export function EventsLandingPage({
 
                     {others.length > 0 && (
                       <div>
-                        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                           <div className="flex items-start gap-3">
                             <span
                               className="mt-2 size-3 shrink-0 rounded-full bg-[color-mix(in_srgb,var(--wf-accent)_45%,transparent)]"
                               aria-hidden="true"
                             />
                             <div>
-                              <h3 className="font-display text-xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-2xl">
+                              {/* Label blok, bukan heading: level heading di sini
+                                  milik area (h3) lalu kartu (h4). Label yang ikut
+                                  jadi heading akan membuat dua level berbeda
+                                  memakai tag yang sama. */}
+                              <p className="font-display text-xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-2xl">
                                 Lokasi Lainnya di Metmal
-                              </h3>
+                              </p>
                               <p className="mt-1 text-sm font-medium text-[var(--wf-ink-muted)]">
-                                {others.length} agenda di {otherVenueSummary}
+                                {others.length} agenda di {otherVenueGroups.length} area
                               </p>
                             </div>
                           </div>
@@ -1042,9 +1106,21 @@ export function EventsLandingPage({
                             Diperbarui setiap minggu
                           </span>
                         </div>
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                          {others.map(ev => (
-                            <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
+                        <div className="space-y-10">
+                          {otherVenueGroups.map(group => (
+                            <div key={group.key}>
+                              <h3 className="font-display flex flex-wrap items-baseline gap-x-3 text-xl font-bold tracking-tight text-[var(--wf-ink)]">
+                                <span>{group.name}</span>
+                                <span className="text-sm font-medium text-[var(--wf-ink-muted)]">
+                                  {group.events.length} agenda
+                                </span>
+                              </h3>
+                              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {group.events.map(ev => (
+                                  <EventRailCard key={ev.id} event={ev} albums={albums} onDetail={onDetail} />
+                                ))}
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -1064,9 +1140,9 @@ export function EventsLandingPage({
                     {railRest.length} event
                   </p>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {railEvents.map(ev => (
-                    <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
+                    <EventRailCard key={ev.id} event={ev} albums={albums} onDetail={onDetail} />
                   ))}
                 </div>
                 {railOverflow > 0 && (
@@ -1132,7 +1208,7 @@ export function EventsLandingPage({
             </div>
             <Link
               to="/daftar"
-              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-7 py-3.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-page)] ui-focus-ring"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-7 py-3.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-accent-hover)] ui-focus-ring"
             >
               Daftar event
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

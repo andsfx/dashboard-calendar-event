@@ -1,5 +1,6 @@
 import type { EventItem, DraftEventItem } from '../../types';
 import { getStatus } from '../eventUtils';
+import { normalizeEventInput, resolveJam } from '../eventInput';
 import { apiPost, ApiError } from '../../lib/rest';
 
 /** Base admin endpoint REST (VPS). Tiap aksi: POST {base}/admin/{action}. */
@@ -73,15 +74,18 @@ export interface DbEvent {
 
 export function dbEventToEventItem(row: DbEvent, index: number): EventItem {
   const categories = normalizeCategories(row.categories, row.category || detectCategory(row.acara));
+  // `jam` historis bisa berisi placeholder ("–") atau format campur ("13.00 WIB").
+  // Normalisasi sekali di sini supaya kartu dan getStatus memakai nilai yang sama.
+  const jam = resolveJam(row.jam);
   return {
     id: row.id, rowIndex: index,
     tanggal: row.tanggal, dateStr: row.date_str, dateEnd: row.date_end || undefined,
-    day: row.day, jam: row.jam || '',
+    day: row.day, jam,
     acara: row.acara, lokasi: row.lokasi || '', areaId: row.area_id ?? null, eo: row.eo || '', pic: row.pic || '',
     phone: row.phone || '', keterangan: row.keterangan || '', month: row.month,
     status: row.status === 'draft'
       ? 'draft'
-      : getStatus(row.date_str, row.jam || '', row.date_end || undefined,
+      : getStatus(row.date_str, jam, row.date_end || undefined,
           Array.isArray(row.day_time_slots) ? row.day_time_slots as EventItem['dayTimeSlots'] : undefined),
     category: categories[0] || detectCategory(row.acara),
     categories,
@@ -101,12 +105,16 @@ export function dbEventToEventItem(row: DbEvent, index: number): EventItem {
 }
 
 export function eventItemToDbRow(ev: Partial<EventItem>): Record<string, unknown> {
+  // Kontrak tulis (audit A-10/A-11): `jam` tak-terparse tidak pernah dikirim ke DB
+  // dan `day` selalu turunan `dateStr` bila tanggalnya ada. Ditegakkan di mapper
+  // supaya create/update/batch event memakai aturan yang sama.
+  const normalized = normalizeEventInput({ jam: ev.jam, dateStr: ev.dateStr, day: ev.day });
   const row: Record<string, unknown> = {};
   if (ev.dateStr !== undefined) row.date_str = ev.dateStr;
   if (ev.dateEnd !== undefined) row.date_end = ev.dateEnd || null;
-  if (ev.day !== undefined) row.day = ev.day;
+  if (ev.day !== undefined) row.day = normalized.day;
   if (ev.tanggal !== undefined) row.tanggal = ev.tanggal;
-  if (ev.jam !== undefined) row.jam = ev.jam;
+  if (ev.jam !== undefined) row.jam = normalized.jam ?? '';
   if (ev.acara !== undefined) row.acara = ev.acara;
   if (ev.areaId !== undefined) row.area_id = ev.areaId || null;
   if (ev.lokasi !== undefined) row.lokasi = ev.lokasi;
@@ -156,7 +164,7 @@ export function dbDraftToDraftItem(row: DbDraft, index: number): DraftEventItem 
   return {
     id: row.id, rowIndex: index,
     tanggal: row.tanggal, dateStr: row.date_str, dateEnd: row.date_end || undefined,
-    day: row.day, jam: row.jam || '',
+    day: row.day, jam: resolveJam(row.jam),
     acara: row.acara, lokasi: row.lokasi || '', areaId: row.area_id ?? null, eo: row.eo || '', pic: row.pic || '',
     phone: row.phone || '', keterangan: row.keterangan || '',
     internalNote: row.internal_note || '', month: row.month,
@@ -188,12 +196,14 @@ export function dbDraftToDraftItem(row: DbDraft, index: number): DraftEventItem 
  * Pemetaan BACA (`dbDraftToDraftItem`) tetap membawa keempatnya.
  */
 export function draftItemToDbRow(draft: Partial<DraftEventItem>): Record<string, unknown> {
+  // Kontrak tulis (audit A-10/A-11) — sama seperti eventItemToDbRow.
+  const normalized = normalizeEventInput({ jam: draft.jam, dateStr: draft.dateStr, day: draft.day });
   const row: Record<string, unknown> = {};
   if (draft.dateStr !== undefined) row.date_str = draft.dateStr;
   if (draft.dateEnd !== undefined) row.date_end = draft.dateEnd || null;
-  if (draft.day !== undefined) row.day = draft.day;
+  if (draft.day !== undefined) row.day = normalized.day;
   if (draft.tanggal !== undefined) row.tanggal = draft.tanggal;
-  if (draft.jam !== undefined) row.jam = draft.jam;
+  if (draft.jam !== undefined) row.jam = normalized.jam ?? '';
   if (draft.acara !== undefined) row.acara = draft.acara;
   if (draft.lokasi !== undefined) row.lokasi = draft.lokasi;
   if (draft.eo !== undefined) row.eo = draft.eo;

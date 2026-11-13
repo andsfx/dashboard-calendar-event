@@ -231,8 +231,8 @@ describe('eventUtils', () => {
       expect(result.map(e => e.id)).toEqual(['s0', 'a1', 's1'])
     })
 
-    it('recurringScheduleLabel merangkai nama hari dari event.day', () => {
-      expect(recurringScheduleLabel(ev({ day: 'Selasa' }))).toBe('Setiap hari Selasa')
+    it('recurringScheduleLabel memakai event.day bila dateStr tidak ada', () => {
+      expect(recurringScheduleLabel(ev({ day: 'Selasa', dateStr: '' }))).toBe('Setiap hari Selasa')
     })
 
     it('recurringScheduleLabel jatuh ke dateStr bila day kosong', () => {

@@ -34,6 +34,12 @@ function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
 
+/**
+ * Parse rentang jam dua sisi ("10:00 - 12:00"; titik dinormalkan jadi titik dua).
+ * Kontrak ini SENGAJA hanya menerima rentang: pemakai seperti `calendarLinks`
+ * memutuskan all-day vs berdurasi berdasarkan hasilnya, jadi jam tunggal tidak
+ * boleh menghasilkan rentang palsu. Untuk jam mulai saja, pakai `parseStartTime`.
+ */
 export function parseTimeRange(jam: string): TimeRange | null {
   const normalized = jam.trim().replace(/\./g, ':');
   const match = /^([01]?\d|2[0-3]):([0-5]\d)\s*-\s*([01]?\d|2[0-3]):([0-5]\d)$/.exec(normalized);
@@ -44,6 +50,24 @@ export function parseTimeRange(jam: string): TimeRange | null {
     endHour: Number(match[3]),
     endMin: Number(match[4]),
   };
+}
+
+export interface StartTime {
+  startHour: number;
+  startMin: number;
+}
+
+const START_TIME_RE = /^([01]?\d|2[0-3])[:.]([0-5]\d)(?!\d)/;
+
+/**
+ * Ambil jam mulai dari nilai yang mungkin hanya berisi satu jam ("13:00",
+ * "13.00 WIB") atau jam mulai di awal teks ("11.00 WIB - selesai").
+ * Hanya untuk titik mulai — durasi tetap milik `parseTimeRange`.
+ */
+export function parseStartTime(jam: string): StartTime | null {
+  const match = START_TIME_RE.exec(jam.trim());
+  if (!match) return null;
+  return { startHour: Number(match[1]), startMin: Number(match[2]) };
 }
 
 /** Thin wrapper — canonical logic lives in eventUtils.getStatus (SPEC §3.3). */
@@ -94,7 +118,9 @@ export function relativeDayLabel(dateStr: string, now = new Date()): string | nu
 export function countdownLabel(dateStr: string, jam: string, now = new Date()): string | null {
   const start = parseIsoDateLocal(dateStr);
   if (!start) return null;
-  const range = parseTimeRange(jam);
+  // Rentang dua sisi → jam mulai persis; jam tunggal ("13:00", "13.00 WIB")
+  // tetap memberi countdown berbasis jam, bukan selisih hari kalender.
+  const range = parseTimeRange(jam) ?? parseStartTime(jam);
   if (!range) {
     // Jam tak-terparse: hitung selisih hari kalender saja (hindari "x jam lagi" palsu).
     const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();

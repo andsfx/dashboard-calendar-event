@@ -431,15 +431,12 @@ export function collapseRecurringSeries(events: EventItem[]): EventItem[] {
 
 /**
  * Label jadwal untuk kartu rangkaian reguler, mis. "Setiap hari Selasa".
- * Nama hari diambil dari `day` (kolom tersimpan), lalu jatuh ke `dateStr`.
+ * Nama hari diturunkan dari `dateStr` lebih dulu; `day` tersimpan hanya fallback
+ * karena bisa basi saat jadwal seri dipindah (audit A-11).
  */
 export function recurringScheduleLabel(event: EventItem): string {
-  const dayName =
-    event.day ||
-    (() => {
-      const d = parseDateStrLocal(event.dateStr);
-      return d ? DAY_NAMES[d.getDay()] : '';
-    })();
+  const derived = parseDateStrLocal(event.dateStr);
+  const dayName = derived ? DAY_NAMES[derived.getDay()] : event.day;
   return dayName ? `Setiap hari ${dayName}` : 'Event reguler';
 }
 

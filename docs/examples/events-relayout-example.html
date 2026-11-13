@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>Jadwal event: contoh relayout /events (pratinjau konsep)</title>
+<style>
+  /* ─── Pratinjau konsep: token diturunkan dari DESIGN.md / dashboard-wayfinding.css ─── */
+  :root {
+    --page: #f8f7f0; --board: #fdfcf6; --board-2: #f2f0e6;
+    --rule: rgba(22,33,27,.14); --rule-strong: rgba(22,33,27,.3);
+    --ink: #16211b; --ink-muted: #58645a;
+    --accent: #00706e; --accent-ink: #ffffff; --accent-soft: #e6f7f6;
+    --live: #046a4e; --action: #9a4a06;
+    --r-card: 1.5rem; --r-control: .75rem;
+    --shadow-soft: 0 1px 3px rgba(22,33,27,.06);
+    --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+    --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #0e1612; --board: #16211b; --board-2: #121a15;
+      --rule: rgba(255,255,255,.14); --rule-strong: rgba(255,255,255,.3);
+      --ink: #eef2ea; --ink-muted: #a9b4a5;
+      --accent: #33bfbc; --accent-ink: #06120f; --accent-soft: rgba(51,191,188,.14);
+      --live: #34d399; --action: #fbbf24;
+      --shadow-soft: 0 1px 3px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--page); color: var(--ink); line-height: 1.6; }
+  /* ─── Header publik (disarikan dari PublicSiteHeader) ─── */
+  .site-header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--page) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
+  .header-inner { max-width: 80rem; margin: 0 auto; padding: 0 1rem; height: 4rem; display: flex; align-items: center; gap: 1rem; }
+  .logo { width: 2.25rem; height: 2.25rem; border-radius: .6rem; background: var(--accent); display: grid; place-items: center; color: var(--accent-ink); font-weight: 800; font-family: var(--font-display); }
+  .nav-links { display: flex; gap: .25rem; margin-left: auto; }
+  .nav-burger { display: none; }
+  @media (max-width: 63.999rem) {
+    .nav-links { display: none; }
+    .nav-burger { display: inline-flex; margin-left: auto; }
+  }
+  .nav-links a { text-decoration: none; color: var(--ink-muted); font-size: .8125rem; font-weight: 500; padding: .5rem .75rem; border-radius: 999px; min-height: 2.75rem; display: inline-flex; align-items: center; }
+  .nav-links a.active { color: var(--accent); }
+  .theme-toggle { width: 2.75rem; height: 2.75rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--board); color: var(--ink-muted); font-size: 1rem; }
+  /* ─── Hero (Poin 5: diringankan) ─── */
+  .hero { max-width: 80rem; margin: 0 auto; padding: 3rem 1rem 1.5rem; display: grid; gap: 2rem; grid-template-columns: 1fr; }
+  @media (min-width: 64rem) { .hero { grid-template-columns: 1.05fr .95fr; align-items: center; } }
+  .eyebrow { font-size: .6875rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.08; letter-spacing: -.02em; margin-top: .75rem; }
+  .hero p.sub { margin-top: 1rem; color: var(--ink-muted); max-width: 28rem; }
+  .hero-stats { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 2rem; }
+  .hero-stats .stat { }
+  .hero-stats .stat b { font-family: var(--font-display); font-size: 1.5rem; font-variant-numeric: tabular-nums; display: block; }
+  .hero-stats .stat span { font-size: .75rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .1em; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+  .btn { min-height: 2.75rem; padding: .625rem 1.25rem; border-radius: 999px; border: 1px solid var(--rule); font: 600 .875rem var(--font-body); text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; color: var(--ink-muted); background: var(--board); cursor: pointer; transition: background .2s, transform .15s; }
+  .btn:hover { background: var(--board-2); }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  .btn-primary:hover { background: var(--accent); filter: brightness(.94); }
+  .countdown-line { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; padding: 0 1rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--board); font-weight: 600; font-size: .875rem; }
+  .hero-card { border-radius: 2rem; border: 1px solid var(--rule); background: var(--board); overflow: hidden; box-shadow: var(--shadow-soft); }
+  .poster-placeholder { width: 100%; aspect-ratio: 4/3; display: grid; place-items: center; background: var(--board-2); border-bottom: 1px solid var(--rule); color: var(--ink-muted); font-size: .8125rem; letter-spacing: .1em; }
+  .sample-note { font-size: .6875rem; color: var(--ink-muted); opacity: .8; margin-top: .5rem; }
+  .hero-card .body { padding: 1.5rem; }
+  .hero-card .status-chip { display: inline-flex; align-items: center; gap: .375rem; padding: .25rem .75rem; border-radius: 999px; background: color-mix(in srgb, var(--live) 12%, transparent); color: var(--live); font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  .dot { width: .5rem; height: .5rem; border-radius: 999px; background: currentColor; }
+  .hero-card h2 { font-family: var(--font-display); font-size: 1.5rem; margin-top: .75rem; line-height: 1.15; }
+  .hero-card .meta { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+  .meta-chip { display: inline-flex; align-items: center; gap: .375rem; border: 1px solid var(--rule); border-radius: 999px; padding: .375rem .875rem; font-size: .875rem; font-weight: 600; color: var(--ink-muted); }
+  .hero-card .cta { margin-top: 1.25rem; }
+  /* ─── Strip filter (Poin 3) ─── */
+  .filter-strip { position: sticky; top: 4rem; z-index: 40; background: var(--page); border-bottom: 1px solid var(--rule); }
+  .filter-inner { max-width: 80rem; margin: 0 auto; padding: .75rem 1rem; display: flex; gap: .5rem; overflow-x: auto; scrollbar-width: thin; }
+  .chip { flex-shrink: 0; min-height: 2.75rem; padding: 0 1rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--board); color: var(--ink-muted); font: 600 .875rem var(--font-body); cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  /* ─── Mode switch + konten (Poin 1) ─── */
+  .content { max-width: 80rem; margin: 0 auto; padding: 2rem 1rem 4rem; }
+  .mode-switch { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; background: var(--board); padding: .25rem; gap: .25rem; }
+  .mode-switch button { min-height: 2.75rem; padding: 0 1.25rem; border: 0; border-radius: 999px; background: transparent; color: var(--ink-muted); font: 600 .875rem var(--font-body); cursor: pointer; }
+  .mode-switch button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
+  .mode-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .mode-head h2 { font-family: var(--font-display); font-size: 1.75rem; letter-spacing: -.01em; }
+  /* Agenda: baris penuh per event (Poin 2) */
+  .week-group { margin-bottom: 2.5rem; }
+  .week-group > h3 { font-size: .8125rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-muted); margin-bottom: .75rem; padding-bottom: .5rem; border-bottom: 1px solid var(--rule); }
+  .event-row { position: relative; display: grid; grid-template-columns: 5rem 1fr; gap: 1.25rem; padding: 1.25rem 0; border-bottom: 1px solid var(--rule); align-items: start; }
+  .row-link { position: absolute; inset: 0; border-radius: var(--r-card); }
+  .event-row:hover { background: color-mix(in srgb, var(--board-2) 60%, transparent); }
+  .event-row:last-child { border-bottom: 0; }
+  .event-row.live { background: var(--board-2); margin: 0 -1rem; padding-left: 1rem; padding-right: 1rem; border-radius: var(--r-card); border-bottom-color: transparent; }
+  .date-col { text-align: left; }
+  .date-col .day { font-family: var(--font-display); font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+  .date-col .month { font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-muted); }
+  .event-info { min-width: 0; }
+  .event-info h4 { font-size: 1.0625rem; font-weight: 700; line-height: 1.3; }
+  .event-info h4 a { color: var(--ink); text-decoration: none; }
+  .event-info h4 a:hover { color: var(--accent); }
+  .event-info .meta { display: flex; flex-wrap: wrap; gap: .375rem 1rem; margin-top: .375rem; font-size: .8125rem; color: var(--ink-muted); }
+  .event-info .cats { display: flex; gap: .375rem; margin-top: .5rem; flex-wrap: wrap; }
+  .cat-badge { font-size: .75rem; font-weight: 500; padding: .125rem .5rem; border-radius: .375rem; }
+  .live-tag { display: inline-flex; align-items: center; gap: .375rem; font-weight: 700; color: var(--live); }
+  /* Kalender (mode kedua): ringkas */
+  .calendar { border: 1px solid var(--rule); border-radius: var(--r-card); background: var(--board); overflow: hidden; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--rule); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--rule); }
+  .cal-cell { background: var(--board); min-height: 4.5rem; padding: .375rem; font-size: .75rem; color: var(--ink-muted); }
+  .cal-cell.has-event { background: color-mix(in srgb, var(--accent-soft) 55%, var(--board)); }
+  .cal-cell .num { font-weight: 700; color: var(--ink); }
+  /* Kosong / galat / muat (Poin 4): satu komponen state */
+  .state-box { border: 1px dashed var(--rule-strong); border-radius: var(--r-card); background: var(--board); padding: 3rem 1.5rem; text-align: center; color: var(--ink-muted); }
+  .state-box b { color: var(--ink); }
+  /* Footer */
+  .site-footer { border-top: 1px solid var(--rule); }
+  .footer-inner { max-width: 80rem; margin: 0 auto; padding: 2.5rem 1rem; display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; align-items: center; }
+  .footer-inner a { color: var(--ink-muted); text-decoration: none; font-size: .875rem; display: inline-flex; align-items: center; min-height: 2.75rem; }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 1.25rem; }
+  /* Skip link */
+  .skip { position: absolute; left: -999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .skip:focus { position: fixed; left: 1rem; top: 1rem; width: auto; height: auto; background: var(--accent); color: var(--accent-ink); padding: .625rem 1rem; border-radius: .5rem; z-index: 200; }
+</style>
+</head>
+<body>
+<a class="skip" href="#daftar-event">Langsung ke daftar event</a>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo" aria-hidden="true">M</div>
+    <nav class="nav-links" aria-label="Navigasi utama">
+      <a href="#" class="active" aria-current="page">Jadwal event</a>
+      <a href="#">Galeri</a>
+      <a href="#">Berita</a>
+      <a href="#">Pameran</a>
+      <a href="#">Tenant</a>
+    </nav>
+    <button class="btn nav-burger">Menu</button>
+    <button class="theme-toggle" aria-label="Mode gelap">◐</button>
+  </div>
+</header>
+
+<main id="konten-utama">
+  <!-- ─── Hero ─── -->
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Metropolitan Mall Bekasi</p>
+      <h1>Jadwal event</h1>
+      <p class="sub">Event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi, dirangkum per pekan.</p>
+      <div class="hero-stats">
+        <div class="stat"><b>24</b><span>Total event</span></div>
+        <div class="stat"><b>2</b><span>Berlangsung</span></div>
+        <div class="stat"><b>22</b><span>Mendatang</span></div>
+      </div>
+      <p class="sample-note">[DATA CONTOH] angka tidak diambil dari produksi</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#daftar-event">Lihat jadwal</a>
+        <a class="btn" href="#">Unduh PDF</a>
+      </div>
+    </div>
+    <article class="hero-card">
+      <div class="poster-placeholder" data-event-poster role="img" aria-label="Slot poster contoh, bukan gambar asli">[POSTER CONTOH]</div>
+      <div class="body">
+        <span class="status-chip"><span class="dot"></span> Berlangsung</span>
+        <h2>Pasar Rakyat Akhir Pekan</h2>
+        <div class="meta">
+          <span class="meta-chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> 15–17 Nov</span>
+          <span class="meta-chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 10.00–21.00</span>
+          <span class="meta-chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> Atrium</span>
+        </div>
+        <div class="cta"><a class="btn btn-primary" href="#">Lihat detail event</a></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ─── Strip filter lengket ─── -->
+  <div class="filter-strip">
+    <div class="filter-inner" role="group" aria-label="Filter waktu dan kategori">
+      <button class="chip" aria-pressed="true">Semua</button>
+      <button class="chip" aria-pressed="false">Hari ini</button>
+      <button class="chip" aria-pressed="false">Besok</button>
+      <button class="chip" aria-pressed="false">Akhir pekan ini</button>
+      <button class="chip" aria-pressed="false">Semua kategori</button>
+      <button class="chip" aria-pressed="false">Bazaar</button>
+      <button class="chip" aria-pressed="false">Workshop</button>
+      <button class="chip" aria-pressed="false">Konser</button>
+      <button class="chip" aria-pressed="false">Seminar</button>
+    </div>
+  </div>
+
+  <!-- ─── Konten: Daftar | Kalender ─── -->
+  <div class="content" id="daftar-event">
+    <div class="mode-head">
+      <h2>Agenda</h2>
+      <div class="mode-switch" role="tablist" aria-label="Mode tampilan">
+        <button id="tab-daftar" role="tab" aria-selected="true" aria-controls="featured">Daftar</button>
+        <button id="tab-kalender" role="tab" aria-selected="false" aria-controls="kalender">Kalender</button>
+      </div>
+    </div>
+
+    <!-- Mode Daftar (id="featured" dipertahankan sebagai anchor) -->
+    <section id="featured" role="tabpanel" aria-labelledby="tab-daftar" aria-label="Daftar event">
+      <div class="week-group">
+        <h3>Minggu ini</h3>
+        <article class="event-row live">
+          <a class="row-link" href="#" aria-label="Pasar Rakyat Akhir Pekan: lihat detail"></a>
+          <div class="date-col"><div class="day">15</div><div class="month">Nov</div></div>
+          <div class="event-info">
+            <span class="live-tag"><span class="dot"></span> Berlangsung</span>
+            <h4>Pasar Rakyat Akhir Pekan</h4>
+            <div class="meta"><span>Sab–Sen, 15–17 Nov</span><span>10.00–21.00</span><span>Atrium</span></div>
+            <div class="cats"><span class="cat-badge" style="background:#e6f7f6;color:#00554c">Bazaar</span><span class="cat-badge" style="background:#fce7d4;color:#893f0c">Kuliner</span></div>
+          </div>
+        </article>
+        <article class="event-row">
+          <a class="row-link" href="#" aria-label="Workshop Merangkai Bunga: lihat detail"></a>
+          <div class="date-col"><div class="day">16</div><div class="month">Nov</div></div>
+          <div class="event-info">
+            <h4>Workshop Merangkai Bunga</h4>
+            <div class="meta"><span>Sabtu, 16 Nov</span><span>10.00–12.00</span><span>Ruang Komunitas</span></div>
+            <div class="cats"><span class="cat-badge" style="background:#d8f2f1;color:#036475">Workshop</span></div>
+          </div>
+        </article>
+      </div>
+      <div class="week-group">
+        <h3>Pekan depan</h3>
+        <article class="event-row">
+          <a class="row-link" href="#" aria-label="Konser Musik Akustik: lihat detail"></a>
+          <div class="date-col"><div class="day">22</div><div class="month">Nov</div></div>
+          <div class="event-info">
+            <h4>Konser Musik Akustik</h4>
+            <div class="meta"><span>Jumat, 22 Nov</span><span>19.00–21.30</span><span>Panggung Utama</span></div>
+            <div class="cats"><span class="cat-badge" style="background:#fae1e8;color:#822854">Konser</span></div>
+          </div>
+        </article>
+        <article class="event-row">
+          <a class="row-link" href="#" aria-label="Seminar Keuangan Keluarga: lihat detail"></a>
+          <div class="date-col"><div class="day">23</div><div class="month">Nov</div></div>
+          <div class="event-info">
+            <h4>Seminar Keuangan Keluarga</h4>
+            <div class="meta"><span>Sabtu, 23 Nov</span><span>09.00–12.00</span><span>Function Hall</span></div>
+            <div class="cats"><span class="cat-badge" style="background:#e0eaf6;color:#204887">Seminar</span></div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Satu komponen state (contoh: kosong) -->
+      <div class="state-box" hidden>
+        <b>Tidak ada acara yang cocok dengan filter ini.</b><br>
+        Coba ganti filter waktu atau kategori.
+      </div>
+    </section>
+
+    <!-- Mode Kalender (tersembunyi, isi ringkas) -->
+    <section id="kalender" role="tabpanel" aria-labelledby="tab-kalender" class="calendar" hidden>
+      <div class="cal-head">
+        <button class="btn">‹ Bulan sebelumnya</button>
+        <strong>November 2026</strong>
+        <button class="btn">Bulan berikutnya ›</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-cell"><span class="num">1</span></div>
+        <div class="cal-cell"><span class="num">2</span></div>
+        <div class="cal-cell"><span class="num">3</span></div>
+        <div class="cal-cell"><span class="num">4</span></div>
+        <div class="cal-cell"><span class="num">5</span></div>
+        <div class="cal-cell"><span class="num">6</span></div>
+        <div class="cal-cell"><span class="num">7</span></div>
+        <div class="cal-cell"><span class="num">8</span></div>
+        <div class="cal-cell has-event"><span class="num">9</span></div>
+        <div class="cal-cell"><span class="num">10</span></div>
+        <div class="cal-cell"><span class="num">11</span></div>
+        <div class="cal-cell"><span class="num">12</span></div>
+        <div class="cal-cell"><span class="num">13</span></div>
+        <div class="cal-cell"><span class="num">14</span></div>
+        <div class="cal-cell has-event"><span class="num">15</span></div>
+        <div class="cal-cell has-event"><span class="num">16</span></div>
+        <div class="cal-cell has-event"><span class="num">17</span></div>
+        <div class="cal-cell"><span class="num">18</span></div>
+        <div class="cal-cell"><span class="num">19</span></div>
+        <div class="cal-cell"><span class="num">20</span></div>
+        <div class="cal-cell"><span class="num">21</span></div>
+        <div class="cal-cell has-event"><span class="num">22</span></div>
+        <div class="cal-cell has-event"><span class="num">23</span></div>
+        <div class="cal-cell"><span class="num">24</span></div>
+        <div class="cal-cell"><span class="num">25</span></div>
+        <div class="cal-cell"><span class="num">26</span></div>
+        <div class="cal-cell"><span class="num">27</span></div>
+        <div class="cal-cell"><span class="num">28</span></div>
+        <div class="cal-cell"><span class="num">29</span></div>
+        <div class="cal-cell"><span class="num">30</span></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div><strong>Metropolitan Mall Bekasi</strong><br><span style="color:var(--ink-muted);font-size:.8125rem">Jadwal event</span></div>
+    <nav class="footer-links" aria-label="Navigasi footer">
+      <a href="#">Komunitas</a>
+      <a href="#">Galeri</a>
+      <a href="#">Sponsor</a>
+      <a href="#">Dokumentasi</a>
+      <a href="#">Ajukan event</a>
+      <a href="#">Daftar event</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  // Interaksi pratinjau: switch mode + filter (statis, tanpa data asli)
+  const tabs = document.querySelectorAll('.mode-switch button');
+  const list = document.getElementById('featured');
+  const cal = document.getElementById('kalender');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(x => x.setAttribute('aria-selected', 'false'));
+    t.setAttribute('aria-selected', 'true');
+    const isList = t.getAttribute('aria-controls') === 'featured';
+    list.hidden = !isList;
+    cal.hidden = isList;
+  }));
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', 'false'));
+    c.setAttribute('aria-pressed', 'true');
+  }));
+</script>
+</body>
+</html>

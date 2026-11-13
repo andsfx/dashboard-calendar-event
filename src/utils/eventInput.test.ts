@@ -18,7 +18,7 @@ describe('normalizeEventInput', () => {
 
   it('normalizes jam into HH:MM - HH:MM when parseable', () => {
     const data = normalizeEventInput({ jam: '9.5 - 10.30' });
-    // Non-parseable minute style should stay normalized text only.
+    // Menit gaya ini tidak bisa diparse sebagai jam; teks bermakna dipertahankan ter-trim.
     expect(data.jam).toBe('9.5 - 10.30');
 
     const data2 = normalizeEventInput({ jam: '9:05 - 10:30' });
