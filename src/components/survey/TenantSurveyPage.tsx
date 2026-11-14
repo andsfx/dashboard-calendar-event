@@ -39,10 +39,15 @@ interface TenantSurveyPageProps {
   isAdmin?: boolean;
   /** Boleh unduh CSV (`/tenant/export`): admin saja. Demo/eo/TR disembunyikan. */
   canExportCsv?: boolean;
+  /**
+   * Boleh membuka tab Analitik (`GET /tenant/analytics`): staff/TR/demo.
+   * eo_tenant selalu 403 di server — tab disembunyikan agar tidak menawarkan
+   * permukaan yang pasti gagal (dan polling-nya tidak mengulang 403).
+   */
+  canViewAnalytics?: boolean;
 }
 
-export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv = false }: TenantSurveyPageProps) {
-  // ─── View State ────────────────────────────────────────────────
+export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv = false, canViewAnalytics = true }: TenantSurveyPageProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('list');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [editingSurvey, setEditingSurvey] = useState<TenantEventSurvey | null>(null);
@@ -66,6 +71,11 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
   const configLoadingRef = useRef<string | null>(null);
   const [copiedId, setCopiedId] = useState('');
   const [analyticsEventFilter, setAnalyticsEventFilter] = useState<string>('all');
+  /**
+   * Akses analitik hilang (EO) — kunci tab ke list; trigger-nya memang tidak
+   * dirender, tapi state lama tidak boleh menampilkan panel yatim.
+   */
+  const effectiveTab: TabKey = canViewAnalytics ? activeTab : 'list';
 
   // ─── Detail CRUD state ─────────────────────────────────────────
   const [reviewNotes, setReviewNotes] = useState('');
@@ -88,6 +98,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
   } = useTenantSurveys();
   const { analytics, isLoading: analyticsLoading, error: analyticsError, refreshAnalytics } = useTenantSurveyAnalytics(
     analyticsEventFilter !== 'all' ? analyticsEventFilter : null,
+    { enabled: canViewAnalytics },
   );
   const {
     duplicate,
@@ -392,7 +403,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
 
         {/* Tabs — primitif Tabs menyediakan roving tabindex + navigasi panah (APG) */}
         <Tabs
-          value={activeTab}
+          value={effectiveTab}
           onValueChange={(key) => setActiveTab(key as TabKey)}
         >
           <TabsList aria-label="Tenant self-assessment" className="ui-dashboard-surface p-1">
@@ -400,16 +411,18 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
               <List className="size-4 shrink-0" />
               Penilaian mandiri
             </TabsTrigger>
-            <TabsTrigger value="analytics">
-              <BarChart3 className="size-4 shrink-0" />
-              Analitik
-            </TabsTrigger>
+            {canViewAnalytics && (
+              <TabsTrigger value="analytics">
+                <BarChart3 className="size-4 shrink-0" />
+                Analitik
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* `TabsContent` wajib ada di dalam `Tabs`: Radix menulis
               `aria-controls` pada tiap trigger menuju panel ini, dan tanpa
               panel axe melaporkan `aria-valid-attr-value` (id tidak ada). */}
-          {activeTab === 'list' && (
+          {effectiveTab === 'list' && (
             <TabsContent value="list" className="mt-4 flex-none">
               <TenantSurveyList
                 surveys={surveys}
@@ -427,7 +440,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
             </TabsContent>
           )}
 
-        {activeTab === 'analytics' && (
+        {effectiveTab === 'analytics' && (
           <TabsContent value="analytics" className="mt-4 flex-none">
           <div className="space-y-3">
             <div className="ui-dashboard-surface flex flex-wrap items-center gap-2 px-3 py-2.5">

@@ -77,10 +77,23 @@ router.post('/:action', requireRole(ADMIN_READ_ROLES), async (req, res, next) =>
     if (String(err?.code) === '23505') {
       return res.status(409).json({ success: false, error: 'Data dengan isi yang sama sudah ada. Gunakan data yang sudah ada atau ubah isian yang dobel.' });
     }
-    // 23514 = check violation — termasuk trigger periode aktivasi pameran
-    // (pesan trigger sudah Indonesia dan aman ditampilkan).
+    // 23514 = check violation. PESAN MENTAH POSTGRES TIDAK PERNAH DITERUSKAN:
+    // constraint CHECK bukan hanya trigger pameran — status pendaftaran,
+    // priority, event_model, kind partisipasi, voucher_* semuanya punya CHECK
+    // sendiri (schema.sql). Pesan khusus pameran hanya bila constraint-nya
+    // memang trigger periode aktivasi; selain itu pesan generik Indonesia.
     if (String(err?.code) === '23514') {
-      return res.status(409).json({ success: false, error: err?.message || 'Perubahan ditolak karena berada di luar periode pameran. Sesuaikan tanggal event atau pameran dulu.' });
+      // Trigger periode pameran memakai RAISE EXCEPTION ... ERRCODE=23514 tanpa
+      // nama constraint (err.constraint null), jadi deteksinya lewat pesannya
+      // yang memang ditulis Indonesia di schema.sql:727/:752. Constraint CHECK
+      // lain tidak pernah lolos teks ini ke klien.
+      const exhibitionPeriod = /di luar (periode )?pameran/i.test(String(err?.message || ''));
+      return res.status(409).json({
+        success: false,
+        error: exhibitionPeriod
+          ? String(err?.message)
+          : 'Perubahan ditolak karena ada isian yang tidak sesuai ketentuan data. Periksa kolom yang ditandai lalu coba lagi.',
+      });
     }
     // SQLSTATE dari INPUT pengguna → 400 dengan pesan yang bisa ditindaklanjuti.
     // Sebelumnya 22P02/22008/23503 jatuh ke 500 "Terjadi kesalahan server",

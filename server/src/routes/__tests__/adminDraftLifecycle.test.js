@@ -249,6 +249,36 @@ describe('pemetaan SQLSTATE input klien', () => {
     expect(body.error).not.toContain('invalid input syntax');
   });
 
+  it('23514 dari CHECK biasa → 409 dengan pesan generik, teks Postgres tidak bocor', async () => {
+    // Pemicu nyata: updateRegistrationStatus mengirim status di luar CHECK
+    // kolom (schema.sql:95). Sebelum perbaikan, err.message mentah — berisi
+    // nama constraint — diteruskan ke browser.
+    dbState.error = Object.assign(
+      new Error('new row for relation "community_registrations" violates check constraint "community_registrations_status_check"'),
+      { code: '23514' },
+    );
+
+    const { status, body } = await callAction('listEvents');
+
+    expect(status).toBe(409);
+    expect(body.success).toBe(false);
+    expect(body.error).toContain('ditolak');
+    expect(body.error).not.toContain('community_registrations');
+    expect(body.error).not.toContain('check constraint');
+  });
+
+  it('23514 dari trigger periode pameran tetap memakai pesan trigger (Indonesia)', async () => {
+    // Trigger memakai RAISE EXCEPTION ... ERRCODE=23514 tanpa nama constraint
+    // (schema.sql:727/:752) — deteksinya lewat teks pesan.
+    const triggerMessage = 'Periode baru membuat event aktivasi berada di luar pameran. Lepas atau ubah jadwal aktivasi terlebih dahulu.';
+    dbState.error = Object.assign(new Error(triggerMessage), { code: '23514' });
+
+    const { status, body } = await callAction('listEvents');
+
+    expect(status).toBe(409);
+    expect(body.error).toBe(triggerMessage);
+  });
+
   it('23505 tetap 409 (duplikat)', async () => {
     dbState.error = Object.assign(new Error('duplicate key value'), { code: '23505' });
     const { status } = await callAction('listEvents');

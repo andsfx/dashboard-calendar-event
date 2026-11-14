@@ -139,9 +139,17 @@ router.get('/news/:slug', async (req, res, next) => {
 // ─── GET /albums ─────────────────────────────────────────────────
 router.get('/albums', async (_req, res, next) => {
   try {
+    // Kolom eksplisit, bukan SELECT *: kolom internal yang ditambah nanti
+    // (mis. uploader/note/hidden) tidak otomatis jadi publik. Sama pola
+    // dengan EVENT_SELECT di atas.
     const [albums, photos] = await Promise.all([
-      db.query('SELECT * FROM photo_albums ORDER BY sort_order ASC, created_at DESC'),
-      db.query('SELECT * FROM event_photos ORDER BY sort_order ASC'),
+      db.query(`
+        SELECT id, name, slug, description, event_date, cover_photo_url, sort_order,
+               event_id, lokasi, theme_id, created_at
+        FROM photo_albums ORDER BY sort_order ASC, created_at DESC`),
+      db.query(`
+        SELECT id, url, caption, event_date, sort_order, album_id, event_id
+        FROM event_photos ORDER BY sort_order ASC`),
     ]);
     res.json({ success: true, data: { albums: albums.rows, photos: photos.rows } });
   } catch (err) {
@@ -152,9 +160,14 @@ router.get('/albums', async (_req, res, next) => {
 // ─── GET /albums/:slug ───────────────────────────────────────────
 router.get('/albums/:slug', async (req, res, next) => {
   try {
-    const { rows } = await db.query('SELECT * FROM photo_albums WHERE slug = $1 LIMIT 1', [req.params.slug]);
+    const { rows } = await db.query(`
+      SELECT id, name, slug, description, event_date, cover_photo_url, sort_order,
+             event_id, lokasi, theme_id, created_at
+      FROM photo_albums WHERE slug = $1 LIMIT 1`, [req.params.slug]);
     if (!rows[0]) return res.status(404).json({ success: false, error: 'Album ini tidak ada atau sudah dihapus. Cek daftar album di halaman galeri.' });
-    const photos = await db.query('SELECT * FROM event_photos WHERE album_id = $1 ORDER BY sort_order ASC', [rows[0].id]);
+    const photos = await db.query(`
+      SELECT id, url, caption, event_date, sort_order, album_id, event_id
+      FROM event_photos WHERE album_id = $1 ORDER BY sort_order ASC`, [rows[0].id]);
     res.json({ success: true, data: { album: rows[0], photos: photos.rows } });
   } catch (err) {
     next(err);
@@ -164,9 +177,16 @@ router.get('/albums/:slug', async (req, res, next) => {
 // ─── GET /areas ──────────────────────────────────────────────────
 router.get('/areas', async (_req, res, next) => {
   try {
+    // Kolom eksplisit — area publik hanya aktif; foto area tanpa kolom internal.
+    // Sama pola dengan EVENT_SELECT: kolom internal yang ditambah nanti tidak
+    // otomatis jadi publik.
     const [areas, photos] = await Promise.all([
-      db.query('SELECT * FROM event_areas WHERE is_active = true ORDER BY sort_order ASC'),
-      db.query('SELECT * FROM area_photos ORDER BY sort_order ASC'),
+      db.query(`
+        SELECT id, name, description, cover_photo_url, sort_order, is_active, created_at
+        FROM event_areas WHERE is_active = true ORDER BY sort_order ASC`),
+      db.query(`
+        SELECT id, area_id, url, caption, sort_order
+        FROM area_photos ORDER BY sort_order ASC`),
     ]);
     res.json({ success: true, data: { areas: areas.rows, photos: photos.rows } });
   } catch (err) {

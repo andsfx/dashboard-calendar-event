@@ -262,7 +262,9 @@ export async function setupSurveyApiMocks(
       },
     }));
 
-  await page.route('**/api/v1/tenant/config-get*', (route) =>
+  // FE memanggil GET /tenant/config?event_id=... (TenantSurveyPage.tsx) —
+  // bukan /tenant/config-get (path lama yang tidak pernah ada di server).
+  await page.route('**/api/v1/tenant/config*', (route) =>
     json(route, {
       success: true,
       data: {

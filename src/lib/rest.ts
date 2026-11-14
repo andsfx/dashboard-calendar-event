@@ -94,6 +94,7 @@ const ANONYMOUS_ENDPOINTS = [
   '/tenant-event-proposals',
   '/survey/submit',
   '/survey/summary',
+  '/survey/check',
   '/tenant/submit',
   '/tenant/check',
   '/tenant/event-info',
@@ -103,8 +104,14 @@ const ANONYMOUS_ENDPOINTS = [
   '/tenant/results-roster',
   '/tenant/directory',
   '/tenant/tenants',
-  '/tenant/roster',
   '/tenant/tenant-detail',
+  // Pengajuan event publik (POST anonim) + surat terbagikan EO (GET anonim)
+  // + setting publik yang di-allowlist server — 401 di sini bukan sinyal
+  // "sesi berakhir" (endpoint-nya memang tanpa sesi).
+  '/drafts',
+  '/letters',
+  '/settings',
+  '/instagram',
 ];
 
 function isAnonymousEndpoint(path: string): boolean {

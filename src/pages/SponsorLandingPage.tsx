@@ -188,12 +188,12 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
           </div>
         )}
 
-        {/* Event grid */}
+        {/* Event grid — kartu berisi <a> interaktif, jadi TIDAK dibungkus
+            RevealSection (konvensi subtree interaktif). */}
         {!isLoading && !fetchError && eventsWithProposals.length > 0 && (
-          <RevealSection as="div" refreshKey={`${eventsWithProposals.length}:${eventsWithProposals[0]?.event.id ?? ''}`}>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {eventsWithProposals.map(({ event, proposal }) => (
-              <div key={event.id} data-reveal-item className="flex flex-col rounded-2xl bg-[var(--wf-board)] p-5 shadow-sm transition hover:shadow-lg ">
+              <div key={event.id} className="flex flex-col rounded-2xl bg-[var(--wf-board)] p-5 shadow-sm transition hover:shadow-lg ">
                 <div className="flex items-center gap-2 text-xs font-medium text-[var(--wf-ink-muted)]">
                   <CalendarDays className="h-3.5 w-3.5 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
                   {formatEventDate(event.dateStr)}
@@ -226,19 +226,16 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
               </div>
             ))}
           </div>
-          </RevealSection>
         )}
 
-        {/* Form */}
+        {/* Form dan heading di luar RevealSection — konvensi repo: subtree
+            interaktif tidak boleh di dalam wrapper reveal. */}
         {!isLoading && !fetchError && eventsWithProposals.length > 0 && (
-          <RevealSection as="div" id="sponsor-form" className="mx-auto mt-14 max-w-2xl scroll-mt-24">
-            <div className="mb-6 text-center">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Tertarik mendukung event?</h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--wf-ink-muted)]">
-                Isi form di bawah. Tim Marcomm Metropolitan Mall Bekasi akan menghubungi kamu dalam 5 hari kerja.
-              </p>
-            </div>
-
+        <div id="sponsor-form" className="mx-auto mt-14 max-w-2xl scroll-mt-24">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Tertarik mendukung event?</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--wf-ink-muted)]">
+              Isi form di bawah. Tim Marcomm Metropolitan Mall Bekasi akan menghubungi kamu dalam 5 hari kerja.
+            </p>
             {submitted ? (
               <div className="rounded-3xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-8 text-center">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
@@ -389,7 +386,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                 </div>
               </form>
             )}
-          </RevealSection>
+        </div>
         )}
       </main>
 

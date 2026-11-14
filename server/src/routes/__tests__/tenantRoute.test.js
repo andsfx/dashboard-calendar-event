@@ -241,17 +241,35 @@ describe('POST /tenant/create — kolom yang sebelumnya dibuang', () => {
     expect(params).toContain(null);
   });
 
-  it('mengubah lift pct non-numerik menjadi null, bukan menggagalkan insert', async () => {
-    const { status } = await call('POST', '/create', {
+  it('menolak rating di luar 1..5 dengan 400 (bukan 23514 → 500)', async () => {
+    for (const bad of [0, 6, 99, 'abc']) {
+      const { status, body } = await call('POST', '/create', {
+        body: { event_id: 'evt_1', venue_rating: bad },
+      });
+      expect(status, String(bad)).toBe(400);
+      expect(body.errors.join(' ')).toContain('1 sampai 5');
+    }
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it('menolak lift pct di luar -100..1000 dengan 400', async () => {
+    const { status, body } = await call('POST', '/create', {
+      body: { event_id: 'evt_1', sales_lift_pct: 5000 },
+    });
+
+    expect(status).toBe(400);
+    expect(body.errors.join(' ')).toContain('-100 dan 1000');
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it('menolak lift pct non-numerik dengan 400 (sebelumnya null diam-diam, isian hilang)', async () => {
+    const { status, body } = await call('POST', '/create', {
       body: { event_id: 'evt_1', sales_lift_pct: 'NaN-sekali' },
     });
 
-    expect(status).toBe(201);
-    const [sql, params] = query.mock.calls[0];
-    expect(params).not.toContain('NaN-sekali');
-    expect(params).toContain(null);
-    // Sanitasi panjang subcategory sesuai CHECK (1..50).
-    expect(sql).toContain('business_subcategory');
+    expect(status).toBe(400);
+    expect(body.errors.join(' ')).toContain('-100 dan 1000');
+    expect(query).not.toHaveBeenCalled();
   });
 
   it('jumlah placeholder VALUES sama dengan jumlah kolom INSERT', async () => {
@@ -497,5 +515,24 @@ describe('SQLSTATE input klien → 400 (bukan 500)', () => {
 
     expect(status).toBe(400);
     expect(body.error).toContain('terlalu jauh dari rentang');
+  });
+
+  it('23514 pada /update jatuh ke 400 generik, bukan 500 (jaring terakhir)', async () => {
+    // Validasi rating menangkap nilai di luar rentang di handler; tes ini
+    // melindungi bila CHECK baru ditambahkan di schema tanpa validasi klien.
+    query.mockImplementation(async (sql) => {
+      if (String(sql).startsWith('SELECT')) {
+        return { rows: [{ id: 'tsv_1', tenant_user_id: 'u_admin', status: 'draft', event_id: 'evt_1' }], rowCount: 1 };
+      }
+      throw Object.assign(new Error('new row violates check constraint "tenant_event_surveys_check"'), { code: '23514' });
+    });
+
+    const { status, body } = await call('POST', '/update', {
+      body: { id: 'tsv_1', tenant_name: 'Toko A' },
+    });
+
+    expect(status).toBe(400);
+    expect(body.error).toContain('tidak sesuai ketentuan');
+    expect(body.error).not.toContain('check constraint');
   });
 });

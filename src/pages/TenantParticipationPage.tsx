@@ -449,7 +449,10 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
           </ol>
         </RevealSection>
 
-        <RevealSection aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
+        {/* Kartu form: form sengaja TANPA wrapper reveal — konvensi repo,
+            subtree interaktif tidak boleh di dalam RevealSection
+            (gejala fokus hilang saat tween; lihat TenantCollaborationPage). */}
+        <section aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
           <h2 id="form-title" className="font-display text-lg font-bold">Formulir pengajuan</h2>
 
           {submittedCode ? (
@@ -932,10 +935,11 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               </div>
             </form>
           )}
-        </RevealSection>
+        </section>
 
-        {/* ── Cek status ── */}
-        <RevealSection aria-labelledby="status-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
+        {/* Kartu cek status: statis tanpa wrapper reveal — form pemeriksaan
+            tidak boleh di dalam RevealSection (konvensi subtree interaktif). */}
+        <section aria-labelledby="status-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
           <h2 id="status-title" className="flex items-center gap-2 font-display text-lg font-bold">
             <ClipboardCheck className="h-5 w-5" aria-hidden="true" /> Cek status pengajuan
           </h2>
@@ -1027,7 +1031,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               )}
             </div>
           )}
-        </RevealSection>
+        </section>
       </main>
 
       <footer className="border-t border-[var(--wf-rule)] py-8 text-center text-xs text-[var(--wf-ink-muted)]">

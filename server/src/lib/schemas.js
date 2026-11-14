@@ -113,7 +113,9 @@ const ACTION_SCHEMAS = {
   updateRegistrationStatus: z.object({
     action: z.literal('updateRegistrationStatus'),
     id: z.string().min(1),
-    status: z.string(),
+    // CHECK kolom di schema.sql:95 — nilai di luar enum tidak pernah sampai
+    // ke Postgres, jadi tidak lagi memicu 23514 dengan pesan mentah.
+    status: z.enum(['pending', 'reviewed', 'approved', 'rejected']),
     adminNote: z.string().optional(),
   }),
   listNewsArticles: z.object({ action: z.literal('listNewsArticles') }),

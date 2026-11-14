@@ -37,9 +37,12 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
           </p>
         </RevealSection>
 
-        <RevealSection as="div" className="mt-8">
+        {/* Form sengaja DI LUAR RevealSection — konvensi repo: subtree
+            interaktif tidak boleh di dalam wrapper reveal (gejala fokus
+            hilang saat tween; lihat TenantCollaborationPage). */}
+        <div className="mt-8">
           <RegistrationForm />
-        </RevealSection>
+        </div>
       </main>
 
       <footer className="border-t border-[var(--wf-rule)] py-8 text-center text-xs text-[var(--wf-ink-muted)]">

@@ -58,6 +58,10 @@ const PG_INPUT_ERRORS = new Map([
   ['22008', 'Tanggal yang diisi terlalu jauh dari rentang yang didukung sistem. Gunakan tanggal kalender yang wajar (mis. 2026-07-12).'],
   ['22P02', 'Ada isian yang tidak cocok dengan pilihan yang tersedia (mis. kategori atau status). Periksa kolom yang ditandai, lalu coba lagi dengan isian kamu.'],
   ['23503', 'Data yang dirujuk tidak ada, misal event atau tenant sudah dihapus. Muat ulang halaman lalu pilih ulang datanya.'],
+  // CHECK kolom (rating 1..5, lift -100..1000, kind, voucher_*). Validasi
+  // handler seharusnya menangkapnya lebih dulu; ini jaring terakhir agar
+  // pelanggaran tidak jatuh ke 500 generik.
+  ['23514', 'Ada isian yang tidak sesuai ketentuan data (mis. rating di luar 1-5). Periksa kolom yang ditandai, lalu coba lagi.'],
 ]);
 
 /** @returns {{status:number,error:string}|null} null = bukan error input klien */
@@ -148,6 +152,13 @@ const LABELS = {
   kategori: 'Kategori',
   kenaikan_traffic: 'Kenaikan traffic',
   kenaikan_sales: 'Kenaikan sales',
+  venue_rating: 'Rating venue',
+  management_rating: 'Rating manajemen',
+  event_organization_rating: 'Rating organisasi event',
+  booth_facility_rating: 'Rating fasilitas booth',
+  overall_rating: 'Rating keseluruhan',
+  sales_lift_pct: 'Kenaikan penjualan (%)',
+  traffic_lift_pct: 'Kenaikan pengunjung (%)',
 };
 
 /**
@@ -165,13 +176,31 @@ function businessCategory(value) {
 
 /**
  * Persentase kenaikan — kolom NUMERIC(5,2) dengan CHECK -100..1000.
- * Input form dikirim sebagai string dan bisa kosong; konversi di sini
- * mencegah error numerik yang ter-map ke pesan CHECK yang menyesatkan.
+ * Input form dikirim sebagai string dan bisa kosong. Nilai di luar rentang
+ * dikembalikan null (bukan diteruskan): CHECK melanggar → 23514 → 500 opak,
+ * padahal isian ini tidak wajib.
  */
 function liftPct(value) {
   if (value == null || value === '') return null;
   const n = Number(value);
-  return Number.isFinite(n) ? n : null;
+  if (!Number.isFinite(n) || n < -100 || n > 1000) return null;
+  return n;
+}
+/** Semua kolom rating self-assessment: CHECK 1..5 di schema.sql. */
+const RATING_FIELDS = [
+  'venue_rating', 'management_rating', 'event_organization_rating', 'booth_facility_rating', 'overall_rating',
+];
+
+/**
+ * Nilai rating yang aman ditulis: kosong → null, selain itu harus bilangan
+ * bulat 1..5. Di luar itu ditolak pemanggil (400), bukan dibiarkan sampai
+ * CHECK Postgres (23514 → 500 opak).
+ */
+function parseRating(value) {
+  if (value === null || value === undefined || value === '') return { ok: true, value: null };
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 1 || n > 5) return { ok: false };
+  return { ok: true, value: n };
 }
 
 /** Nilai yang diizinkan enum `business_category_enum` (lihat schema.sql §0). */
@@ -249,6 +278,22 @@ function validateDraftSubmission(body) {
 
   if (body.nama_gerai != null && sanitize(body.nama_gerai).length > 100) {
     errors.push('Nama tenant terlalu panjang, maksimal 100 huruf.');
+  }
+
+  // Rating & persentase: kolomnya punya CHECK (1..5 dan -100..1000). Tanpa
+  // validasi di sini, nilai di luar rentang lolos ke Postgres → 23514 → 500
+  // "Server sedang bermasalah", padahal pengguna bisa memperbaiki isiannya.
+  for (const field of RATING_FIELDS) {
+    if (body[field] === undefined) continue;
+    const parsed = parseRating(body[field]);
+    if (!parsed.ok) errors.push(`${LABELS[field] ?? field} harus angka 1 sampai 5.`);
+  }
+  for (const field of ['sales_lift_pct', 'traffic_lift_pct']) {
+    if (body[field] === undefined || body[field] === null || body[field] === '') continue;
+    const n = Number(body[field]);
+    if (!Number.isFinite(n) || n < -100 || n > 1000) {
+      errors.push(`${LABELS[field] ?? field} harus angka antara -100 dan 1000.`);
+    }
   }
 
   pushTextLimitErrors(body, errors);
@@ -902,26 +947,32 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
       'nama_gerai', 'lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales',
       'feedback_teks', 'tenant_id', 'business_category', 'business_subcategory',
     ];
-    const ratingFields = [
-      'venue_rating', 'management_rating', 'event_organization_rating', 'booth_facility_rating', 'overall_rating',
-    ];
+    // Rating & persentase lewat helper ber-CHECK yang sama dengan /create —
+    // nilai di luar rentang ditolak 400 di sini, bukan sampai Postgres.
+    const ratingValues = new Map();
+    for (const f of RATING_FIELDS) {
+      if (body[f] === undefined) continue;
+      const parsed = parseRating(body[f]);
+      if (!parsed.ok) {
+        return res.status(400).json({ success: false, error: `${LABELS[f] ?? f} harus angka 1 sampai 5.` });
+      }
+      ratingValues.set(f, parsed.value);
+    }
+    for (const f of ['sales_lift_pct', 'traffic_lift_pct']) {
+      if (body[f] === undefined) continue;
+      const bounded = liftPct(body[f]);
+      const raw = body[f] === '' ? null : Number(body[f]);
+      if (body[f] !== '' && body[f] !== null && body[f] !== undefined && (!Number.isFinite(raw) || bounded === null)) {
+        return res.status(400).json({ success: false, error: `${LABELS[f] ?? f} harus angka antara -100 dan 1000.` });
+      }
+      ratingValues.set(f, bounded);
+    }
     const sets = [];
     const values = [];
 
-    for (const f of ratingFields) {
-      if (body[f] !== undefined) {
-        const v = body[f] !== null && body[f] !== '' ? parseInt(body[f], 10) : null;
-        values.push(v);
-        sets.push(`${f} = $${values.length}`);
-      }
-    }
-    if (body.sales_lift_pct !== undefined) {
-      values.push(body.sales_lift_pct === '' ? null : Number(body.sales_lift_pct));
-      sets.push(`sales_lift_pct = $${values.length}`);
-    }
-    if (body.traffic_lift_pct !== undefined) {
-      values.push(body.traffic_lift_pct === '' ? null : Number(body.traffic_lift_pct));
-      sets.push(`traffic_lift_pct = $${values.length}`);
+    for (const [f, v] of ratingValues) {
+      values.push(v);
+      sets.push(`${f} = $${values.length}`);
     }
     for (const f of textFields) {
       if (body[f] !== undefined) {
@@ -1184,8 +1235,14 @@ router.get('/roster', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (_req, 
 
 // ─── GET /config — staff + EO ─────────────────────────────────────
 router.get('/config', requireRole([...LIST_READ_ROLES_WITH_DEMO, 'eo_tenant']), async (req, res, next) => {
-  const eventId = String(req.query?.event_id || '').trim();
+  const eventId = sanitize(req.query?.event_id || '', 200);
   if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih. Buka ulang halaman dari dashboard.' });
+  // Sama dengan /create dan /update: EO hanya event di `users.assigned_events`.
+  // Tanpa ini EO bisa membaca config event mana pun (hanya boolean is_active,
+  // tapi garis pertahanannya harus satu pola).
+  if (req.auth?.user?.role === 'eo_tenant' && !canAccessSurveyEvent(req.auth.user, eventId)) {
+    return res.status(403).json({ success: false, error: 'Event survey ini belum ditugaskan ke akun kamu. Minta admin untuk menambahkannya.' });
+  }
 
   try {
     const { rows } = await db.query('SELECT * FROM tenant_survey_config WHERE event_id = $1 LIMIT 1', [eventId]);

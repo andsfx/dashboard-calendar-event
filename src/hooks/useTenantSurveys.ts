@@ -149,13 +149,17 @@ export function useTenantSurveys(
  * useTenantSurveyAnalytics — fetches aggregated tenant survey analytics
  * with polling auto-refresh on data changes.
  */
-export function useTenantSurveyAnalytics(eventId?: string | null) {
+export function useTenantSurveyAnalytics(eventId?: string | null, opts?: { enabled?: boolean }) {
+  // `enabled: false` = pemanggil tahu role-nya tak punya akses (EO di
+  // /tenant/analytics selalu 403) — jangan fetch, jangan polling.
+  const enabled = opts?.enabled ?? true;
   const [analytics, setAnalytics] = useState<TenantSurveyAnalytics[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const requestEpochRef = useRef(0);
 
   const refreshAnalytics = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!enabled) return;
     requestEpochRef.current += 1;
     const epoch = requestEpochRef.current;
     if (!opts?.silent) setIsLoading(true);
@@ -173,14 +177,19 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
     } finally {
       if (!opts?.silent && epoch === requestEpochRef.current) setIsLoading(false);
     }
-  }, [eventId]);
+  }, [eventId, enabled]);
 
   useEffect(() => {
+    if (!enabled) {
+      setIsLoading(false);
+      return;
+    }
     refreshAnalytics();
-  }, [refreshAnalytics]);
+  }, [enabled, refreshAnalytics]);
 
   // Opsi B: polling 60s — pengganti channel Realtime (analytics selalu poll).
   useEffect(() => {
+    if (!enabled) return;
     const intervalId = setInterval(() => {
       if (document.visibilityState === 'hidden') return;
       refreshAnalytics({ silent: true });
@@ -195,7 +204,7 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
       clearInterval(intervalId);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [refreshAnalytics]);
+  }, [refreshAnalytics, enabled]);
 
   return { analytics, isLoading, error, refreshAnalytics };
 }

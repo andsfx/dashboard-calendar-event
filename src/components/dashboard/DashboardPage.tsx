@@ -712,6 +712,8 @@ export function DashboardPage({
               events={events.events}
               isAdmin={permissions.canEditEvents}
               canExportCsv={permissions.canExportTenantSurveyCsv}
+              // Analitik server-side: staff/TR/demo (bukan eo_tenant).
+              canViewAnalytics={permissions.canViewTenantSurveyResults || permissions.isDemo}
             />
           </Suspense>
         </section>
