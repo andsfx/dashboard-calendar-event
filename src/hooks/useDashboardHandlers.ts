@@ -8,6 +8,7 @@ import { useRegistrationHandlers, type RegistrationHandlersResult } from './useR
 import { useSiteSettingsHandlers, type SiteSettingsHandlersResult } from './useSiteSettingsHandlers';
 
 import { useConfirmDialog, type ConfirmOptions } from '../components/modals/useConfirmDialog';
+import type { AdminError } from '../lib/adminError';
 
 type ShowToast = (type: ToastMessage['type'], title: string, message: string) => void;
 
@@ -15,6 +16,8 @@ export type DashboardHandlersDeps = {
   showToast: ShowToast;
   logout: () => Promise<{ ok: boolean; error?: string } | void> | void;
   events: EventItem[];
+  /** Pesan error terakhir dari useEvents, dibaca sinkron setelah mutasi gagal. */
+  getLastError: () => AdminError | null;
   addEvent: (event: EventItem) => Promise<boolean>;
   updateEvent: (event: EventItem, lifecycle?: 'draft' | 'published') => Promise<boolean>;
   setEventVisibility: (event: EventItem, hidden: boolean) => Promise<boolean>;
@@ -42,7 +45,7 @@ export type DashboardHandlersDeps = {
 export function useDashboardHandlers(deps: DashboardHandlersDeps) {
   const {
     showToast, logout,
-    events, addEvent, updateEvent, setEventVisibility, deleteEvent,
+    events, getLastError, addEvent, updateEvent, setEventVisibility, deleteEvent,
     addRecurringEvents, deleteRecurringSeries,
     addTheme, updateTheme, deleteTheme,
     refreshEvents,
@@ -55,6 +58,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
   const event: EventHandlersResult = useEventHandlers({
     showToast,
     eventsLength: events.length,
+    getLastError,
     addEvent, updateEvent, setEventVisibility, deleteEvent,
     addRecurringEvents, deleteRecurringSeries,
     confirm,

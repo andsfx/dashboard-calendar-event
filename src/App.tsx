@@ -127,6 +127,7 @@ export default function App() {
     holidays,
     isLoading,
     error,
+    getLastError,
     refreshEvents,
   } = useEvents({
     realtime: location.pathname.startsWith('/dashboard'),
@@ -222,6 +223,7 @@ export default function App() {
     showToast,
     logout: auth.logout,
     events,
+    getLastError,
     addEvent,
     updateEvent,
     setEventVisibility,

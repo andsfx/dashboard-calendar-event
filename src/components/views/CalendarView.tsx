@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Clock, MapPin, CalendarDays, Inbox, X } from 'lucide-react';
-import { EventItem, HolidayItem } from '../../types';
+import { EventArea, EventItem, HolidayItem } from '../../types';
 import { 
   generateCalendarDays, 
   isMultiDayEvent,
@@ -21,19 +21,47 @@ import { Empty, EmptyHeader, EmptyTitle, EmptyMedia, EmptyDescription } from '..
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAY_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 const DAY_FULL = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-// Hanya dua status yang bisa muncul di sini: `/events` tidak pernah mengirim
-// event `past` (lihat `liveEvents` di EventsLandingPage), jadi entri "Selesai"
-// sengaja tidak ada.
-const STATUS_GROUPS = [
-  { key: 'ongoing' as const, label: 'Berlangsung', dot: 'bg-emerald-500' },
-  { key: 'upcoming' as const, label: 'Mendatang', dot: 'bg-amber-400' },
-];
-
-/** Peringkat status diturunkan dari urutan `STATUS_GROUPS`; status yang tidak
- *  punya grup (tidak pernah tampil di sini) mendapat peringkat paling akhir. */
+// Hanya dua status yang bisa tampil di sini: `/events` tidak pernah mengirim
+// event `past` (lihat `liveEvents` di EventsLandingPage). Status tetap dipakai
+// untuk peringkat sort, badge kartu, dan titik warna di grid; PENGELOMPOKAN
+// panel bulan/hari memakai area venue via `areaId` (bukan status) supaya
+// konsisten dengan pengelompokan venue di #featured.
 function getStatusRank(status: string) {
-  const index = STATUS_GROUPS.findIndex(group => group.key === status);
-  return index === -1 ? STATUS_GROUPS.length : index;
+  if (status === 'ongoing') return 0;
+  if (status === 'upcoming') return 1;
+  return 2;
+}
+
+/** Grup panel bulan/hari: satu grup per area (venue). Sumbu lokasi = `areaId`
+ *  yang di-resolve lewat `areas` — kanonik dan sama dengan `venueSections` di
+ *  halaman. String `ev.lokasi` mentah sengaja TIDAK dipakai: di data produksi
+ *  ia terfragmentasi menjadi banyak ejaan satu venue yang sama (mis.
+ *  "Panggung Funworld Lt. 3", "Panggung Lt. 3", "Lt. 3 Fun World"), sehingga
+ *  grouping string akan memecah venue itu jadi beberapa header.
+ *  Urutan grup = `sortOrder` area lalu nama; event tanpa area (atau area tidak
+ *  dikenal) masuk "Area belum ditentukan" paling akhir. */
+function groupByArea(
+  events: EventItem[],
+  areas: EventArea[],
+): Array<{ key: string; name: string; events: EventItem[] }> {
+  const areaById = new Map(areas.map(a => [a.id, a]));
+  const byArea = new Map<string, EventItem[]>();
+  const unmapped: EventItem[] = [];
+  for (const ev of events) {
+    const area = ev.areaId ? areaById.get(ev.areaId) : undefined;
+    if (!area) { unmapped.push(ev); continue; }
+    const bucket = byArea.get(area.id);
+    if (bucket) bucket.push(ev);
+    else byArea.set(area.id, [ev]);
+  }
+  const groups = [...areas]
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'id'))
+    .flatMap(area => {
+      const evs = byArea.get(area.id);
+      return evs && evs.length > 0 ? [{ key: area.id, name: area.name, events: evs }] : [];
+    });
+  if (unmapped.length > 0) groups.push({ key: '__unmapped', name: 'Area belum ditentukan', events: unmapped });
+  return groups;
 }
 
 function getTimeSortValue(jam: string) {
@@ -59,6 +87,7 @@ function getMultiDayBarsForDay(events: EventItem[], dateStr: string) {
 
 interface Props {
   events: EventItem[];
+  areas?: EventArea[];
   holidays: HolidayItem[];
   onDetail: (ev: EventItem) => void;
   /**
@@ -70,7 +99,7 @@ interface Props {
   variant?: 'public';
 }
 
-export function CalendarView({ events, holidays, onDetail }: Props) {
+export function CalendarView({ events, areas = [], holidays, onDetail }: Props) {
  const surfaceClass = 'overflow-hidden rounded-[1.5rem] border bg-[var(--wf-board)] shadow-[var(--shadow-card-soft)] border-[var(--wf-rule)]';
  const headerClass = 'flex items-center justify-between border-b bg-[var(--wf-board)] px-5 py-4 border-[var(--wf-rule)]';
   const headerBtnClass = 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] hover:bg-[var(--wf-board-2)]';
@@ -137,6 +166,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
       if (a.type !== b.type) return a.type === 'libur_nasional' ? -1 : 1;
       return a.name.localeCompare(b.name);
     });
+  const monthLocationGroups = groupByArea(monthEvents.filter(ev => !isMultiDayEvent(ev)), areas);
   // selectedDayEvents: gabungkan single-day events + multi-day events yang overlap
   const selectedDayEvents = selectedDate ? (() => {
     const singleDay = getSingleDayEventsForDate(events, selectedDate);
@@ -162,6 +192,18 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
   const isDayPopupOpen = !!selectedDate && (selectedDayEvents.length > 0 || selectedDayHolidays.length > 0);
   const selectedDayMultiDayEvents = selectedDate ? getMultiDayEventsForDate(events, selectedDate) : [];
   const selectedDaySingleEvents = selectedDate ? getSingleDayEventsForDate(events, selectedDate) : [];
+  // Sumber urutan = `selectedDayEvents` yang sudah diurutkan status → jam → nama
+  // (`getSingleDayEventsForDate` hanya memfilter). `groupByArea` mempertahankan
+  // urutan masuk di dalam grup, jadi memakai daftar unsorted akan mengacak kartu
+  // popup hari dibanding sebelum pengelompokan per area.
+  const dayLocationGroups = groupByArea(selectedDayEvents.filter(ev => !isMultiDayEvent(ev)), areas);
+  /* Judul grup disembunyikan HANYA bila satu-satunya grup adalah event tanpa
+   * area: di kondisi itu judulnya cuma "Area belum ditentukan" untuk seluruh
+   * panel (terjadi saat `areas` belum termuat atau data lama tanpa `area_id`).
+   * Satu grup ber-area tetap diberi judul — nama venue + jumlah event adalah
+   * informasi nyata, bukan pengulangan. */
+  const showMonthGroupHeaders = !(monthLocationGroups.length === 1 && monthLocationGroups[0]?.key === '__unmapped');
+  const showDayGroupHeaders = !(dayLocationGroups.length === 1 && dayLocationGroups[0]?.key === '__unmapped');
 
   return (
     <>
@@ -378,20 +420,19 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                       );
                     })()}
 
-                    {/* Single-day events section */}
-                    {STATUS_GROUPS.map((group, groupIdx) => {
-                      const groupEvents = monthEvents.filter(ev => ev.status === group.key && !isMultiDayEvent(ev));
-                      if (groupEvents.length === 0) return null;
-                      return (
-                        <div key={group.key} className={groupIdx > 0 && STATUS_GROUPS.slice(0, groupIdx).some(g => monthEvents.some(ev => ev.status === g.key)) ? 'mt-5 border-t border-[var(--wf-rule)] pt-5 ' : ''}>
+                    {/* Single-day events section: grup per area (venue). */}
+                    {monthLocationGroups.map((group, groupIdx) => (
+                      <div key={group.key} className={groupIdx > 0 ? 'mt-5 border-t border-[var(--wf-rule)] pt-5 ' : ''}>
+                        {group.name && showMonthGroupHeaders && (
                           <div className="mb-3 flex items-center gap-2">
-                            <span className={`h-2 w-2 rounded-full ${group.dot}`} />
-                            <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">
-                              {group.label} ({groupEvents.length})
-                            </p>
+                            <span className="h-2 w-2 rounded-full bg-[var(--wf-accent)]" aria-hidden="true" />
+                            <h4 className="text-xs font-semibold text-[var(--wf-ink-muted)]">
+                              {group.name} ({group.events.length})
+                            </h4>
                           </div>
+                        )}
                           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            {groupEvents.map(ev => {
+                            {group.events.map(ev => {
                               const isSelectedCard = selectedDate === ev.dateStr;
                               return (
                                 <Button
@@ -436,9 +477,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                               );
                             })}
                           </div>
-                        </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="ui-empty-panel px-4 py-6 text-sm text-[var(--wf-ink-muted)]">
@@ -630,20 +670,18 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                     );
                   })()}
 
-                  {/* Single-day events in day popup */}
-                  {STATUS_GROUPS.map((group, groupIdx) => {
-                    const groupEvents = selectedDayEvents.filter(ev => ev.status === group.key && !isMultiDayEvent(ev));
-                    if (groupEvents.length === 0) return null;
-                    return (
-                      <div key={group.key} className={groupIdx > 0 && STATUS_GROUPS.slice(0, groupIdx).some(g => selectedDayEvents.some(ev => ev.status === g.key)) ? 'mt-4 border-t border-[var(--wf-rule)] pt-4 ' : ''}>
+                  {dayLocationGroups.map((group, groupIdx) => (
+                    <div key={group.key} className={groupIdx > 0 ? 'mt-4 border-t border-[var(--wf-rule)] pt-4 ' : ''}>
+                      {group.name && showDayGroupHeaders && (
                         <div className="mb-3 flex items-center gap-2">
-                          <span className={`h-2 w-2 rounded-full ${group.dot}`} />
-                          <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">
-                            {group.label} ({groupEvents.length})
-                          </p>
+                          <span className="h-2 w-2 rounded-full bg-[var(--wf-accent)]" aria-hidden="true" />
+                          <h4 className="text-xs font-semibold text-[var(--wf-ink-muted)]">
+                            {group.name} ({group.events.length})
+                          </h4>
                         </div>
+                      )}
                         <div className="space-y-3">
-                          {groupEvents.map(ev => (
+                          {group.events.map(ev => (
                             <Button
                               type="button"
                               variant="ghost"
@@ -681,9 +719,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                             </Button>
                           ))}
                         </div>
-                      </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="ui-empty-panel px-4 py-6 text-sm text-[var(--wf-ink-muted)]">

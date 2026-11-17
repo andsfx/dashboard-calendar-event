@@ -3,6 +3,7 @@ import { DraftEventItem, EventItem } from '../../types';
 import { DraftHistoryTable } from './DraftHistoryTable';
 import { DraftQueueTable } from './DraftQueueTable';
 import { Button } from '../shadcn/button';
+import { Skeleton } from '../shadcn/skeleton';
 
 interface Props {
   activeDrafts: DraftEventItem[];
@@ -60,9 +61,9 @@ export function AdminDraftSection({
       )}
 
       {isDraftLoading ? (
-        <div className="space-y-3 animate-pulse">
+        <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-16 rounded-xl bg-[var(--wf-board-2)]" />
+            <Skeleton key={i} className="h-16 rounded-xl bg-[var(--wf-board-2)]" />
           ))}
         </div>
       ) : (
@@ -105,11 +106,11 @@ export function AdminDraftSection({
           </div>
         </Button>
 
-        {showDraftHistory && (
-          <div id="draft-history-content" className="mt-4">
-            <DraftHistoryTable drafts={draftHistory} onRestore={onRestoreDraft} />
-          </div>
-        )}
+        {/* Kontainer selalu ada di DOM: `aria-controls` menunjuk id ini, dan
+            id yang hilang saat tertutup memicu axe `aria-valid-attr-value`. */}
+        <div id="draft-history-content" className="mt-4" hidden={!showDraftHistory}>
+          <DraftHistoryTable drafts={draftHistory} onRestore={onRestoreDraft} />
+        </div>
       </div>
     </section>
   );

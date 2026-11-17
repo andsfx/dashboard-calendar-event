@@ -34,9 +34,10 @@ interface Props {
 export const StatusBadge = memo(function StatusBadge({ status, size = 'md' }: Props) {
   const cfg = CONFIG[status];
   return (
+    // Teks status sudah terlihat; aria-label pada `<span>` generic (render
+    // `Badge`) diprohibisi ARIA (axe aria-prohibited-attr).
     <Badge
       variant="outline"
-      aria-label={cfg.label}
       className={`inline-flex w-auto items-center gap-1.5 rounded-full border-transparent text-xs font-medium ${size === 'sm' ? 'h-auto px-2 py-0.5' : 'h-auto px-2.5 py-1'} ${cfg.className}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${cfg.dotClass}`} aria-hidden="true" />

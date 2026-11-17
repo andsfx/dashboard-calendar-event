@@ -10,6 +10,7 @@ import { Button } from '../shadcn/button';
 import { Input } from '../shadcn/input';
 import { NativeSelect } from '../shadcn/native-select';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../shadcn/table';
+import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from '../shadcn/empty';
 
 interface TenantSurveyListProps {
   surveys: TenantEventSurvey[];
@@ -440,27 +441,31 @@ export default function TenantSurveyList({
         </div>
       )}
 
-      {/* Empty */}
+      {/* Empty. `role="status"` ditempel pada EmptyHeader (teks saja), bukan
+          pada Empty: blok kedua berisi tombol "Reset filter", dan live region
+          yang membungkus tombol ikut membacakan tombolnya sebagai status. */}
       {surveys.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--wf-rule)] p-8 text-center">
-          <ClipboardCheck className="mx-auto h-10 w-10 text-[var(--wf-ink-muted)]" />
-          <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
-            Belum ada self-assessment
-          </p>
-          <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
-            Aktifkan form public per event, atau buat draft admin di atas
-          </p>
-        </div>
+        <Empty className="rounded-2xl border border-dashed border-[var(--wf-rule)] p-8">
+          <EmptyMedia>
+            <ClipboardCheck className="h-10 w-10 opacity-60" aria-hidden="true" />
+          </EmptyMedia>
+          <EmptyHeader role="status">
+            <EmptyTitle className="text-sm font-medium">Belum ada self-assessment</EmptyTitle>
+            <EmptyDescription className="text-xs">Aktifkan form public per event, atau buat draft admin di atas</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--wf-rule)] p-8 text-center">
-          <Search className="mx-auto h-8 w-8 text-[var(--wf-ink-muted)]" />
-          <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
-            Tidak ada hasil filter
-          </p>
+        <Empty className="rounded-2xl border border-dashed border-[var(--wf-rule)] p-8">
+          <EmptyMedia>
+            <Search className="h-8 w-8 opacity-60" aria-hidden="true" />
+          </EmptyMedia>
+          <EmptyHeader role="status">
+            <EmptyTitle className="text-sm font-medium">Tidak ada hasil filter</EmptyTitle>
+          </EmptyHeader>
           <Button variant="ghost" className="mt-2" onClick={clearFilters}>
             Reset filter
           </Button>
-        </div>
+        </Empty>
       ) : (
         <>
           {/* Mobile cards */}
@@ -547,7 +552,7 @@ export default function TenantSurveyList({
 
           {/* Desktop table */}
           <div className="ui-dashboard-surface hidden overflow-hidden md:block">
-            <Table className="min-w-[720px] text-left">
+            <Table tableLabel="Daftar self-assessment tenant" className="min-w-[720px] text-left">
               <TableHeader>
                 <TableRow className="ui-dashboard-muted border-b border-[var(--wf-rule)] text-[11px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)] ">
                   <TableHead scope="col" className="px-4 py-3">Tenant</TableHead>

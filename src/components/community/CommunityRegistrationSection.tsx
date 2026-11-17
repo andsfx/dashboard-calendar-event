@@ -203,7 +203,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
 
           {/* Desktop table */}
           <div className="ui-dashboard-surface hidden overflow-hidden md:block">
-            <Table className="text-left">
+            <Table tableLabel="Pendaftaran komunitas" className="text-left">
               <TableHeader>
                 <TableRow className="ui-dashboard-muted border-b border-[var(--wf-rule)]">
                   <TableHead scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Nama</TableHead>

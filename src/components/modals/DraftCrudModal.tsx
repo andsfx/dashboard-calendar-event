@@ -482,15 +482,18 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
             </NativeSelect>
           </div>
           <div>
-            <Label htmlFor="draft-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan</Label>
+            <Label htmlFor="draft-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan publik</Label>
             <Textarea
               id="draft-keterangan"
               value={form.keterangan}
               onChange={(e) => set('keterangan', e.target.value)}
               rows={2}
-              placeholder="Tulis status progres atau catatan follow-up event"
+              placeholder="Deskripsi singkat acara yang tampil di halaman publik setelah diterbitkan"
               className="w-full"
             />
+            <p className="mt-1 text-[11px] leading-5 text-[var(--wf-ink-muted)]">
+              Ikut terbit ke halaman publik saat draft diterbitkan. Catatan operasional dan kebutuhan internal pakai kolom Catatan Internal di bawah.
+            </p>
           </div>
           <div>
             <Label htmlFor="draft-internal-note" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan Internal</Label>

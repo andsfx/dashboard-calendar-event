@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { ConfirmOptions } from '../components/modals/ConfirmDialog';
+import type { AdminError } from '../lib/adminError';
 import { EventItem, ToastMessage } from '../types';
 import { createId } from '../utils/eventUtils';
 
@@ -8,11 +9,13 @@ type ShowToast = (type: ToastMessage['type'], title: string, message: string) =>
 export type EventHandlersDeps = {
   showToast: ShowToast;
   eventsLength: number;
-  addEvent: (event: EventItem) => Promise<boolean>;
-  updateEvent: (event: EventItem, lifecycle?: 'draft' | 'published') => Promise<boolean>;
+  /** Pesan error terakhir (mis. 400 bentrok area) dari useEvents. */
+  getLastError: () => AdminError | null;
+  addEvent: (event: EventItem, overrideConflicts?: boolean) => Promise<boolean>;
+  updateEvent: (event: EventItem, lifecycle?: 'draft' | 'published', overrideConflicts?: boolean) => Promise<boolean>;
   setEventVisibility: (event: EventItem, hidden: boolean) => Promise<boolean>;
   deleteEvent: (id: string) => Promise<boolean>;
-  addRecurringEvents: (events: EventItem[]) => Promise<boolean>;
+  addRecurringEvents: (events: EventItem[], overrideConflicts?: boolean) => Promise<boolean>;
   deleteRecurringSeries: (groupId: string) => Promise<boolean>;
   confirm: (options: ConfirmOptions) => Promise<boolean>;
 };
@@ -34,8 +37,8 @@ export interface EventHandlersResult {
   setInitialEventData: (v: Partial<EventItem> | null) => void;
   handleAddNew: () => void;
   handleEdit: (ev: EventItem) => void;
-  handleSave: (data: Partial<EventItem>, lifecycle?: 'draft' | 'published') => Promise<boolean>;
-  handleSaveBatch: (evs: EventItem[]) => Promise<boolean>;
+  handleSave: (data: Partial<EventItem>, lifecycle?: 'draft' | 'published', overrideConflicts?: boolean) => Promise<boolean>;
+  handleSaveBatch: (evs: EventItem[], overrideConflicts?: boolean) => Promise<boolean>;
   handleDeleteClick: (ev: EventItem) => void;
   handleDeleteConfirm: () => Promise<boolean>;
   handleDeleteSeries: (groupId: string) => Promise<boolean>;
@@ -45,7 +48,7 @@ export interface EventHandlersResult {
 }
 
 export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
-  const { showToast, eventsLength, addEvent, updateEvent, setEventVisibility, deleteEvent, addRecurringEvents, deleteRecurringSeries, confirm } = deps;
+  const { showToast, eventsLength, getLastError, addEvent, updateEvent, setEventVisibility, deleteEvent, addRecurringEvents, deleteRecurringSeries, confirm } = deps;
 
   const [showCrudModal, setShowCrudModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -66,17 +69,17 @@ export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
     setShowCrudModal(true);
   }, []);
 
-  const handleSave = useCallback(async (data: Partial<EventItem>, lifecycle?: 'draft' | 'published') => {
+  const handleSave = useCallback(async (data: Partial<EventItem>, lifecycle?: 'draft' | 'published', overrideConflicts?: boolean) => {
     let success = false;
     if (editingEvent) {
-      success = await updateEvent({ ...editingEvent, ...data } as EventItem, lifecycle);
+      success = await updateEvent({ ...editingEvent, ...data } as EventItem, lifecycle, overrideConflicts);
       if (success) showToast('success', 'Berhasil diperbarui!', `"${data.acara}" telah diperbarui.`);
-      else showToast('error', 'Gagal memperbarui', 'Perubahan belum tersimpan. Silakan coba lagi.');
+      else showToast('error', 'Gagal memperbarui', getLastError()?.message || 'Perubahan belum tersimpan. Silakan coba lagi.');
     } else {
       const newEv: EventItem = { ...data as EventItem, id: createId(), rowIndex: eventsLength + 1 };
-      success = await addEvent(newEv);
+      success = await addEvent(newEv, overrideConflicts);
       if (success) showToast('success', 'Acara ditambahkan!', `"${data.acara}" berhasil ditambahkan.`);
-      else showToast('error', 'Gagal menambahkan', 'Acara belum tersimpan. Silakan periksa koneksi lalu coba lagi.');
+      else showToast('error', 'Gagal menambahkan', getLastError()?.message || 'Acara belum tersimpan. Silakan periksa koneksi lalu coba lagi.');
     }
     if (success) {
       setShowCrudModal(false);
@@ -84,15 +87,15 @@ export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
       setInitialEventData(null);
     }
     return success;
-  }, [editingEvent, eventsLength, addEvent, updateEvent, showToast]);
+  }, [editingEvent, eventsLength, addEvent, updateEvent, showToast, getLastError]);
 
-  const handleSaveBatch = useCallback(async (evs: EventItem[]) => {
-    const success = await addRecurringEvents(evs);
+  const handleSaveBatch = useCallback(async (evs: EventItem[], overrideConflicts?: boolean) => {
+    const success = await addRecurringEvents(evs, overrideConflicts);
     if (success) showToast('success', 'Acara reguler ditambahkan!', `${evs.length} event berhasil dibuat.`);
-    else showToast('error', 'Gagal menambahkan', 'Acara reguler belum tersimpan. Coba lagi.');
+    else showToast('error', 'Gagal menambahkan', getLastError()?.message || 'Acara reguler belum tersimpan. Coba lagi.');
     if (success) { setShowCrudModal(false); setEditingEvent(null); setInitialEventData(null); }
     return success;
-  }, [addRecurringEvents, showToast]);
+  }, [addRecurringEvents, showToast, getLastError]);
 
   const handleDeleteClick = useCallback((ev: EventItem) => {
     setDeletingEvent(ev);

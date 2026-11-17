@@ -414,7 +414,7 @@ export default function TenantSurveyResultsPage({
             type="button"
             onClick={() => setShowExportOptions(true)}
             disabled={agg.total === 0}
-            className="ui-btn-primary ui-focus-ring inline-flex h-auto w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2"
+            className="h-auto w-full shrink-0 gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold sm:w-auto sm:py-2"
           >
             <Download className="h-4 w-4" aria-hidden />
             Ekspor PDF
@@ -1019,7 +1019,7 @@ export default function TenantSurveyResultsPage({
                   </p>
                 </div>
                 <div className="max-h-80 overflow-auto">
-                  <Table className="w-full min-w-[320px] text-left text-xs">
+                  <Table tableLabel="Kategori dan penjualan" className="w-full min-w-[320px] text-left text-xs">
                     <TableHeader className="sticky top-0 z-10">
 <TableRow className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] text-[10px] uppercase tracking-wide text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]">
                         <TableHead scope="col" className="h-auto px-4 py-2 font-semibold text-[var(--wf-ink-muted)]">
@@ -1192,7 +1192,7 @@ export default function TenantSurveyResultsPage({
               )}
             </div>
             <div className="hidden max-h-[28rem] overflow-auto sm:block">
-              <Table className="w-full min-w-[720px] text-left text-xs">
+              <Table tableLabel="Detail respons" className="w-full min-w-[720px] text-left text-xs">
                 <TableHeader className="sticky top-0 z-10">
 <TableRow className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] text-[10px] uppercase tracking-wide text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]">
                     <TableHead scope="col" className="h-auto px-4 py-2.5 font-semibold text-[var(--wf-ink-muted)]">

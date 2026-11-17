@@ -8,6 +8,7 @@ import { fetchPublicTenantSurveyEvents, type PublicTenantSurveyEventInfo } from 
 import { Button } from '../shadcn/button';
 import { Input } from '../shadcn/input';
 import { Label } from '../shadcn/label';
+import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from '../shadcn/empty';
 
 function formatDate(d: string) {
   try {
@@ -196,11 +197,17 @@ export default function TenantSurveyEventPicker() {
 
       {/* No results */}
       {!loading && filtered.length === 0 && events.length > 0 && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--wf-rule-strong)] px-6 py-12 text-center">
-          <Search className="mb-3 h-8 w-8 text-[var(--wf-ink-muted)]" />
-          <p className="text-sm font-medium text-[var(--wf-ink-muted)]">
-            Tidak ada event yang cocok dengan "<span className="font-semibold">{query}</span>"
-          </p>
+        <Empty className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--wf-rule-strong)] px-6 py-12 text-center">
+          <EmptyMedia>
+            <Search className="h-8 w-8 opacity-60" aria-hidden="true" />
+          </EmptyMedia>
+          {/* `role="status"` pada teks, bukan pada Empty: tombol "Hapus filter"
+              di bawahnya tidak boleh ikut dibacakan sebagai status. */}
+          <EmptyHeader role="status">
+            <EmptyTitle className="text-sm font-medium">
+              Tidak ada event yang cocok dengan "<span className="font-semibold">{query}</span>"
+            </EmptyTitle>
+          </EmptyHeader>
           <Button
             type="button"
             variant="ghost"
@@ -209,7 +216,7 @@ export default function TenantSurveyEventPicker() {
           >
             Hapus filter
           </Button>
-        </div>
+        </Empty>
       )}
     </main>
   );

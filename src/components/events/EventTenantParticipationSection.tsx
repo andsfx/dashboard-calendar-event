@@ -8,6 +8,7 @@ import {
   tenantParticipationOptionLabel,
 } from '../../utils/domainApi';
 import { formatDateRange } from '../../utils/eventUtils';
+import { Skeleton } from '../shadcn/skeleton';
 
 interface Props {
   eventId: string;
@@ -52,9 +53,9 @@ export function EventTenantParticipationSection({ eventId, isPast }: Props) {
   // Tetap tampilkan ajakan ikut serta untuk event yang belum lewat.
   if (isLoading) {
     return (
- <div className="rounded-[1.5rem] border p-4 border-[var(--wf-rule)] bg-[var(--wf-board)]" aria-hidden="true">
-        <div className="h-5 w-40 animate-pulse rounded bg-[var(--wf-rule)] " />
-        <div className="mt-3 h-16 animate-pulse rounded-xl bg-[var(--wf-rule)] " />
+      <div className="rounded-[1.5rem] border p-4 border-[var(--wf-rule)] bg-[var(--wf-board)]" aria-hidden="true">
+        <Skeleton className="h-5 w-40 rounded bg-[var(--wf-rule)]" />
+        <Skeleton className="mt-3 h-16 rounded-xl bg-[var(--wf-rule)]" />
       </div>
     );
   }

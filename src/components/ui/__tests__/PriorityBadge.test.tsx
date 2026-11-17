@@ -19,9 +19,13 @@ describe('PriorityBadge', () => {
     expect(screen.getByText('Rendah')).toBeInTheDocument()
   })
 
-  it('has aria-label for accessibility', () => {
+  it('label prioritas terbaca sebagai teks, bukan aria-label pada span generic', () => {
+    // axe aria-prohibited-attr: aria-label dilarang pada elemen generic
+    // (Badge merender <span>). Label kini bagian konten teks badge.
     render(<PriorityBadge priority="high" />)
-    expect(screen.getByLabelText('Prioritas Tinggi')).toBeInTheDocument()
+    const badge = screen.getByText('Prioritas Tinggi').closest('span')
+    expect(badge).not.toHaveAttribute('aria-label')
+    expect(badge).toHaveTextContent('Prioritas Tinggi')
   })
 
   it('applies correct styling classes', () => {

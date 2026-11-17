@@ -19,7 +19,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
 
   return (
     <div className="ui-dashboard-surface overflow-hidden">
-      <Table className="w-full min-w-[980px] text-sm">
+      <Table tableLabel="Riwayat draft" className="w-full min-w-[980px] text-sm">
           <TableHeader>
             <TableRow className="border-b border-[var(--wf-rule)] bg-[var(--wf-board-2)]">
               {['Tanggal', 'Event', 'Penyelenggara', 'Penanggung jawab', 'Nomor telepon', 'Progres', 'Riwayat status', 'Tindak lanjut'].map(label => (

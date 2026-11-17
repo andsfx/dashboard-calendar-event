@@ -8,6 +8,7 @@ import { isV3Survey, salesPositivePct, trafficPositivePct } from '../../utils/su
 import { SURVEY_OPTIONS } from '../../constants/survey-options';
 import TenantSurveyTrendChart from './TenantSurveyTrendChart';
 import { Button } from '../shadcn/button';
+import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from '../shadcn/empty';
 
 interface TenantSurveyAnalyticsProps {
   analytics: TenantSurveyAnalytics[];
@@ -62,15 +63,15 @@ function StatCard({
 
 function EmptyState() {
   return (
-    <div className="rounded-[var(--wf-radius-board)] border border-dashed border-[var(--wf-rule)] p-8 text-center">
-      <BarChart3 className="mx-auto h-10 w-10 text-[var(--wf-ink-muted)]" />
-      <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
-        Belum ada data analytics
-      </p>
-      <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
-        Analytics akan muncul setelah tenant mengirimkan self-assessment
-      </p>
-    </div>
+    <Empty className="rounded-[var(--wf-radius-board)] border border-dashed border-[var(--wf-rule)] p-8" role="status" aria-live="polite">
+      <EmptyMedia>
+        <BarChart3 className="h-10 w-10 opacity-60" aria-hidden="true" />
+      </EmptyMedia>
+      <EmptyHeader>
+        <EmptyTitle className="text-sm font-medium">Belum ada data analytics</EmptyTitle>
+        <EmptyDescription className="text-xs">Analytics akan muncul setelah tenant mengirimkan self-assessment</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }
 

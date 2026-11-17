@@ -200,11 +200,13 @@ export const AdminSidebar = memo(function AdminSidebar({
       </nav>
 
       <div className="space-y-1.5 border-t border-[var(--wf-rail-rule)] px-3 py-3">
+        {/* Label teks berubah ("Mode terang"/"Mode gelap") dan sudah
+            menyatakan aksi; `aria-pressed` dihapus karena pembaca layar akan
+            mengumumkan keadaan yang bertentangan dengan label. */}
         <Button
           type="button"
           variant="ghost"
           onClick={onToggleDark}
-          aria-pressed={isDark}
           className="wf-rail-row wf-focus-rail h-auto w-full focus-visible:ring-0 focus-visible:border-transparent active:translate-y-0"
         >
           {isDark ? (

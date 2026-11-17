@@ -117,14 +117,22 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
           id={`${datalistId}-area`}
           value={areaId}
           onChange={e => onAreaChange(e.target.value, areaOptions.find(o => o.id === e.target.value)?.name || null)}
+          aria-invalid={!!errors.areaConflict}
+          aria-describedby={errors.areaConflict ? `${datalistId}-area-error` : undefined}
           className="w-full"
         >
           <option value="">Pilih area…</option>
           {areaOptions.map(area => <option key={area.id} value={area.id}>{area.name}</option>)}
         </NativeSelect>
+        {errors.areaConflict && (
+          <p id={`${datalistId}-area-error`} className="mt-1 text-xs text-red-700 dark:text-red-300" role="alert">{errors.areaConflict}</p>
+        )}
         {areaId && conflictEvents.length > 0 && (
-          <div className="mt-2 rounded-xl border border-[var(--wf-action)]/40 bg-[var(--wf-action)]/10 px-3 py-2 text-xs text-[var(--wf-action)]" role="alert">
-            <p className="flex items-center gap-1.5 font-bold">
+          <div className="mt-2 rounded-xl border border-[var(--wf-action)]/40 bg-[var(--wf-action)]/10 px-3 py-2 text-xs text-[var(--wf-action)]">
+            {/* `role="status"` hanya pada teks: pembungkus ini memuat checkbox
+                override, dan live region yang membungkus kontrol fokusabel ikut
+                membacakan label checkbox sebagai bagian dari pengumuman. */}
+            <p className="flex items-center gap-1.5 font-bold" role="status">
               <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
               Perhatian: area ini sudah dipakai {conflictEvents.length} event pada rentang tanggal yang sama:
             </p>

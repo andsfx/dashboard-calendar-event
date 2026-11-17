@@ -13,7 +13,6 @@ export const PriorityBadge = memo(function PriorityBadge({ priority }: { priorit
     <Badge
       variant="outline"
       className={`inline-flex items-center h-auto w-auto rounded-md border-transparent px-2 py-0.5 text-xs font-medium ${cfg.className}`}
-      aria-label={cfg.label}
     >
       {cfg.label}
     </Badge>

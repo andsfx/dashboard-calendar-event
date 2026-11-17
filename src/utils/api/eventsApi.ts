@@ -82,9 +82,14 @@ export async function fetchEventById(id: string): Promise<EventItem | null> {
 
 // ─── Admin writes ────────────────────────────────────────────────
 
-export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex'> | Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>): Promise<{ row: number; id: string }> {
+export async function createEvent(
+  eventData: Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex'> | Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>,
+  opts?: { overrideConflicts?: boolean },
+): Promise<{ row: number; id: string }> {
   const payload = withDerivedStatusCache(eventData as Partial<EventItem>);
-  const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createEvent', { data: eventItemToDbRow(payload) });
+  const data = eventItemToDbRow(payload);
+  if (opts?.overrideConflicts) data.override_conflicts = true;
+  const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createEvent', { data });
   if (!result.success) throw new ApiError(result.error || 'Gagal membuat event');
   return { row: 0, id: result.id || '' };
 }
@@ -99,11 +104,13 @@ export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' |
 export async function updateEvent(
   eventData: Partial<EventItem> & { id: string },
   lifecycle?: 'draft' | 'published',
+  opts?: { overrideConflicts?: boolean },
 ): Promise<void> {
   const { id, ...rest } = eventData;
   const payload = withDerivedStatusCache(rest);
   const data: Record<string, unknown> = eventItemToDbRow(payload);
   if (lifecycle) data.status = lifecycle;
+  if (opts?.overrideConflicts) data.override_conflicts = true;
   const result = await adminAction<{ success: boolean; error?: string }>('updateEvent', { id, data });
   if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui event');
 }
@@ -117,13 +124,53 @@ export async function setEventVisibility(id: string, hidden: boolean): Promise<v
   await updateEvent({ id }, hidden ? 'draft' : 'published');
 }
 
+/**
+ * Tautkan registrasi komunitas (sudah approved) ke sebuah event.
+ * Kontrak server (final):
+ * - `eventId` string = set `events.organization_id` pada event target itu
+ *   (menimpa `organization_id` lama event itu, termasuk milik organisasi lain);
+ * - `eventId: null` TANPA `unlinkEventId` = lepas SEMUA tautan registrasi ini
+ *   (massal: `UPDATE events SET organization_id = NULL WHERE organization_id = $1`),
+ *   dipertahankan untuk kompatibilitas;
+ * - lepas SATU event memakai {@link unlinkRegistrationFromEvent} (kirim
+ *   `eventId: null` + `unlinkEventId: <id event>`);
+ * - server menolak bila registrasi tidak `approved` (400), dan menolak bila
+ *   `eventId` + `unlinkEventId` dikirim bersamaan (400).
+ */
+export async function linkRegistrationToEvent(registrationId: string, eventId: string | null): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('linkRegistrationToEvent', { registrationId, eventId });
+  if (!result.success) throw new ApiError(result.error || 'Gagal menautkan registrasi ke event');
+}
+
+/**
+ * Lepas tautan registrasi dari SATU event (per-event, bukan massal).
+ * Kirim `eventId: null` + `unlinkEventId: eventId` supaya server menargetkan
+ * `UPDATE ... SET organization_id = NULL WHERE id = $1 AND organization_id = $2`
+ * hanya pada event tersebut (event milik organisasi lain tidak tersentuh).
+ */
+export async function unlinkRegistrationFromEvent(registrationId: string, eventId: string): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('linkRegistrationToEvent', {
+    registrationId,
+    eventId: null,
+    unlinkEventId: eventId,
+  });
+  if (!result.success) throw new ApiError(result.error || 'Gagal melepas tautan registrasi dari event');
+}
+
 export async function deleteEvent(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteEvent', { id });
   if (!result.success) throw new ApiError(result.error || 'Gagal menghapus event');
 }
 
-export async function batchCreateEvents(eventsData: Array<Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex'> | Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>>): Promise<{ results: Array<{ row: number; id: string }>; count: number }> {
-  const rows = eventsData.map(ev => eventItemToDbRow(withDerivedStatusCache(ev as Partial<EventItem>)));
+export async function batchCreateEvents(eventsData: Array<Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex'> | Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>>, opts?: { overrideConflicts?: boolean }): Promise<{ results: Array<{ row: number; id: string }>; count: number }> {
+  const rows = eventsData.map(ev => {
+    const row = eventItemToDbRow(withDerivedStatusCache(ev as Partial<EventItem>));
+    // Flag izin bentrok DISISIPKAN ke payload baris (bukan kolom INSERT —
+    // server punya whitelist kolom eksplisit). Digunakan server untuk
+    // melewati guard bentrok area per baris.
+    if (opts?.overrideConflicts) row.override_conflicts = true;
+    return row;
+  });
   const result = await adminAction<{ success: boolean; error?: string; results?: Array<{ id: string }>; count?: number }>('batchCreateEvents', { data: rows });
   if (!result.success) throw new ApiError(result.error || 'Gagal membuat event massal');
   const results = (result.results || []).map(r => ({ row: 0, id: r.id }));

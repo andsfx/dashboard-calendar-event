@@ -110,6 +110,15 @@ const ACTION_SCHEMAS = {
       message: 'Setiap pemetaan perlu area tujuan atau teks lokasi pengganti. Isi salah satu.',
     })).min(1),
   }),
+  linkRegistrationToEvent: z.object({
+    action: z.literal('linkRegistrationToEvent'),
+    registrationId: z.string().min(1),
+    eventId: z.string().min(1).nullable(),
+    // Unlink per-event (bukan massal): target event tunggal yang dilepas dari
+    // registrasi ini. `eventId: null` tanpa `unlinkEventId` tetap unlink massal
+    // untuk kompatibilitas.
+    unlinkEventId: z.string().min(1).nullable().optional(),
+  }),
   updateRegistrationStatus: z.object({
     action: z.literal('updateRegistrationStatus'),
     id: z.string().min(1),

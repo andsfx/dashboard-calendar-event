@@ -1,7 +1,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useEvents } from '../useEvents';
-import { fetchEvents, fetchAdminEvents, fetchThemesAndHolidays, createEvent, updateEvent, deleteEvent } from '../../utils/domainApi';
+import { fetchEvents, fetchAdminEvents, fetchThemesAndHolidays, createEvent, updateEvent, deleteEvent, batchCreateEvents } from '../../utils/domainApi';
 import { recalculateStatuses } from '../../utils/eventUtils';
 import { ApiError } from '../../lib/rest';
 import { EventItem } from '../../types';
@@ -147,6 +147,33 @@ describe('useEvents', () => {
     expect(createEvent).toHaveBeenCalledTimes(1);
     expect(result.current.events.length).toBe(1);
     expect(result.current.events[0].id).toBe('2'); // ID updated from mock
+  });
+
+  it('addRecurringEvents meneruskan flag overrideConflicts ke batchCreateEvents', async () => {
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: [], themes: [], holidays: [] });
+    vi.mocked(batchCreateEvents).mockResolvedValueOnce({
+      results: [{ row: 0, id: 'rg-1' }, { row: 1, id: 'rg-2' }],
+      count: 2,
+    });
+
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    const evs = [
+      createMockEvent({ id: 'temp-a', acara: 'R1', dateStr: '2026-11-20' }),
+      createMockEvent({ id: 'temp-b', acara: 'R2', dateStr: '2026-11-27' }),
+    ];
+
+    let success = false;
+    await act(async () => {
+      success = await result.current.addRecurringEvents(evs, true);
+    });
+
+    expect(success).toBe(true);
+    expect(batchCreateEvents).toHaveBeenCalledTimes(1);
+    const args = vi.mocked(batchCreateEvents).mock.calls[0];
+    expect(args[0]).toHaveLength(2);
+    expect(args[1]).toEqual({ overrideConflicts: true });
   });
 
   it('should handle empty data state', async () => {

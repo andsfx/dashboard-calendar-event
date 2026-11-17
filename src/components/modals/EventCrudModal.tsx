@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Save, Calendar, Image, Trash2, Upload, Repeat } from 'lucide-react';
 import { EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency, EventArea } from '../../types';
-import { parseDateStrLocal, getDateRange, createRecurringEvents, getStatus } from '../../utils/eventUtils';
+import { parseDateStrLocal, getDateRange, createRecurringEvents, generateRecurringDates, getStatus } from '../../utils/eventUtils';
 import { findAreaConflicts } from '../../utils/areaConflict';
 import { uploadToR2 } from '../../utils/domainApi';
 import { ModalWrapper } from './ModalWrapper';
@@ -27,8 +27,8 @@ interface Props {
    * dengan perubahan field — mapper umum draft-only (ADR 008), dan dua tulisan
    * terpisah bisa gagal separuh.
    */
-  onSave: (data: Partial<EventItem>, lifecycle?: 'draft' | 'published') => Promise<boolean>;
-  onSaveBatch?: (data: EventItem[]) => Promise<boolean>;
+  onSave: (data: Partial<EventItem>, lifecycle?: 'draft' | 'published', overrideConflicts?: boolean) => Promise<boolean>;
+  onSaveBatch?: (data: EventItem[], overrideConflicts?: boolean) => Promise<boolean>;
   editingEvent: EventItem | null;
   events: EventItem[];
   eventAreas: EventArea[];
@@ -150,6 +150,32 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
   const picPlaceholder = getPlaceholder(picSuggestions, 'Nama penanggung jawab event');
   const phonePlaceholder = getPlaceholder(phoneSuggestions, '08xxxxxxxxxx');
 
+  // Konflik area untuk SELURUH tanggal relevan: single/multi = tanggal dasar;
+  // rekuransi = gabungan konflik dari setiap tanggal hasil generateRecurringDates
+  // supaya checkbox override muncul bila ada konflik di tanggal mana pun, bukan
+  // cuma tanggal dasar.
+  const conflictEvents = useMemo(() => {
+    if (!areaId) return [];
+    const excludeId = editingEvent ? editingEvent.id : undefined;
+    if (form.eventType === 'recurring' && !editingEvent && form.dateStr && form.recurrenceEndDate) {
+      const rule: RecurrenceRule = {
+        frequency: form.recurrenceFrequency,
+        daysOfWeek: form.recurrenceDaysOfWeek,
+        dayOfMonth: form.recurrenceDayOfMonth,
+        interval: form.recurrenceInterval,
+        endDate: form.recurrenceEndDate,
+      };
+      const seen = new Map<string, EventItem>();
+      for (const dateStr of generateRecurringDates(form.dateStr, rule)) {
+        for (const ev of findAreaConflicts(areaId, dateStr, undefined, excludeId, events)) {
+          seen.set(ev.id, ev);
+        }
+      }
+      return [...seen.values()];
+    }
+    return findAreaConflicts(areaId, form.dateStr, form.isMultiDay ? form.dateEnd || undefined : undefined, excludeId, events);
+  }, [areaId, form, editingEvent, events]);
+
   useEffect(() => {
     if (editingEvent) {
       // Determine eventType from existing event data
@@ -228,6 +254,14 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     setIsSubmitting(false);
     setPosterError('');
   }, [editingEvent, initialData, isOpen]);
+
+  // Persetujuan konflik hanya sah untuk area/tanggal yang dilihat saat
+  // dicentang. Perubahan salah satunya membatalkan override agar flag basi
+  // tidak ikut terkirim ke server.
+  useEffect(() => {
+    setOverrideAck(false);
+    setErrors(prev => (prev.areaConflict ? { ...prev, areaConflict: '' } : prev));
+  }, [areaId, form.dateStr, form.dateEnd, form.isMultiDay]);
 
   if (!isOpen) return null;
 
@@ -410,9 +444,15 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
-    // Anti double-booking: blok simpan bila ada konflik area dan belum di-override
-    const activeConflicts = findAreaConflicts(areaId, form.dateStr, form.isMultiDay ? form.dateEnd || undefined : undefined, editingEvent?.id, events);
-    if (activeConflicts.length > 0 && !overrideAck) return;
+    // Anti double-booking: blok simpan bila ada konflik area dan belum di-override.
+    // `conflictEvents` sudah mencakup semua tanggal rekuransi, bukan cuma dasar.
+    if (conflictEvents.length > 0 && !overrideAck) {
+      setErrors(prev => ({
+        ...prev,
+        areaConflict: 'Area ini sudah dipakai event lain pada tanggal tersebut. Centang izin bentrok atau ubah area/tanggal.',
+      }));
+      return;
+    }
 
     const formData = form;
 
@@ -453,13 +493,13 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
       setIsSubmitting(true);
       if (onSaveBatch) {
-        const success = await onSaveBatch(recurringEvents);
+        const success = await onSaveBatch(recurringEvents, overrideAck);
         if (!success) setIsSubmitting(false);
       } else {
         // Fallback: save one by one
         let allSuccess = true;
         for (const ev of recurringEvents) {
-          const success = await onSave(ev);
+          const success = await onSave(ev, undefined, overrideAck);
           if (!success) { allSuccess = false; break; }
         }
         if (!allSuccess) setIsSubmitting(false);
@@ -520,7 +560,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
       ...meta,
       status: finalStatus,
       areaId: areaId || null,
-    }, lifecycle);
+    }, lifecycle, overrideAck);
     if (!success) setIsSubmitting(false);
   };
 
@@ -551,11 +591,15 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
             editingId={editingEvent?.id}
             areaId={areaId}
             areaOptions={eventAreas.filter(a => a.isActive)}
-            conflictEvents={findAreaConflicts(areaId, form.dateStr, form.isMultiDay ? form.dateEnd || undefined : undefined, editingEvent?.id, events)}
+            conflictEvents={conflictEvents}
             overrideAck={overrideAck}
-            onOverrideAck={setOverrideAck}
+            onOverrideAck={(v) => {
+              setOverrideAck(v);
+              if (v) setErrors(prev => ({ ...prev, areaConflict: '' }));
+            }}
             onAreaChange={(id, areaName) => {
               setAreaId(id);
+              setErrors(prev => ({ ...prev, areaConflict: '' }));
               // Autofill lokasi bila kosong atau masih menempel nama area sebelumnya
               const prevArea = areaOptionsById.get(areaId);
               if (areaName && (!form.lokasi.trim() || (prevArea && form.lokasi.trim() === prevArea.name))) {
@@ -710,16 +754,19 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Keterangan */}
           <div>
-            <Label htmlFor="event-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan</Label>
+            <Label htmlFor="event-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan publik</Label>
             <Textarea
               id="event-keterangan"
               value={form.keterangan}
               onChange={(e) => set('keterangan', e.target.value)}
               rows={2}
               placeholder="Deskripsi singkat tentang acara…"
-              aria-label="Keterangan"
+              aria-describedby="event-keterangan-hint"
               className="w-full"
             />
+            <p id="event-keterangan-hint" className="mt-1 text-[11px] leading-5 text-[var(--wf-ink-muted)]">
+              Tampil di jadwal acara, halaman detail, dan beranda komunitas. Kebutuhan internal (peralatan, kru, vendor) jangan ditulis di sini.
+            </p>
           </div>
 
           {/* Poster / Flyer */}

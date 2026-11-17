@@ -24,6 +24,7 @@ import { isAiEnabled, generateInsightNarrative } from '../lib/ai.js';
 import { toTextArray, toJsonb } from '../lib/pgValues.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
 import { safeDate } from '../lib/eventWindow.js';
+import { areaConflictPredicate, isIsoDateString } from '../lib/areaConflict.js';
 import {
   deleteR2File,
   deleteR2FileOrThrow,
@@ -219,6 +220,26 @@ async function switchAction(action, req) {
 
     case 'createEvent': {
       const data = body.data || {};
+      const overrideConflicts = data.override_conflicts === true;
+      if (!overrideConflicts) {
+        const conflict = areaConflictPredicate(data.area_id ?? null, data.date_str, data.date_end ?? null, null);
+        if (conflict) {
+          const { rows: conflictRows } = await db.query(
+            `SELECT COUNT(*)::int AS total,
+                    COALESCE((SELECT name FROM event_areas WHERE id = $1), $1) AS area_name
+             FROM events e
+             WHERE ${conflict.where}`,
+            conflict.params,
+          );
+          if (conflictRows[0]?.total > 0) {
+            return {
+              success: false,
+              status: 400,
+              error: `Bentrok jadwal: area ${conflictRows[0].area_name} sudah dipakai event lain pada rentang tanggal ini. Pindah tanggal, pindah area, atau periksa jadwal area.`,
+            };
+          }
+        }
+      }
       const { rows } = await db.query(
         // `status` di-INSERT sebagai 'published', bukan nilai dari client: event
         // yang dibuat lewat form admin sudah live, dan status temporal dihitung
@@ -243,7 +264,10 @@ async function switchAction(action, req) {
         ],
       );
       const id = rows[0]?.id || '';
-      logActivity(auth.user, 'create_event', 'event', id, { acara: data.acara }, req);
+      logActivity(auth.user, 'create_event', 'event', id, {
+        acara: data.acara,
+        ...(overrideConflicts ? { overrideConflicts: true, areaId: data.area_id ?? null } : {}),
+      }, req);
       return { success: true, id };
     }
 
@@ -252,6 +276,41 @@ async function switchAction(action, req) {
       const data = body.data || {};
       const keys = Object.keys(data);
       if (keys.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
+
+      const overrideConflicts = data.override_conflicts === true;
+      const changesDateOrArea = keys.includes('date_str') || keys.includes('date_end') || keys.includes('area_id');
+      if (changesDateOrArea && !overrideConflicts) {
+        const { rows: currentRows } = await db.query(
+          'SELECT date_str, date_end, area_id FROM events WHERE id = $1',
+          [body.id],
+        );
+        const current = currentRows[0];
+        // Baris hilang TIDAK boleh melewati guard diam-diam: tanpa ini cek konflik
+        // di-skip lalu UPDATE 0 baris tetap dibalas sukses (QR/dua tab).
+        if (!current) {
+          return { success: false, error: 'Event ini tidak ada atau sudah dihapus. Muat ulang daftar event.' };
+        }
+        const effectiveDateStr = 'date_str' in data ? data.date_str : current.date_str;
+        const effectiveDateEnd = 'date_end' in data ? (data.date_end ?? null) : current.date_end;
+        const effectiveAreaId = 'area_id' in data ? (data.area_id ?? null) : current.area_id;
+        const conflict = areaConflictPredicate(effectiveAreaId, effectiveDateStr, effectiveDateEnd, body.id);
+        if (conflict) {
+          const { rows: conflictRows } = await db.query(
+            `SELECT COUNT(*)::int AS total,
+                    COALESCE((SELECT name FROM event_areas WHERE id = $1), $1) AS area_name
+             FROM events e
+             WHERE ${conflict.where}`,
+            conflict.params,
+          );
+          if (conflictRows[0]?.total > 0) {
+            return {
+              success: false,
+              status: 400,
+              error: `Bentrok jadwal: area ${conflictRows[0].area_name} sudah dipakai event lain pada rentang tanggal ini. Pindah tanggal, pindah area, atau periksa jadwal area.`,
+            };
+          }
+        }
+      }
 
       // Whitelist kolom yang boleh di-update (hindari overwrite PK/timestamp).
       // `status` SENGAJA TIDAK ada di sini: nilai temporal (upcoming/ongoing/past)
@@ -296,14 +355,21 @@ async function switchAction(action, req) {
       if (sets.length === 0) return { success: false, error: 'Belum ada isian yang berubah. Ubah dulu datanya sebelum menyimpan.' };
       values.push(body.id);
 
-      await db.query(`UPDATE events SET ${sets.join(', ')} WHERE id = $${values.length}`, values);
-      logActivity(auth.user, 'update_event', 'event', body.id, { fields: keys }, req);
+      const { rowCount } = await db.query(`UPDATE events SET ${sets.join(', ')} WHERE id = $${values.length}`, values);
+      // Tanpa cek ini, event yang sudah hilang (QR/dua tab) dibalas sukses dan
+      // admin mengira perubahannya tersimpan. Pola sama dengan deleteLetter.
+      if (!rowCount) return { success: false, error: 'Event ini tidak ada atau sudah dihapus. Muat ulang daftar event.' };
+      logActivity(auth.user, 'update_event', 'event', body.id, {
+        fields: keys,
+        ...(overrideConflicts ? { overrideConflicts: true } : {}),
+      }, req);
       return { success: true };
     }
 
     case 'deleteEvent': {
       if (!body.id) return { success: false, error: 'Event belum terpilih. Pilih dulu eventnya lalu ulangi aksinya.' };
-      await db.query('DELETE FROM events WHERE id = $1', [body.id]);
+      const { rowCount } = await db.query('DELETE FROM events WHERE id = $1', [body.id]);
+      if (!rowCount) return { success: false, error: 'Event ini tidak ada atau sudah dihapus. Muat ulang daftar event.' };
       logActivity(auth.user, 'delete_event', 'event', body.id, null, req);
       return { success: true };
     }
@@ -313,34 +379,64 @@ async function switchAction(action, req) {
       if (!Array.isArray(rows) || rows.length === 0) return { success: false, error: 'Daftar event yang dikirim kosong. Isi minimal satu event lalu simpan ulang.' };
 
       // Satu transaksi untuk SELURUH batch: kegagalan di baris ke-n tidak
-      // boleh menyisakan separuh event terbit (dulu tiap INSERT berdiri sendiri,
-      // jadi batch 20 yang gagal di baris 15 meninggalkan 14 event produksi).
-      const ids = await db.withTransaction(async (client) => {
-        const createdIds = [];
-        for (const data of rows) {
-          const { rows: [created] } = await client.query(
-            `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, area_id, acara, eo, pic, phone,
-                                 keterangan, month, status, category, categories, priority, event_model, event_nominal,
-                                 event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
-                                 recurrence_group_id, is_recurring, poster_url, organization_id)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
-             RETURNING id`,
-            [
-              data.date_str, data.date_end ?? null, data.day ?? '', data.tanggal ?? '', data.jam ?? '',
-              data.lokasi ?? '', data.area_id ?? null, data.acara, data.eo ?? '', data.pic ?? '',
-              data.phone ?? '', data.keterangan ?? '', data.month ?? '',
-              data.category ?? 'Umum', toTextArray(data.categories ?? []), data.priority ?? 'medium',
-              data.event_model ?? '', data.event_nominal ?? '', data.event_model_notes ?? '',
-              data.source_draft_id ?? '', data.is_multi_day ?? false,
-              data.day_time_slots ? JSON.stringify(data.day_time_slots) : null,
-              data.event_type ?? 'single', data.recurrence_group_id ?? '', data.is_recurring ?? false,
-              data.poster_url ?? null, data.organization_id ?? null,
-            ],
-          );
-          if (created) createdIds.push(created.id);
+      // boleh menyisakan separuh event terbit. Guard bentrok area per baris
+      // berjalan DI DALAM transaksi, dan konflik melempar error supaya
+      // withTransaction ROLLBACK total — bukan sekadar menyimpan separuh batch.
+      let ids;
+      try {
+        ids = await db.withTransaction(async (client) => {
+          const createdIds = [];
+          for (let i = 0; i < rows.length; i++) {
+            const data = rows[i];
+            const overrideConflicts = data.override_conflicts === true;
+            if (!overrideConflicts) {
+              const conflict = areaConflictPredicate(data.area_id ?? null, data.date_str, data.date_end ?? null, null);
+              if (conflict) {
+                const { rows: conflictRows } = await client.query(
+                  `SELECT COUNT(*)::int AS total,
+                          COALESCE((SELECT name FROM event_areas WHERE id = $1), $1) AS area_name
+                   FROM events e
+                   WHERE ${conflict.where}`,
+                  conflict.params,
+                );
+                if (conflictRows[0]?.total > 0) {
+                  const err = new Error(
+                    `Bentrok jadwal pada baris ke-${i + 1} ("${data.acara || ''}"): area ${conflictRows[0].area_name} sudah dipakai event lain pada rentang tanggal ini. Pindah tanggal, pindah area, atau kirim ulang dengan izin bentrok.`,
+                  );
+                  err.conflictGuard = true;
+                  throw err;
+                }
+              }
+            }
+            const { rows: [created] } = await client.query(
+              `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, area_id, acara, eo, pic, phone,
+                                   keterangan, month, status, category, categories, priority, event_model, event_nominal,
+                                   event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
+                                   recurrence_group_id, is_recurring, poster_url, organization_id)
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
+               RETURNING id`,
+              [
+                data.date_str, data.date_end ?? null, data.day ?? '', data.tanggal ?? '', data.jam ?? '',
+                data.lokasi ?? '', data.area_id ?? null, data.acara, data.eo ?? '', data.pic ?? '',
+                data.phone ?? '', data.keterangan ?? '', data.month ?? '',
+                data.category ?? 'Umum', toTextArray(data.categories ?? []), data.priority ?? 'medium',
+                data.event_model ?? '', data.event_nominal ?? '', data.event_model_notes ?? '',
+                data.source_draft_id ?? '', data.is_multi_day ?? false,
+                data.day_time_slots ? JSON.stringify(data.day_time_slots) : null,
+                data.event_type ?? 'single', data.recurrence_group_id ?? '', data.is_recurring ?? false,
+                data.poster_url ?? null, data.organization_id ?? null,
+              ],
+            );
+            if (created) createdIds.push(created.id);
+          }
+          return createdIds;
+        });
+      } catch (err) {
+        if (err?.conflictGuard) {
+          return { success: false, status: 400, error: err.message };
         }
-        return createdIds;
-      });
+        throw err;
+      }
 
       logActivity(auth.user, 'batch_create_events', 'event', null, { count: ids.length }, req);
       return { success: true, results: ids.map((id) => ({ id })), count: ids.length };
@@ -949,6 +1045,99 @@ async function switchAction(action, req) {
     }
 
     // ══════════ COMMUNITY REGISTRATIONS ══════════
+    case 'linkRegistrationToEvent': {
+      const registrationId = body.registrationId ?? '';
+      const eventId = body.eventId ?? null;
+      const unlinkEventId = body.unlinkEventId ?? null;
+
+      if (eventId && unlinkEventId) {
+        return { success: false, status: 400, error: 'Kirim salah satu: eventId atau unlinkEventId.' };
+      }
+
+      // eventId null TANPA unlinkEventId = lepas tautan massal (sah), bukan kesalahan.
+      const { rows: regRows } = await db.query(
+        'SELECT id, status FROM community_registrations WHERE id = $1',
+        [registrationId],
+      );
+      if (!regRows[0]) {
+        return {
+          success: false,
+          status: 400,
+          error: 'Pendaftaran tidak ditemukan. Muat ulang daftar pendaftaran.',
+        };
+      }
+      // Hanya organisasi yang sudah disetujui boleh menjadi pemilik event; UI
+      // menyembunyikan panel taut untuk status lain, tapi request langsung tetap
+      // harus ditolak di server.
+      if (regRows[0].status !== 'approved') {
+        return {
+          success: false,
+          status: 400,
+          error: 'Registrasi ini belum disetujui. Setujui dulu sebelum menautkan ke event.',
+        };
+      }
+
+      if (unlinkEventId) {
+        // Unlink PER-EVENT: target satu event yang tertaut ke registrasi ini.
+        // Verifikasi event ada dulu supaya id ngawur tidak dibalas sukses.
+        const { rows: evRows } = await db.query('SELECT id FROM events WHERE id = $1', [unlinkEventId]);
+        if (!evRows[0]) {
+          return {
+            success: false,
+            status: 400,
+            error: 'Event tidak ditemukan. Muat ulang daftar event.',
+          };
+        }
+        const { rows: unlinked, rowCount } = await db.query(
+          'UPDATE events SET organization_id = NULL WHERE id = $1 AND organization_id = $2 RETURNING id',
+          [unlinkEventId, registrationId],
+        );
+        if (!rowCount) {
+          return {
+            success: false,
+            status: 400,
+            error: 'Event ini tidak tertaut ke registrasi ini. Muat ulang daftar.',
+          };
+        }
+        logActivity(auth.user, 'link_registration_event', 'event', unlinkEventId, {
+          registrationId,
+          unlinkedEventIds: unlinked.map((row) => row.id),
+        }, req);
+        return { success: true };
+      }
+
+      if (eventId) {
+        const { rows: evRows } = await db.query('SELECT id FROM events WHERE id = $1', [eventId]);
+        if (!evRows[0]) {
+          return {
+            success: false,
+            status: 400,
+            error: 'Event tidak ditemukan. Muat ulang daftar event.',
+          };
+        }
+        await db.query('UPDATE events SET organization_id = $1 WHERE id = $2', [registrationId, eventId]);
+        logActivity(auth.user, 'link_registration_event', 'event', eventId, {
+          registrationId,
+          eventId,
+        }, req);
+      } else {
+        // Unlink MASSAL (kompatibilitas lama): lepas semua tautan registrasi ini.
+        // RETURNING id dipakai agar jejak audit menyebut event mana yang
+        // benar-benar terlepas, bukan resource_id null.
+        const { rows: unlinked, rowCount } = await db.query(
+          'UPDATE events SET organization_id = NULL WHERE organization_id = $1 RETURNING id',
+          [registrationId],
+        );
+        logActivity(auth.user, 'link_registration_event', 'event', null, {
+          registrationId,
+          unlinkedCount: rowCount || unlinked.length,
+          unlinkedEventIds: unlinked.map((row) => row.id).slice(0, 20),
+        }, req);
+      }
+      return { success: true };
+    }
+
+    // ══════════ COMMUNITY REGISTRATIONS ══════════
     case 'updateRegistrationStatus': {
       if (!body.id) return { success: false, error: 'Pendaftaran belum terpilih. Pilih dulu datanya lalu ulangi aksinya.' };
       const updates = ['status'];
@@ -958,10 +1147,13 @@ async function switchAction(action, req) {
         values.push(body.adminNote === null ? '' : body.adminNote);
       }
       values.push(body.id);
-      await db.query(
+      const { rowCount } = await db.query(
         `UPDATE community_registrations SET ${updates.map((c, i) => `${c} = $${i + 1}`).join(', ')} WHERE id = $${values.length}`,
         values,
       );
+      // Pola sama dengan updateEvent/deleteEvent: baris yang sudah hilang
+      // (QR/dua tab) tidak boleh dibalas sukses dan meninggalkan jejak log.
+      if (!rowCount) return { success: false, error: 'Pendaftaran tidak ditemukan. Muat ulang daftar pendaftaran.' };
       logActivity(auth.user, 'update_registration_status', 'registration', body.id, { status: body.status }, req);
       return { success: true };
     }

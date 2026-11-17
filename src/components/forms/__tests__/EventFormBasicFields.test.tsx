@@ -81,7 +81,9 @@ describe('EventFormBasicFields', () => {
       conflictEvents: [{ id: 'evt_9', acara: 'Bazar Kuliner', dateStr: '2024-01-15', dateEnd: undefined }],
     }
     render(<EventFormBasicFields {...propsWithConflict} />)
-    expect(screen.getByRole('alert')).toHaveTextContent(/sudah dipakai 1 event/)
+    // Peringatan konflik = `role="status"` (polite); `role="alert"` hanya untuk
+    // error simpan, supaya keduanya tidak saling memotong saat Save diklik.
+    expect(screen.getByRole('status')).toHaveTextContent(/sudah dipakai 1 event/)
     expect(screen.getByRole('checkbox')).toBeInTheDocument()
   })
 })

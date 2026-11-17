@@ -36,8 +36,12 @@ describe('StatusBadge', () => {
     expect(badge).toHaveClass('px-2.5', 'py-1', 'text-xs')
   })
 
-  it('has aria-label for accessibility', () => {
+  it('label status terbaca sebagai teks, bukan aria-label pada span generic', () => {
+    // axe aria-prohibited-attr: aria-label dilarang pada elemen generic
+    // (Badge merender <span>). Label kini bagian konten teks badge.
     render(<StatusBadge status="ongoing" />)
-    expect(screen.getByLabelText('Berlangsung')).toBeInTheDocument()
+    const badge = screen.getByText('Berlangsung').closest('span')
+    expect(badge).not.toHaveAttribute('aria-label')
+    expect(badge).toHaveTextContent('Berlangsung')
   })
 })

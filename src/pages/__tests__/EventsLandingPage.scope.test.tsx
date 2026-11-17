@@ -42,6 +42,7 @@ function ev(partial: Partial<EventItem> & Pick<EventItem, 'id' | 'status' | 'aca
 
 const AREAS: EventArea[] = [
   { id: 'main', name: 'Area Utama', description: '', coverPhotoUrl: '', sortOrder: 1, isActive: true },
+  { id: 'stage', name: 'Panggung', description: '', coverPhotoUrl: '', sortOrder: 2, isActive: true },
 ];
 
 function renderPage(events: EventItem[], entry = '/events') {
@@ -146,20 +147,30 @@ describe('EventsLandingPage — hanya event yang belum selesai', () => {
 });
 
 describe('EventsLandingPage — urutan grup kalender', () => {
-  it('menampilkan grup Berlangsung sebelum Mendatang', () => {
+  it('mengelompokkan kartu bulan menurut area, bukan status', () => {
     renderPage([
       ev({ id: 'o1', status: 'ongoing', acara: 'Festival Berlangsung', areaId: 'main' }),
       ev({ id: 'u1', status: 'upcoming', acara: 'Bazar Mendatang', areaId: 'main', dateStr: dayInThisMonth('20') }),
+      ev({ id: 'u2', status: 'upcoming', acara: 'Konser Akustik', areaId: 'stage', dateStr: dayInThisMonth('21') }),
+      ev({ id: 'u3', status: 'upcoming', acara: 'Pasar Tanpa Area', areaId: null, dateStr: dayInThisMonth('22') }),
     ]);
 
     const calendar = section('calendar');
-    const ongoingHeading = calendar.getByText(/^Berlangsung \(\d+\)$/);
-    const upcomingHeading = calendar.getByText(/^Mendatang \(\d+\)$/);
+    const utamaHeading = calendar.getByText(/^Area Utama \(\d+\)$/);
+    const panggungHeading = calendar.getByText(/^Panggung \(\d+\)$/);
+    const unmappedHeading = calendar.getByText(/^Area belum ditentukan \(\d+\)$/);
 
-    // Urutan grup mengikuti `STATUS_GROUPS`: Berlangsung dulu, lalu Mendatang.
+    // Urutan grup mengikuti sortOrder area: Area Utama (1) sebelum Panggung (2);
+    // event tanpa area masuk "Area belum ditentukan" paling akhir.
     expect(
-      ongoingHeading.compareDocumentPosition(upcomingHeading) & Node.DOCUMENT_POSITION_FOLLOWING,
+      utamaHeading.compareDocumentPosition(panggungHeading) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+    expect(
+      panggungHeading.compareDocumentPosition(unmappedHeading) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // Header grup status tidak ada lagi.
+    expect(calendar.queryByText(/^Berlangsung \(\d+\)$/)).toBeNull();
+    expect(calendar.queryByText(/^Mendatang \(\d+\)$/)).toBeNull();
   });
 });
 

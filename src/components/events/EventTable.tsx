@@ -287,15 +287,13 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
           tergulung) DAN `min-w-[750px]` yang lebih kecil dari kebutuhan konten
           nyata (~1110px) memotong kolom Aksi tanpa memunculkan scrollbar sama
           sekali — tombol Ubah/Hapus tak bisa dijangkau. Pola ini (max-h + sticky
-          thead) juga dipakai tabel lain di dashboard. */}
-      <div
-        className="hidden max-h-[70vh] overflow-auto md:block"
-        role="region"
-        aria-label="Daftar jadwal event"
-        tabIndex={0}
-      >
-        <Table className="min-w-[60rem]">
-          <caption className="sr-only">Tabel jadwal event</caption>
+          thead) juga dipakai tabel lain di dashboard.
+          Nama region (`role="region"` + `aria-label`) dan `tabIndex={0}` tidak
+          lagi dipasang di sini: itu sekarang tugas `<Table>` (satu sumber untuk
+          semua tabel). Fokus di wrapper dalam tetap menggulir panel ini secara
+          vertikal karena wrapper dalam tidak bisa menggulir di sumbu Y. */}
+      <div className="hidden max-h-[70vh] overflow-auto md:block">
+        <Table tableLabel="Daftar jadwal event" className="min-w-[60rem]">
           <TableHeader className="sticky top-0 z-10 bg-[var(--wf-board-2)] [&_tr]:border-b-0">
             <TableRow className="ui-dashboard-muted border-b border-[var(--wf-rule)] hover:bg-transparent">
               <TableHead scope="col" className="h-auto px-4 py-3 text-left">

@@ -17,10 +17,10 @@ export const CategoryBadges = memo(function CategoryBadges({ categories, maxVisi
       {remaining > 0 && (
         <Badge
           variant="outline"
-          aria-label={`${remaining} kategori lainnya`}
           className="inline-flex h-auto w-auto items-center rounded-md border-transparent bg-[var(--wf-board-2)] px-2 py-0.5 text-xs font-medium text-[var(--wf-ink-muted)]"
         >
-          +{remaining}
+          +{remaining}{' '}
+          <span className="sr-only">kategori lainnya</span>
         </Badge>
       )}
     </>

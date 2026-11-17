@@ -144,7 +144,7 @@ export interface DashboardPageHandlers {
   handleDetailClick: (ev: EventItem) => void;
   /** Sembunyikan/tampilkan event di halaman publik (flag lifecycle `draft`). */
   handleToggleVisibility: (ev: EventItem) => Promise<boolean>;
-  handleSave: (data: Partial<EventItem>) => Promise<boolean>;
+  handleSave: (data: Partial<EventItem>, lifecycle?: 'draft' | 'published', overrideConflicts?: boolean) => Promise<boolean>;
   handleSaveBatch: (evs: EventItem[]) => Promise<boolean>;
   handleDeleteSeries: (groupId: string) => Promise<boolean>;
   handleDeleteConfirm: () => Promise<boolean>;

@@ -33,7 +33,15 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
   const [activePriority, setActivePriority] = useState('Semua');
   const [activeMonth, setActiveMonth] = useState('Semua');
   const [lastError, setLastError] = useState<AdminError | null>(null);
-  const clearLastError = useCallback(() => setLastError(null), []);
+  // Salinan sinkron dari `lastError` untuk pemanggil yang butuh pesan tepat
+  // setelah mutasi gagal (toast di useEventHandlers). State React belum tentu
+  // sudah ter-render saat promise `addEvent/updateEvent` selesai dengan `false`.
+  const lastErrorRef = useRef<AdminError | null>(null);
+  const clearLastError = useCallback(() => {
+    lastErrorRef.current = null;
+    setLastError(null);
+  }, []);
+  const getLastError = useCallback(() => lastErrorRef.current, []);
   // Data lokal mungkin sudah tidak sinkron setelah refresh gagal (mis. mutasi
   // sukses 200 tetapi daftar tidak bisa dimuat ulang). Dipakai UI untuk
   // menampilkan ajakan "muat ulang", bukan untuk rollback.
@@ -49,6 +57,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
    */
   const reportError = useCallback((err: unknown, context: string) => {
     const ae = toAdminError(err);
+    lastErrorRef.current = ae;
     setLastError(ae);
     if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
     else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
@@ -205,13 +214,13 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
     return sortEvents(result);
   }, [events, activeFilter, activeCategory, activePriority, activeMonth, debouncedSearch]);
 
-  const addEvent = useCallback(async (ev: EventItem): Promise<boolean> => {
+  const addEvent = useCallback(async (ev: EventItem, overrideConflicts?: boolean): Promise<boolean> => {
     const tempId = ev.id;
     const normalizedEvent = normalizeEvent(ev);
     setEvents(prev => [...prev, normalizedEvent]);
     try {
       const { id, rowIndex, ...apiData } = normalizedEvent;
-      const created = await apiCreate(apiData);
+      const created = await apiCreate(apiData, overrideConflicts ? { overrideConflicts } : undefined);
       setEvents(prev => prev.map(e => e.id === tempId ? { ...e, id: created.id || tempId, sheetRow: created.row } : e));
       return true;
     } catch (err) {
@@ -221,7 +230,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
     }
   }, [reportError]);
 
-  const addRecurringEvents = useCallback(async (evs: EventItem[]): Promise<boolean> => {
+  const addRecurringEvents = useCallback(async (evs: EventItem[], overrideConflicts?: boolean): Promise<boolean> => {
     if (evs.length === 0) return false;
     const tempIds = evs.map(e => e.id);
     const normalizedEvents = evs.map(normalizeEvent);
@@ -231,7 +240,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
         const { id, rowIndex, ...apiData } = e;
         return apiData;
       });
-      const { results } = await apiBatchCreate(apiDataList);
+      const { results } = await apiBatchCreate(apiDataList, overrideConflicts ? { overrideConflicts } : undefined);
       setEvents(prev => prev.map(e => {
         const idx = tempIds.indexOf(e.id);
         if (idx >= 0 && results[idx]) {
@@ -247,7 +256,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
     }
   }, [reportError]);
 
-  const updateEvent = useCallback(async (ev: EventItem, lifecycle?: 'draft' | 'published'): Promise<boolean> => {
+  const updateEvent = useCallback(async (ev: EventItem, lifecycle?: 'draft' | 'published', overrideConflicts?: boolean): Promise<boolean> => {
     const prevEvent = events.find(e => e.id === ev.id);
     const normalizedEvent = normalizeEvent(ev);
     // Lifecycle eksplisit harus tercermin di state lokal sekarang juga, bukan
@@ -264,7 +273,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
     setEvents(prev => prev.map(e => e.id === ev.id ? optimisticEvent : e));
     if (ev.id) {
       try {
-        await apiUpdate(optimisticEvent as EventItem & { id: string }, lifecycle);
+        await apiUpdate(optimisticEvent as EventItem & { id: string }, lifecycle, overrideConflicts ? { overrideConflicts } : undefined);
         return true;
       } catch (err) {
         reportError(err, 'Error updating event:');
@@ -390,6 +399,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
     isLoading,
     error,
     lastError,
+    getLastError,
     clearLastError,
     needsRefresh,
     searchQuery, setSearchQuery,

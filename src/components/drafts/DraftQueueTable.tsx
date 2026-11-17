@@ -30,8 +30,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
 
   return (
     <div className="ui-dashboard-surface overflow-hidden">
-      <Table className="w-full min-w-[1100px] text-sm">
-          <caption className="sr-only">Tabel antrian draft event aktif</caption>
+      <Table tableLabel="Antrian draft event aktif" className="w-full min-w-[1100px] text-sm">
           <TableHeader>
             <TableRow className="border-b border-[var(--wf-rule)] bg-[var(--wf-board-2)]">
               {['Tanggal', 'Event', 'Jam', 'Penyelenggara', 'Penanggung jawab', 'Nomor telepon', 'Lokasi', 'Progres', 'Aksi'].map(label => (

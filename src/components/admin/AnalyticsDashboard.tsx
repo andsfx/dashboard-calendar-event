@@ -166,6 +166,10 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
 function MonthlyTrendChart({ currentYear, prevYear }: { currentYear: number[]; prevYear: number[] }) {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
   const max = Math.max(...currentYear, ...prevYear, 1);
+  /* Yang dianimasikan `transform: scaleY` (compositor), bukan `height`
+   * (reflow tiap frame). Tinggi final tetap dari count/max; batang 4px untuk
+   * bulan berisi ≥1 event dipertahankan sebagai lantai 0.04 dari 100px —
+   * pengganti `minHeight: 4px` yang dipakai versi height. */
 
   return (
     <div className="flex items-end gap-1 sm:gap-2" style={{ height: '120px' }}>
@@ -174,21 +178,26 @@ function MonthlyTrendChart({ currentYear, prevYear }: { currentYear: number[]; p
         const prev = prevYear[i] ?? 0;
         return (
           <div key={m} className="flex flex-1 flex-col items-center gap-0.5">
-            <div className="flex w-full items-end justify-center gap-0.5" style={{ height: '100px' }}>
+            <div
+              className="flex w-full items-end justify-center gap-0.5"
+              style={{ height: '100px' }}
+              role="img"
+              aria-label={`${m}: ${cur} event tahun ini, ${prev} event tahun lalu`}
+            >
               {prev > 0 && (
                 <div
-                  className="w-2 rounded-t bg-[var(--wf-rule-strong)] transition-[height] duration-700"
-                  style={{ height: `${(prev / max) * 100}%` }}
-                  title={`${prev} event`}
+                  className="w-2 origin-bottom rounded-t bg-[var(--wf-rule-strong)] transition-transform duration-700"
+                  style={{ height: '100%', transform: `scaleY(${prev > 0 ? Math.max(prev / max, 0.04) : 0})` }}
+                  aria-hidden="true"
                 />
               )}
               <div
-                className="w-2 rounded-t bg-[var(--wf-accent)] transition-[height] duration-700 sm:w-3"
-                style={{ height: `${(cur / max) * 100}%`, minHeight: cur > 0 ? '4px' : '0' }}
-                title={`${cur} event`}
+                className="w-2 origin-bottom rounded-t bg-[var(--wf-accent)] transition-transform duration-700 sm:w-3"
+                style={{ height: '100%', transform: `scaleY(${cur > 0 ? Math.max(cur / max, 0.04) : 0})` }}
+                aria-hidden="true"
               />
             </div>
-            <span className="text-[9px] text-[var(--wf-ink-muted)]">{m}</span>
+            <span className="text-[10px] text-[var(--wf-ink-muted)]">{m}</span>
           </div>
         );
       })}

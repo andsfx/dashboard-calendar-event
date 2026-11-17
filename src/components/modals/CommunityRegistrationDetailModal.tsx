@@ -1,11 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
-import { X, Users, Phone, Mail, Globe, Calendar, FileText, MessageCircle, CheckCircle2, XCircle, Eye, Send, CalendarPlus, ExternalLink } from 'lucide-react';
-import { CommunityRegistration, RegistrationStatus, OrganizationType } from '../../types';
+import { X, Users, Phone, Mail, Globe, Calendar, FileText, MessageCircle, CheckCircle2, XCircle, Eye, Send, CalendarPlus, ExternalLink, Link2, Unlink } from 'lucide-react';
+import { CommunityRegistration, RegistrationStatus, OrganizationType, EventItem } from '../../types';
 import { ModalWrapper } from './ModalWrapper';
+import { useConfirmDialog } from './useConfirmDialog';
 import { Button } from '../shadcn/button';
 import { Label } from '../shadcn/label';
 import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../shadcn/select';
 import { Textarea } from '../shadcn/textarea';
+import { fetchAdminEvents, linkRegistrationToEvent, unlinkRegistrationFromEvent } from '../../utils/api/eventsApi';
+import { formatDateRange } from '../../utils/eventUtils';
+import { useToast } from '../../hooks/useToast';
 
 interface Props {
   isOpen: boolean;
@@ -92,10 +97,17 @@ function StatusBadge({ status }: { status: RegistrationStatus }) {
 }
 
 export function CommunityRegistrationDetailModal({ isOpen, onClose, registration, onUpdateStatus, onCreateEvent, readOnly = false }: Props) {
+  const { showToast } = useToast();
+  const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
   const [adminNote, setAdminNote] = useState('');
   const [waTemplate, setWaTemplate] = useState('reviewed');
   const [waMessage, setWaMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [linkEvents, setLinkEvents] = useState<EventItem[]>([]);
+  const [isLinkEventsLoading, setIsLinkEventsLoading] = useState(false);
+  const [linkEventsError, setLinkEventsError] = useState<string | null>(null);
+  const [linkEventId, setLinkEventId] = useState('');
+  const [isLinking, setIsLinking] = useState(false);
 
   // Reset state when modal opens
   useEffect(() => {
@@ -108,6 +120,26 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
       setIsSubmitting(false);
     }
   }, [isOpen, registration]);
+
+  // Muat daftar event admin untuk dropdown "Tautkan ke event" saat modal dibuka.
+  useEffect(() => {
+    if (!isOpen || !registration || registration.status !== 'approved' || readOnly) return;
+    let cancelled = false;
+    setLinkEvents([]);
+    setLinkEventId('');
+    setLinkEventsError(null);
+    setIsLinkEventsLoading(true);
+    fetchAdminEvents()
+      .then((rows) => { if (!cancelled) setLinkEvents(rows); })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('Gagal memuat daftar event untuk tautan registrasi:', err);
+        setLinkEvents([]);
+        setLinkEventsError('Gagal memuat daftar event.');
+      })
+      .finally(() => { if (!cancelled) setIsLinkEventsLoading(false); });
+    return () => { cancelled = true; };
+  }, [isOpen, registration, readOnly]);
 
   // Update WA message when template changes
   useEffect(() => {
@@ -140,6 +172,84 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
     const phone = registration.phone.replace(/\D/g, '');
     const waLink = `https://wa.me/${phone}?text=${encodeURIComponent(waMessage)}`;
     window.open(waLink, '_blank');
+  };
+
+  // Event yang layak ditautkan: sudah punya tanggal, bukan draft, dan belum
+  // tertaut ke registrasi ini (hindari duplikat tautan ke event yang sama).
+  const linkableEvents = useMemo(() => {
+    if (!registration) return [];
+    return linkEvents.filter((ev) =>
+      ev.status !== 'draft' &&
+      !!ev.dateStr &&
+      ev.organizationId !== registration.id,
+    );
+  }, [linkEvents, registration]);
+
+  const linkedEvents = useMemo(() => {
+    if (!registration) return [];
+    return linkEvents.filter((ev) => ev.organizationId === registration.id);
+  }, [linkEvents, registration]);
+
+  const refreshLinkEvents = async () => {
+    setLinkEventsError(null);
+    try {
+      const rows = await fetchAdminEvents();
+      setLinkEvents(rows);
+      setLinkEventId('');
+    } catch (err) {
+      console.error('Gagal memuat ulang daftar event untuk tautan registrasi:', err);
+      setLinkEventsError('Gagal memuat daftar event.');
+    }
+  };
+
+  // Event yang sedang dipilih di dropdown "Tautkan ke event".
+  const selectedLinkableEvent = useMemo(() => {
+    if (!linkEventId) return undefined;
+    return linkEvents.find((ev) => ev.id === linkEventId);
+  }, [linkEventId, linkEvents]);
+
+  // Menautkan event milik organisasi LAIN menimpa organization_id-nya. Bukan
+  // dilarang — hanya butuh konfirmasi supaya tidak menimpa senyap.
+  const overwritingOtherOrg = Boolean(
+    selectedLinkableEvent?.organizationId &&
+    selectedLinkableEvent.organizationId !== registration?.id,
+  );
+
+  const handleLinkEvent = async () => {
+    if (!registration || !linkEventId || isLinking) return;
+    if (overwritingOtherOrg) {
+      const ok = await confirm({
+        title: 'Pindahkan tautan event?',
+        message: 'Event ini sudah tertaut ke organisasi lain. Menautkan ke registrasi ini akan memindahkan tautannya.',
+        confirmLabel: 'Pindahkan tautan',
+        tone: 'neutral',
+      });
+      if (!ok) return;
+    }
+    setIsLinking(true);
+    try {
+      await linkRegistrationToEvent(registration.id, linkEventId);
+      await refreshLinkEvents();
+      showToast('success', 'Event tertaut', 'Registrasi sudah ditautkan ke event.');
+    } catch (err) {
+      showToast('error', 'Gagal menautkan', err instanceof Error ? err.message : 'Registrasi belum tertaut.');
+    } finally {
+      setIsLinking(false);
+    }
+  };
+
+  const handleUnlinkEvent = async (eventId: string) => {
+    if (!registration || isLinking) return;
+    setIsLinking(true);
+    try {
+      await unlinkRegistrationFromEvent(registration.id, eventId);
+      await refreshLinkEvents();
+      showToast('success', 'Tautan dilepas', 'Registrasi sudah dilepas dari event.');
+    } catch (err) {
+      showToast('error', 'Gagal melepas', err instanceof Error ? err.message : 'Tautan belum dilepas.');
+    } finally {
+      setIsLinking(false);
+    }
   };
 
   const canReview = registration?.status === 'pending';
@@ -249,6 +359,105 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
             <StatusBadge status={registration.status} />
           </div>
 
+          {/* Tautkan ke event — hanya untuk registrasi approved */}
+          {registration.status === 'approved' && (
+            <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+              <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">
+                <Link2 className="h-3 w-3" /> Tautkan ke event
+              </p>
+
+              {/* Info event yang sekarang tertaut */}
+              {linkedEvents.length > 0 && (
+                <div className="space-y-2">
+                  {linkedEvents.map((ev) => (
+                    <div
+                      key={ev.id}
+                      className="flex flex-col gap-2 rounded-lg bg-[var(--wf-board)] p-3 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Tertaut ke</p>
+                        <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
+                          {ev.acara} — {formatDateRange(ev.dateStr, ev.dateEnd)}
+                        </p>
+                      </div>
+                      {!readOnly && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleUnlinkEvent(ev.id)}
+                          disabled={isLinking}
+                          className="shrink-0"
+                        >
+                          <Unlink className="h-3.5 w-3.5" /> {isLinking ? 'Melepas…' : 'Lepas tautan'}
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Dropdown event baru + tombol tautkan */}
+              {!readOnly && (
+                <div className="mt-3 space-y-2">
+                  <Label htmlFor="reg-link-event" className="block text-xs font-semibold text-[var(--wf-ink-muted)]">Pilih event</Label>
+                  {isLinkEventsLoading ? (
+                    <p className="text-xs text-[var(--wf-ink-muted)]">Memuat daftar event…</p>
+                  ) : linkEventsError ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      {/* role="alert" hanya pada teks: live region tidak boleh
+                          membungkus tombol — isinya ikut dibacakan dan fokus
+                          ke "Coba lagi" memicu ulang pengumuman. */}
+                      <p role="alert" className="text-xs font-semibold text-red-700 dark:text-red-300">{linkEventsError}</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { void refreshLinkEvents(); }}
+                      >
+                        Coba lagi
+                      </Button>
+                    </div>
+                  ) : linkableEvents.length === 0 ? (
+                    <p className="text-xs text-[var(--wf-ink-muted)]">Tidak ada event yang bisa ditautkan.</p>
+                  ) : (
+                    <>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <Select value={linkEventId} onValueChange={setLinkEventId}>
+                          <SelectTrigger id="reg-link-event" aria-label="Pilih event" className="w-full sm:flex-1">
+                            <SelectValue placeholder="Pilih event" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {linkableEvents.map((ev) => (
+                                <SelectItem key={ev.id} value={ev.id}>
+                                  {ev.acara} — {formatDateRange(ev.dateStr, ev.dateEnd)}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          onClick={handleLinkEvent}
+                          disabled={!linkEventId || isLinking}
+                          className="shrink-0"
+                        >
+                          <Link2 className="h-3.5 w-3.5" /> {isLinking ? 'Menautkan…' : 'Tautkan'}
+                        </Button>
+                      </div>
+                      {overwritingOtherOrg && (
+                        <p className="text-xs font-semibold text-[var(--wf-action)]" role="status">
+                          Event ini sudah tertaut ke organisasi lain. Menautkan akan memindahkan tautan ke registrasi ini.
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Admin Notes */}
           <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
             <Label htmlFor="reg-admin-note" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan Admin</Label>
@@ -357,6 +566,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
           </Button>
         </div>
       </div>
+      {confirmDialogEl}
     </ModalWrapper>
   );
 }

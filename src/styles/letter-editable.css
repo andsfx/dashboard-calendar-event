@@ -11,6 +11,11 @@
   width: 100%;
   outline: none;
   resize: none;
+  /* WCAG 2.5.8 (axe `target-size`): tujuh field awalnya 16.9px dan gagal.
+     Axe mengukur kotak elemen, bukan `::after`; min-block-size 24px menutupnya.
+     Terukur: kertas 1122.52px sebelum/sesudah; cetak mengembalikan field ke
+     15.94px lewat reset di bawah. */
+  min-block-size: 24px;
 }
 
 .editable:hover,
@@ -34,5 +39,6 @@
     box-shadow: none !important;
     color: #000 !important;
     font: inherit;
+    min-block-size: 0 !important;
   }
 }

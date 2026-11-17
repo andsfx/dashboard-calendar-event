@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { DraftProgress } from '../../types';
+import { Badge } from '../shadcn/badge';
 
 const CONFIG: Record<DraftProgress, { label: string; className: string; dot: string }> = {
   draft: {
@@ -23,12 +24,14 @@ export const DraftProgressBadge = memo(function DraftProgressBadge({ progress }:
   const cfg = CONFIG[progress];
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${cfg.className}`}
-      aria-label={`Status: ${cfg.label}`}
+    // Teks status sudah terlihat; tanpa aria-label pada `<span>` generic
+    // (axe aria-prohibited-attr). DESIGN.md:534: ketiga badge berbasis Badge.
+    <Badge
+      variant="outline"
+      className={`inline-flex items-center gap-1.5 rounded-full border-transparent px-2.5 py-1 text-xs font-medium ${cfg.className}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} aria-hidden="true" />
       {cfg.label}
-    </span>
+    </Badge>
   );
 });

@@ -1,5 +1,7 @@
+import { useId } from 'react';
 import { X } from 'lucide-react';
 import { EventStatus } from '../../types';
+import { Label } from '../shadcn/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../shadcn/select';
 import { Toggle } from '../shadcn/toggle';
 import { Badge } from '../shadcn/badge';
@@ -67,6 +69,7 @@ export function FilterBar({
   showDraft = true,
   showPriority = true,
 }: Props) {
+  const filterId = useId();
   const categoryOptions = normalizeOptionKeys(categories ?? []).map(c => ({ value: c, label: c === 'Semua' ? 'Semua kategori' : c }));
   const monthOptions = (months ?? []).map(m => ({ value: m, label: m === 'Semua' ? 'Semua bulan' : m }));
   const priorityOptions = PRIORITY_OPTIONS.map(o => ({ value: o.key, label: o.label }));
@@ -81,7 +84,10 @@ export function FilterBar({
   ].filter((chip): chip is { key: string; label: string; clear: () => void } => chip !== null);
 
   return (
-    <div className="flex flex-col gap-3">
+    /* Blok kontrol filter = landmark `search`, bukan `<div>`: pengguna SR bisa
+       melompat langsung ke sini dan filter halaman lain (survei, arsip) tidak
+       tertukar dengan tabel di bawahnya. */
+    <search aria-label="Filter acara" className="flex flex-col gap-3">
       {/* Filter status — grup chip toggle (`aria-pressed` dari md-filter-chip),
           bukan tablist: tidak ada tabpanel di bawah baris ini.
           Scrollable di mobile (chip `shrink-0` supaya tidak terkompresi). */}
@@ -105,50 +111,62 @@ export function FilterBar({
         ))}
       </div>
 
-      {/* Dropdowns row - wrap on mobile */}
+      {/* Dropdowns row - wrap on mobile. Label sr-only, bukan aria-label:
+          nama aksesibel harus stabil ("Bulan") sementara teks terlihat adalah
+          NILAI terpilih — `aria-label="Semua bulan"` dulu bertabrakan dengan
+          "Oktober" yang tampil setelah memilih (WCAG 2.5.3). */}
       <div className={dropdownCols}>
-        <Select value={activeMonth} onValueChange={onMonthChange}>
-          <SelectTrigger aria-label="Semua bulan" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {monthOptions.map(option => (
-                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <Select value={activeCategory} onValueChange={onCategoryChange}>
-          <SelectTrigger aria-label="Semua kategori" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {categoryOptions.map(option => (
-                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        {showPriority && (
-          <Select value={activePriority} onValueChange={onPriorityChange}>
-            <SelectTrigger aria-label="Semua prioritas" className="w-full">
+        <div>
+          <Label htmlFor={`${filterId}-bulan`} className="sr-only">Bulan</Label>
+          <Select value={activeMonth} onValueChange={onMonthChange}>
+            <SelectTrigger id={`${filterId}-bulan`} className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                {priorityOptions.map(option => (
+                {monthOptions.map(option => (
                   <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
           </Select>
+        </div>
+        <div>
+          <Label htmlFor={`${filterId}-kategori`} className="sr-only">Kategori</Label>
+          <Select value={activeCategory} onValueChange={onCategoryChange}>
+            <SelectTrigger id={`${filterId}-kategori`} className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {categoryOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+        {showPriority && (
+          <div>
+            <Label htmlFor={`${filterId}-prioritas`} className="sr-only">Prioritas</Label>
+            <Select value={activePriority} onValueChange={onPriorityChange}>
+              <SelectTrigger id={`${filterId}-prioritas`} className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {priorityOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
         )}
       </div>
 
       {activeChips.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2" aria-label="Filter aktif">
+        <div role="group" aria-label="Filter aktif" className="flex flex-wrap items-center gap-2">
           {activeChips.map(chip => (
             <Badge
               key={chip.key}
@@ -169,6 +187,6 @@ export function FilterBar({
           ))}
         </div>
       )}
-    </div>
+    </search>
   );
 }

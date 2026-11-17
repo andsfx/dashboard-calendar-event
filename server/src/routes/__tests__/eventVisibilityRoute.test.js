@@ -81,7 +81,9 @@ async function callAction(action, body = {}) {
 describe('updateEvent — gerbang visibilitas lifecycle', () => {
   beforeEach(() => {
     dbState.statements = [];
-    dbState.rows = [];
+    // Baris ada → UPDATE mengembalikan rowCount 1 (updateEvent kini menolak
+    // 0 baris supaya event yang sudah dihapus tidak dibalas sukses).
+    dbState.rows = [{ id: 'evt_1' }];
   });
 
   it('status "published" ditulis (tampilkan kembali event)', async () => {

@@ -1192,7 +1192,7 @@ export function EventsLandingPage({
                 <EventsErrorState message={error} onRetry={onRetry} />
               </div>
             ) : (
-              <CalendarView events={filteredEvents} holidays={holidays} onDetail={onDetail} variant="public" />
+              <CalendarView events={filteredEvents} areas={areas} holidays={holidays} onDetail={onDetail} variant="public" />
             )}
           </div>
         </RevealSection>

@@ -1,7 +1,19 @@
 import * as React from "react"
 import { cn } from "cn"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({
+  className,
+  tableLabel,
+  children,
+  ...props
+}: React.ComponentProps<"table"> & {
+  /**
+   * Nama tabel: dipakai dua kali — `<caption class="sr-only">` (nama aksesibel
+   * tabel) dan `aria-label` pada wrapper scroll (`role="region"`). Satu sumber
+   * teks supaya keduanya tidak pernah menyimpang.
+   */
+  tableLabel: string
+}) {
   return (
     <div
       data-slot="table-container"
@@ -11,17 +23,29 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
        * terdekat untuk `sticky` di dalamnya. Karena tingginya = tinggi konten, div
        * ini tidak pernah menggulir vertikal, dan header tabel `sticky top-0`
        * (EventTable) ikut tergulir bersama isi pada scroller luar — terukur:
-       * offset header −900px setelah region digulir 900px. Dengan `clip`, div ini
-       * bukan scroll container di sumbu Y, jadi sticky kembali merujuk ke scroller
-       * luar yang memang menggulir. Gulir horizontal tetap di sini.
+       * offset header −900px setelah region digulir 900px. Dengan `clip`, div
+       * ini bukan scroll container di sumbu Y, jadi sticky kembali merujuk ke
+       * scroller luar yang memang menggulir. Gulir horizontal tetap di sini.
+       *
+       * `role="region"` + `tabIndex={0}`: wrapper inilah yang menggulir
+       * horizontal, dan tanpa keduanya pengguna keyboard tidak punya cara
+       * memindahkan isi yang terpotong saat baris tidak berisi kontrol
+       * fokusabel. Cincin fokus dijaga karena div fokusabel tanpa indikator
+       * melanggar 2.4.7.
        */
-      className="relative w-full overflow-x-auto overflow-y-clip"
+      role="region"
+      aria-label={tableLabel}
+      tabIndex={0}
+      className="relative w-full overflow-x-auto overflow-y-clip focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--wf-accent)] focus-visible:outline-none"
     >
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}
         {...props}
-      />
+      >
+        <caption className="sr-only">{tableLabel}</caption>
+        {children}
+      </table>
     </div>
   )
 }

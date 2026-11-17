@@ -440,9 +440,12 @@ router.get('/directory', async (req, res) => {
         `SELECT id, organization_name, organization_type, description, instagram, status
          FROM community_registrations ORDER BY created_at DESC`,
       ),
-      db.query('SELECT organization_id, eo, date_str, date_end FROM events').catch(async () => {
+      // Gerbang visibilitas publik = `status <> 'draft'` (ADR 008): event yang
+      // disembunyikan admin tidak boleh menambah hitungan organisasi maupun
+      // memunculkan entri 'event-history' di direktori publik.
+      db.query(`SELECT organization_id, eo, date_str, date_end FROM events WHERE status <> 'draft'`).catch(async () => {
         // Fallback bila kolom organization_id belum ada di DB prod lama.
-        const { rows } = await db.query('SELECT eo, date_str, date_end FROM events');
+        const { rows } = await db.query(`SELECT eo, date_str, date_end FROM events WHERE status <> 'draft'`);
         return { rows };
       }),
     ]);
