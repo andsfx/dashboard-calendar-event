@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { downloadBlob } from '../lib/download';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, CalendarPlus, Check, Download, Link2, MapPin, MessageCircle, RefreshCw, Zap } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CalendarPlus, CalendarSync, Check, Download, Link2, MapPin, MessageCircle, RefreshCw, Zap } from 'lucide-react';
 import { buildGoogleCalendarUrl, buildIcsBlob, icsFileName } from '../utils/calendarLinks';
+import { CalendarSyncDialog } from '../components/events/CalendarSyncDialog';
 import { EventPhotoGallery } from '../components/events/EventPhotoGallery';
 import { EventDetailContent, getEventAccentColor } from '../components/events/EventDetailContent';
 import { EventPosterBanner } from '../components/events/EventPosterBanner';
@@ -31,6 +32,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
   const [fetchError, setFetchError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [isCalendarSyncOpen, setIsCalendarSyncOpen] = useState(false);
   // Album foto dipakai sebagai fallback poster bila event belum punya poster unggahan.
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
 
@@ -272,6 +274,15 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                   Unduh .ics
                 </Button>
               )}
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsCalendarSyncOpen(true)}
+                className="inline-flex items-center gap-2 rounded-full border border-black/10! bg-[var(--wf-board)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! active:scale-95 ui-focus-ring h-auto rounded-full! active:translate-y-0! hover:text-[var(--wf-ink-muted)]!"
+              >
+                <CalendarSync className="size-4" aria-hidden="true" />
+                Ikuti semua jadwal
+              </Button>
             </div>
 
             {/* Survey CTA untuk event past */}
@@ -312,6 +323,11 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
           </RevealSection>
         )}
       </main>
+
+      <CalendarSyncDialog
+        isOpen={isCalendarSyncOpen}
+        onClose={() => setIsCalendarSyncOpen(false)}
+      />
     </div>
   );
 }

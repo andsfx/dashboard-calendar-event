@@ -10,6 +10,7 @@ import {
   Baby,
   Briefcase,
   CalendarDays,
+  CalendarPlus,
   Clapperboard,
   Clock,
   Clock3,
@@ -68,6 +69,7 @@ import { CategoryBadges } from '../components/ui/CategoryBadges';
 import { CalendarView } from '../components/views/CalendarView';
 import { CommunityEyebrow, RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { CalendarSyncDialog } from '../components/events/CalendarSyncDialog';
 
 /** Anchor milik halaman ini; label dan tujuan tidak ditulis ulang di header. */
 const EVENTS_SECTION_LINKS = [
@@ -635,6 +637,7 @@ export function EventsLandingPage({
 
 
   const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
+  const [isCalendarSyncOpen, setIsCalendarSyncOpen] = useState(false);
 
   // ─── Filter URL (?waktu=) — deep-linkable, riset Skedda/Eventbrite pattern ───
   const [searchParams, setSearchParams] = useSearchParams();
@@ -855,6 +858,16 @@ export function EventsLandingPage({
                 >
                   Daftar ikut acara
                 </Link>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setIsCalendarSyncOpen(true)}
+                  disabled={isLoading}
+                  className="inline-flex items-center gap-2 rounded-full border border-black/10! bg-[var(--wf-board)] px-5 py-2.5 text-[13px] md:text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! disabled:cursor-not-allowed disabled:opacity-50 ui-focus-ring h-auto rounded-full! leading-normal active:translate-y-0! disabled:pointer-events-auto! hover:text-[var(--wf-ink-muted)]!"
+                >
+                  <CalendarPlus className="size-4" aria-hidden="true" />
+                  Sinkron kalender
+                </Button>
                 <Button
                   type="button"
                   variant="ghost"
@@ -1250,6 +1263,12 @@ export function EventsLandingPage({
           </div>
         </div>
       </footer>
+
+      <CalendarSyncDialog
+        isOpen={isCalendarSyncOpen}
+        onClose={() => setIsCalendarSyncOpen(false)}
+        events={liveEvents}
+      />
 
       {isExportOptionsOpen && (
         <Suspense fallback={null}>

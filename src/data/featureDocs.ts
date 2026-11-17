@@ -716,6 +716,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Klik chip waktu ("Hari ini", "Besok", atau "Akhir pekan ini") untuk menyaring.',
               'Ketik di kotak cari untuk menyaring nama acara, lokasi, atau keterangan (tersimpan sebagai ?q= dan ikut menyaring kalender).',
               'Klik kartu event untuk membuka detailnya, atau lihat "Jadwal lengkap" di kalender bulanan.',
+              'Klik "Sinkron kalender" untuk berlangganan jadwal ke Google Calendar, menyalin URL langganan, atau mengunduh semua event sebagai .ics.',
               'Klik "Unduh PDF" untuk mengunduh jadwal, atau "Ajukan event" untuk mengajukan acara kamu sendiri.',
             ],
             notes: [
@@ -737,6 +738,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Baca informasi: tanggal, waktu, lokasi, penyelenggara, dan keterangan.',
               'Klik "Bagikan lewat WhatsApp" untuk mengirim ke orang lain, atau "Salin tautan" (tombol berubah menjadi "Tautan tersalin").',
               'Untuk acara yang belum lewat, klik "Google Calendar" atau "Unduh .ics" untuk menyimpan tanggalnya.',
+              'Klik "Ikuti semua jadwal" untuk berlangganan feed jadwal Metropolitan Mall Bekasi lewat Google Calendar, Apple Calendar, atau Outlook.',
               'Lihat galeri foto acara bila ada.',
               'Bila ada tenant yang berpartisipasi, baca section "Tenant di event ini": booth dan voucher yang sudah disetujui beserta ketentuannya.',
               'Untuk event yang sudah lewat, klik "Isi survei kepuasan" untuk memberi penilaian.',
@@ -746,6 +748,25 @@ export const DOC_SECTIONS: DocSection[] = [
               'Event berstatus draf tidak pernah tampil di halaman publik.',
               'Section "Tenant di event ini" hanya memuat partisipasi yang sudah disetujui tim; kebutuhan fasilitas dan skema booth bersifat internal dan tidak ikut tampil.',
               'Tenant yang ingin ikut memeriahkan event bisa menekan CTA "Punya tenant di Metropolitan Mall?" di section itu; event tujuannya langsung terpilih di form.',
+            ],
+          },
+          {
+            id: 'sinkron-kalender',
+            name: 'Sinkron jadwal ke kalender',
+            audience: 'Publik',
+            summary:
+              'Feed jadwal publik yang bisa dilanggan di Google Calendar, Apple Calendar, atau Outlook. Event baru dan perubahan jadwal ikut masuk tanpa membuka ulang situs.',
+            steps: [
+              'Buka /events, lalu klik "Sinkron kalender" di baris aksi hero. Dari halaman detail event, tombolnya bernama "Ikuti semua jadwal".',
+              'Klik "Tambah ke Google Calendar". Google Calendar akan meminta konfirmasi langganan.',
+              'Bila memakai Apple Calendar atau Outlook, klik "Salin" pada URL langganan lalu tambahkan lewat menu berlangganan kalender di aplikasi tersebut.',
+              'Klik "Unduh semua event (.ics)" bila hanya perlu impor sekali, tanpa langganan.',
+            ],
+            notes: [
+              'Feed hanya memuat event yang belum selesai dan tidak pernah memuat draft.',
+              'Event yang dihapus dari jadwal ikut hilang dari langganan setelah Google/Apple memperbarui feed (biasanya beberapa jam sekali).',
+              'Event yang jamnya belum berbentuk rentang (mis. "13.00 WIB" atau "11.00 WIB - selesai") tampil sebagai acara sepanjang hari; jam aslinya tetap ditulis di deskripsi kalender.',
+              'URL langganan bisa dibagikan; penerima tidak perlu punya akun di situs ini.',
             ],
           },
           {

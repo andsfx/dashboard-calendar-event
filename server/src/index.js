@@ -8,6 +8,7 @@
  * Routes:
  *   GET  /api/v1/events          — daftar event (public, tanpa PII)
  *   GET  /api/v1/events/:id      — detail event (public, tanpa PII)
+ *   GET  /api/v1/calendar.ics    — feed ICS langganan publik (event belum selesai)
  *   GET  /api/v1/themes          — annual themes
  *   GET  /api/v1/holidays        — hari libur
  *   GET  /api/v1/news            — artikel published

@@ -3,6 +3,7 @@
  *
  *   GET /events              daftar event (tanpa draft; strip PII pic/phone)
  *   GET /events/:id          detail event (404 bila draft/tidak ada)
+ *   GET /calendar.ics        feed ICS langganan (event belum selesai, tanpa PII)
  *   GET /themes              annual themes (urut date_start)
  *   GET /holidays            hari libur (urut date_str)
  *   GET /news                artikel status='published' (tanpa konten besar? — kirim semua)
@@ -23,6 +24,8 @@ import { db } from '../db.js';
 import { stripPii } from '../auth.js';
 import { toTextArray, toJsonb } from '../lib/pgValues.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
+import { jakartaToday, safeDate } from '../lib/eventWindow.js';
+import { buildCalendarFeed } from '../lib/ics.js';
 
 const router = Router();
 
@@ -75,6 +78,39 @@ router.get('/events/:id', async (req, res, next) => {
     );
     if (!rows[0]) return res.status(404).json({ success: false, error: 'Event ini tidak ada atau sudah dihapus. Cek daftar event terbaru.' });
     res.json({ success: true, data: stripPii(rows[0], ['pic', 'phone']) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── GET /calendar.ics ───────────────────────────────────────────
+/**
+ * URL langganan kalender. Isinya event yang belum selesai (ongoing + semua
+ * yang akan datang): feed langganan tidak perlu membawa riwayat bertahun-tahun,
+ * dan Google/Apple memperlakukan perubahan feed sebagai update entri ber-UID
+ * sama. Draft tetap tertutup lewat `status <> 'draft'`.
+ *
+ * `date_str` TEXT bisa berisi nilai non-tanggal (impor legacy), jadi perbandingan
+ * memakai `safeDate` (CASE + regex) seperti `eventWindow.js`, bukan cast langsung.
+ */
+router.get('/calendar.ics', async (_req, res, next) => {
+  try {
+    const { rows } = await db.query(`
+      SELECT id, date_str, date_end, jam, acara, lokasi, keterangan, day_time_slots
+      FROM events
+      WHERE status <> 'draft'
+        AND ${safeDate('date_str')} IS NOT NULL
+        AND GREATEST(${safeDate('date_str')}, COALESCE(date_end, ${safeDate('date_str')})) >= $1::date
+      ORDER BY date_str ASC, jam ASC
+    `, [jakartaToday()]);
+
+    const feed = buildCalendarFeed(rows);
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', 'inline; filename="jadwal-event-mmb.ics"');
+    // Perubahan jadwal tidak instan; 5 menit cukup menahan trafik crawler
+    // langganan tanpa membuat subscriber melihat data basi terlalu lama.
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.send(feed);
   } catch (err) {
     next(err);
   }
