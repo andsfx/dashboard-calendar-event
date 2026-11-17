@@ -83,7 +83,7 @@ function EventCard({
     <Button
       type="button"
       variant="ghost"
-      className={`group relative cursor-pointer overflow-hidden rounded-[var(--wf-radius-board)]! border border-[var(--wf-rule)]! bg-[var(--wf-board)] transition-all duration-150 hover:-translate-y-0.5 focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! focus-visible:border-[var(--wf-rule)]! focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-offset-[var(--wf-board)] ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder} ${CARD_BUTTON_RESET}`}
+      className={`group relative cursor-pointer overflow-hidden rounded-[var(--wf-radius-board)]! border border-[var(--wf-rule)]! bg-[var(--wf-board)] transition-[transform,border-color,opacity] duration-150 hover:-translate-y-0.5 focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! focus-visible:border-[var(--wf-rule)]! focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-offset-[var(--wf-board)] ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder} ${CARD_BUTTON_RESET}`}
       onClick={() => onDetail(ev)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
       aria-label={`${ev.acara} - ${ev.tanggal}`}

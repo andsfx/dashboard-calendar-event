@@ -89,23 +89,8 @@
 .modal-panel { animation: modal-panel-in 0.22s var(--ease-out-expo) forwards; }
 .modal-panel-out { animation: modal-panel-out 0.2s ease forwards; }
 
-@keyframes toast-in {
-  from { opacity: 0; transform: translateX(110%); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes toast-out {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(110%); }
-}
-
-@keyframes toast-progress {
-  from { width: 100%; }
-  to { width: 0%; }
-}
-
-/* @keyframes toast-* di atas kini tidak dipakai komponen: ToastContainer sudah
-   menggerakkan enter/exit/progress dengan GSAP. Dibawah ini cuma (a) pre-state
+/* Toast di sini tidak memakai @keyframes: ToastContainer menggerakkan
+   enter/exit/progress dengan GSAP. Berkas ini cuma memuat (a) pre-state
    sebelum tween menulis nilai awal, dan (b) end-state untuk jalur fail-open
    (reduced motion / chunk gagal) lewat `.toast-static`.
 

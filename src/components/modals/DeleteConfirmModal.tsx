@@ -62,7 +62,7 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
               <p className="text-sm font-semibold text-red-700 dark:text-red-300 line-clamp-2">
                 "{event.acara}"
               </p>
-              <p className="mt-0.5 text-xs text-red-600/70 dark:text-red-300/70">
+              <p className="mt-0.5 text-xs text-[var(--wf-danger)]">
                 {event.tanggal} · {event.lokasi || 'Tanpa lokasi'}
               </p>
             </div>

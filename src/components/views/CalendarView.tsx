@@ -268,7 +268,7 @@ export function CalendarView({ events, areas = [], holidays, onDetail }: Props) 
                   setSelectedDate(d.dateStr);
                 }}
                 aria-label={dayLabel}
-                className={`relative flex! h-9 w-full! flex-col items-center justify-center rounded-lg border-0! p-0! text-[11px] font-medium transition-all active:translate-y-0! sm:h-10 sm:rounded-xl sm:text-xs ${
+                className={`relative flex! h-9 w-full! flex-col items-center justify-center rounded-lg border-0! p-0! text-[11px] font-medium transition-[background-color,color,box-shadow] active:translate-y-0! sm:h-10 sm:rounded-xl sm:text-xs ${
                   isSelected
                     ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] shadow-md hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]! dark:hover:bg-[var(--wf-accent)]!'
                     : isToday

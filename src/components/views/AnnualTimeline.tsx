@@ -42,7 +42,7 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
               return (
                 <div key={theme.id} className="flex flex-col items-center text-center">
                   {/* Dot */}
-                  <div className={`relative w-10 h-10 rounded-full flex items-center justify-center z-10 border-2 transition-all ${
+                  <div className={`relative w-10 h-10 rounded-full flex items-center justify-center z-10 border-2 transition-[transform,opacity,background-color,border-color,box-shadow] ${
                     status === 'active'
                       ? 'border-[var(--wf-board)] shadow-lg scale-110'
                       : status === 'past'
@@ -96,7 +96,7 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
           return (
             <div
               key={theme.id}
-              className={`flex-shrink-0 w-48 snap-start rounded-xl p-4 transition-all bg-[var(--wf-board)] ${
+              className={`flex-shrink-0 w-48 snap-start rounded-xl p-4 transition-[border-color,box-shadow,opacity] bg-[var(--wf-board)] ${
                 status === 'active'
                   ? 'border-2 shadow-lg'
                   : status === 'past'
