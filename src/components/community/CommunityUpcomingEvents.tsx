@@ -3,7 +3,7 @@ import { Clock, MapPin, CalendarDays, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EventItem, PhotoAlbum } from '../../types';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
-import { parseTimeRange } from '../../utils/eventDateTime';
+import { parseStartTime, parseTimeRange } from '../../utils/eventDateTime';
 import { resolveEventPoster } from '../../utils/eventPoster';
 import { EventPosterBanner } from '../events/EventPosterBanner';
 import { Button } from '../shadcn/button';
@@ -48,6 +48,26 @@ function getCountdownFromDiff(diff: number) {
     hours: Math.floor((safeDiff % dayMs) / hourMs),
     minutes: Math.floor((safeDiff % hourMs) / minuteMs),
   };
+}
+
+/**
+ * Jam tampilan kartu: "06:00 - 10:00" → "06.00 - 10.00 WIB",
+ * "13:00" → "13.00 WIB". Nilai `jam` di DB tidak diubah.
+ *
+ * Prosa yang sengaja disimpan apa adanya ("Setelah Isya", "Sepanjang hari",
+ * "11.00 WIB - selesai") dikembalikan utuh: sufiks "WIB" hanya ditambahkan
+ * setelah nilai terbukti berupa rentang atau jam tunggal.
+ */
+function formatEventTime(jam: string): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const range = parseTimeRange(jam);
+  if (range) {
+    return `${pad(range.startHour)}.${pad(range.startMin)} - ${pad(range.endHour)}.${pad(range.endMin)} WIB`;
+  }
+  // Hanya bila SELURUH nilai berupa satu jam; "11.00 WIB - selesai" tidak cocok.
+  if (!/^([01]?\d|2[0-3])[:.]([0-5]\d)$/.test(jam.trim())) return jam;
+  const start = parseStartTime(jam);
+  return start ? `${pad(start.startHour)}.${pad(start.startMin)} WIB` : jam;
 }
 
 function CountdownPill({ label, value, color }: { label: string; value: number; color?: string }) {
@@ -156,7 +176,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                     <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }}></span>
                   </span>
                 )}
-                {showOngoing ? 'Sedang berlangsung' : 'Event berikutnya'}
+                {showOngoing ? 'Berlangsung' : 'Mendatang'}
               </span>
               <h2 className="mt-6 text-4xl font-bold leading-[1.15] tracking-tight text-[var(--wf-ink)] sm:text-5xl">
                 {mainEvent.acara}
@@ -167,7 +187,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 </span>
                 {mainEvent.jam && (
                   <span className="inline-flex items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)]/70 px-4 py-2">
-                    <Clock className="size-4" style={{ color: catColor }} /> {mainEvent.jam}
+                    <Clock className="size-4" style={{ color: catColor }} /> {formatEventTime(mainEvent.jam)}
                   </span>
                 )}
                 {mainEvent.lokasi && (
@@ -186,7 +206,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
             <div className="border-t border-[var(--wf-rule)] bg-[var(--wf-board)]/50 p-6 sm:p-10   lg:rounded-b-[var(--radius-campaign-card)]">
               {showCountdown && countdown ? (
                 <>
-                  <p className="mb-3 text-xs font-bold tracking-wide text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Countdown menuju event</p>
+                  <p className="mb-3 text-xs font-bold tracking-wide text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Mulai dalam</p>
                   <div className="grid max-w-md grid-cols-3 gap-3">
                     <CountdownPill label="Hari" value={countdown.days} color={catColor} />
                     <CountdownPill label="Jam" value={countdown.hours} color={catColor} />
@@ -201,7 +221,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 </div>
               )}
               <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] transition-colors group-hover:bg-[var(--wf-accent-hover)]">
-                Lihat detail event <ArrowRight className="size-4" />
+                Lihat detail <ArrowRight className="size-4" />
               </span>
             </div>
           </Button>
@@ -239,6 +259,9 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 <div className="flex flex-col items-start gap-4 p-5">
                 <div className="flex w-full items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--wf-ink)]" style={{ backgroundColor: `${color}15` }}>
+                    Mendatang
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--wf-ink)]" style={{ backgroundColor: `${color}15` }}>
                     <CalendarDays className="size-3" />
                     {ev.tanggal}
                   </span>
@@ -250,7 +273,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                   </h3>
                   {(ev.jam || ev.lokasi) && (
                     <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-[var(--wf-ink-muted)]">
-                      {ev.jam && <span className="flex items-center gap-1.5"><Clock className="size-3" /> {ev.jam}</span>}
+                      {ev.jam && <span className="flex items-center gap-1.5"><Clock className="size-3" /> {formatEventTime(ev.jam)}</span>}
                       {ev.lokasi && <span className="flex items-center gap-1.5"><MapPin className="size-3" /> <span className="line-clamp-1">{ev.lokasi}</span></span>}
                     </div>
                   )}
@@ -267,7 +290,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
             to="/events"
             className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] px-6 py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2`}
           >
-            Lihat semua event
+            Lihat Jadwal Event
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>

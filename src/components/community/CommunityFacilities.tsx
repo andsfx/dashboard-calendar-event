@@ -3,11 +3,11 @@ import { Armchair, Gavel, Lightbulb, MapPin, Mic2, Speaker } from 'lucide-react'
 import { RevealSection } from './CommunityRevealPrimitives';
 
 const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
-  { icon: <Mic2 className="h-5 w-5" aria-hidden="true" />, title: 'Panggung dan backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
-  { icon: <Speaker className="h-5 w-5" aria-hidden="true" />, title: 'Sound system 10.000 watt', detail: 'Sound system profesional 10.000 watt lengkap dengan operator berpengalaman.' },
-  { icon: <Lightbulb className="h-5 w-5" aria-hidden="true" />, title: 'Lighting system', detail: 'Lighting profesional yang bikin panggung kamu makin berkesan.' },
+  { icon: <Mic2 className="h-5 w-5" aria-hidden="true" />, title: 'Panggung dan rangka latar', detail: 'Panggung siap pakai dengan rangka latar yang materinya sesuai tema acara kamu.' },
+  { icon: <Speaker className="h-5 w-5" aria-hidden="true" />, title: 'Sound system 10.000 watt', detail: 'Sound system 10.000 watt lengkap dengan operator berpengalaman.' },
+  { icon: <Lightbulb className="h-5 w-5" aria-hidden="true" />, title: 'Lighting', detail: 'Tata cahaya panggung yang mendukung jalannya acara kamu.' },
   { icon: <Armchair className="h-5 w-5" aria-hidden="true" />, title: '50 kursi penonton', detail: '50 kursi penonton yang bisa ditata ulang sesuai kebutuhan acara kamu.' },
-  { icon: <MapPin className="h-5 w-5" aria-hidden="true" />, title: 'Area lantai 3', detail: 'Lokasi strategis di lantai 3 Metropolitan Mall Bekasi, mudah diakses pengunjung.' },
+  { icon: <MapPin className="h-5 w-5" aria-hidden="true" />, title: 'Area lantai 3', detail: 'Lokasi strategis di lantai 3 Metropolitan Mall Bekasi dan mudah diakses pengunjung.' },
   { icon: <Gavel className="h-5 w-5" aria-hidden="true" />, title: 'Meja juri', detail: 'Meja juri tersedia untuk kompetisi, audisi, atau ujian kenaikan kelas.' },
 ];
 
@@ -27,14 +27,14 @@ export function CommunityFacilities() {
         <div className="flex flex-col gap-5">
           <div className="max-w-2xl">
             <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
-              Semua udah disiapin.
+              Semua sudah disiapkan.
             </h2>
             <p className="mt-4 max-w-[65ch] text-base leading-7 ui-text-secondary">
-              Dari panggung sampai meja juri, semua fasilitas siap pakai tanpa biaya sewa.
+              Dari panggung sampai meja juri, fasilitas siap pakai tanpa biaya sewa.
             </p>
           </div>
           <p className="max-w-[65ch] text-sm leading-7 ui-text-secondary">
-            Kamu nggak perlu pusing soal venue dan peralatan. Fokus aja bikin acara yang berkesan!
+            Berlaku sesuai review dan jadwal. Kamu cukup fokus menyiapkan konsep acara.
           </p>
         </div>
 

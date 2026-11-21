@@ -1,10 +1,10 @@
 import { RevealSection } from './CommunityRevealPrimitives';
 
 const STEPS: Array<{ num: string; title: string; desc: string }> = [
-  { num: '01', title: 'Daftar dan kirim', desc: 'Pilih tipe organisasi, isi form pendaftaran, dan ceritakan rencana event kamu.' },
-  { num: '02', title: 'Review tim mall', desc: 'Tim kami meninjau proposal kamu dan diskusi soal jadwal, kebutuhan, dan konsep acara.' },
-  { num: '03', title: 'Konfirmasi dan persiapan', desc: 'Setelah deal, kami siapkan venue dan semua perlengkapan yang kamu butuhkan.' },
-  { num: '04', title: 'Hari H!', desc: 'Hari H tiba! Kamu tinggal bikin seru, sisanya diurus tim mall.' },
+  { num: '01', title: 'Daftar dan kirim', desc: 'Pilih tipe organisasi, isi formulir pendaftaran, dan tulis rencana acara kamu.' },
+  { num: '02', title: 'Review tim mall', desc: 'Tim kami meninjau pengajuan dalam 5 hari kerja. PIC dihubungi untuk diskusi jadwal.' },
+  { num: '03', title: 'Konfirmasi dan persiapan', desc: 'Setelah jadwal disetujui, kami siapkan venue dan peralatan sesuai kesepakatan.' },
+  { num: '04', title: 'Hari H', desc: 'Acara dimulai. Kamu fokus menjalankan kegiatan, tim kami mendukung kebutuhan teknis.' },
 ];
 
 export function CommunitySteps() {
@@ -13,7 +13,7 @@ export function CommunitySteps() {
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
           <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
-            Gampang banget, cuma 4 langkah.
+            Cukup 4 langkah untuk mendaftar.
           </h2>
         </div>
 

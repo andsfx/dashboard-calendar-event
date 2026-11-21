@@ -5,12 +5,12 @@ import { RevealSection } from './CommunityRevealPrimitives';
 import { isGsapMotionLoaded, loadGsapMotion } from '../../lib/gsapMotion';
 
 const FAQS: Array<[string, string]> = [
-  ['Benar gratis? Ada biaya tersembunyi?', 'Benar 100% gratis. Panggung, sound system, lighting, dan kursi disediakan tanpa biaya. Kamu cukup siapkan konsep acara dan kebutuhan komunitas.'],
-  ['Komunitas apa saja yang bisa daftar?', 'Musik, dance, seni, gaming, olahraga, pendidikan, dan komunitas lain bisa mendaftar selama konsep acaranya jelas dan positif.'],
-  ['Berapa lama proses review?', 'Setelah form diterima, tim kami akan mereview dan menghubungi PIC untuk diskusi jadwal dan kebutuhan.'],
-  ['Bisa request tanggal tertentu?', 'Bisa. Tulis preferensi tanggal di form. Tim kami akan cek ketersediaan dan konfirmasi secepatnya.'],
-  ['Apakah bisa kolaborasi dengan komunitas lain?', 'Bisa. Kami dapat membantu menghubungkan kamu dengan komunitas lain yang sudah bergabung.'],
-  ['Apa syarat untuk mendaftar?', 'Kirimkan profil atau portofolio komunitas beserta proposal event. Yang penting, konsep dan tujuan acaranya jelas.'],
+  ['Benar gratis? Ada biaya tersembunyi?', 'Venue, sound system, lighting, dan kursi disediakan tanpa biaya sewa. Syaratnya lolos review tim, konsep cocok, dan Jadwal Event tersedia.'],
+  ['Siapa saja yang bisa mendaftar?', 'Komunitas, sekolah, kampus, perusahaan, EO, NGO, dan instansi bisa mendaftar. Konsep acara wajib jelas dan sesuai ketentuan Metropolitan Mall Bekasi.'],
+  ['Berapa lama proses review?', 'Tim kami meninjau pengajuan dan menghubungi PIC dalam 5 hari kerja.'],
+  ['Bisa pilih tanggal tertentu?', 'Bisa. Tulis preferensi tanggal di formulir. Tim kami mengecek ketersediaan Jadwal Event dan memberi kabar dalam 5 hari kerja.'],
+  ['Apakah bisa berkolaborasi dengan penyelenggara lain?', 'Bisa. Kami membantu menghubungkan kamu dengan komunitas atau penyelenggara lain yang sudah bergabung.'],
+  ['Apa syarat untuk mendaftar?', 'Siapkan konsep serta tujuan acara yang jelas. Kamu bisa melampirkan profil organisasi atau Proposal Event di formulir (opsional).'],
 ];
 
 const focusRing = 'ui-focus-ring';

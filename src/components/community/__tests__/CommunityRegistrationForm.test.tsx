@@ -13,13 +13,21 @@ vi.mock('../../../utils/domainApi', () => ({
 describe('CommunityRegistrationForm', () => {
   it('renders form heading', () => {
     render(<CommunityRegistrationForm />)
-    expect(screen.getByText('Daftarkan komunitas kamu')).toBeInTheDocument()
+    expect(screen.getByText('Daftar event di Metmal Bekasi')).toBeInTheDocument()
   })
 
   function clickCommunityType() {
     // Step 1: click community type button
     fireEvent.click(screen.getByText('Komunitas'))
   }
+
+  it('shows the type hint until an organization type is picked', () => {
+    render(<CommunityRegistrationForm />)
+    const hint = 'Pilih salah satu tipe organisasi di atas untuk membuka kolom pengisian data.'
+    expect(screen.getByText(hint)).toBeInTheDocument()
+    clickCommunityType()
+    expect(screen.queryByText(hint)).not.toBeInTheDocument()
+  })
 
   /** Fills the required type-specific field ("Tipe Komunitas") for the community type. */
   async function fillCommunityType() {
@@ -36,7 +44,7 @@ describe('CommunityRegistrationForm', () => {
 
   it('renders form with required fields', () => {
     render(<CommunityRegistrationForm />)
-    expect(screen.getByText('Daftarkan komunitas kamu')).toBeInTheDocument()
+    expect(screen.getByText('Daftar event di Metmal Bekasi')).toBeInTheDocument()
     expect(screen.getByText('Kirim pendaftaran')).toBeInTheDocument()
   })
 

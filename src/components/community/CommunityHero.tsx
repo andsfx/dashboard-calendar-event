@@ -6,7 +6,7 @@ import heroFallbackImageSm from '../../assets/landing/hero-fallback-800.webp';
 import { imgUrl } from '../../utils/imageOptim';
 import { formatDateRange } from '../../utils/eventUtils';
 import type { EventItem } from '../../types';
-import { formatStat } from './countFormat';
+import { formatCount, formatStat } from './countFormat';
 import { COMMUNITY_STAT_LABELS } from './communityStats';
 import { useHeroParallax } from './useHeroParallax';
 
@@ -24,9 +24,9 @@ const focusRing = 'ui-focus-ring';
  * as their own band directly below it — content and icons preserved.
  */
 const HIGHLIGHTS: Array<{ icon: typeof CheckCircle2; label: string; emerald?: boolean }> = [
-  { icon: CheckCircle2, label: '100% gratis', emerald: true },
-  { icon: Music, label: 'Sound 10.000 watt' },
-  { icon: Users, label: 'Terbuka untuk semua' },
+  { icon: CheckCircle2, label: 'Tanpa biaya sewa (sesuai review)', emerald: true },
+  { icon: Music, label: 'Sound system 10.000 watt' },
+  { icon: Users, label: 'Terbuka untuk komunitas & instansi' },
 ];
 
 interface CommunityHeroProps {
@@ -82,8 +82,8 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
   const now = new Date();
   const monthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const metrics: Array<{ label: string; value: number }> = [
-    { label: 'Sedang berlangsung', value: events.filter(e => e.status === 'ongoing').length },
-    { label: 'Akan datang', value: events.filter(e => e.status === 'upcoming').length },
+    { label: 'Berlangsung', value: events.filter(e => e.status === 'ongoing').length },
+    { label: 'Mendatang', value: events.filter(e => e.status === 'upcoming').length },
     { label: 'Event bulan ini', value: events.filter(e => e.dateStr.startsWith(monthPrefix)).length },
   ];
 
@@ -141,12 +141,13 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                 line` mengukur tinggi konten hero, dan headline 4 baris akan
                 mendorongnya ke pita transisi gradient. */}
             <h1 className="community-hero-in mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl">
-              Panggung <strong className="text-brand-primary-300">gratis</strong> untuk komunitas Bekasi
+              Panggung <strong className="text-brand-primary-300">tanpa biaya sewa</strong> untuk acara kamu di Bekasi
             </h1>
 
-            {/* M2: three subtext paragraphs (30 words / 5 lines) collapsed to one (12 words). */}
+            {/* Dua kalimat: penawaran (tanpa biaya sewa) lalu syaratnya. Syarat
+                wajib ada di atas lipatan; klaim tanpa syarat dilarang brief. */}
             <p className="community-hero-in mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
-              Venue, sound system, dan lighting sudah lengkap. Kamu tinggal bawa konsep acaranya.
+              Venue, sound system, lighting, dan promosi dibantu tanpa biaya sewa. Berlaku review tim, kecocokan konsep, dan ketersediaan Jadwal Event.
             </p>
 
             <div className="community-hero-in mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-center">
@@ -161,14 +162,14 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                 href="#upcoming-events"
                 className={`inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-3.5 text-base font-semibold text-white transition hover:border-white/40 hover:bg-white/15 ${focusRing}`}
               >
-                Cek event
+                Lihat Jadwal Event
               </a>
             </div>
           </div>
 
           {/* Papan data realtime — mengisi ruang kanan hero, bukan tumpukan bawah */}
           <aside
-            aria-label="Data komunitas terkini"
+            aria-label="Ringkasan Jadwal Event"
             className="community-hero-in w-full rounded-[var(--radius-campaign-card)] border border-white/15 bg-white/10 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.25)] backdrop-blur-md sm:p-6"
           >
             <div className="flex items-center justify-between gap-3">
@@ -177,7 +178,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
               </p>
               <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 motion-reduce:animate-none" aria-hidden="true" />
-                Live
+                Berlangsung
               </span>
             </div>
 
@@ -188,7 +189,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                     <span className="block h-7 w-12 animate-pulse rounded-md bg-white/25 motion-reduce:animate-none" aria-hidden="true" />
                   ) : (
                     <p className="font-display text-2xl font-extrabold leading-none tabular-nums text-white">
-                      {formatStat(metric.value)}
+                      {formatCount(metric.value)}
                     </p>
                   )}
                   {/* /70 terukur 4,24:1 di kartu ketiga (bg terang dari foto hero)
@@ -208,7 +209,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                 agenda lengkap ada di section tepat di bawah hero. */}
             <div className="mt-5 hidden border-t border-white/15 pt-4 lg:block">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/70">
-                Sedang dan akan berlangsung
+                Berlangsung dan Mendatang
               </p>
               {loading ? (
                 <ul className="mt-3 space-y-2.5">
@@ -250,7 +251,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
           subtext + 2 CTAs; these three facts (and their icons) live on in this
           band directly below the hero instead of being deleted. */}
       <section
-        aria-label="Keunggulan program komunitas"
+        aria-label="Ringkasan fasilitas event"
         className="border-b border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-6 sm:px-6"
       >
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 text-sm font-medium text-[var(--wf-ink-muted)]">

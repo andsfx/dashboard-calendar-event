@@ -1,11 +1,11 @@
 import { type KeyboardEvent } from 'react';
+import { ORG_TYPE_LABELS } from './organizationTypeLabels';
 import { type OrganizationType } from '../../types';
 import { Button } from '../shadcn/button';
 import { Users, GraduationCap, Building2, PartyPopper, School, Landmark, Heart, MoreHorizontal, Check } from 'lucide-react';
 
 interface OrgTypeOption {
   value: OrganizationType;
-  label: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
   tone: 'tosca' | 'pink' | 'muted';
@@ -18,14 +18,14 @@ const TONE_CLASS: Record<OrgTypeOption['tone'], string> = {
 };
 
 const ORG_TYPES: OrgTypeOption[] = [
-  { value: 'community', label: 'Komunitas', description: 'Musik, dance, seni, gaming, dan lainnya', icon: Users, tone: 'tosca' },
-  { value: 'school', label: 'Sekolah / universitas', description: 'SD, SMP, SMA, dan perguruan tinggi', icon: GraduationCap, tone: 'tosca' },
-  { value: 'company', label: 'Perusahaan', description: 'Corporate, UMKM, startup', icon: Building2, tone: 'pink' },
-  { value: 'eo', label: 'Event organizer', description: 'EO profesional dan freelance', icon: PartyPopper, tone: 'pink' },
-  { value: 'campus', label: 'Organisasi kampus', description: 'BEM, UKM, dan himpunan', icon: School, tone: 'tosca' },
-  { value: 'government', label: 'Instansi pemerintah', description: 'Dinas, kementerian, BUMN', icon: Landmark, tone: 'pink' },
-  { value: 'ngo', label: 'NGO / yayasan', description: 'Non-profit, sosial, kemanusiaan', icon: Heart, tone: 'tosca' },
-  { value: 'other', label: 'Lainnya', description: 'Tipe organisasi lain', icon: MoreHorizontal, tone: 'muted' },
+  { value: 'community', description: 'Musik, tari, seni, gim, hobi, dan lainnya', icon: Users, tone: 'tosca' },
+  { value: 'school', description: 'Pihak resmi SD, SMP, SMA, dan kampus', icon: GraduationCap, tone: 'tosca' },
+  { value: 'company', description: 'Korporat, UMKM, dan usaha rintisan', icon: Building2, tone: 'pink' },
+  { value: 'eo', description: 'EO profesional dan lepas', icon: PartyPopper, tone: 'pink' },
+  { value: 'campus', description: 'OSIS, BEM, UKM, dan himpunan', icon: School, tone: 'tosca' },
+  { value: 'government', description: 'Dinas, kementerian, dan BUMN', icon: Landmark, tone: 'pink' },
+  { value: 'ngo', description: 'Nirlaba, sosial, dan kemanusiaan', icon: Heart, tone: 'tosca' },
+  { value: 'other', description: 'Tipe organisasi lain', icon: MoreHorizontal, tone: 'muted' },
 ];
 
 interface Props {
@@ -103,7 +103,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
                       : 'text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]'
                     : 'text-[var(--wf-ink-muted)]'
                 }`}>
-                  {opt.label}
+                  {ORG_TYPE_LABELS[opt.value]}
                 </p>
                 <p className="mt-1 text-xs leading-snug text-[var(--wf-ink-muted)]">
                   {opt.description}
@@ -118,6 +118,11 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
           );
         })}
       </div>
+      {value === '' && (
+        <p className="text-xs text-[var(--wf-ink-muted)]">
+          Pilih salah satu tipe organisasi di atas untuk membuka kolom pengisian data.
+        </p>
+      )}
       {error && (
         <p id="organization-type-error" className="text-sm text-rose-700" role="alert">
           {error}

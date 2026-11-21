@@ -5,6 +5,7 @@ import { PhotoAlbum } from '../../types';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { thumbUrl } from '../../utils/imageOptim';
 import { createIntersectionObserver } from '../../utils/intersectionObserver';
+import { formatDateRange } from '../../utils/eventUtils';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
 
@@ -190,10 +191,10 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
           <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
-            Lihat sendiri keseruannya.
+            Lihat suasana acaranya.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">
-            Dokumentasi event dan update terbaru dari Metropolitan Mall Bekasi
+            Dokumentasi event dan kabar terbaru dari Metropolitan Mall Bekasi.
           </p>
         </div>
 
@@ -224,7 +225,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
                   <div className="p-3 sm:p-4">
                     <p className="text-sm font-semibold text-[var(--wf-ink)] line-clamp-1">{album.name}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--wf-ink-muted)]">
-                      {album.eventDate && <span>{album.eventDate}</span>}
+                      {album.eventDate && <span>{formatDateRange(album.eventDate)}</span>}
                       {typeof album.photoCount === 'number' && album.photoCount > 0 && (
                         <span>{album.eventDate ? '·' : ''}{album.photoCount} foto</span>
                       )}
@@ -287,7 +288,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
               className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] px-6 py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ${focusRing}`}
             >
               <Globe className="h-4 w-4" aria-hidden="true" />
-              Follow @metmalbekasi
+              Ikuti @metmalbekasi
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>

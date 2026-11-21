@@ -700,7 +700,7 @@ export const DOC_SECTIONS: DocSection[] = [
             ],
             notes: [
               'Agenda di beranda menampilkan maksimal 3 event pada bulan berjalan; event yang sedang berlangsung selalu ikut tampil.',
-              'Tombol "Daftar event" dan "Cek event" mengarah ke pendaftaran dan jadwal lengkap.',
+              'Tombol "Daftar event" dan "Lihat Jadwal Event" mengarah ke pendaftaran dan jadwal lengkap.',
             ],
           },
           {

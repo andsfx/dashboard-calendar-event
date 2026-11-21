@@ -10,18 +10,8 @@ import { Textarea } from '../shadcn/textarea';
 import { OrganizationTypeSelector } from './OrganizationTypeSelector';
 import { TypeSpecificFields, TYPE_SPECIFIC_REQUIRED } from './TypeSpecificFields';
 import { type OrganizationType } from '../../types';
+import { ORG_TYPE_LABELS } from './organizationTypeLabels';
 import { validateEmail, validatePhone, validateInstagram } from '../../utils/validation';
-
-const ORG_TYPE_LABELS: Record<OrganizationType, string> = {
-  community: 'Komunitas',
-  school: 'Sekolah / universitas',
-  company: 'Perusahaan',
-  eo: 'Event organizer',
-  campus: 'Organisasi kampus',
-  government: 'Instansi pemerintah',
-  ngo: 'NGO / yayasan',
-  other: 'Lainnya',
-};
 
 const focusRing = 'ui-focus-ring';
 
@@ -489,7 +479,7 @@ export function RegistrationForm() {
       {error && <p className="mt-4 text-sm text-rose-700 dark:text-rose-400" role="alert">{error}</p>}
 
       <div className="mt-6 flex flex-col gap-4 border-t border-[var(--border-subtle)]  pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-md text-xs leading-6 text-[var(--wf-ink-muted)]">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
+        <p className="max-w-md text-xs leading-6 text-[var(--wf-ink-muted)]">* Wajib diisi. Data hanya digunakan untuk proses pendaftaran dan koordinasi acara.</p>
         <Button
           type="submit"
           disabled={submitting}
@@ -509,31 +499,31 @@ export function CommunityRegistrationForm() {
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
           <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
-            Daftarkan komunitas kamu
+            Daftar event di Metmal Bekasi
           </h2>
           <p className="mt-5 text-sm leading-7 ui-text-secondary">
-            Isi form di bawah buat daftarin komunitas kamu. Tim kami bakal review dan hubungi kamu secepatnya.
+            Isi formulir di bawah untuk mengajukan acara kamu. Tim kami meninjau pengajuan dan menghubungi PIC dalam 5 hari kerja.
           </p>
           <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">
             Mau bertanya dulu?{' '}
             <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="-my-1 inline-block py-1 font-semibold text-emerald-700 hover:underline dark:text-emerald-400">
-              Chat via WhatsApp
+              Tanya lewat WhatsApp
             </a>
           </p>
           <div className="mt-8">
-            <h3 className="text-sm font-bold text-[var(--wf-ink)]">Cara mengisi form pendaftaran event</h3>
+            <h3 className="text-sm font-bold text-[var(--wf-ink)]">Cara mengisi formulir pendaftaran</h3>
             <ol className="mt-3 space-y-2.5 text-sm leading-6 ui-text-secondary">
               <li className="flex gap-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">1</span>
-                Pilih tipe organisasi kamu di bagian atas form.
+                Pilih tipe organisasi di bagian atas formulir.
               </li>
               <li className="flex gap-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">2</span>
-                Lengkapi data organisasi dan PIC. Kalau ada proposal atau company profile, lampirkan filenya (opsional, PDF atau Word maksimal 20MB).
+                Lengkapi data organisasi dan PIC. Lampirkan profil organisasi atau Proposal Event bila ada (opsional, PDF/Word maks. 20 MB).
               </li>
               <li className="flex gap-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">3</span>
-                Kirim pendaftaran, tim kami akan review dan hubungi kamu lewat WhatsApp.
+                Kirim pendaftaran. Tim kami menghubungi PIC lewat WhatsApp dalam 5 hari kerja.
               </li>
             </ol>
           </div>
@@ -542,19 +532,19 @@ export function CommunityRegistrationForm() {
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
                 <CheckCircle2 className="h-4 w-4 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
               </div>
-              <p className="text-sm leading-6 ui-text-secondary">Pendaftaran direview oleh tim kami</p>
+              <p className="text-sm leading-6 ui-text-secondary">Pengajuan ditinjau tim Metmal Bekasi dalam 5 hari kerja</p>
             </div>
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
                 <CheckCircle2 className="h-4 w-4 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
               </div>
-              <p className="text-sm leading-6 ui-text-secondary">Fasilitas 100% gratis untuk komunitas</p>
+              <p className="text-sm leading-6 ui-text-secondary">Venue dan peralatan tanpa biaya sewa sesuai review dan Jadwal Event</p>
             </div>
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
                 <CheckCircle2 className="h-4 w-4 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
               </div>
-              <p className="text-sm leading-6 ui-text-secondary">Terbuka untuk semua jenis komunitas</p>
+              <p className="text-sm leading-6 ui-text-secondary">Terbuka untuk komunitas, sekolah, kampus, perusahaan, EO, NGO, dan instansi</p>
             </div>
           </div>
         </div>

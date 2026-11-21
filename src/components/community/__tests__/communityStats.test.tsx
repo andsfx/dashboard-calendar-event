@@ -105,28 +105,30 @@ describe('label statistik komunitas (C2)', () => {
         <CommunityHero stats={{ completed: 232 }} />
       </MemoryRouter>,
     );
-    // Scoped to the hero stat badge by its own class: the hero also renders a
-    // "Daftar Event" CTA (matches a bare /Event/ query) and the badge no longer
-    // carries `aria-live` (the live region lives on CommunitySocialProof, which
-    // duplicates this exact metric — see CommunityHero). The three assertions
-    // below (232+, `completed` label, not `total`) are unchanged.
-    const badge = screen.getByText(/Event/, { selector: '.community-hero-in' });
-    expect(badge).toHaveTextContent('232+');
+    // Scoped by the angka itu sendiri: kelas `.community-hero-in` dipakai pada
+    // lima simpul hero (badge, h1, paragraf, CTA, kartu), dan setelah revisi
+    // copy paragraf ikut memuat kata "Event" — query /Event/ dengan selector
+    // kelas itu jadi ambigu. Kontrak yang diuji tetap sama: angka di badge
+    // memakai label `completed`, bukan `total`.
+    const amount = screen.getByText(/232\+/);
+    const badge = amount.closest('.community-hero-in');
+    expect(badge).toBeTruthy();
     expect(badge).toHaveTextContent(COMMUNITY_STAT_LABELS.completed);
     expect(badge).not.toHaveTextContent(COMMUNITY_STAT_LABELS.total);
   });
 
-  it('SocialProof menampilkan ketiga label yang sama dengan hero + /events', () => {
+  it('SocialProof menampilkan dua metrik kumulatif tanpa label `total`', () => {
     render(
       <MemoryRouter>
-        <CommunitySocialProof totalEvents={251} totalCompleted={232} totalOrganizers={40} />
+        <CommunitySocialProof totalCompleted={232} totalOrganizers={40} />
       </MemoryRouter>,
     );
     expect(screen.getByText(COMMUNITY_STAT_LABELS.completed)).toBeInTheDocument();
-    expect(screen.getByText(COMMUNITY_STAT_LABELS.total)).toBeInTheDocument();
     expect(screen.getByText(COMMUNITY_STAT_LABELS.organizers)).toBeInTheDocument();
-    // Angka total (251) berdampingan dengan label "Total Event", bukan "Event Terlaksana".
-    expect(screen.getByText('251+').nextElementSibling).toHaveTextContent(COMMUNITY_STAT_LABELS.total);
+    // "Total event" sengaja hanya milik /events: di band kepercayaan angkanya
+    // bertabrakan dengan "Event terlaksana" tanpa pembeda.
+    expect(screen.queryByText(COMMUNITY_STAT_LABELS.total)).not.toBeInTheDocument();
     expect(screen.getByText('232+').nextElementSibling).toHaveTextContent(COMMUNITY_STAT_LABELS.completed);
+    expect(screen.getByText('40+').nextElementSibling).toHaveTextContent(COMMUNITY_STAT_LABELS.organizers);
   });
 });

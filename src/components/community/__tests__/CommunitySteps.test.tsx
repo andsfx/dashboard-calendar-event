@@ -6,7 +6,7 @@ import { CommunitySteps } from '../CommunitySteps'
 describe('CommunitySteps', () => {
   it('renders section heading', () => {
     render(<CommunitySteps />)
-    expect(screen.getByText('Gampang banget, cuma 4 langkah.')).toBeInTheDocument()
+    expect(screen.getByText('Cukup 4 langkah untuk mendaftar.')).toBeInTheDocument()
   })
 
   it('renders all 4 steps', () => {
@@ -14,7 +14,7 @@ describe('CommunitySteps', () => {
     expect(screen.getByText('Daftar dan kirim')).toBeInTheDocument()
     expect(screen.getByText('Review tim mall')).toBeInTheDocument()
     expect(screen.getByText('Konfirmasi dan persiapan')).toBeInTheDocument()
-    expect(screen.getByText('Hari H!')).toBeInTheDocument()
+    expect(screen.getByText('Hari H')).toBeInTheDocument()
   })
 
   it('renders step numbers', () => {
@@ -27,7 +27,7 @@ describe('CommunitySteps', () => {
 
   it('renders step descriptions', () => {
     render(<CommunitySteps />)
-    expect(screen.getByText(/Pilih tipe organisasi/)).toBeInTheDocument()
-    expect(screen.getByText(/Tim kami meninjau proposal/)).toBeInTheDocument()
+    expect(screen.getByText(/Pilih tipe organisasi, isi formulir pendaftaran/)).toBeInTheDocument()
+    expect(screen.getByText(/Tim kami meninjau pengajuan dalam 5 hari kerja/)).toBeInTheDocument()
   })
 })

@@ -6,7 +6,6 @@ import { useScrollReveal } from '../../hooks/useScrollReveal';
 import { useCountUp } from './useCountUp';
 
 interface Props {
-  totalEvents?: number;
   totalCompleted?: number;
   totalOrganizers?: number;
   isLoading?: boolean;
@@ -34,25 +33,23 @@ function StatBadgeSkeleton({ label }: { label: string }) {
   );
 }
 
-export function CommunitySocialProof({ totalEvents = 0, totalCompleted = 0, totalOrganizers = 0, isLoading = false }: Props) {
+export function CommunitySocialProof({ totalCompleted = 0, totalOrganizers = 0, isLoading = false }: Props) {
   return (
     <RevealSection className="border-b border-[var(--wf-rule)] bg-[var(--section-alt)] px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl text-center">
         <p className="text-xs font-semibold tracking-wide text-[var(--wf-ink-muted)]">
-          Dipercaya oleh komunitas di Bekasi
+          Dipercaya oleh penyelenggara acara di Bekasi
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4" aria-live="polite" aria-busy={isLoading}>
           {isLoading ? (
             <>
               <StatBadgeSkeleton label={COMMUNITY_STAT_LABELS.completed} />
               <StatBadgeSkeleton label={COMMUNITY_STAT_LABELS.organizers} />
-              <StatBadgeSkeleton label={COMMUNITY_STAT_LABELS.total} />
             </>
           ) : (
             <>
               <AnimatedStatBadge value={totalCompleted} label={COMMUNITY_STAT_LABELS.completed} />
               <AnimatedStatBadge value={totalOrganizers} label={COMMUNITY_STAT_LABELS.organizers} />
-              <AnimatedStatBadge value={totalEvents} label={COMMUNITY_STAT_LABELS.total} />
             </>
           )}
         </div>

@@ -33,10 +33,10 @@ export function CommunityContact() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4">
           <h2 className="max-w-xl text-4xl font-bold leading-tight text-white sm:text-5xl">
-            Ada pertanyaan? Hubungi kami!
+            Ada pertanyaan? Hubungi kami.
           </h2>
           <p className="max-w-[65ch] text-sm leading-7 text-white/80">
-            Telepon kantor: <strong className="text-white">021-8855555 ext 214</strong>
+            Telepon kantor: <strong className="text-white">021-8855555 ext. 214</strong>
             <span className="block text-white/70">Senin sampai Jumat, jam kerja</span>
           </p>
         </div>

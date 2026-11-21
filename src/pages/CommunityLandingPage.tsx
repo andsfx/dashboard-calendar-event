@@ -48,8 +48,8 @@ interface CommunityLandingProps {
 
 export function CommunityLandingPage({ isDark, onToggleDark, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [], areas = [], isLoading = false, stats }: CommunityLandingProps) {
   usePageMeta({
-    title: 'Komunitas - Metropolitan Mall Bekasi',
-    description: 'Gabung komunitas dan kirim pengajuan event untuk diselenggarakan di Metropolitan Mall Bekasi.',
+    title: 'Ruang Event - Metropolitan Mall Bekasi',
+    description: 'Ajukan Proposal Event komunitas, kampus, perusahaan, atau instansi di Metropolitan Mall Bekasi. Venue dan peralatan tanpa biaya sewa sesuai review tim.',
   });
   const [cachedIgPosts, setCachedIgPosts] = useState<CachedInstagramPost[]>([]);
   /** CTA lengket di ponsel tampil setelah hero terlewati. */
@@ -104,12 +104,12 @@ export function CommunityLandingPage({ isDark, onToggleDark, instagramPosts, eve
         href="#register"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--wf-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--wf-accent-ink)]"
       >
-        Langsung ke form pendaftaran
+        Langsung ke formulir pendaftaran
       </a>
       <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
       <main id="konten-utama" tabIndex={-1} className="pb-20 sm:pb-0 outline-none">
         <CommunityHero heroImageUrl={heroImageUrl} stats={stats} events={events} isLoading={isLoading} />
-        <CommunitySocialProof totalEvents={stats?.total} totalCompleted={stats?.completed} totalOrganizers={stats?.organizers} isLoading={isLoading} />
+        <CommunitySocialProof totalCompleted={stats?.completed} totalOrganizers={stats?.organizers} isLoading={isLoading} />
         <CommunityUpcomingEvents events={featuredUpcomingEvents} albums={albums} onDetail={onEventDetail} isLoading={isLoading} />
         <CommunityBenefits />
         <CommunityFacilities />
@@ -138,14 +138,14 @@ export function CommunityLandingPage({ isDark, onToggleDark, instagramPosts, eve
                     ia sejajar dengan sub-judul kartu lain di halaman. */}
                 <h3 className="font-display text-lg font-bold text-[var(--wf-ink)]">Punya ide event?</h3>
                 <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
-                  Ajukan acara komunitas atau bisnismu untuk diselenggarakan di Metmal Bekasi.
+                  Ajukan acara komunitas, kampus, bisnis, atau instansi kamu di Metmal Bekasi.
                 </p>
               </div>
               <Link
-                to="/ajukan-event"
+                to="#register"
                 className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)] ui-focus-ring"
               >
-                Ajukan event
+                Daftar event
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>

@@ -6,15 +6,15 @@ import { CommunityHero } from '../CommunityHero'
 import { COMMUNITY_STAT_LABELS } from '../communityStats'
 
 describe('CommunityHero', () => {
-  it('renders main heading with the highlighted "Gratis"', () => {
+  it('renders main heading with the highlighted "tanpa biaya sewa"', () => {
     render(
       <MemoryRouter>
         <CommunityHero />
       </MemoryRouter>,
     )
     const heading = screen.getByRole('heading', { level: 1 })
-    expect(heading).toHaveTextContent('Panggung gratis untuk komunitas Bekasi')
-    const highlight = screen.getByText('gratis')
+    expect(heading).toHaveTextContent('Panggung tanpa biaya sewa untuk acara kamu di Bekasi')
+    const highlight = screen.getByText('tanpa biaya sewa')
     expect(highlight).toHaveClass('text-brand-primary-300')
   })
 
@@ -25,7 +25,7 @@ describe('CommunityHero', () => {
       </MemoryRouter>,
     )
     expect(screen.getByText('Daftar event')).toBeInTheDocument()
-    expect(screen.getByText('Cek event')).toBeInTheDocument()
+    expect(screen.getByText('Lihat Jadwal Event')).toBeInTheDocument()
   })
 
   it('renders quick stats', () => {
@@ -34,8 +34,8 @@ describe('CommunityHero', () => {
         <CommunityHero />
       </MemoryRouter>,
     )
-    expect(screen.getByText('100% gratis')).toBeInTheDocument()
-    expect(screen.getByText('Sound 10.000 watt')).toBeInTheDocument()
+    expect(screen.getByText('Tanpa biaya sewa (sesuai review)')).toBeInTheDocument()
+    expect(screen.getByText('Sound system 10.000 watt')).toBeInTheDocument()
   })
 
   it('renders hero image when provided', () => {

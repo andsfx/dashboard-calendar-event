@@ -6,18 +6,18 @@ import { Link } from 'react-router-dom';
 const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string }> = [
   {
     icon: <Megaphone className="h-6 w-6" aria-hidden="true" />,
-    title: 'Promosi dan marketing',
-    desc: 'Event kamu kami promosiin lewat media sosial, digital signage, dan kanal mall lainnya.',
+    title: 'Dukungan promosi',
+    desc: 'Acara kamu dipromosikan lewat media sosial, layar informasi, dan kanal resmi Metmal Bekasi.',
   },
   {
     icon: <Sprout className="h-6 w-6" aria-hidden="true" />,
-    title: 'Kembangkan komunitas',
-    desc: 'Eksposur ke ribuan pengunjung mall setiap hari. Kesempatan kolaborasi dengan komunitas lain yang udah bergabung.',
+    title: 'Jejaring antarpenyelenggara',
+    desc: 'Jangkau pengunjung Metmal Bekasi dan buka peluang kolaborasi dengan penyelenggara lain.',
   },
   {
     icon: <PackageCheck className="h-6 w-6" aria-hidden="true" />,
-    title: 'Venue dan peralatan gratis',
-    desc: 'Panggung, sound system, lighting, kursi penonton, semuanya gratis. Kamu tinggal fokus bikin acaranya.',
+    title: 'Venue dan peralatan tanpa biaya sewa',
+    desc: 'Panggung, sound system, lighting, dan kursi tersedia tanpa biaya sewa sesuai review dan jadwal.',
   },
 ];
 
@@ -35,10 +35,10 @@ export function CommunityBenefits() {
         <div className="flex flex-col gap-8">
           <div>
             <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
-              Bukan cuma dikasih tempat.
+              Dukungan promosi sampai Lead Sponsor.
             </h2>
             <p className="mt-4 max-w-[65ch] text-base leading-7 ui-text-secondary">
-              Kamu juga didukung buat berkembang. Dari sponsorship sampai promosi, semuanya buat memperbesar jangkauan.
+              Selain venue, acara kamu juga dibantu promosi agar jangkauannya makin luas.
             </p>
           </div>
 
@@ -49,13 +49,13 @@ export function CommunityBenefits() {
                 <HandCoins className="h-6 w-6 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <h3 className="text-xl font-bold leading-tight text-[var(--wf-ink)]">Dukungan sponsorship</h3>
-                <p className="mt-2 max-w-[65ch] text-base leading-7 ui-text-secondary">Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.</p>
+                <h3 className="text-xl font-bold leading-tight text-[var(--wf-ink)]">Peluang Lead Sponsor</h3>
+                <p className="mt-2 max-w-[65ch] text-base leading-7 ui-text-secondary">Kami bantu menghubungkan acara kamu dengan mitra dan tenant yang sesuai.</p>
                 <Link
                   to="/sponsor"
                   className="mt-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2"
                 >
-                  Lihat peluang sponsor
+                  Lihat peluang Lead Sponsor
                 </Link>
               </div>
             </div>

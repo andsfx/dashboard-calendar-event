@@ -8,17 +8,18 @@ describe('CommunitySocialProof', () => {
     render(<CommunitySocialProof totalCompleted={12} totalOrganizers={34} totalEvents={56} />)
     expect(screen.getByText('12+')).toBeInTheDocument()
     expect(screen.getByText('34+')).toBeInTheDocument()
-    expect(screen.getByText('56+')).toBeInTheDocument()
+    expect(screen.queryByText('56+')).not.toBeInTheDocument()
+    expect(screen.queryByText('Total event')).not.toBeInTheDocument()
   })
 
   it('formats thousands with id-ID grouping and "+" suffix', () => {
-    render(<CommunitySocialProof totalEvents={1234} />)
+    render(<CommunitySocialProof totalCompleted={1234} />)
     expect(screen.getByText('1.234+')).toBeInTheDocument()
   })
 
   it('renders a plain "0" when a metric is zero (never "0+")', () => {
     render(<CommunitySocialProof totalCompleted={0} totalOrganizers={0} totalEvents={0} />)
-    expect(screen.getAllByText('0')).toHaveLength(3)
+    expect(screen.getAllByText('0')).toHaveLength(2)
     expect(screen.queryByText('0+')).not.toBeInTheDocument()
   })
 
@@ -26,5 +27,7 @@ describe('CommunitySocialProof', () => {
     render(<CommunitySocialProof totalCompleted={0} totalOrganizers={0} totalEvents={0} isLoading />)
     expect(screen.getByText('Event terlaksana')).toBeInTheDocument()
     expect(screen.queryByText('0+ Event terlaksana')).not.toBeInTheDocument()
+    expect(screen.queryByText('Total event')).not.toBeInTheDocument()
+    expect(document.querySelectorAll('.animate-pulse')).toHaveLength(2)
   })
 })

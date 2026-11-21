@@ -15,31 +15,31 @@ function renderWithRouter() {
 describe('CommunityBenefits', () => {
   it('renders section heading', () => {
     renderWithRouter()
-    expect(screen.getByText('Bukan cuma dikasih tempat.')).toBeInTheDocument()
+    expect(screen.getByText('Dukungan promosi sampai Lead Sponsor.')).toBeInTheDocument()
   })
 
   it('renders all benefit cards', () => {
     renderWithRouter()
-    expect(screen.getByText('Promosi dan marketing')).toBeInTheDocument()
-    expect(screen.getByText('Kembangkan komunitas')).toBeInTheDocument()
-    expect(screen.getByText('Venue dan peralatan gratis')).toBeInTheDocument()
+    expect(screen.getByText('Dukungan promosi')).toBeInTheDocument()
+    expect(screen.getByText('Jejaring antarpenyelenggara')).toBeInTheDocument()
+    expect(screen.getByText('Venue dan peralatan tanpa biaya sewa')).toBeInTheDocument()
   })
 
   it('renders benefit descriptions', () => {
     renderWithRouter()
-    expect(screen.getByText(/Event kamu kami promosiin/)).toBeInTheDocument()
+    expect(screen.getByText(/Acara kamu dipromosikan lewat media sosial/)).toBeInTheDocument()
   })
 
   it('renders support copy', () => {
     renderWithRouter()
-    expect(screen.getByText(/didukung buat berkembang/)).toBeInTheDocument()
+    expect(screen.getByText(/Selain venue, acara kamu juga dibantu promosi/)).toBeInTheDocument()
   })
 
   it('renders sponsorship CTA card with link to /sponsor', () => {
     renderWithRouter()
-    expect(screen.getByText('Dukungan sponsorship')).toBeInTheDocument()
-    expect(screen.getByText(/Dapatkan dukungan sponsorship/)).toBeInTheDocument()
-    const link = screen.getByRole('link', { name: /Lihat peluang sponsor/ })
+    expect(screen.getByText('Peluang Lead Sponsor')).toBeInTheDocument()
+    expect(screen.getByText(/Kami bantu menghubungkan acara kamu/)).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: /Lihat peluang Lead Sponsor/ })
     expect(link).toHaveAttribute('href', '/sponsor')
   })
 })

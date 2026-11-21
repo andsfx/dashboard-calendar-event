@@ -12,3 +12,11 @@ const formatter = new Intl.NumberFormat('id-ID');
 export function formatStat(value: number): string {
   return value > 0 ? `${formatter.format(value)}+` : '0';
 }
+
+/**
+ * Angka polos tanpa sufiks `+`: untuk hitungan yang berubah setiap hari
+ * (misalnya papan jadwal hero). `+` pada angka harian terbaca sebagai perkiraan.
+ */
+export function formatCount(value: number): string {
+  return formatter.format(value);
+}

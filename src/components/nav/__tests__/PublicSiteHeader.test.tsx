@@ -82,10 +82,10 @@ describe('PublicSiteHeader', () => {
     );
   });
 
-  it('menandai Jadwal event aktif pada /events/:id dengan tepat satu aria-current', () => {
+  it('menandai Jadwal Event aktif pada /events/:id dengan tepat satu aria-current', () => {
     renderHeader({ path: '/events/evt-1' });
 
-    expect(within(screen.getByRole('banner')).getByRole('link', { name: 'Jadwal event' })).toHaveAttribute(
+    expect(within(screen.getByRole('banner')).getByRole('link', { name: 'Jadwal Event' })).toHaveAttribute(
       'aria-current',
       'page',
     );
@@ -147,7 +147,7 @@ describe('PublicSiteHeader', () => {
       // Target sentuh minimum 44 px.
       expect(item).toHaveClass('min-h-11');
     }
-    expect(within(panel).getByRole('link', { name: 'Jadwal event' })).toHaveFocus();
+    expect(within(panel).getByRole('link', { name: 'Jadwal Event' })).toHaveFocus();
 
     await user.keyboard('{Escape}');
 

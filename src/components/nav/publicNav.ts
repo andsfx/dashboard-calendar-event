@@ -13,7 +13,7 @@ export interface PublicNavLink {
 
 /** Tujuan utama yang tampil di bar desktop dan di panel menu. */
 export const PUBLIC_PRIMARY_LINKS: readonly PublicNavLink[] = [
-  { label: 'Jadwal event', to: '/events' },
+  { label: 'Jadwal Event', to: '/events' },
   { label: 'Galeri', to: '/gallery' },
   { label: 'Berita', to: '/news' },
   { label: 'Pameran', to: '/pameran' },

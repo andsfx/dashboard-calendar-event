@@ -129,7 +129,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
             Area di Metropolitan Mall Bekasi
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">
-            Masih bingung milih spot buat acaramu? Lihat area lebih detail.
+            Pilihan Area acara yang tersedia di Metropolitan Mall Bekasi.
           </p>
         </div>
 

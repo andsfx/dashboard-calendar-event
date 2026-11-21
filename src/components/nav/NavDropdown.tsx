@@ -291,7 +291,7 @@ export function NavDropdown({ label, items, pinned, active, open, onOpenChange }
         onClick={() => onOpenChange(!open)}
         aria-expanded={open}
         aria-controls={panelId}
-        className={`h-auto! gap-1 whitespace-nowrap rounded-full border-0 px-2 py-2 text-[1rem] font-normal transition-colors hover:bg-transparent aria-expanded:bg-transparent dark:hover:bg-transparent active:translate-y-0! focus-visible:border-transparent ${focusRing} ${triggerClass}`}
+        className={`h-auto! gap-1 whitespace-nowrap rounded-full border-0 px-2 py-2 text-[13px] font-medium transition-colors hover:bg-transparent aria-expanded:bg-transparent dark:hover:bg-transparent active:translate-y-0! focus-visible:border-transparent ${focusRing} ${triggerClass}`}
       >
         {label}
         <ChevronDown
