@@ -470,7 +470,7 @@ export function RegistrationForm() {
                   Pilih file
                 </Button>
               )}
-              <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">PDF atau Word (doc/docx), maksimal 20MB</p>
+              <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">PDF atau Word (doc/docx), maks. 20 MB</p>
             </div>
           </div>
         </div>
