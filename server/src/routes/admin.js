@@ -138,6 +138,9 @@ const DRAFT_COLUMNS = new Set([
   'priority', 'event_model', 'event_nominal', 'event_model_notes', 'progress',
   'is_multi_day',
   'day_time_slots', 'event_type', 'recurrence_group_id', 'is_recurring',
+  // Tautan ke Community Registration asal (migrasi 2026-11-21). Nilai ''
+  // dinormalkan ke NULL di loop create/update supaya FK tidak menolak string kosong.
+  'organization_id',
 ]);
 
 /** Kolom lifecycle draft — ditolak eksplisit, bukan diabaikan diam-diam. */
@@ -532,21 +535,35 @@ async function switchAction(action, req) {
 
         // Idempotency: event mungkin sudah ada dari percobaan sebelumnya.
         const { rows: existing } = await client.query('SELECT id FROM events WHERE source_draft_id = $1 LIMIT 1', [draftId]);
-        if (!existing[0]) {
+        if (existing[0]) {
+          // Percobaan sebelumnya (atau API lama) bisa membuat event tanpa
+          // tautan organisasi. Isi hanya bila masih kosong — jangan menimpa
+          // tautan yang sengaja dipindahkan admin.
+          if (draft.organization_id) {
+            await client.query(
+              'UPDATE events SET organization_id = COALESCE(organization_id, $1) WHERE id = $2',
+              [draft.organization_id, existing[0].id],
+            );
+          }
+        } else {
           await client.query(
             `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, area_id, acara, eo, pic, phone,
                                  keterangan, month, status, category, categories, priority, event_model, event_nominal,
-                                 event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
+                                 event_model_notes, source_draft_id, organization_id, is_multi_day, day_time_slots, event_type,
                                  recurrence_group_id, is_recurring)
              -- 'published' eksplisit: event hasil terbit adalah live (bukan draft).
              -- Kolom status sebelumnya diisi DEFAULT 'upcoming', yang karena tidak
              -- pernah diperbarui membuat semua 258 event produksi terkunci di sana.
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
+             -- organization_id ikut disalin: Draft yang dibuat dari pendaftaran
+             -- komunitas langsung menautkan event hasil terbit ke registrasi asal
+             -- (tanpa langkah "Tautkan ke event" manual).
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)`,
             [
               draft.date_str, draft.date_end, draft.day, draft.tanggal, draft.jam, draft.lokasi,
               draft.area_id, draft.acara, draft.eo, draft.pic, draft.phone, draft.keterangan,
               draft.month, draft.category, toTextArray(draft.categories || []), draft.priority,
               draft.event_model, draft.event_nominal, draft.event_model_notes, draftId,
+              draft.organization_id || null,
               draft.is_multi_day, draft.day_time_slots ? JSON.stringify(draft.day_time_slots) : null,
               draft.event_type, draft.recurrence_group_id, draft.is_recurring,
             ],
@@ -607,6 +624,7 @@ async function switchAction(action, req) {
         let value = data[key];
         if (key === 'categories') value = toTextArray(value);
         else if (key === 'day_time_slots') value = toJsonb(value);
+        else if (key === 'organization_id') value = value || null;
         else if (value === undefined) value = null;
         values.push(value);
         columns.push(key);
@@ -657,6 +675,7 @@ async function switchAction(action, req) {
         let value = data[key];
         if (key === 'categories') value = toTextArray(value);
         else if (key === 'day_time_slots') value = toJsonb(value);
+        else if (key === 'organization_id') value = value || null;
         else if (value === undefined) value = null;
         values.push(value);
         sets.push(`${key} = $${values.length}`);

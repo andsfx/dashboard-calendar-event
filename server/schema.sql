@@ -252,11 +252,16 @@ CREATE TABLE IF NOT EXISTS draft_events (
   event_type TEXT DEFAULT 'single' CHECK (event_type IN ('single', 'multi_day', 'recurring')),
   recurrence_group_id TEXT DEFAULT '',
   is_recurring BOOLEAN DEFAULT FALSE,
+  -- Asal Draft bila dibuat dari pendaftaran komunitas. Disalin ke
+  -- events.organization_id oleh publishDraft (migrasi 2026-11-21).
+  organization_id TEXT REFERENCES community_registrations(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_draft_events_date_str ON draft_events (date_str);
+CREATE INDEX IF NOT EXISTS idx_draft_events_organization_id
+  ON draft_events (organization_id) WHERE organization_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_draft_events_progress ON draft_events (progress);
 CREATE INDEX IF NOT EXISTS idx_draft_events_deleted ON draft_events (deleted);
 CREATE INDEX IF NOT EXISTS idx_draft_events_published ON draft_events (published);

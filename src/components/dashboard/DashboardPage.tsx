@@ -341,6 +341,7 @@ export function DashboardPage({
           onCloseRegDetail={() => { registrations.setShowRegDetail(false); registrations.setSelectedRegistration(null); }}
           selectedRegistration={registrations.selectedRegistration}
           onUpdateRegStatus={handlers.handleUpdateRegStatus}
+          onCreateEventFromRegistration={handlers.handleCreateEventFromRegistration}
           initialEventData={modalData.initialEventData}
           readOnly={!permissions.canManageSettings}
         />
@@ -586,7 +587,15 @@ export function DashboardPage({
       {permissions.canViewRegistrations && dashboardPath === '/registrations' && (
         <section id="registrations" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-40" />}>
-            <CommunityRegistrationSection registrations={registrations.communityRegistrations} isLoading={registrations.isRegLoading} onDetail={handlers.handleRegDetail} />
+            <CommunityRegistrationSection
+              registrations={registrations.communityRegistrations}
+              isLoading={registrations.isRegLoading}
+              onDetail={handlers.handleRegDetail}
+              draftEvents={drafts.draftEvents}
+              events={events.events}
+              onCreateDraft={permissions.canManageSettings ? handlers.handleCreateEventFromRegistration : undefined}
+              readOnly={!permissions.canManageSettings}
+            />
           </Suspense>
         </section>
       )}

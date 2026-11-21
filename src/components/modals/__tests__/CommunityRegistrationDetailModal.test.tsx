@@ -161,16 +161,25 @@ function makeRegistration(status: RegistrationStatus): CommunityRegistration {
   };
 }
 
-function renderModal(registration: CommunityRegistration, readOnly = false) {
+function renderModal(
+  registration: CommunityRegistration,
+  readOnly = false,
+  onCreateEvent?: (registration: CommunityRegistration) => void,
+  hasLinkedDraft = false,
+) {
+  const onClose = vi.fn();
   render(
     <CommunityRegistrationDetailModal
       isOpen
-      onClose={vi.fn()}
+      onClose={onClose}
       registration={registration}
       onUpdateStatus={vi.fn()}
+      onCreateEvent={onCreateEvent}
+      hasLinkedDraft={hasLinkedDraft}
       readOnly={readOnly}
     />,
   );
+  return { onClose };
 }
 
 /** Campuran: satu tertaut ke registrasi, satu milik org lain, satu draft. */
@@ -255,5 +264,46 @@ describe('CommunityRegistrationDetailModal — seksi "Tautkan ke event"', () => 
       const bodies = sentLinkBodies(fetchMock);
       expect(bodies.some((b) => b.eventId === 'evt_other' && b.unlinkEventId === undefined)).toBe(true);
     });
+  });
+});
+
+describe('CommunityRegistrationDetailModal — tombol "Buat Draft dari pendaftaran"', () => {
+  it('approved + handler tersedia: tombol tampil dan memanggil handler lalu menutup modal', async () => {
+    mockListEvents([]);
+    const onCreateEvent = vi.fn();
+    const { onClose } = renderModal(makeRegistration('approved'), false, onCreateEvent);
+
+    const button = await screen.findByRole('button', { name: /Buat Draft dari pendaftaran/ });
+    fireEvent.click(button);
+
+    expect(onCreateEvent).toHaveBeenCalledTimes(1);
+    expect(onCreateEvent).toHaveBeenCalledWith(expect.objectContaining({ id: 'crg_1' }));
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('handler tidak dioper: tombol tidak dirender (regresi wiring DashboardPage)', async () => {
+    mockListEvents([]);
+    renderModal(makeRegistration('approved'));
+
+    await screen.findByText(/Tautkan ke event/);
+    expect(screen.queryByRole('button', { name: /Buat Draft dari pendaftaran/ })).not.toBeInTheDocument();
+  });
+
+  it('status belum approved: tombol tidak dirender meski handler tersedia', async () => {
+    mockListEvents([]);
+    renderModal(makeRegistration('reviewed'), false, vi.fn());
+
+    expect(screen.queryByRole('button', { name: /Buat Draft dari pendaftaran/ })).not.toBeInTheDocument();
+  });
+
+  it('Draft sudah tertaut: tombol nonaktif dan berlabel "Draft sudah dibuat"', async () => {
+    mockListEvents([]);
+    const onCreateEvent = vi.fn();
+    renderModal(makeRegistration('approved'), false, onCreateEvent, true);
+
+    const button = await screen.findByRole('button', { name: 'Draft sudah dibuat' });
+    expect(button).toBeDisabled();
+    fireEvent.click(button);
+    expect(onCreateEvent).not.toHaveBeenCalled();
   });
 });

@@ -16,20 +16,38 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const dbState = { rows: [], queries: [], error: null };
+const dbState = { rows: [], queries: [], error: null, responses: null };
+
+/**
+ * `responses` opsional: daftar `{ match, rows }` yang dipilih berdasarkan
+ * potongan SQL. Dipakai alur multi-query seperti `publishDraft` (SELECT draft →
+ * SELECT ... FOR UPDATE → SELECT event → INSERT → UPDATE) yang tidak mungkin
+ * diuji dengan satu `rows` untuk semua query.
+ */
+function rowsFor(sql) {
+  if (Array.isArray(dbState.responses)) {
+    for (const entry of dbState.responses) {
+      if (String(sql).includes(entry.match)) return entry.rows;
+    }
+    return [];
+  }
+  return dbState.rows;
+}
 
 vi.mock('../../db.js', () => ({
   db: {
     query: vi.fn(async (sql, params) => {
       dbState.queries.push({ sql, params: params || [] });
       if (dbState.error) throw dbState.error;
-      return { rows: dbState.rows, rowCount: dbState.rows.length };
+      const rows = rowsFor(sql);
+      return { rows, rowCount: rows.length };
     }),
     withTransaction: vi.fn(async (fn) => fn({
       query: async (sql, params) => {
         dbState.queries.push({ sql, params: params || [] });
         if (dbState.error) throw dbState.error;
-        return { rows: dbState.rows, rowCount: dbState.rows.length };
+        const rows = rowsFor(sql);
+        return { rows, rowCount: rows.length };
       },
     })),
   },
@@ -108,6 +126,7 @@ beforeEach(() => {
   dbState.rows = [];
   dbState.queries = [];
   dbState.error = null;
+  dbState.responses = null;
 });
 
 describe('updateDraft — flag lifecycle bukan bagian payload', () => {
@@ -291,5 +310,91 @@ describe('pemetaan SQLSTATE input klien', () => {
     expect(status).toBe(500);
     expect(body.error).toContain('Server sedang bermasalah');
     expect(body.error).not.toContain('rahasia');
+  });
+});
+
+describe('tautan Draft → Community Registration (organization_id)', () => {
+  it('createDraft menyimpan organization_id dari registrasi asal', async () => {
+    dbState.rows = [{ id: 'drf_1' }];
+
+    const { status } = await callAction('createDraft', {
+      data: { acara: 'Bazar', organization_id: 'reg_1' },
+    });
+
+    expect(status).toBe(200);
+    const [insert] = dbState.queries;
+    expect(insert.sql).toContain('INSERT INTO draft_events');
+    expect(insert.sql).toContain('organization_id');
+    expect(insert.params).toContain('reg_1');
+  });
+
+  it('organization_id kosong dikirim NULL, bukan string kosong (FK menolak "")', async () => {
+    dbState.rows = [{ id: 'drf_1' }];
+
+    await callAction('createDraft', { data: { acara: 'Bazar', organization_id: '' } });
+
+    const [insert] = dbState.queries;
+    const index = insert.sql.indexOf('organization_id');
+    expect(index).toBeGreaterThan(-1);
+    // Params urut sesuai urutan kolom INSERT.
+    const columns = insert.sql.slice(insert.sql.indexOf('(') + 1, insert.sql.indexOf(')')).split(',').map(s => s.trim());
+    const at = columns.indexOf('organization_id');
+    expect(insert.params[at]).toBeNull();
+  });
+
+  it('updateDraft boleh memindahkan/menghapus tautan organisasi', async () => {
+    dbState.rows = [{ ...DRAFT_ROW }];
+
+    const { status } = await callAction('updateDraft', {
+      id: 'drf_1',
+      data: { organization_id: null },
+    });
+
+    expect(status).toBe(200);
+    const [update] = dbState.queries;
+    expect(update.sql).toContain('organization_id = $1');
+    expect(update.params).toEqual([null, 'drf_1']);
+  });
+
+  it('publishDraft menyalin organization_id draft ke events.organization_id', async () => {
+    dbState.responses = [
+      {
+        match: 'FROM draft_events WHERE id = $1 LIMIT 1',
+        rows: [{ ...DRAFT_ROW, id: 'drf_1', progress: 'confirm', organization_id: 'reg_1', acara: 'Bazar' }],
+      },
+      { match: 'FOR UPDATE', rows: [{ published: false, deleted: false, progress: 'confirm' }] },
+      { match: 'FROM events WHERE source_draft_id', rows: [] },
+    ];
+
+    const { status, body } = await callAction('publishDraft', { id: 'drf_1' });
+
+    expect(status).toBe(200);
+    expect(body.success).toBe(true);
+    const insert = dbState.queries.find(({ sql }) => String(sql).includes('INSERT INTO events'));
+    expect(insert).toBeTruthy();
+    expect(insert.sql).toContain('organization_id');
+    expect(insert.params).toContain('reg_1');
+  });
+
+  it('publish idempoten mengisi tautan pada event lama yang masih kosong', async () => {
+    dbState.responses = [
+      {
+        match: 'FROM draft_events WHERE id = $1 LIMIT 1',
+        rows: [{ ...DRAFT_ROW, id: 'drf_1', progress: 'confirm', organization_id: 'reg_1', acara: 'Bazar' }],
+      },
+      { match: 'FOR UPDATE', rows: [{ published: false, deleted: false, progress: 'confirm' }] },
+      // Event sudah dibuat percobaan sebelumnya, tetapi tanpa tautan organisasi
+      // (API lama). Jalur ini harus memperbaikinya, bukan melewati UPDATE.
+      { match: 'FROM events WHERE source_draft_id', rows: [{ id: 'evt_old' }] },
+    ];
+
+    const { status, body } = await callAction('publishDraft', { id: 'drf_1' });
+
+    expect(status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(dbState.queries.some(({ sql }) => String(sql).includes('INSERT INTO events'))).toBe(false);
+    const update = dbState.queries.find(({ sql }) => String(sql).includes('UPDATE events SET organization_id = COALESCE'));
+    expect(update).toBeTruthy();
+    expect(update.params).toEqual(['reg_1', 'evt_old']);
   });
 });

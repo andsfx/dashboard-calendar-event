@@ -60,7 +60,12 @@ interface DashboardModalsProps {
   onCloseRegDetail: () => void;
   selectedRegistration: CommunityRegistration | null;
   onUpdateRegStatus: (id: string, status: RegistrationStatus, adminNote: string) => Promise<boolean>;
-  onCreateEventFromRegistration?: (registration: CommunityRegistration) => void;
+  /**
+   * Wajib: tombol "Buat Draft dari pendaftaran" di modal detail hanya dirender
+   * bila prop ini dioper. Sebelumnya opsional dan DashboardPage lupa
+   * mengoper-nya, sehingga fitur hilang tanpa error kompilasi.
+   */
+  onCreateEventFromRegistration: (registration: CommunityRegistration) => void;
 
   /** Akun demo: modal konten tampil tanpa aksi mutasi. */
   readOnly?: boolean;
@@ -135,6 +140,7 @@ export function DashboardModals({
             events={events}
             eventAreas={eventAreas}
             draftEvents={draftEvents}
+            organizationOptions={organizationOptions}
           />
         )}
         {showThemeModal && (
@@ -172,6 +178,12 @@ export function DashboardModals({
             registration={selectedRegistration}
             onUpdateStatus={onUpdateRegStatus}
             onCreateEvent={onCreateEventFromRegistration}
+            hasLinkedDraft={Boolean(selectedRegistration) && draftEvents.some(
+              (d) => d.organizationId === selectedRegistration?.id
+                && !d.deleted
+                && !d.published
+                && d.progress !== 'cancel',
+            )}
             readOnly={readOnly}
           />
         )}

@@ -25,9 +25,11 @@ interface Props {
   events: EventItem[];
   eventAreas: EventArea[];
   draftEvents: DraftEventItem[];
+  /** Organisasi terdaftar — Draft dari pendaftaran membawa id registrasinya. */
+  organizationOptions?: { id: string; name: string }[];
 }
 
-const EMPTY: {
+type DraftFormState = {
   dateStr: string;
   dateEnd: string;
   isMultiDay: boolean;
@@ -53,7 +55,10 @@ const EMPTY: {
   recurrenceDayOfMonth: number;
   recurrenceInterval: number;
   recurrenceEndDate: string;
-} = {
+  organizationId: string;
+};
+
+const EMPTY: DraftFormState = {
   dateStr: '',
   dateEnd: '',
   isMultiDay: false,
@@ -79,9 +84,10 @@ const EMPTY: {
   recurrenceDayOfMonth: 1,
   recurrenceInterval: 7,
   recurrenceEndDate: '',
+  organizationId: '',
 };
 
-export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, eventAreas, draftEvents }: Props) {
+export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, eventAreas, draftEvents, organizationOptions = [] }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [areaId, setAreaId] = useState('');
@@ -137,6 +143,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
         recurrenceDayOfMonth: 1,
         recurrenceInterval: 7,
         recurrenceEndDate: '',
+        organizationId: editingDraft.organizationId || '',
       });
     } else {
       setForm(EMPTY);
@@ -462,6 +469,8 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
             eoPlaceholder={getSuggestionPlaceholder(eoSuggestions, 'Internal MMB / EO Partner / Organizer Event')}
             picPlaceholder="Nama PIC event"
             phonePlaceholder="08xxxxxxxxxx"
+            organizationId={form.organizationId}
+            organizationOptions={organizationOptions}
             onFieldChange={set}
             onAddCategory={addCategory}
             onRemoveCategory={removeCategory}

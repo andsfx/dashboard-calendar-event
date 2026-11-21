@@ -18,6 +18,12 @@ interface Props {
   registration: CommunityRegistration | null;
   onUpdateStatus: (id: string, status: RegistrationStatus, adminNote: string) => Promise<boolean>;
   onCreateEvent?: (registration: CommunityRegistration) => void;
+  /**
+   * Registrasi ini sudah punya Draft tertaut. Aksi "Buat Draft" dinonaktifkan
+   * supaya tidak menghasilkan dua Draft untuk satu pendaftaran (keduanya akan
+   * menautkan event yang berbeda ke registrasi yang sama).
+   */
+  hasLinkedDraft?: boolean;
   /** Akun demo: hanya melihat. Aksi review/approve disembunyikan (backend juga menolak). */
   readOnly?: boolean;
 }
@@ -96,7 +102,7 @@ function StatusBadge({ status }: { status: RegistrationStatus }) {
   );
 }
 
-export function CommunityRegistrationDetailModal({ isOpen, onClose, registration, onUpdateStatus, onCreateEvent, readOnly = false }: Props) {
+export function CommunityRegistrationDetailModal({ isOpen, onClose, registration, onUpdateStatus, onCreateEvent, hasLinkedDraft = false, readOnly = false }: Props) {
   const { showToast } = useToast();
   const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
   const [adminNote, setAdminNote] = useState('');
@@ -518,10 +524,11 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
                   onClose();
                 }
               }}
-              disabled={isSubmitting}
+              disabled={isSubmitting || hasLinkedDraft}
+              title={hasLinkedDraft ? 'Pendaftaran ini sudah punya Draft tertaut di antrean.' : undefined}
               className="flex-1"
             >
-              <CalendarPlus className="h-3.5 w-3.5" /> Buat Draft dari pendaftaran
+              <CalendarPlus className="h-3.5 w-3.5" /> {hasLinkedDraft ? 'Draft sudah dibuat' : 'Buat Draft dari pendaftaran'}
             </Button>
           )}
           {!readOnly && canReview && (

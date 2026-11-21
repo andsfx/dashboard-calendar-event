@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Users, Inbox, Clock, CheckCircle2, XCircle, Eye, Filter } from 'lucide-react';
-import { CommunityRegistration, RegistrationStatus, OrganizationType } from '../../types';
+import { Users, Inbox, Clock, CheckCircle2, XCircle, Eye, Filter, CalendarPlus } from 'lucide-react';
+import { CommunityRegistration, RegistrationStatus, OrganizationType, DraftEventItem, EventItem } from '../../types';
 import { Toggle } from '../shadcn/toggle';
 import { Button } from '../shadcn/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../shadcn/table';
@@ -9,7 +9,26 @@ interface Props {
   registrations: CommunityRegistration[];
   isLoading: boolean;
   onDetail: (reg: CommunityRegistration) => void;
+  /**
+   * Draft + event aktif. Dipakai menandai tindak lanjut per registrasi:
+   * registrasi yang sudah punya Draft tertaut tidak boleh dianggap "belum
+   * dijadwalkan", dan event hasil terbit membuatnya "Sudah dijadwalkan".
+   */
+  draftEvents?: DraftEventItem[];
+  events?: EventItem[];
+  /** Buka form Draft terisi dari registrasi (aksi "Buat Draft"). */
+  onCreateDraft?: (reg: CommunityRegistration) => void;
+  /** Akun demo: hanya melihat, aksi pembuatan Draft disembunyikan. */
+  readOnly?: boolean;
 }
+
+type FollowUp = { kind: 'event' | 'draft'; label: string; detail: string };
+
+const DRAFT_PROGRESS_LABEL: Record<DraftEventItem['progress'], string> = {
+  draft: 'Draft',
+  confirm: 'Konfirmasi',
+  cancel: 'Batal',
+};
 
 const STATUS_TABS: Array<{ key: RegistrationStatus | 'all'; label: string; dot?: string }> = [
   { key: 'all', label: 'Semua' },
@@ -52,6 +71,34 @@ function StatusBadgeReg({ status }: { status: RegistrationStatus }) {
   return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${c.className}`}>{c.label}</span>;
 }
 
+/**
+ * Status tindak lanjut setelah review — pertanyaan yang tidak dijawab kolom
+ * "Status" (approved ≠ sudah dijadwalkan, ADR 003).
+ */
+function FollowUpBadge({ status, followUp }: { status: RegistrationStatus; followUp?: FollowUp }) {
+  if (followUp) {
+    const className = followUp.kind === 'event'
+      ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]'
+      : 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]';
+    return (
+      <span
+        title={followUp.detail ? `Terhubung ke: ${followUp.detail}` : undefined}
+        className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${className}`}
+      >
+        {followUp.label}
+      </span>
+    );
+  }
+  if (status === 'approved') {
+    return (
+      <span className="inline-flex items-center rounded-full bg-[var(--wf-action)]/10 px-2.5 py-1 text-[11px] font-semibold text-[var(--wf-action)]">
+        Belum dijadwalkan
+      </span>
+    );
+  }
+  return <span aria-hidden="true" className="text-xs text-[var(--wf-ink-muted)]">—</span>;
+}
+
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return dateStr;
@@ -59,9 +106,38 @@ function formatDate(dateStr: string): string {
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-export function CommunityRegistrationSection({ registrations, isLoading, onDetail }: Props) {
+export function CommunityRegistrationSection({ registrations, isLoading, onDetail, draftEvents = [], events = [], onCreateDraft, readOnly = false }: Props) {
   const [activeTab, setActiveTab] = useState<RegistrationStatus | 'all'>('all');
   const [orgTypeFilter, setOrgTypeFilter] = useState<OrganizationType | 'all'>('all');
+
+  // Tindak lanjut per registrasi, dihitung dari relasi yang sudah ada di state
+  // dashboard (draft_events.organization_id / events.organization_id). Event
+  // menang atas Draft: registrasi yang sudah punya event live tidak lagi
+  // dianggap "dalam antrian".
+  const followUpByReg = useMemo(() => {
+    const map = new Map<string, FollowUp>();
+    for (const draft of draftEvents) {
+      const orgId = draft.organizationId;
+      if (!orgId || draft.deleted) continue;
+      // Draft batal bukan antrean aktif: registrasi harus bisa dibuatkan Draft
+      // pengganti. Tanpa ini, "Batal" di form Draft jadi jalan buntu.
+      if (!draft.published && draft.progress === 'cancel') continue;
+      if (draft.published) {
+        map.set(orgId, { kind: 'event', label: 'Sudah dijadwalkan', detail: draft.acara });
+      } else if (map.get(orgId)?.kind !== 'event') {
+        map.set(orgId, {
+          kind: 'draft',
+          label: `Draft · ${DRAFT_PROGRESS_LABEL[draft.progress] || draft.progress}`,
+          detail: draft.acara,
+        });
+      }
+    }
+    for (const ev of events) {
+      if (!ev.organizationId) continue;
+      map.set(ev.organizationId, { kind: 'event', label: 'Sudah dijadwalkan', detail: ev.acara });
+    }
+    return map;
+  }, [draftEvents, events]);
 
   const pendingCount = useMemo(
     () => registrations.filter((r) => r.status === 'pending').length,
@@ -197,6 +273,10 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                   <span>{reg.phone}</span>
                   <span>{formatDate(reg.createdAt)}</span>
                 </div>
+                <div className="mt-2 flex items-center gap-2 text-xs text-[var(--wf-ink-muted)]">
+                  <span>Tindak lanjut:</span>
+                  <FollowUpBadge status={reg.status} followUp={followUpByReg.get(reg.id)} />
+                </div>
               </Button>
             ))}
           </div>
@@ -211,6 +291,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                   <TableHead scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">PIC</TableHead>
                   <TableHead scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Telepon</TableHead>
                   <TableHead scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Status</TableHead>
+                  <TableHead scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Tindak lanjut</TableHead>
                   <TableHead scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Tanggal</TableHead>
                   <TableHead scope="col" className="px-4 py-3">
                     <span className="sr-only">Aksi</span>
@@ -233,20 +314,38 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                     <TableCell className="px-4 py-3 text-[var(--wf-ink-muted)]">{reg.pic}</TableCell>
                     <TableCell className="px-4 py-3 text-[var(--wf-ink-muted)]">{reg.phone}</TableCell>
                     <TableCell className="px-4 py-3"><StatusBadgeReg status={reg.status} /></TableCell>
+                    <TableCell className="px-4 py-3"><FollowUpBadge status={reg.status} followUp={followUpByReg.get(reg.id)} /></TableCell>
                     <TableCell className="px-4 py-3 text-[var(--wf-ink-muted)]">{formatDate(reg.createdAt)}</TableCell>
                     <TableCell className="px-4 py-3">
-                      {/* Baris tetap klik-untuk-mouse, tapi jalur keyboard ada di
-                          tombol nyata ini: `role="button"` pada <TableRow> akan
-                          menghapus semantik tabel untuk pembaca layar. */}
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={(e) => { e.stopPropagation(); onDetail(reg); }}
-                        aria-label={`Lihat detail pendaftaran ${reg.organizationName || reg.communityName}`}
-                        className="ui-focus-ring inline-flex h-auto min-h-11 min-w-11 items-center justify-center rounded-lg text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)] active:translate-y-0 focus-visible:ring-0"
-                      >
-                        <Eye className="h-4 w-4" aria-hidden />
-                      </Button>
+                      <div className="flex items-center justify-end gap-1">
+                        {/* Satu-satunya jalan dari "approved" ke jadwal (ADR 003):
+                            draft dibuat manual, tertaut ke registrasi, lalu
+                            diterbitkan dari antrian Draft. Disembunyikan bila
+                            sudah ada Draft/event tertaut atau akun demo. */}
+                        {onCreateDraft && !readOnly && reg.status === 'approved' && !followUpByReg.get(reg.id) && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => { e.stopPropagation(); onCreateDraft(reg); }}
+                            aria-label={`Buat draft dari pendaftaran ${reg.organizationName || reg.communityName}`}
+                            className="h-auto whitespace-nowrap px-2.5 py-1.5 text-xs active:translate-y-0"
+                          >
+                            <CalendarPlus className="h-3.5 w-3.5" aria-hidden /> Buat Draft
+                          </Button>
+                        )}
+                        {/* Baris tetap klik-untuk-mouse, tapi jalur keyboard ada di
+                            tombol nyata ini: `role="button"` pada <TableRow> akan
+                            menghapus semantik tabel untuk pembaca layar. */}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={(e) => { e.stopPropagation(); onDetail(reg); }}
+                          aria-label={`Lihat detail pendaftaran ${reg.organizationName || reg.communityName}`}
+                          className="ui-focus-ring inline-flex h-auto min-h-11 min-w-11 items-center justify-center rounded-lg text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)] active:translate-y-0 focus-visible:ring-0"
+                        >
+                          <Eye className="h-4 w-4" aria-hidden />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

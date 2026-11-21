@@ -74,8 +74,10 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
         </datalist>
       </div>
 
-      {/* Organisasi (komunitas / EO terdaftar) */}
-      {!isDraft && organizationOptions.length > 0 && (
+      {/* Organisasi (komunitas / EO terdaftar). Juga tampil di Draft: Draft
+          yang dibuat dari pendaftaran harus membawa id registrasinya supaya
+          publishDraft bisa menautkan event hasil terbit (migrasi 2026-11-21). */}
+      {organizationOptions.length > 0 && (
         <div>
           <Label htmlFor={`${datalistId}-org`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Organisasi terdaftar (opsional)</Label>
           <NativeSelect

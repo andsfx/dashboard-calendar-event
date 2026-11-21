@@ -157,6 +157,8 @@ export interface DbDraft {
   deleted: boolean; deleted_at: string | null;
   is_multi_day: boolean; day_time_slots: unknown; event_type: string;
   recurrence_group_id: string; is_recurring: boolean; area_id: string | null;
+  /** Asal Draft dari Community Registration (migrasi 2026-11-21). */
+  organization_id?: string | null;
 }
 
 export function dbDraftToDraftItem(row: DbDraft, index: number): DraftEventItem {
@@ -182,6 +184,7 @@ export function dbDraftToDraftItem(row: DbDraft, index: number): DraftEventItem 
     eventType: (row.event_type as DraftEventItem['eventType']) || 'single',
     recurrenceGroupId: row.recurrence_group_id || '',
     isRecurring: row.is_recurring || false,
+    organizationId: row.organization_id || undefined,
   };
 }
 
@@ -225,6 +228,7 @@ export function draftItemToDbRow(draft: Partial<DraftEventItem>): Record<string,
   if (draft.eventType !== undefined) row.event_type = draft.eventType;
   if (draft.recurrenceGroupId !== undefined) row.recurrence_group_id = draft.recurrenceGroupId;
   if (draft.isRecurring !== undefined) row.is_recurring = draft.isRecurring;
+  if (draft.organizationId !== undefined) row.organization_id = draft.organizationId || null;
   return row;
 }
 

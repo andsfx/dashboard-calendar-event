@@ -126,6 +126,10 @@ export function useRegistrationHandlers(deps: RegistrationHandlersDeps): Registr
       month: prefillData.month || '', category: 'Umum', categories: [],
       priority: 'medium', eventModel: 'free', eventNominal: '', eventModelNotes: '',
       progress: 'draft', published: false, deleted: false,
+      // Relasi asal disimpan sebagai kolom, bukan hanya teks internalNote:
+      // publishDraft menyalinnya ke events.organization_id sehingga registrasi
+      // langsung tampil "Sudah dijadwalkan" tanpa penautan manual.
+      organizationId: registration.id,
     });
     setShowDraftModal(true);
     showToast('info', 'Buat Draft dari pendaftaran', 'Form Draft diisi dari data pendaftaran. Lengkapi lalu simpan. Approve tidak membuat Draft otomatis.');
