@@ -81,8 +81,11 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
   // bawah hero supaya tidak ada dua angka kembar di satu layar.
   const now = new Date();
   const monthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  // Badge "Berlangsung" hanya boleh tampil bila memang ada event yang berjalan;
+  // label status tanpa event adalah klaim palsu (brief meminta kata, bukan klaim).
+  const ongoingCount = events.filter(e => e.status === 'ongoing').length;
   const metrics: Array<{ label: string; value: number }> = [
-    { label: 'Berlangsung', value: events.filter(e => e.status === 'ongoing').length },
+    { label: 'Berlangsung', value: ongoingCount },
     { label: 'Mendatang', value: events.filter(e => e.status === 'upcoming').length },
     { label: 'Event bulan ini', value: events.filter(e => e.dateStr.startsWith(monthPrefix)).length },
   ];
@@ -120,7 +123,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
             Padding atas/bawah dirapatkan di lebar kecil: konten hero yang
             melewati ~87% tinggi kotak akan turun ke pita transisi gradient,
             dan gate a11y mengukur fraksi itu secara langsung. */}
-        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-start gap-8 px-4 pt-20 pb-16 sm:px-6 sm:pt-24 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14">
+        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-start gap-8 px-4 pt-20 pb-24 sm:px-6 sm:pt-24 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14">
           <div data-hero-copy className="mx-auto max-w-2xl text-center lg:mx-0">
             {/* Badge ini duplikat metrik yang sama dengan CommunitySocialProof
                 tepat di bawahnya. Hanya band yang jadi live region; kalau dua-duanya
@@ -176,10 +179,12 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/70">
                 Jadwal terdekat
               </p>
-              <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 motion-reduce:animate-none" aria-hidden="true" />
-                Berlangsung
-              </span>
+              {ongoingCount > 0 && (
+                <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 motion-reduce:animate-none" aria-hidden="true" />
+                  Berlangsung
+                </span>
+              )}
             </div>
 
             <div className="mt-4 grid grid-cols-3 gap-3" aria-busy={loading}>

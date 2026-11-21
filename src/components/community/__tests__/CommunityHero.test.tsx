@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import '@testing-library/jest-dom'
 import { CommunityHero } from '../CommunityHero'
 import { COMMUNITY_STAT_LABELS } from '../communityStats'
+import type { EventItem } from '../../../types'
 
 describe('CommunityHero', () => {
   it('renders main heading with the highlighted "tanpa biaya sewa"', () => {
@@ -37,6 +38,32 @@ describe('CommunityHero', () => {
     expect(screen.getByText('Tanpa biaya sewa (sesuai review)')).toBeInTheDocument()
     expect(screen.getByText('Sound system 10.000 watt')).toBeInTheDocument()
   })
+
+  it('hanya menampilkan badge "Berlangsung" bila ada event yang sedang berjalan', () => {
+    const ongoing: EventItem = {
+      id: 'e1', rowIndex: 1, tanggal: '21 November 2026', dateStr: '2026-11-21',
+      day: 'Sabtu', month: 'November 2026', jam: '10:00 - 12:00',
+      acara: 'Event Berjalan', lokasi: 'Lt. 3', eo: 'EO', pic: 'PIC',
+      phone: '0800', keterangan: '', status: 'ongoing', category: 'Umum',
+      categories: ['Umum'], priority: 'medium', eventModel: '',
+      eventNominal: '', eventModelNotes: '',
+    };
+    // Tanpa event: label metrik "Berlangsung" tetap ada, badge status tidak.
+    const { unmount } = render(
+      <MemoryRouter>
+        <CommunityHero />
+      </MemoryRouter>,
+    );
+    expect(screen.getAllByText('Berlangsung')).toHaveLength(1);
+    unmount();
+
+    render(
+      <MemoryRouter>
+        <CommunityHero events={[ongoing]} />
+      </MemoryRouter>,
+    );
+    expect(screen.getAllByText('Berlangsung')).toHaveLength(2);
+  });
 
   it('renders hero image when provided', () => {
     const { container } = render(
