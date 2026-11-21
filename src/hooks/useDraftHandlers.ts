@@ -29,9 +29,9 @@ export interface DraftHandlersResult {
   handleEditDraft: (draft: DraftEventItem) => void;
   handleSaveDraft: (data: Partial<DraftEventItem>) => Promise<boolean>;
   handleDeleteDraft: (draft: DraftEventItem) => void;
-  handlePublishDraft: (draft: DraftEventItem) => void;
+  handlePublishDraft: (draft: DraftEventItem) => Promise<void>;
   handleDraftProgressChange: (draft: DraftEventItem, progress: DraftEventItem['progress']) => void;
-  handleRestoreDraft: (draft: DraftEventItem) => void;
+  handleRestoreDraft: (draft: DraftEventItem) => Promise<void>;
 }
 
 export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
@@ -92,6 +92,10 @@ export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
       message: 'Draf akan diterbitkan ke jadwal event resmi dan bisa dilihat publik.',
       subject: draft.acara,
       confirmLabel: 'Terbitkan',
+      // Menerbitkan bukan aksi destruktif: tanpa ini ConfirmDialog memakai
+      // nada 'danger' (bar merah, ikon Trash2, tombol hapus) — terbaca seperti
+      // menghapus draft.
+      tone: 'neutral',
     });
     if (!ok) return;
     const success = await publishDraft(draft.id);
@@ -116,6 +120,7 @@ export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
       message: 'Draf akan dikembalikan ke antrean aktif.',
       subject: draft.acara,
       confirmLabel: 'Pulihkan',
+      tone: 'neutral',
     });
     if (!ok) return;
     const success = await restoreDraft(draft.id);
