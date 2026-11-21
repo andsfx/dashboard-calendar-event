@@ -74,8 +74,9 @@ describe('EventsLandingPage — filter kategori dihapus', () => {
 
     expect(screen.queryByRole('group', { name: 'Filter kategori' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Semua kategori' })).toBeNull();
-    // Strip tetap satu baris: grup filter waktu masih ada.
-    expect(screen.getByRole('group', { name: 'Filter waktu' })).toBeInTheDocument();
+    // Strip tetap ada: filter waktu kini satu kontrol satu-of (radiogroup
+    // Radix ToggleGroup), bukan kumpulan tombol `aria-pressed` terpisah.
+    expect(screen.getByRole('radiogroup', { name: 'Filter waktu' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Cari event' })).toBeInTheDocument();
   });
 

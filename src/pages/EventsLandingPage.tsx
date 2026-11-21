@@ -46,6 +46,7 @@ import { CATEGORY_COLORS, collapseRecurringSeries, isRecurringEvent, recurringSc
 import { resolveEventPoster } from '../utils/eventPoster';
 import { EventPosterBanner } from '../components/events/EventPosterBanner';
 import { Button } from '../components/shadcn/button';
+import { ToggleGroup, ToggleGroupItem } from '../components/shadcn/toggle-group';
 import { Input } from '../components/shadcn/input';
 import { usePageMeta } from '../utils/pageMeta';
 import { EventItem, HolidayItem, PhotoAlbum, EventArea, AnnualTheme } from '../types';
@@ -67,7 +68,7 @@ import { useExportScope } from '../components/pdf/useExportScope';
 import { SCHEDULE_SECTION_OPTIONS } from '../components/pdf/pdfSectionOptions';
 import { CategoryBadges } from '../components/ui/CategoryBadges';
 import { CalendarView } from '../components/views/CalendarView';
-import { CommunityEyebrow, RevealSection } from '../components/community/CommunityRevealPrimitives';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import { CalendarSyncDialog } from '../components/events/CalendarSyncDialog';
 
@@ -128,7 +129,7 @@ function shortDateLabel(dateStr: string): string {
  * tipe/tanggal, tint status (amber) untuk hitung mundur.
  */
 const CARD_CHIP =
-  'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-control)] px-2.5 py-1 text-xs font-bold uppercase tracking-wider';
+  'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-control)] px-2.5 py-1 font-mono text-xs font-bold uppercase tracking-[0.08em]';
 
 function getCountdown(targetDate: string, now: number, jam?: string) {
   // Target memakai jam mulai event bila terbaca; hitung mundur bersel "Detik"
@@ -206,14 +207,44 @@ function lightenChipText(hex: string): string {
 function CountdownCell({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl border border-[color-mix(in_srgb,var(--brand-tosca)_28%,transparent)] bg-[color-mix(in_srgb,var(--brand-tosca)_9%,white)] px-3 py-2.5 text-center dark:border-[color-mix(in_srgb,var(--brand-tosca)_40%,black)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_18%,black)]">
-      <p className="font-display text-xl font-bold tabular-nums text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] sm:text-2xl">
+      <p className="font-mono text-xl font-bold tabular-nums text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] sm:text-2xl">
         {String(value).padStart(2, '0')}
       </p>
-      <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">
+      <p className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">
         {label}
       </p>
     </div>
   );
+}
+
+/**
+ * Poster per kartu dengan URL unik dalam satu halaman.
+ *
+ * Hero memakai poster pertamanya; kartu mengikuti urutan render yang
+ * sebenarnya. Event yang posternya sudah dipakai hero/kartu sebelumnya
+ * dirender tanpa banner (placeholder bertint kategori tetap ada) — kartu dan
+ * hitungannya tidak berkurang, hanya fotonya tidak muncul dua kali.
+ */
+function resolveUniqueCardPosters(
+  ordered: EventItem[],
+  albums: PhotoAlbum[],
+  seedUrls: ReadonlyArray<string | undefined>,
+): Map<string, string> {
+  const used = new Set<string>();
+  for (const url of seedUrls) {
+    if (url) used.add(url);
+  }
+  const posters = new Map<string, string>();
+  for (const ev of ordered) {
+    const url = resolveEventPoster(ev, albums);
+    if (!url || used.has(url)) {
+      posters.set(ev.id, '');
+      continue;
+    }
+    used.add(url);
+    posters.set(ev.id, url);
+  }
+  return posters;
 }
 
 // ─── Ikon kategori kartu list ───
@@ -295,7 +326,7 @@ function HighlightEventCard({
       <div className="flex flex-1 flex-col p-6 sm:p-8">
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.16em]"
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-xs font-bold uppercase tracking-[0.08em]"
             data-chip-tone=""
             style={
               {
@@ -371,7 +402,7 @@ function HighlightEventCard({
           {!isLive && !isRecurring && (
             <>
               <p
-                className="text-xs font-bold tracking-wide"
+                className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--wf-ink-muted)]"
                 data-chip-tone=""
                 style={
                   {
@@ -382,7 +413,11 @@ function HighlightEventCard({
               >
                 Hitung mundur acara
               </p>
-              <div className="grid w-full max-w-sm grid-cols-4 gap-2">
+              <div
+                role="group"
+                aria-label={`Hitung mundur menuju ${event.acara}, ${event.tanggal}`}
+                className="grid w-full max-w-sm grid-cols-4 gap-2"
+              >
                 <CountdownCell label="Hari" value={countdown.days} />
                 <CountdownCell label="Jam" value={countdown.hours} />
                 <CountdownCell label="Menit" value={countdown.minutes} />
@@ -413,11 +448,12 @@ function HighlightEventCard({
 
 function EventRailCard({
   event,
-  albums,
+  posterUrl,
   onDetail,
 }: {
   event: EventItem;
-  albums: PhotoAlbum[];
+  /** URL poster yang sudah dideduplikasi halaman (kosong = tampilkan placeholder). */
+  posterUrl: string;
   onDetail: (ev: EventItem) => void;
 }) {
   const cat = (event.categories?.length ? event.categories[0] : event.category) || 'Umum';
@@ -426,7 +462,6 @@ function EventRailCard({
   const isRecurring = isRecurringEvent(event);
   const relLabel = !isRecurring && event.status === 'upcoming' ? relativeDayLabel(event.dateStr) : null;
   const cdLabel = !isRecurring && event.status === 'upcoming' && !relLabel ? countdownLabel(event.dateStr, event.jam) : null;
-  const posterUrl = resolveEventPoster(event, albums);
   const shortDate = shortDateLabel(event.dateStr);
   const dateChipLabel = relLabel ?? (shortDate || event.tanggal);
   const MediaGlyph = CATEGORY_GLYPHS[cat] ?? Sparkles;
@@ -632,8 +667,12 @@ export function EventsLandingPage({
   const railRest = useMemo(() => {
     return [...ongoing, ...upcoming].filter(e => e.id !== highlight?.id);
   }, [ongoing, upcoming, highlight]);
-  const railEvents = railRest.slice(0, 6);
+  const railEvents = useMemo(() => railRest.slice(0, 6), [railRest]);
   const railOverflow = Math.max(0, railRest.length - 6);
+  const railPosters = useMemo(
+    () => resolveUniqueCardPosters(railEvents, albums, [highlightPromoUrl]),
+    [railEvents, albums, highlightPromoUrl],
+  );
 
 
   const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
@@ -722,6 +761,18 @@ export function EventsLandingPage({
   }, [displayFilteredEvents, areas]);
 
   const { primary: primaryVenue, others, otherGroups: otherVenueGroups } = venueSections;
+
+  // Urutan render nyata blok venue: Area Utama dulu, lalu grup "Lokasi
+  // Lainnya". Deduplikasi poster mengikuti urutan itu, dengan poster hero
+  // sebagai pemilik pertama URL-nya.
+  const venueCardEvents = useMemo(
+    () => [...(primaryVenue?.events ?? []), ...otherVenueGroups.flatMap(group => group.events)],
+    [primaryVenue, otherVenueGroups],
+  );
+  const venuePosters = useMemo(
+    () => resolveUniqueCardPosters(venueCardEvents, albums, [highlightPromoUrl]),
+    [venueCardEvents, albums, highlightPromoUrl],
+  );
 
   // Filter aktif hanya bila preset waktu atau kata kunci pencarian terisi.
   const isFilterActive = Boolean(waktu || qParam.trim());
@@ -816,7 +867,9 @@ export function EventsLandingPage({
         >
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch lg:gap-10 lg:py-24">
             <div className="flex min-w-0 flex-col justify-center">
-              <CommunityEyebrow>Metropolitan Mall Bekasi</CommunityEyebrow>
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-accent)]">
+                Metropolitan Mall Bekasi
+              </p>
               <h1 className="font-display mt-3 max-w-xl text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-[var(--wf-ink)]">
                 Jadwal event
               </h1>
@@ -826,20 +879,23 @@ export function EventsLandingPage({
 
               {!isLoading && !error && (
                 <dl className="mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
-                  <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--wf-board)] px-2.5 py-3 sm:px-3  ">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">Total event</dt>
-                    <dd className="font-display mt-1 text-xl font-bold tabular-nums text-[var(--wf-ink)] sm:text-2xl">{displayEvents.length}</dd>
+                  <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-3 sm:px-3">
+                    <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">Total event</dt>
+                    <dd className="font-mono mt-1 text-xl font-bold tabular-nums text-[var(--wf-ink)] sm:text-2xl">{displayEvents.length}</dd>
                   </div>
-                  <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-2.5 py-3 sm:px-3 dark:border-emerald-800/50 dark:bg-emerald-950/30">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-400">Berlangsung</dt>
-                    <dd className="font-display mt-1 text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300 sm:text-2xl">{ongoing.length}</dd>
-                  </div>
-                  <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 px-2.5 py-3 sm:px-3 dark:border-amber-800/50 dark:bg-amber-950/30">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700 dark:text-amber-400">
-                      <span className="sm:hidden">Mendatang</span>
-                      <span className="hidden sm:inline">Mendatang</span>
+                  <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-3 sm:px-3">
+                    <dt className="flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-live)]">
+                      <span className="size-1.5 rounded-full bg-[var(--wf-live)]" aria-hidden="true" />
+                      Berlangsung
                     </dt>
-                    <dd className="font-display mt-1 text-xl font-bold tabular-nums text-amber-700 dark:text-amber-300 sm:text-2xl">{upcoming.length}</dd>
+                    <dd className="font-mono mt-1 text-xl font-bold tabular-nums text-[var(--wf-live)] sm:text-2xl">{ongoing.length}</dd>
+                  </div>
+                  <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-3 sm:px-3">
+                    <dt className="flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-action)]">
+                      <span className="size-1.5 rounded-full bg-[var(--wf-action)]" aria-hidden="true" />
+                      Mendatang
+                    </dt>
+                    <dd className="font-mono mt-1 text-xl font-bold tabular-nums text-[var(--wf-action)] sm:text-2xl">{upcoming.length}</dd>
                   </div>
                 </dl>
               )}
@@ -847,14 +903,14 @@ export function EventsLandingPage({
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <a
                   href="#calendar"
-                  className="group inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)] hover:text-[var(--wf-ink)] ui-focus-ring"
+                  className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-ink)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
                 >
                   <CalendarDays className="h-4 w-4" aria-hidden="true" />
                   Kalender lengkap
                 </a>
                 <Link
                   to="/daftar"
-                  className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-[var(--wf-board)] px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-ink)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
                 >
                   Daftar ikut acara
                 </Link>
@@ -863,7 +919,7 @@ export function EventsLandingPage({
                   variant="ghost"
                   onClick={() => setIsCalendarSyncOpen(true)}
                   disabled={isLoading}
-                  className="inline-flex items-center gap-2 rounded-full border border-black/10! bg-[var(--wf-board)] px-5 py-2.5 text-[13px] md:text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! disabled:cursor-not-allowed disabled:opacity-50 ui-focus-ring h-auto rounded-full! leading-normal active:translate-y-0! disabled:pointer-events-auto! hover:text-[var(--wf-ink-muted)]!"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--wf-rule)]! bg-[var(--wf-board)]! px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-ink)] transition hover:bg-[var(--wf-board-2)]! disabled:cursor-not-allowed disabled:opacity-50 ui-focus-ring h-auto! rounded-full! leading-normal active:translate-y-0! disabled:pointer-events-auto! hover:text-[var(--wf-ink)]!"
                 >
                   <CalendarPlus className="size-4" aria-hidden="true" />
                   Sinkron kalender
@@ -873,7 +929,7 @@ export function EventsLandingPage({
                   variant="ghost"
                   onClick={() => setIsExportOptionsOpen(true)}
                   disabled={isLoading || liveEvents.length === 0}
-                  className="inline-flex items-center gap-2 rounded-full border border-black/10! bg-[var(--wf-board)] px-5 py-2.5 text-[13px] md:text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! disabled:cursor-not-allowed disabled:opacity-50 ui-focus-ring h-auto rounded-full! leading-normal active:translate-y-0! disabled:pointer-events-auto! hover:text-[var(--wf-ink-muted)]!"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--wf-rule)]! bg-[var(--wf-board)]! px-5 py-2.5 text-[13px] font-semibold text-[var(--wf-ink)] transition hover:bg-[var(--wf-board-2)]! disabled:cursor-not-allowed disabled:opacity-50 ui-focus-ring h-auto! rounded-full! leading-normal active:translate-y-0! disabled:pointer-events-auto! hover:text-[var(--wf-ink)]!"
                   aria-label="Unduh jadwal event sebagai PDF"
                 >
                   <Download className="size-4" aria-hidden="true" />
@@ -881,38 +937,22 @@ export function EventsLandingPage({
                 </Button>
               </div>
 
-              {/* Mobile in-page anchors */}
+              {/* Anchor dalam halaman. Tujuan rute (Daftar/Ajukan/Sponsor) sudah
+                  ada di panel menu header; menuliskannya lagi di sini membuat
+                  satu layar memuat dua daftar tujuan yang sama. */}
               <nav className="mt-6 flex flex-wrap gap-2 md:hidden" aria-label="Navigasi section">
                 <a
                   href="#featured"
-                  className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-[var(--wf-board)] px-3.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] ui-focus-ring"
+                  className="inline-flex min-h-11 items-center rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-ink-muted)] ui-focus-ring"
                 >
                   Sorotan
                 </a>
                 <a
                   href="#calendar"
-                  className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-[var(--wf-board)] px-3.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] ui-focus-ring"
+                  className="inline-flex min-h-11 items-center rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-ink-muted)] ui-focus-ring"
                 >
                   Kalender
                 </a>
-                <Link
-                  to="/daftar"
-                  className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-[var(--wf-board)] px-3.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] ui-focus-ring"
-                >
-                  Daftar event
-                </Link>
-                <Link
-                  to="/ajukan-event"
-                  className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-[var(--wf-board)] px-3.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] ui-focus-ring"
-                >
-                  Ajukan event
-                </Link>
-                <Link
-                  to="/sponsor"
-                  className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-[var(--wf-board)] px-3.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] ui-focus-ring"
-                >
-                  Sponsor
-                </Link>
               </nav>
             </div>
 
@@ -947,26 +987,29 @@ export function EventsLandingPage({
         {/* Filter URL-shareable — preset waktu (riset Skedda "today/this weekend") */}
         <section id="filter" aria-label="Filter jadwal event" className="sticky top-[calc(4rem+1px)] z-30 border-y border-black/5 bg-[var(--wf-page)]/95 px-4 py-2 backdrop-blur-sm sm:px-6 sm:py-4">
           <div className="mx-auto flex max-w-7xl flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-            {/* Baris tunggal: tab tidak membungkus (4 tab butuh ~361px di 390px),
-                jadi strip tetap pendek dan anchor `scroll-margin-top` 13rem sah. */}
-            <div className="no-scrollbar flex flex-nowrap items-center gap-2 overflow-x-auto" role="group" aria-label="Filter waktu">
-              {([['', 'Semua'], ['hari-ini', 'Hari ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir pekan ini']] as const).map(([value, label]) => (
-                <Button
-                  key={value || 'semua'}
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setParam('waktu', value || null)}
-                  aria-pressed={(waktu || '') === value}
-                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold transition ui-focus-ring h-auto rounded-full! font-bold! active:translate-y-0! sm:py-1.5 ${
-                    (waktu || '') === value
-                      ? 'border-0 bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]!'
-                      : 'border border-black/10! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
-                  }`}
+            {/* Satu kontrol satu-of (`radiogroup` Radix): tab tidak membungkus
+                (4 tab butuh ~361px di 390px), jadi strip tetap pendek dan
+                anchor `scroll-margin-top` 13rem sah. Sentinel `Aktif` (bukan
+                `Semua`) karena halaman ini memang hanya memuat event yang
+                belum selesai — label "Semua" akan menjanjikan arsip yang
+                sengaja tidak dirender. Tiap segmen `min-h-11` (44px). */}
+            <ToggleGroup
+              type="single"
+              value={waktu ?? 'aktif'}
+              onValueChange={(value) => setParam('waktu', value && value !== 'aktif' ? value : null)}
+              aria-label="Filter waktu"
+              className="no-scrollbar flex max-w-full flex-nowrap items-center gap-1.5 overflow-x-auto rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] p-1"
+            >
+              {([['aktif', 'Aktif'], ['hari-ini', 'Hari ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir pekan ini']] as const).map(([value, label]) => (
+                <ToggleGroupItem
+                  key={value}
+                  value={value}
+                  className="h-auto min-h-11 shrink-0 rounded-full px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--wf-ink-muted)] transition-colors whitespace-nowrap hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] aria-checked:bg-[var(--wf-accent)]! aria-checked:text-[var(--wf-accent-ink)]! aria-checked:hover:bg-[var(--wf-accent-hover)]! aria-checked:hover:text-[var(--wf-accent-ink)]! ui-focus-ring"
                 >
                   {label}
-                </Button>
+                </ToggleGroupItem>
               ))}
-            </div>
+            </ToggleGroup>
 
             {/* Kolom cari: menyaring nama, lokasi, dan keterangan acara lewat `?q=`. */}
             <div className="relative w-full sm:w-72">
@@ -980,7 +1023,7 @@ export function EventsLandingPage({
                 onChange={(e) => setSearchInput(e.target.value)}
                 aria-label="Cari event"
                 placeholder="Cari nama lomba, workshop, kajian..."
-                className="ui-focus-ring h-10! w-full! rounded-lg border border-[var(--wf-rule)]! bg-[var(--wf-board)]! pl-9! pr-8! text-sm! text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus-visible:border-[var(--wf-accent)]! dark:bg-[var(--wf-board)]!"
+                className="ui-focus-ring h-11! w-full! rounded-lg border border-[var(--wf-rule)]! bg-[var(--wf-board)]! pl-9! pr-8! text-sm! text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus-visible:border-[var(--wf-accent)]! dark:bg-[var(--wf-board)]!"
               />
               {searchInput && (
                 <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
@@ -990,7 +1033,7 @@ export function EventsLandingPage({
                     size="icon-sm"
                     onClick={clearSearch}
                     aria-label="Hapus pencarian"
-                    className="rounded-full! text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink)]!"
+                    className="relative touch-target-hit rounded-full! text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink)]!"
                   >
                     <X className="h-4 w-4" aria-hidden="true" />
                   </Button>
@@ -1020,22 +1063,27 @@ export function EventsLandingPage({
                     Filter aktif hanya mengganti judul dan aksi kanan — isinya
                     tetap pengelompokan venue yang sama, bukan grid datar kedua. */}
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
-                  <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
-                    {isFilterActive
-                      ? `${displayFilteredEvents.length} acara ditemukan`
-                      : 'Mendatang dan berlangsung'}
-                  </h2>
+                  <div>
+                    <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-accent)]">
+                      Agenda per lokasi
+                    </p>
+                    <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
+                      {isFilterActive
+                        ? `${displayFilteredEvents.length} acara ditemukan`
+                        : 'Mendatang dan berlangsung'}
+                    </h2>
+                  </div>
                   {isFilterActive ? (
                     <Button
                       type="button"
                       variant="ghost"
                       onClick={resetFilter}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-black/10! bg-[var(--wf-board)] px-4 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! ui-focus-ring h-auto rounded-full! active:translate-y-0! hover:text-[var(--wf-ink-muted)]!"
+                      className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-[var(--wf-rule)]! bg-[var(--wf-board)] px-4 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! ui-focus-ring h-auto! rounded-full! active:translate-y-0! hover:text-[var(--wf-ink)]!"
                     >
                       <X className="size-3.5" aria-hidden="true" /> Reset filter
                     </Button>
                   ) : (
-                    <p className="text-sm text-[var(--wf-ink-muted)]">
+                    <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]">
                       {displayFilteredEvents.length} event
                     </p>
                   )}
@@ -1071,19 +1119,19 @@ export function EventsLandingPage({
                               <h3 className="font-display text-2xl font-bold tracking-tight text-[var(--wf-ink)]">
                                 {primaryVenue.area.name}
                               </h3>
-                              <p className="mt-1 text-sm font-medium text-[var(--wf-ink-muted)]">
+                              <p className="mt-1 font-mono text-xs uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]">
                                 {primaryVenue.events.length} acara dijadwalkan
                                 {primaryVenue.area.description ? ` · ${primaryVenue.area.description}` : ''}
                               </p>
                             </div>
                           </div>
-                          <span className="shrink-0 rounded-full bg-[var(--wf-accent)] px-3 py-1 text-xs font-semibold text-[var(--wf-accent-ink)]">
+                          <span className="shrink-0 rounded-full bg-[var(--wf-accent)] px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-accent-ink)]">
                             Area Utama
                           </span>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                           {primaryVenue.events.map(ev => (
-                            <EventRailCard key={ev.id} event={ev} albums={albums} onDetail={onDetail} />
+                            <EventRailCard key={ev.id} event={ev} posterUrl={venuePosters.get(ev.id) ?? ''} onDetail={onDetail} />
                           ))}
                         </div>
                       </div>
@@ -1105,7 +1153,7 @@ export function EventsLandingPage({
                               <p className="font-display text-xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-2xl">
                                 Lokasi Lainnya di Metmal
                               </p>
-                              <p className="mt-1 text-sm font-medium text-[var(--wf-ink-muted)]">
+                              <p className="mt-1 font-mono text-xs uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]">
                                 {others.length} agenda di {otherVenueGroups.length} area
                               </p>
                             </div>
@@ -1114,7 +1162,7 @@ export function EventsLandingPage({
                               paritas struktur, bukan kontrol — tidak ada tab stop/44px target. */}
                           <span
                             data-weekly-update-badge=""
-                            className="shrink-0 rounded-full bg-[var(--wf-accent)] px-3 py-1 text-xs font-semibold text-[var(--wf-accent-ink)]"
+                            className="shrink-0 rounded-full bg-[var(--wf-accent)] px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-accent-ink)]"
                           >
                             Diperbarui setiap minggu
                           </span>
@@ -1124,13 +1172,13 @@ export function EventsLandingPage({
                             <div key={group.key}>
                               <h3 className="font-display flex flex-wrap items-baseline gap-x-3 text-xl font-bold tracking-tight text-[var(--wf-ink)]">
                                 <span>{group.name}</span>
-                                <span className="text-sm font-medium text-[var(--wf-ink-muted)]">
+                                <span className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]">
                                   {group.events.length} agenda
                                 </span>
                               </h3>
                               <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {group.events.map(ev => (
-                                  <EventRailCard key={ev.id} event={ev} albums={albums} onDetail={onDetail} />
+                                  <EventRailCard key={ev.id} event={ev} posterUrl={venuePosters.get(ev.id) ?? ''} onDetail={onDetail} />
                                 ))}
                               </div>
                             </div>
@@ -1145,17 +1193,20 @@ export function EventsLandingPage({
               <>
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
+                    <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-accent)]">
+                      Agenda per lokasi
+                    </p>
+                    <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
                       Mendatang dan berlangsung
                     </h2>
                   </div>
-                  <p className="text-sm text-[var(--wf-ink-muted)]">
+                  <p className="font-mono text-xs uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]">
                     {railRest.length} event
                   </p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {railEvents.map(ev => (
-                    <EventRailCard key={ev.id} event={ev} albums={albums} onDetail={onDetail} />
+                    <EventRailCard key={ev.id} event={ev} posterUrl={railPosters.get(ev.id) ?? ''} onDetail={onDetail} />
                   ))}
                 </div>
                 {railOverflow > 0 && (
@@ -1177,7 +1228,7 @@ export function EventsLandingPage({
                 </p>
                 <a
                   href="#calendar"
-                  className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca-600)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
+                  className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--brand-tosca-600)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                 >
                   Lihat kalender <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
@@ -1190,7 +1241,10 @@ export function EventsLandingPage({
         <RevealSection id="calendar" tabIndex={-1} className="border-t border-black/5 bg-[var(--wf-board)]/50 px-4 py-16 outline-none   sm:px-6 sm:py-24 lg:py-32" refreshKey={liveEvents.length}>
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="max-w-2xl">
-              <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-accent)]">
+                Buku agenda bulanan
+              </p>
+              <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-4xl lg:text-5xl">
                 Jadwal lengkap
               </h2>
               <p className="mt-3 text-base leading-8 text-[var(--wf-ink-muted)]">
@@ -1214,16 +1268,19 @@ export function EventsLandingPage({
         <RevealSection className="border-t border-black/5 py-14 sm:py-16 ">
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 lg:flex-row lg:items-center">
             <div className="max-w-xl">
-              <h2 className="text-2xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-3xl">Mau mengadakan event di Metmal?</h2>
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-accent)]">
+                Ruang komunitas Metmal
+              </p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-3xl">Mau mengadakan event di Metmal?</h2>
               <p className="mt-2 text-sm leading-7 ui-text-secondary">
                 EO, sekolah, komunitas, kampus, perusahaan, hingga instansi. Daftarkan organisasimu dan tim Marcomm akan menghubungimu.
               </p>
             </div>
             <Link
               to="/daftar"
-              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-7 py-3.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-accent-hover)] ui-focus-ring"
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-7 py-3.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-accent-hover)] ui-focus-ring"
             >
-              Daftar event
+              Daftarkan organisasi
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -1236,7 +1293,7 @@ export function EventsLandingPage({
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <p className="text-sm font-semibold text-white">Metropolitan Mall Bekasi</p>
-            <p className="mt-0.5 text-xs text-white/70">Jadwal event</p>
+            <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-white/70">Jadwal event</p>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/80">
             <Link to="/" className="transition hover:text-white ui-focus-ring rounded-sm">

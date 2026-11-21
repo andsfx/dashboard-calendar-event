@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react';
-import { X, Edit2, Trash2, Zap, CalendarDays, Repeat, QrCode, ExternalLink, ClipboardCheck } from 'lucide-react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { X, Edit2, Trash2, Zap, CalendarDays, CalendarPlus, Check, Repeat, QrCode, ExternalLink, ClipboardCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EventItem } from '../../types';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -12,6 +12,8 @@ import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
 import { CATEGORY_COLORS, isMultiDayEvent, getEventDuration, isRecurringEvent } from '../../utils/eventUtils';
 import { Button } from '../shadcn/button';
+import { downloadBlob } from '../../lib/download';
+import { buildIcsBlob, icsFileName } from '../../utils/calendarLinks';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -26,6 +28,22 @@ interface Props {
 }
 
 export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, onDelete, onDeleteSeries, isAdmin = false }: Props) {
+  // Hook harus dipanggil tanpa syarat: `event` boleh null saat modal tertutup,
+  // jadi early-return baru boleh setelah baris ini.
+  const [icsSaved, setIcsSaved] = useState(false);
+  const eventId = event?.id;
+  // Blob dihitung sekali per event: null berarti tanggal tak terbaca dan
+  // tombol simpan tidak ditawarkan (bukan tombol yang diam saat diklik).
+  const icsBlob = useMemo(
+    () => (event && event.status !== 'past' ? buildIcsBlob(event) : null),
+    [event],
+  );
+  // Umpan balik simpan kalender tidak boleh terbawa ke event berikutnya atau
+  // modal yang dibuka ulang.
+  useEffect(() => {
+    setIcsSaved(false);
+  }, [eventId, isOpen]);
+
   if (!event) return null;
 
   const color = CATEGORY_COLORS[event.category] ?? 'var(--wf-accent)';
@@ -33,6 +51,12 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
   const isMultiDay = isMultiDayEvent(event);
   const duration = isMultiDay ? getEventDuration(event.dateStr, event.dateEnd) : 1;
   const isRecurring = isRecurringEvent(event);
+
+  const handleDownloadIcs = () => {
+    if (!icsBlob) return;
+    downloadBlob(icsBlob, icsFileName(event));
+    setIcsSaved(true);
+  };
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-detail-title">
@@ -167,9 +191,24 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
         {/* Footer actions */}
         <div className="flex flex-col gap-2 border-t border-[var(--wf-rule)] px-4 py-4 sm:flex-row sm:items-center sm:px-6">
-          <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+          <Button type="button" variant="outline" onClick={onClose} className="min-h-11 flex-1">
             Tutup
           </Button>
+          {!isAdmin && icsBlob && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDownloadIcs}
+              aria-describedby="event-ics-status"
+              className="min-h-11 flex-1"
+            >
+              {icsSaved ? <Check className="h-3.5 w-3.5 text-[var(--wf-live)]" aria-hidden="true" /> : <CalendarPlus className="h-3.5 w-3.5" aria-hidden="true" />}
+              {icsSaved ? 'Berkas kalender terunduh' : 'Tambah ke kalender'}
+            </Button>
+          )}
+          <span id="event-ics-status" role="status" aria-live="polite" className="sr-only">
+            {icsSaved ? 'Berkas .ics sudah diunduh.' : ''}
+          </span>
           {!isAdmin && (
             <Link
               to={`/events/${event.id}`}

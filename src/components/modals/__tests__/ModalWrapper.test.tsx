@@ -1,3 +1,4 @@
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -120,5 +121,32 @@ describe('ModalWrapper (adapter shadcn Dialog)', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
     await expect(promise).resolves.toBe(false);
     expect(onCloseOuter).not.toHaveBeenCalled();
+  });
+
+  it('mengembalikan fokus ke elemen pembuka, bukan ke <body>', async () => {
+    // Modal di aplikasi dibuka lewat state, tanpa Dialog.Trigger — Radix hanya
+    // memfokuskan triggerRef (null) sehingga tanpa penanganan eksplisit fokus
+    // jatuh ke <body> (diukur di browser 2026-11-21).
+    function Harness() {
+      const [open, setOpen] = React.useState(false);
+      return (
+        <div>
+          <button type="button" onClick={() => setOpen(true)}>Buka detail</button>
+          <ModalWrapper isOpen={open} onClose={() => setOpen(false)} ariaLabelledBy="judul">
+            <h2 id="judul">Detail</h2>
+          </ModalWrapper>
+        </div>
+      );
+    }
+    render(<Harness />);
+    const opener = screen.getByRole('button', { name: 'Buka detail' });
+    opener.focus();
+    fireEvent.click(opener);
+    await screen.findByRole('dialog');
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await waitFor(() => expect(opener).toHaveFocus());
   });
 });

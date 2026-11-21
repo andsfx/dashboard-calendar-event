@@ -9,7 +9,7 @@ import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import type { EventItem, PhotoAlbum } from '../../types';
+import type { EventArea, EventItem, PhotoAlbum } from '../../types';
 import { EventsLandingPage } from '../EventsLandingPage';
 
 vi.mock('../../utils/eventsSchedulePdf', () => ({
@@ -92,5 +92,38 @@ describe('EventsLandingPage — banner poster', () => {
 
     await waitFor(() => expect(screen.getAllByText('Tanpa Gambar').length).toBeGreaterThan(0));
     expect(container.querySelector('[data-event-poster]')).toBeNull();
+  });
+
+  it('tidak mengulang URL poster yang sama antara hero dan kartu venue', async () => {
+    const areas: EventArea[] = [
+      { id: 'main', name: 'Atrium Utama', description: '', coverPhotoUrl: '', sortOrder: 0, isActive: true },
+      { id: 'koridor', name: 'Koridor Selatan', description: '', coverPhotoUrl: '', sortOrder: 1, isActive: true },
+    ];
+    const events = [
+      ev({ id: 'hero', status: 'upcoming', acara: 'Event Hero', posterUrl: 'https://cdn/sama.jpg', areaId: 'main' }),
+      ev({ id: 'dup', status: 'upcoming', acara: 'Event Duplikat', posterUrl: 'https://cdn/sama.jpg', areaId: 'koridor', dateStr: '2026-09-06' }),
+      ev({ id: 'other', status: 'upcoming', acara: 'Event Lain', posterUrl: 'https://cdn/lain.jpg', areaId: 'koridor', dateStr: '2026-09-07' }),
+    ];
+    const { container } = render(
+      <MemoryRouter>
+        <EventsLandingPage
+          isDark={false}
+          onToggleDark={() => {}}
+          events={events}
+          holidays={[]}
+          areas={areas}
+          onDetail={() => {}}
+        />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(screen.getAllByText('Event Duplikat').length).toBeGreaterThan(0));
+    const srcs = Array.from(container.querySelectorAll('[data-event-poster] img'))
+      .map(img => img.getAttribute('src'));
+    // URL yang dipakai hero tidak diulang; poster unik lain tetap tampil.
+    expect(srcs.filter(src => src === 'https://cdn/sama.jpg')).toHaveLength(1);
+    expect(srcs).toContain('https://cdn/lain.jpg');
+    // Deduplikasi foto tidak boleh mengurangi kartu atau hitungan agenda.
+    expect(container.querySelectorAll('#featured [data-reveal-item]')).toHaveLength(events.length);
   });
 });

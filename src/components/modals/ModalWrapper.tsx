@@ -64,6 +64,21 @@ export function ModalWrapper({
     if (isOpen) setHasOpened(true);
   }, [isOpen]);
 
+  /**
+   * Radix mengembalikan fokus ke `Dialog.Trigger`, dan modal di aplikasi ini
+   * dibuka lewat state (`isOpen`) tanpa trigger — sehingga `triggerRef` null,
+   * `onCloseAutoFocus` mem-preventDefault tanpa memindahkan fokus, dan fokus
+   * jatuh ke `<body>` setelah dialog ditutup. Elemen pembuka dicatat di sini:
+   * layout effect berjalan sebelum `FocusScope` (yang memakai passive effect)
+   * memindahkan fokus ke dalam dialog.
+   */
+  const openerRef = React.useRef<HTMLElement | null>(null);
+  React.useLayoutEffect(() => {
+    if (!isOpen) return;
+    const active = document.activeElement;
+    openerRef.current = active instanceof HTMLElement ? active : null;
+  }, [isOpen]);
+
   if (!hasOpened) return null;
 
   return (
@@ -71,6 +86,12 @@ export function ModalWrapper({
       <DialogContent
         showCloseButton={false}
         aria-labelledby={ariaLabelledBy}
+        onCloseAutoFocus={(event) => {
+          const target = openerRef.current;
+          if (!target || !target.isConnected) return;
+          event.preventDefault();
+          target.focus();
+        }}
         className={`w-full bg-transparent p-0 ring-0 shadow-none outline-none ${maxWidth} sm:${maxWidth} ${className}`}
         style={width ? { width: `min(${width}, calc(100vw - 2rem))`, maxWidth: '100%' } : undefined}
       >

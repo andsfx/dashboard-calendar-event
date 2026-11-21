@@ -39,7 +39,10 @@ const AREAS: EventArea[] = [
 ];
 
 const EVENTS: EventItem[] = [
-  ev({ id: 'hero', acara: 'Event Utama', areaId: 'main' }),
+  // Hero punya poster sendiri: URL poster tidak boleh muncul dua kali di satu
+  // halaman (hero + kartu venue), jadi kartu k1 di bawah harus tetap bisa
+  // menampilkan poster uniknya.
+  ev({ id: 'hero', acara: 'Event Utama', areaId: 'main', posterUrl: 'https://cdn/hero.jpg' }),
   ev({ id: 'k1', acara: 'Bazar Koridor Selatan', areaId: 'koridor', posterUrl: 'https://cdn/bazar.jpg' }),
   ev({ id: 'k2', acara: 'Kelas Senam Pagi', areaId: 'koridor', dateStr: '2026-11-21' }),
   ev({ id: 'p1', acara: 'Panggung Akustik', areaId: 'parkir', dateStr: '2026-11-22' }),

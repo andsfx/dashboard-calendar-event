@@ -102,9 +102,9 @@ interface Props {
 export function CalendarView({ events, areas = [], holidays, onDetail }: Props) {
  const surfaceClass = 'overflow-hidden rounded-[1.5rem] border bg-[var(--wf-board)] shadow-[var(--shadow-card-soft)] border-[var(--wf-rule)]';
  const headerClass = 'flex items-center justify-between border-b bg-[var(--wf-board)] px-5 py-4 border-[var(--wf-rule)]';
-  const headerBtnClass = 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] hover:bg-[var(--wf-board-2)]';
-  const headerTitleClass = 'text-lg font-bold text-[var(--wf-ink)] ';
-  const headerSubClass = 'text-xs text-[var(--wf-ink-muted)]';
+  const headerBtnClass = 'min-h-11 min-w-11 rounded-lg text-[var(--brand-tosca)] transition-colors hover:bg-[var(--wf-board-2)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring';
+  const headerTitleClass = 'font-mono text-lg font-bold uppercase tracking-[0.06em] text-[var(--wf-ink)]';
+  const headerSubClass = 'font-mono text-xs uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]';
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -232,7 +232,7 @@ export function CalendarView({ events, areas = [], holidays, onDetail }: Props) 
         {/* Day headers */}
         <div className="grid grid-cols-7 border-b border-[var(--wf-rule)] ">
           {DAY_SHORT.map(d => (
-            <div key={d} className="py-2 text-center text-xs font-semibold text-[var(--wf-ink-muted)] ">{d}</div>
+            <div key={d} className="py-2 text-center font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]">{d}</div>
           ))}
         </div>
 
@@ -268,12 +268,12 @@ export function CalendarView({ events, areas = [], holidays, onDetail }: Props) 
                   setSelectedDate(d.dateStr);
                 }}
                 aria-label={dayLabel}
-                className={`relative flex! h-9 w-full! flex-col items-center justify-center rounded-lg border-0! p-0! text-[11px] font-medium transition-[background-color,color,box-shadow] active:translate-y-0! sm:h-10 sm:rounded-xl sm:text-xs ${
+                className={`relative flex! h-11 w-full! flex-col items-center justify-center rounded-lg border-0! p-0! font-mono text-[11px] font-medium tabular-nums transition-[background-color,color,box-shadow] active:translate-y-0! sm:rounded-xl sm:text-xs ${
                   isSelected
-                    ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] shadow-md hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]! dark:hover:bg-[var(--wf-accent)]!'
+                    ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] shadow-md hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]!'
                     : isToday
-                    ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)] font-bold! ring-2 ring-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]! hover:text-[var(--wf-accent)]! dark:hover:bg-[var(--wf-accent-soft)]!'
-                    : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
+                    ? 'bg-[var(--wf-accent-soft)] font-bold! text-[var(--wf-accent)] ring-2 ring-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]! hover:text-[var(--wf-accent)]!'
+                    : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink)]!'
                 }`}
               >
                 {hasHolidays && (
@@ -561,7 +561,7 @@ export function CalendarView({ events, areas = [], holidays, onDetail }: Props) 
         {/* Monthly summary */}
         {monthEvents.length > 0 && (
           <div className={`${surfaceClass} mt-4 p-4`}>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
+            <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]">
               Ringkasan {MONTH_ID[month]} {year}
             </p>
             <div className="grid grid-cols-2 gap-2 sm:gap-3">

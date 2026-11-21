@@ -13,7 +13,7 @@ export function InfoRow({ icon, label, value }: { icon: ReactNode; label: string
     <div className="flex items-start gap-3 rounded-xl bg-[var(--wf-board)] p-3.5 transition hover:bg-[var(--wf-board-2)]">
       <div className="mt-0.5 shrink-0">{icon}</div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">{label}</p>
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]">{label}</p>
         <p className="mt-0.5 break-words text-sm font-medium leading-snug text-[var(--wf-ink)]">{value}</p>
       </div>
     </div>
@@ -114,7 +114,7 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
 
       {event.keterangan && (
         <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
-          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">
+          <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-ink-muted)]">
             <Tag className="h-3 w-3" /> Keterangan
           </p>
           <p className="text-sm text-[var(--wf-ink)] leading-relaxed">{event.keterangan}</p>
@@ -124,7 +124,7 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
       {/* Series info untuk recurring event */}
       {isRecurring && seriesEvents.length > 0 && (
         <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-4">
-          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-accent)]">
+          <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-accent)]">
             <Repeat className="h-3 w-3" /> Series Reguler
           </p>
           <p className="text-sm text-[var(--wf-ink)]">
@@ -136,7 +136,7 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
       {/* Jadwal per Hari untuk rangkaian acara */}
       {isMultiDay && event.dayTimeSlots && event.dayTimeSlots.length > 0 && (
         <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-4">
-          <p className="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-accent)]">
+          <p className="mb-3 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--wf-accent)]">
             <CalendarDays className="h-3 w-3" /> Jadwal per Hari
           </p>
           <div className="space-y-1.5">

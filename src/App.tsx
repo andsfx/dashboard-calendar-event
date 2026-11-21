@@ -42,10 +42,24 @@ const EventDetailModal = lazy(() => import('./components/modals/EventDetailModal
  * halaman penuh (boundary rute di bawah) tidak berkedip di tengah interaksi.
  */
 function PublicEventDetailModal(props: ComponentProps<typeof EventDetailModal>) {
-  if (!props.isOpen) return null;
+  // Modal harus tetap ter-mount saat `isOpen` turun ke false: Radix baru
+  // mengembalikan fokus ke pemicu lewat `onCloseAutoFocus` saat dialog
+  // menutup sendiri. Dulu `if (!props.isOpen) return null` mencabut seluruh
+  // dialog pada commit yang sama dengan klik Tutup/Escape, sehingga fokus
+  // jatuh ke `<body>` (diukur 2026-11-21). Gerbang lazy tetap berlaku: tidak
+  // ada yang diunduh sampai pengguna pertama kali membuka detail.
+  const [hasOpened, setHasOpened] = useState(props.isOpen);
+  const [lastEvent, setLastEvent] = useState(props.event);
+  useEffect(() => {
+    if (!props.isOpen) return;
+    setHasOpened(true);
+    setLastEvent(props.event);
+  }, [props.isOpen, props.event]);
+
+  if (!hasOpened || !lastEvent) return null;
   return (
     <Suspense fallback={null}>
-      <EventDetailModal {...props} />
+      <EventDetailModal {...props} event={lastEvent} />
     </Suspense>
   );
 }
