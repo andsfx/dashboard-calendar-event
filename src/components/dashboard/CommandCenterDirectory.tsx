@@ -77,7 +77,7 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
         <h2 id="cc-directory-title" className="font-display text-base font-semibold text-[var(--wf-ink)]">
           Semua modul
         </h2>
-        <p className="text-xs text-[var(--wf-ink-muted)]">{cards.length} tujuan yang bisa kamu buka.</p>
+        <p className="text-xs text-[var(--wf-ink-muted)]">{cards.length} tujuan yang bisa dibuka.</p>
       </div>
 
       <div className="wf-directory">

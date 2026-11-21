@@ -293,7 +293,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
       // Duplikat (unique constraint) → pesan Indonesia baku, bukan mentah server.
       if (/sudah pernah|already|duplicate|23505/i.test(msg)) {
         setFormStatus('duplicate');
-        setDuplicateError('Kamu sudah pernah mengirim survei untuk event ini.');
+        setDuplicateError('Survei untuk event ini sudah pernah dikirim.');
         recheckDuplicate();
       } else {
         setFormStatus('error');
@@ -367,13 +367,13 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
         credentials: 'include',
       });
       if (!res.ok) {
-        setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet kamu.');
+        setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet.');
         return;
       }
       const blob = await res.blob();
       downloadBlob(blob, `tenant-survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`);
     } catch {
-      setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet kamu.');
+      setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet.');
     }
   }, [canExportCsv]);
 

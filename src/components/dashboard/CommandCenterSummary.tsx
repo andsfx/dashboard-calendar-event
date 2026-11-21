@@ -64,7 +64,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
         <h2 id="cc-queue-title" className="font-display text-base font-semibold text-[var(--wf-ink)]">
           Perlu tindakan
         </h2>
-        <p className="text-xs text-[var(--wf-ink-muted)]">Modul yang menunggu keputusan kamu.</p>
+        <p className="text-xs text-[var(--wf-ink-muted)]">Modul yang menunggu keputusan.</p>
       </div>
 
       {queues.length > 0 ? (

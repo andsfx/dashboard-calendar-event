@@ -102,7 +102,7 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
           <CardDescription className="wf-metric__hint">
             {attention.draftsError
               ? `Sebagian antrian gagal dimuat: ${attention.draftsError}`
-              : 'Antrian yang menunggu keputusan kamu hari ini.'}
+              : 'Antrian yang menunggu keputusan hari ini.'}
           </CardDescription>
         </Card>
       )}

@@ -279,7 +279,7 @@ export default function TenantSurveyForm({
           Informasi tenant
         </h3>
         <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
-          Isi data tenant kamu di Metropolitan Mall Bekasi.
+          Isi data tenant di Metropolitan Mall Bekasi.
         </p>
 
         <div className="space-y-4">
@@ -474,7 +474,7 @@ export default function TenantSurveyForm({
               aria-label="Masukan dan umpan balik"
               value={formData.feedback_teks}
               onChange={(e) => updateField('feedback_teks')(e.target.value)}
-              placeholder="Ceritakan kesan atau saran kamu tentang event ini (opsional)"
+              placeholder="Ceritakan kesan atau saran tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
               disabled={disabled}
@@ -542,7 +542,7 @@ export function TenantSurveySuccess({
         "{eventName}"
       </p>
       <p className="mt-4 max-w-md text-xs text-[var(--wf-ink-muted)]">
-        Masukan kamu sangat berharga untuk meningkatkan kualitas kerja sama dan pelayanan kami.
+        Masukan ini sangat berharga untuk meningkatkan kualitas kerja sama dan pelayanan kami.
       </p>
       <Button className="mt-6" onClick={onBack}>
         <ChevronLeft className="size-4" />

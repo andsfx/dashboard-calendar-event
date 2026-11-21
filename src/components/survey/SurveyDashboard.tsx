@@ -130,13 +130,13 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
         credentials: 'include',
       });
       if (!res.ok) {
-        setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet kamu.');
+        setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet.');
         return;
       }
       const blob = await res.blob();
       downloadBlob(blob, `survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`);
     } catch {
-      setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet kamu.');
+      setActionError('Gagal mengunduh CSV. Coba lagi, atau periksa koneksi internet.');
     }
   }, []);
 

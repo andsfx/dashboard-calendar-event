@@ -24,11 +24,11 @@ interface Props {
 
 const WA_TEMPLATES: Record<string, string> = {
   reviewed:
-    'Halo {PIC}, pendaftaran {TIPE} {NAMA} di Metmal Community Space sedang kami review. Kami akan menghubungi kamu segera.\n\nSalam,\nTim Metropolitan Mall Bekasi',
+    'Halo {PIC}, pendaftaran {TIPE} {NAMA} di Metmal Community Space sedang ditinjau. Tim Metropolitan Mall Bekasi akan menghubungi kembali setelah proses selesai.\n\nSalam,\nTim Metropolitan Mall Bekasi',
   approved:
-    'Halo {PIC}, pendaftaran {TIPE} {NAMA} di Metmal Community Space sudah disetujui! Silakan hubungi kami untuk diskusi jadwal dan kebutuhan event.\n\nSalam,\nTim Metropolitan Mall Bekasi',
+    'Halo {PIC}, pendaftaran {TIPE} {NAMA} di Metmal Community Space sudah disetujui. Silakan hubungi kami untuk diskusi jadwal dan kebutuhan event.\n\nSalam,\nTim Metropolitan Mall Bekasi',
   rejected:
-    'Halo {PIC}, terima kasih sudah mendaftarkan {TIPE} {NAMA} di Metmal Community Space. Mohon maaf, saat ini pendaftaran belum bisa kami proses. Silakan hubungi kami untuk info lebih lanjut.\n\nSalam,\nTim Metropolitan Mall Bekasi',
+    'Halo {PIC}, terima kasih sudah mendaftarkan {TIPE} {NAMA} di Metmal Community Space. Pendaftaran ini belum dapat kami proses. Silakan hubungi kami untuk informasi lebih lanjut.\n\nSalam,\nTim Metropolitan Mall Bekasi',
   custom: '',
 };
 
