@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, X, Trash2, Handshake } from 'lucide-react';
+import { AlertTriangle, X, Trash2, Handshake, Upload, RotateCcw } from 'lucide-react';
 import { Button } from '../shadcn/button';
 import {
   AlertDialog,
@@ -25,6 +25,12 @@ export interface ConfirmOptions {
    * DESIGN.md) untuk keputusan konsekuensial yang bukan destruktif.
    */
   tone?: 'danger' | 'neutral';
+  /**
+   * Ikon untuk nada 'neutral' (diabaikan pada 'danger' yang selalu memakai
+   * segitiga peringatan). Default 'handshake' — pas untuk persetujuan, tetapi
+   * aksi terbit/pulihkan butuh ikon yang menjelaskan aksinya.
+   */
+  icon?: 'handshake' | 'upload' | 'restore';
 }
 
 interface Props extends ConfirmOptions {
@@ -40,7 +46,7 @@ interface Props extends ConfirmOptions {
  * 'neutral' memakai tosca (konfirmasi solid sesuai DESIGN.md) untuk
  * keputusan konsekuensial yang bukan destruktif.
  */
-export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subject, confirmLabel = 'Hapus', cancelLabel = 'Batal', tone = 'danger' }: Props) {
+export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subject, confirmLabel = 'Hapus', cancelLabel = 'Batal', tone = 'danger', icon = 'handshake' }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     if (isOpen) setIsSubmitting(false);
@@ -56,7 +62,8 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subj
   };
 
   const isNeutral = tone === 'neutral';
-  const SubmitIcon = isNeutral ? Handshake : Trash2;
+  const NeutralIcon = icon === 'upload' ? Upload : icon === 'restore' ? RotateCcw : Handshake;
+  const SubmitIcon = isNeutral ? NeutralIcon : Trash2;
 
   return (
     <AlertDialog open={isOpen} onOpenChange={(o) => { if (!o) onClose(); }}>
@@ -74,7 +81,7 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subj
             <div className="mb-5 flex items-start justify-between">
               <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isNeutral ? 'bg-[var(--wf-accent-soft)]' : 'bg-red-100 dark:bg-red-900/30'}`}>
                 {isNeutral
-                  ? <Handshake className="h-6 w-6 text-[var(--wf-accent)]" />
+                  ? <NeutralIcon className="h-6 w-6 text-[var(--wf-accent)]" />
                   : <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />}
               </div>
               <Button variant="ghost" size="icon-sm" aria-label="Tutup" onClick={onClose} disabled={isSubmitting}>

@@ -68,6 +68,16 @@ describe('ConfirmDialog', () => {
     expect(document.querySelector('.bg-red-600')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Setujui/ })).toBeInTheDocument();
   });
+
+  it("icon 'upload' pada nada neutral tidak memakai ikon jabat tangan", async () => {
+    render(
+      <ConfirmDialog isOpen tone="neutral" icon="upload" title="Terbitkan draf?" message="x" confirmLabel="Terbitkan" onClose={() => {}} onConfirm={() => {}} />,
+    );
+    expect(await screen.findByText('Terbitkan draf?')).toBeInTheDocument();
+    expect(document.querySelector('.lucide-upload')).toBeInTheDocument();
+    expect(document.querySelector('.lucide-handshake')).not.toBeInTheDocument();
+    expect(document.querySelector('.lucide-trash-2')).not.toBeInTheDocument();
+  });
 });
 
 describe('useConfirmDialog', () => {

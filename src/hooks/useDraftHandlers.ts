@@ -96,6 +96,7 @@ export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
       // nada 'danger' (bar merah, ikon Trash2, tombol hapus) — terbaca seperti
       // menghapus draft.
       tone: 'neutral',
+      icon: 'upload',
     });
     if (!ok) return;
     const success = await publishDraft(draft.id);
@@ -121,6 +122,7 @@ export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
       subject: draft.acara,
       confirmLabel: 'Pulihkan',
       tone: 'neutral',
+      icon: 'restore',
     });
     if (!ok) return;
     const success = await restoreDraft(draft.id);

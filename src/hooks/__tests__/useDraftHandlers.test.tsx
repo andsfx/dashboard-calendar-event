@@ -66,6 +66,7 @@ describe('useDraftHandlers — nada dialog konfirmasi', () => {
       title: 'Terbitkan draf?',
       confirmLabel: 'Terbitkan',
       tone: 'neutral',
+      icon: 'upload',
     }));
     // Batal → tidak ada mutasi.
     expect(deps.publishDraft).not.toHaveBeenCalled();
@@ -83,6 +84,7 @@ describe('useDraftHandlers — nada dialog konfirmasi', () => {
       title: 'Pulihkan draf event?',
       confirmLabel: 'Pulihkan',
       tone: 'neutral',
+      icon: 'restore',
     }));
     expect(deps.restoreDraft).not.toHaveBeenCalled();
   });
