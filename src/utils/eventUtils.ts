@@ -1,4 +1,5 @@
 import { EventItem, EventStatus, DayTimeSlot, RecurrenceRule } from '../types';
+import { DEFAULT_EVENT_CATEGORY, type EventCategory } from '../constants/eventCategories';
 
 export const STATUS_ORDER: Record<EventStatus, number> = {
   draft:    0,
@@ -22,7 +23,7 @@ export const STATUS_COLOR: Record<EventStatus, string> = {
 };
 
 // Data-viz series only — not brand chrome. Metmal tosca.
-export const CATEGORY_COLORS: Record<string, string> = {
+const COLOR_BY_CATEGORY: Record<EventCategory, string> = {
   Bazaar:     '#00918e', // brand tosca
   Festival:   '#f59e0b',
   Workshop:   '#06b6d4',
@@ -43,6 +44,15 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Kesehatan:  '#e11d48',
   Umum:       '#626b60',
 };
+
+/**
+ * Kategori dari DB datang sebagai string bebas, jadi peta tetap diindeks
+ * longgar; `Record<EventCategory, …>` di atas memastikan tidak ada kategori
+ * yang lupa diberi warna.
+ */
+export const CATEGORY_COLORS: Record<string, string> = COLOR_BY_CATEGORY;
+
+export const FALLBACK_CATEGORY_COLOR = COLOR_BY_CATEGORY[DEFAULT_EVENT_CATEGORY];
 
 export const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 

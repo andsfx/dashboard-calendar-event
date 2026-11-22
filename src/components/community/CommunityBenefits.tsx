@@ -34,7 +34,7 @@ export function CommunityBenefits() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-8">
           <div>
-            <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
+            <h2 className="text-balance text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
               Dukungan promosi sampai Lead Sponsor.
             </h2>
             <p className="mt-4 max-w-[65ch] text-base leading-7 ui-text-secondary">

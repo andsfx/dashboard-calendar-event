@@ -2,7 +2,7 @@ import React, { useState, useEffect, CSSProperties } from 'react';
 import { Clock, MapPin, CalendarDays, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EventItem, PhotoAlbum } from '../../types';
-import { CATEGORY_COLORS } from '../../utils/eventUtils';
+import { CATEGORY_COLORS, FALLBACK_CATEGORY_COLOR, STATUS_LABEL } from '../../utils/eventUtils';
 import { parseStartTime, parseTimeRange } from '../../utils/eventDateTime';
 import { resolveEventPoster } from '../../utils/eventPoster';
 import { EventPosterBanner } from '../events/EventPosterBanner';
@@ -96,7 +96,7 @@ function UpcomingEventsSkeleton() {
   return (
     <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-[var(--wf-rule)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
+        <h2 className="text-balance text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
           Agenda event
         </h2>
         <div className="mt-8 overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-[var(--wf-board)]  " aria-hidden="true">
@@ -136,7 +136,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
     return (
       <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-[var(--wf-rule)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
         <div className="mx-auto max-w-7xl">
-          <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
+          <h2 className="text-balance text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
             Agenda event
           </h2>
           <EmptyEvents />
@@ -148,7 +148,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
 
   // Derive category color from mainEvent
   const mainCat = (mainEvent.categories?.length ? mainEvent.categories[0] : mainEvent.category) || 'Umum';
-  const catColor = CATEGORY_COLORS[mainCat] ?? CATEGORY_COLORS.Umum;
+  const catColor = CATEGORY_COLORS[mainCat] ?? FALLBACK_CATEGORY_COLOR;
 
   const countdownTarget = getCountdownTarget(mainEvent.dateStr, mainEvent.jam);
   const countdownDiff = countdownTarget - now;
@@ -160,7 +160,14 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   return (
     <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-[var(--wf-rule)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        <div className={`grid gap-6 lg:items-stretch ${promoImageUrl ? 'lg:grid-cols-[1.15fr_0.85fr]' : 'lg:grid-cols-1'}`}>
+        {/* Section tetap punya judul saat data ada. Sebelumnya H2 satu-satunya
+            adalah nama event di kartu (`{mainEvent.acara}`), sehingga nama
+            bagian ini berubah setiap kali jadwal berganti — sementara state
+            skeleton dan kosong sudah memakai "Agenda event". */}
+        <h2 className="text-balance text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
+          Agenda event
+        </h2>
+        <div className={`mt-8 grid gap-6 lg:items-stretch ${promoImageUrl ? 'lg:grid-cols-[1.15fr_0.85fr]' : 'lg:grid-cols-1'}`}>
           {/* ── Main event card ── */}
           <Button
             type="button"
@@ -178,9 +185,9 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 )}
                 {showOngoing ? 'Berlangsung' : 'Mendatang'}
               </span>
-              <h2 className="mt-6 text-4xl font-bold leading-[1.15] tracking-tight text-[var(--wf-ink)] sm:text-5xl">
+              <h3 className="mt-6 text-4xl font-bold leading-[1.15] tracking-tight text-[var(--wf-ink)] sm:text-5xl">
                 {mainEvent.acara}
-              </h2>
+              </h3>
               <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-semibold text-[var(--wf-ink-muted)]">
                 <span className="inline-flex items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)]/70 px-4 py-2">
                   <CalendarDays className="size-4" style={{ color: catColor }} /> {mainEvent.tanggal}
@@ -245,7 +252,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {otherEvents.map(ev => {
             const evCat = (ev.categories?.length ? ev.categories[0] : ev.category) || 'Umum';
-            const color = CATEGORY_COLORS[evCat] ?? CATEGORY_COLORS.Umum;
+            const color = CATEGORY_COLORS[evCat] ?? FALLBACK_CATEGORY_COLOR;
             const evPoster = resolveEventPoster(ev, albums);
             return (
               <Button
@@ -259,7 +266,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 <div className="flex flex-col items-start gap-4 p-5">
                 <div className="flex w-full items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--wf-ink)]" style={{ backgroundColor: `${color}15` }}>
-                    Mendatang
+                    {STATUS_LABEL[ev.status]}
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--wf-ink)]" style={{ backgroundColor: `${color}15` }}>
                     <CalendarDays className="size-3" />

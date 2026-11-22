@@ -190,7 +190,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
     <RevealSection id="gallery" className="scroll-mt-28 border-b border-[var(--wf-rule)] bg-[var(--section-alt)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />} isLoading={isLoading}>
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
+          <h2 className="text-balance text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
             Lihat suasana acaranya.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">

@@ -498,7 +498,7 @@ export function CommunityRegistrationForm() {
     <RevealSection id="register" tabIndex={-1} className="scroll-mt-28 px-4 py-16 outline-none sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
-          <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
+          <h2 className="text-balance text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
             Daftar event di Metmal Bekasi
           </h2>
           <p className="mt-5 text-sm leading-7 ui-text-secondary">
@@ -506,7 +506,7 @@ export function CommunityRegistrationForm() {
           </p>
           <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">
             Mau bertanya dulu?{' '}
-            <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="-my-1 inline-block py-1 font-semibold text-emerald-700 hover:underline dark:text-emerald-400">
+            <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-emerald-700 hover:underline dark:text-emerald-400">
               Tanya lewat WhatsApp
             </a>
           </p>

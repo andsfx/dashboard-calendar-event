@@ -5,8 +5,7 @@ import { Button } from '../shadcn/button';
 import { Input } from '../shadcn/input';
 import { Label } from '../shadcn/label';
 import { NativeSelect } from '../shadcn/native-select';
-
-const CATEGORIES = ['Bazaar','Festival','Workshop','Kompetisi','Fashion','Seminar','Pameran','Konser','Sosial','Seni','Hiburan','Karir','Produk','Anak','Kuliner','Olahraga','Teknologi','Kesehatan','Umum'];
+import { EVENT_CATEGORIES } from '../../constants/eventCategories';
 
 interface EventFormDetailsFieldsProps {
   eo: string;
@@ -158,7 +157,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
             className="w-full"
           >
             <option value="">Pilih jenis acara</option>
-            {CATEGORIES.filter(category => !categories.includes(category)).map(c => <option key={c} value={c}>{c}</option>)}
+            {EVENT_CATEGORIES.filter(category => !categories.includes(category)).map(c => <option key={c} value={c}>{c}</option>)}
           </NativeSelect>
           <div className="mt-2 flex flex-wrap gap-2">
             {categories.map(category => (

@@ -272,9 +272,11 @@ Contract (2026-10-30, product decision — supersedes the old CSS-first motion r
 
 ## Conversion Flow
 
-The landing page has **one** conversion intent with one label and one destination: every `Daftar Event` CTA (hero, header, mobile panel, sticky mobile bar, footer) targets the `/daftar` route — 5 places, one label, one target. This is the M6 fix in `docs/AUDIT-design-taste-2026-09-20.md` and a user decision (2026-09-21); do not retarget these to the in-page `#register` anchor.
+The landing page has **one** conversion intent with one label and one destination: every `Daftar event` CTA (hero, header, mobile panel, sticky mobile bar, footer) targets the `/daftar` route — 5 places, one label, one target. This is the M6 fix in `docs/AUDIT-design-taste-2026-09-20.md` and a user decision (2026-09-21); do not retarget these five to the in-page `#register` anchor.
 
-`/daftar` renders the **same** `RegistrationForm` as the embedded `#register` section (see `docs/SPEC.md` §7.2), and stays a shareable URL for IG bio / WhatsApp / QR. The hero's secondary CTA is `Cek Event` → `#upcoming-events` (a different intent, so not a duplicate). `/events` also points its registration CTAs at `/daftar` because that page has no embedded form.
+One documented exception: the "Punya ide event?" banner directly above `#register` uses the same label but targets `#register` (`src/pages/CommunityLandingPage.tsx:144-150`). The approved copy brief `Revisi Copywritig Landing Page.md:139` allows either `#register` or `/daftar`; the in-page target wins because the banner's job is to move the reader into the form immediately below it.
+
+`/daftar` renders the **same** `RegistrationForm` as the embedded `#register` section (see `docs/SPEC.md` §7.2), and stays a shareable URL for IG bio / WhatsApp / QR. The hero's secondary CTA is `Lihat Jadwal Event` → `#upcoming-events` (a different intent, so not a duplicate; the copy brief sets this label, superseding the earlier `Cek Event`). `/events` also points its registration CTAs at `/daftar` because that page has no embedded form.
 
 `Ajukan Event` (`/ajukan-event`) remains the separate formal EO/business pipeline.
 

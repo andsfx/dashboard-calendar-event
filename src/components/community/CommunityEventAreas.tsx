@@ -125,7 +125,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
     <RevealSection className="border-b border-[var(--wf-rule)] bg-[var(--wf-board)]/60 px-4 py-16   sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonAreas />} isLoading={isLoading}>
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <h2 className="font-display text-4xl font-bold leading-tight tracking-tight text-[var(--wf-ink)] sm:text-5xl">
+          <h2 className="text-balance font-display text-4xl font-bold leading-tight tracking-tight text-[var(--wf-ink)] sm:text-5xl">
             Area di Metropolitan Mall Bekasi
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">

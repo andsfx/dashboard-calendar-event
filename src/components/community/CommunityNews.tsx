@@ -59,7 +59,7 @@ export function CommunityNews() {
     >
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
+          <h2 className="text-balance text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
             Kabar terbaru dari Metmal Bekasi.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">
