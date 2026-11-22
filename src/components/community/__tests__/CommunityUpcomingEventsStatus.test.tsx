@@ -43,13 +43,18 @@ describe('badge status kartu agenda (bukan label tetap)', () => {
     expect(konser!).not.toHaveTextContent('Mendatang');
   });
 
-  it('event mendatang tetap berlabel Mendatang', () => {
+  it('event mendatang di kartu kecil tetap berlabel Mendatang', () => {
+    // Dua event upcoming: Bazaar (24 Nov) jadi kartu utama setelah sort,
+    // Pameran Seni (26 Nov) jatuh ke kartu kecil — ini yang pernah regresi
+    // jadi hardcode "Berlangsung".
     renderSection([
       ev('a', 'Bazaar Komunitas', 'upcoming', '2026-11-24'),
       ev('b', 'Pameran Seni', 'upcoming', '2026-11-26'),
     ]);
 
-    const bazaar = screen.getByText('Bazaar Komunitas').closest('button');
-    expect(bazaar).toHaveTextContent('Mendatang');
+    const pameran = screen.getByText('Pameran Seni').closest('button');
+    expect(pameran).not.toBeNull();
+    expect(pameran!).toHaveTextContent('Mendatang');
+    expect(pameran!).not.toHaveTextContent('Berlangsung');
   });
 });

@@ -185,7 +185,10 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 )}
                 {showOngoing ? 'Berlangsung' : 'Mendatang'}
               </span>
-              <h3 className="mt-6 text-4xl font-bold leading-[1.15] tracking-tight text-[var(--wf-ink)] sm:text-5xl">
+              {/* Satu tingkat di bawah H2 section: sebelumnya judul kartu memakai
+                  skala H2 (36/48 px), sehingga setelah "Agenda event" kembali,
+                  dua heading berskala sama bertumpuk dan hierarkinya hilang. */}
+              <h3 className="mt-6 text-3xl font-bold leading-[1.2] tracking-tight text-[var(--wf-ink)] sm:text-4xl">
                 {mainEvent.acara}
               </h3>
               <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-semibold text-[var(--wf-ink-muted)]">
