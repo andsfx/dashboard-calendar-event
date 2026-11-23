@@ -13,7 +13,8 @@ program: `pameran` dan `aktivasi_marcomm`. Fitur lama tetap hidup:
 
 - `/kolaborasi` dan `/kolaborasi/:slug` adalah rute baru.
 - `/pameran` dialihkan permanen ke `/kolaborasi`.
-- `/pameran/:id` tetap dirender agar tautan lama tidak 404.
+- `/pameran/:id` tetap merender halaman detail Kolaborasi, tetapi program yang
+  sudah selesai atau tidak tayang berakhir di keadaan “program tidak ditemukan”.
 - Tabel `exhibitions`, `exhibition_leads`, dan `exhibition_activations` dipertahankan dan
   diperluas dengan `ALTER TABLE`, bukan diganti tabel paralel.
 - Program yang tampil di publik hanya yang berstatus `open`, `full`, atau `ongoing`
