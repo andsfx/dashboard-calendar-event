@@ -451,6 +451,8 @@ export function ExhibitionManager({
           {exhibitions.map(exhibition => {
             const linkedActivations = activations.filter(item => item.exhibitionId === exhibition.id);
             const programLeads = leads.filter(lead => lead.exhibitionId === exhibition.id);
+            const acceptsLeads = exhibition.acceptingApplications
+              && (exhibition.status === 'open' || exhibition.status === 'ongoing');
             return (
               <li key={exhibition.id} className="rounded-[var(--radius-card)] border border-[var(--wf-rule)] p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -467,11 +469,13 @@ export function ExhibitionManager({
                       <span className="rounded-full border border-[var(--wf-rule)] px-2 py-0.5 font-semibold text-[var(--wf-ink-muted)]">
                         {PUBLICATION_LABELS[exhibition.publication]}
                       </span>
-                      {exhibition.acceptingApplications && (
-                        <span className="rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 font-semibold text-[var(--wf-accent)]">
-                          Menerima pengajuan
-                        </span>
-                      )}
+                      <span className={`rounded-full px-2 py-0.5 font-semibold ${
+                        acceptsLeads
+                          ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
+                          : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]'
+                      }`}>
+                        {acceptsLeads ? 'Menerima pengajuan' : 'Tidak menerima pengajuan'}
+                      </span>
                       <span className="rounded-full bg-[var(--wf-board-2)] px-2 py-0.5 font-semibold text-[var(--wf-ink-muted)]">
                         {programLeads.length} pengajuan
                       </span>

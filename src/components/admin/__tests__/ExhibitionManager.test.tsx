@@ -88,4 +88,10 @@ describe('ExhibitionManager', () => {
     }));
     expect(props.onPublishLead).not.toHaveBeenCalled();
   });
+
+  it('menandai program selesai tidak menerima pengajuan', () => {
+    render(<ExhibitionManager {...props} exhibitions={[makeExhibition({ status: 'completed' })]} />);
+    expect(screen.getByText('Tidak menerima pengajuan')).toBeInTheDocument();
+    expect(screen.queryByText('Menerima pengajuan')).not.toBeInTheDocument();
+  });
 });
