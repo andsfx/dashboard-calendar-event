@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { X, Plus, Trash2, Image as ImageIcon, Upload, Save, Newspaper, ChevronLeft, Pencil, AlertCircle, RefreshCw, Eye, EyeOff } from 'lucide-react';
+import { X, Plus, Trash2, Image as ImageIcon, Upload, Save, Newspaper, ChevronLeft, Pencil, AlertCircle, RefreshCw, Eye, EyeOff, Bold, Italic, Heading2, Heading3, List, ListOrdered, Link2, Quote } from 'lucide-react';
 import { NewsArticle } from '../../types';
 import { fetchAllNewsArticles, createNewsArticle, updateNewsArticle, deleteNewsArticle, uploadToR2 } from '../../utils/domainApi';
 import { adminThumbUrl } from '../../utils/imageOptim';
@@ -35,7 +35,45 @@ export function NewsManagerModal({ readOnly = false }: Props) {
   const [author, setAuthor] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
   const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
+
+  const wrapSelection = (before: string, after = before, placeholder = 'teks') => {
+    const el = contentRef.current;
+    if (!el) return;
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    const selected = content.slice(start, end) || placeholder;
+    const next = `${content.slice(0, start)}${before}${selected}${after}${content.slice(end)}`;
+    setContent(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      const cursorStart = start + before.length;
+      el.setSelectionRange(cursorStart, cursorStart + selected.length);
+    });
+  };
+
+  const prefixLines = (prefix: string | ((i: number) => string), placeholder = 'item') => {
+    const el = contentRef.current;
+    if (!el) return;
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    const lineStart = content.lastIndexOf('\n', Math.max(0, start - 1)) + 1;
+    const lineEndIdx = content.indexOf('\n', end);
+    const lineEnd = lineEndIdx === -1 ? content.length : lineEndIdx;
+    const block = content.slice(lineStart, lineEnd) || placeholder;
+    const lines = block.split('\n');
+    const prefixed = lines.map((line, i) => {
+      const p = typeof prefix === 'function' ? prefix(i) : prefix;
+      return line.startsWith(p) ? line.slice(p.length) : `${p}${line}`;
+    }).join('\n');
+    const next = `${content.slice(0, lineStart)}${prefixed}${content.slice(lineEnd)}`;
+    setContent(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(lineStart, lineStart + prefixed.length);
+    });
+  };
 
   const loadArticles = useCallback(async () => {
     setIsLoading(true);
@@ -381,26 +419,56 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                   </Button>
                 </div>
                 {showPreview ? (
-                  <div className="min-h-[8rem] w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-page)] px-4 py-3">
-                    {content.trim() ? (
-                      <MarkdownBody content={content} />
-                    ) : (
-                      <p className="text-sm text-[var(--wf-ink-muted)]">Belum ada isi untuk dipratinjau.</p>
+                  <div className="min-h-[8rem] w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-page)] px-4 py-4 sm:px-6">
+                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Pratinjau artikel</p>
+                    {title.trim() && (
+                      <h1 className="text-2xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-3xl">{title}</h1>
                     )}
+                    {author.trim() && (
+                      <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">{author}</p>
+                    )}
+                    {coverImageUrl && (
+                      <img
+                        src={coverImageUrl}
+                        alt={title || 'Cover artikel'}
+                        className="mt-4 h-auto w-full rounded-xl border border-[var(--wf-rule)] object-contain"
+                      />
+                    )}
+                    <div className="mt-4">
+                      {content.trim() ? (
+                        <MarkdownBody content={content} />
+                      ) : (
+                        <p className="text-sm text-[var(--wf-ink-muted)]">Belum ada isi untuk dipratinjau.</p>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <>
+                    <div className="flex flex-wrap items-center gap-1 rounded-t-xl border border-b-0 border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-2 py-1.5">
+                      <Button type="button" variant="ghost" size="icon" aria-label="Judul 2" title="Judul 2" onClick={() => prefixLines('## ', 'Judul')} className="h-8 w-8 active:translate-y-0"><Heading2 className="h-4 w-4" /></Button>
+                      <Button type="button" variant="ghost" size="icon" aria-label="Judul 3" title="Judul 3" onClick={() => prefixLines('### ', 'Subjudul')} className="h-8 w-8 active:translate-y-0"><Heading3 className="h-4 w-4" /></Button>
+                      <span className="mx-1 h-5 w-px bg-[var(--wf-rule)]" aria-hidden="true" />
+                      <Button type="button" variant="ghost" size="icon" aria-label="Tebal" title="Tebal" onClick={() => wrapSelection('**', '**', 'tebal')} className="h-8 w-8 active:translate-y-0"><Bold className="h-4 w-4" /></Button>
+                      <Button type="button" variant="ghost" size="icon" aria-label="Miring" title="Miring" onClick={() => wrapSelection('*', '*', 'miring')} className="h-8 w-8 active:translate-y-0"><Italic className="h-4 w-4" /></Button>
+                      <span className="mx-1 h-5 w-px bg-[var(--wf-rule)]" aria-hidden="true" />
+                      <Button type="button" variant="ghost" size="icon" aria-label="Daftar" title="Daftar" onClick={() => prefixLines('- ', 'item')} className="h-8 w-8 active:translate-y-0"><List className="h-4 w-4" /></Button>
+                      <Button type="button" variant="ghost" size="icon" aria-label="Daftar bernomor" title="Daftar bernomor" onClick={() => prefixLines((i) => `${i + 1}. `, 'item')} className="h-8 w-8 active:translate-y-0"><ListOrdered className="h-4 w-4" /></Button>
+                      <Button type="button" variant="ghost" size="icon" aria-label="Kutipan" title="Kutipan" onClick={() => prefixLines('> ', 'kutipan')} className="h-8 w-8 active:translate-y-0"><Quote className="h-4 w-4" /></Button>
+                      <span className="mx-1 h-5 w-px bg-[var(--wf-rule)]" aria-hidden="true" />
+                      <Button type="button" variant="ghost" size="icon" aria-label="Tautan" title="Tautan" onClick={() => wrapSelection('[', '](https://)', 'teks tautan')} className="h-8 w-8 active:translate-y-0"><Link2 className="h-4 w-4" /></Button>
+                    </div>
                     <Textarea
+                      ref={contentRef}
                       id="news-content"
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
                       placeholder="Tulis isi artikel di sini…"
-                      rows={8}
+                      rows={10}
                       aria-label="Isi Artikel"
-                      className="w-full"
+                      className="w-full rounded-t-none border-t-0"
                     />
                     <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
-                      Mendukung Markdown: <code className="rounded bg-[var(--wf-board-2)] px-1">##</code> judul, <code className="rounded bg-[var(--wf-board-2)] px-1">**tebal**</code>, <code className="rounded bg-[var(--wf-board-2)] px-1">-</code> daftar, <code className="rounded bg-[var(--wf-board-2)] px-1">1.</code> daftar bernomor.
+                      Gunakan toolbar atau Markdown: <code className="rounded bg-[var(--wf-board-2)] px-1">##</code> judul, <code className="rounded bg-[var(--wf-board-2)] px-1">**tebal**</code>, <code className="rounded bg-[var(--wf-board-2)] px-1">-</code> daftar.
                     </p>
                   </>
                 )}
@@ -423,7 +491,7 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                 <Label className={labelClass}>Cover</Label>
                 {coverImageUrl ? (
                   <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)]">
-                    <img src={coverImageUrl} alt="Cover artikel" className="aspect-[16/9] w-full object-cover" />
+                    <img src={coverImageUrl} alt="Cover artikel" className="h-auto w-full object-contain" />
                     <Button
                       variant="ghost"
                       size="icon"

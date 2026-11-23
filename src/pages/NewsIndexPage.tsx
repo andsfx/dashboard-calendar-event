@@ -123,12 +123,12 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
                 data-reveal-item
                 className="group overflow-hidden rounded-2xl bg-[var(--wf-board)] shadow-sm transition hover:shadow-lg "
               >
-                <div className="relative aspect-[16/9] overflow-hidden bg-[var(--wf-rule)]">
+                <div className="relative aspect-[16/9] overflow-hidden bg-[var(--wf-board-2)]">
                   {article.coverImageUrl ? (
                     <img
                       src={thumbUrl(article.coverImageUrl)}
                       alt={article.title}
-                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05] motion-reduce:transform-none"
+                      className="h-full w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.05] motion-reduce:transform-none"
                       loading="lazy"
                     />
                   ) : (

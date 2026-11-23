@@ -119,7 +119,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
               <img
                 src={article.coverImageUrl}
                 alt={article.title}
-                className="mt-8 aspect-[16/9] w-full rounded-2xl object-cover shadow-sm"
+                className="mt-8 h-auto w-full rounded-2xl object-contain shadow-sm"
               />
             )}
 
