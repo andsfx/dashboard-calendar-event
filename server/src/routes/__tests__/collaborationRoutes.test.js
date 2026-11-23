@@ -121,13 +121,46 @@ beforeEach(() => {
   dbState.program = {
     id: 'exh_1', slug: 'sarapan-di-metmal', title: 'Sarapan di Metmal',
     publication: 'published', status: 'open', accepting_applications: true, date_end: '2026-12-27',
+    date_active: true,
   };
   dbState.slot = { id: 'slot_1', exhibition_id: 'exh_1', slot_status: 'open' };
   dbState.lead = null;
   dbState.created = { id: 'lead_1', reference_code: 'KOL-2611-A4F2' };
 });
 
+describe('GET /exhibitions publik', () => {
+  it('hanya menampilkan program yang masih berjalan atau akan berjalan', async () => {
+    const { status } = await callRoute('../exhibitions.js', 'get', '/exhibitions');
+    expect(status).toBe(200);
+    const query = dbState.queries.find((q) => q.sql.includes('FROM exhibitions') && q.sql.includes('ORDER BY'));
+    expect(query.sql).toContain("status IN ('open', 'full', 'ongoing')");
+    expect(query.sql).toContain("date_end >= (now() AT TIME ZONE 'Asia/Jakarta')::date");
+    expect(query.sql).not.toContain("'completed'");
+  });
+
+  it('query detail memakai filter publik yang sama', async () => {
+    const { status } = await callRoute(
+      '../exhibitions.js', 'get', '/exhibitions/:idOrSlug', { __param: 'beauty-fair' },
+    );
+    expect(status).toBe(200);
+    const query = dbState.queries.find((q) => q.sql.includes('FROM exhibitions') && q.sql.includes('LIMIT 1'));
+    expect(query.sql).toContain("status IN ('open', 'full', 'ongoing')");
+    expect(query.sql).toContain("date_end >= (now() AT TIME ZONE 'Asia/Jakarta')::date");
+  });
+});
+
 describe('POST /exhibition-leads', () => {
+  it('menolak pengajuan untuk program yang sudah berakhir', async () => {
+    dbState.program = { ...dbState.program, date_active: false };
+    const { status, body } = await callRoute(
+      '../exhibitions.js', 'post', '/exhibition-leads', VALID_SUBMISSION,
+    );
+    expect(status).toBe(409);
+    expect(body).toMatchObject({ success: false });
+    expect(body.error).toContain('berakhir');
+    expect(dbState.queries.some((q) => q.sql.includes('INSERT INTO exhibition_leads'))).toBe(false);
+  });
+
   it('menormalisasi WhatsApp dan mengembalikan kode referensi', async () => {
     const { status, body } = await callRoute(
       '../exhibitions.js', 'post', '/exhibition-leads', VALID_SUBMISSION,

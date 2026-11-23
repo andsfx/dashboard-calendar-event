@@ -16,6 +16,10 @@ program: `pameran` dan `aktivasi_marcomm`. Fitur lama tetap hidup:
 - `/pameran/:id` tetap dirender agar tautan lama tidak 404.
 - Tabel `exhibitions`, `exhibition_leads`, dan `exhibition_activations` dipertahankan dan
   diperluas dengan `ALTER TABLE`, bukan diganti tabel paralel.
+- Program yang tampil di publik hanya yang berstatus `open`, `full`, atau `ongoing`
+  dan `date_end` belum lewat menurut tanggal Asia/Jakarta. Program `completed`,
+  `archived`, dan program yang tanggalnya sudah lewat disembunyikan otomatis dari
+  daftar dan detail publik, tetapi datanya tetap ada di dashboard admin.
 
 ## Pemetaan istilah brief ke skema nyata
 

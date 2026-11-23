@@ -30,8 +30,11 @@ const PUBLIC_COLUMNS = `
   accepting_applications, default_organization_type, form_config, created_at
 `;
 
-/** Program hanya tayang bila sudah published dan siklusnya bukan draft/archive. */
-const PUBLIC_STATUSES = "('open', 'full', 'ongoing', 'completed')";
+/** Program hanya tayang bila sudah published dan masih berjalan atau akan berjalan. */
+const PUBLIC_STATUSES = "('open', 'full', 'ongoing')";
+const PUBLIC_VISIBLE = `publication = 'published'
+  AND status IN ${PUBLIC_STATUSES}
+  AND date_end >= (now() AT TIME ZONE 'Asia/Jakarta')::date`;
 
 /** 08xx / 628xx / +628xx → 628xx (tanpa spasi dan tanda hubung). */
 function normalizeWhatsApp(raw) {
@@ -53,7 +56,7 @@ router.get('/exhibitions', async (req, res, next) => {
   try {
     const { rows } = await db.query(
       `SELECT ${PUBLIC_COLUMNS} FROM exhibitions
-       WHERE publication = 'published' AND status IN ${PUBLIC_STATUSES}
+       WHERE ${PUBLIC_VISIBLE}
        ORDER BY is_featured DESC, date_start ASC`,
     );
     res.json({ success: true, data: rows });
@@ -67,8 +70,7 @@ router.get('/exhibitions/:idOrSlug', async (req, res, next) => {
   try {
     const { rows } = await db.query(
       `SELECT ${PUBLIC_COLUMNS} FROM exhibitions
-       WHERE (id = $1 OR slug = $1) AND publication = 'published'
-         AND status IN ${PUBLIC_STATUSES}
+       WHERE (id = $1 OR slug = $1) AND ${PUBLIC_VISIBLE}
        LIMIT 1`,
       [req.params.idOrSlug],
     );
@@ -126,7 +128,8 @@ router.post('/exhibition-leads', async (req, res, next) => {
   try {
     // Penerimaan diperiksa ulang di server: form bisa dibuka sebelum ditutup.
     const { rows } = await db.query(
-      `SELECT id, slug, title, publication, status, accepting_applications, date_end
+      `SELECT id, slug, title, publication, status, accepting_applications, date_end,
+              (date_end >= (now() AT TIME ZONE 'Asia/Jakarta')::date) AS date_active
        FROM exhibitions
        WHERE (id = $1 OR slug = $2) LIMIT 1`,
       [lead.exhibitionId || null, lead.programSlug || null],
@@ -141,7 +144,7 @@ router.post('/exhibition-leads', async (req, res, next) => {
     if (!exhibition.accepting_applications || !['open', 'ongoing'].includes(exhibition.status)) {
       return res.status(409).json({ success: false, error: 'Pengajuan kolaborasi untuk program ini sudah ditutup' });
     }
-    if (String(exhibition.date_end) < new Date().toISOString().slice(0, 10)) {
+    if (!exhibition.date_active) {
       return res.status(409).json({ success: false, error: 'Program kolaborasi ini sudah berakhir' });
     }
 
