@@ -1,10 +1,71 @@
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { visit } from 'unist-util-visit';
+import type { Parent, PhrasingContent, Root, Text } from 'mdast';
 
 interface Props {
   /** Isi markdown mentah (dari kolom `content` berita, dsb.). */
   content: string;
   className?: string;
+}
+
+// Domain tanpa skema (mis. `metmalcommunityspace.web.id/daftar`) — GFM baru
+// melink-kan `https://…`/`www.…`, jadi domain telanjang tetap teks biasa.
+// Lookbehind mencegah match di tengah URL/email/angka.
+const BARE_DOMAIN =
+  /(?<![\w@./-])((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(?:\/[^\s<>()]*)?)/gi;
+
+function splitBareDomains(value: string): PhrasingContent[] | null {
+  const parts: PhrasingContent[] = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  BARE_DOMAIN.lastIndex = 0;
+  while ((match = BARE_DOMAIN.exec(value))) {
+    const raw = match[1] ?? '';
+    if (!raw) continue;
+    const cleaned = raw.replace(/[.,;:!?]+$/, '');
+    if (!cleaned) continue;
+    const start = match.index;
+    if (start > last) parts.push({ type: 'text', value: value.slice(last, start) });
+    parts.push({
+      type: 'link',
+      url: `https://${cleaned}`,
+      title: null,
+      children: [{ type: 'text', value: cleaned }],
+    });
+    const trailing = raw.slice(cleaned.length);
+    if (trailing) parts.push({ type: 'text', value: trailing });
+    last = start + raw.length;
+  }
+  if (!parts.length) return null;
+  if (last < value.length) parts.push({ type: 'text', value: value.slice(last) });
+  return parts;
+}
+
+/** Link-kan URL/domain telanjang di teks, kecuali di dalam tautan/kode. */
+function remarkLinkifyDomains() {
+  return (tree: Root) => {
+    const edits: Array<{ parent: Parent; index: number; parts: PhrasingContent[] }> = [];
+    visit(tree, 'text', (node: Text, index, parent) => {
+      if (!parent || typeof index !== 'number') return;
+      if (parent.type === 'link' || parent.type === 'linkReference') return;
+      const parts = splitBareDomains(node.value);
+      if (parts) edits.push({ parent, index, parts });
+    });
+    // Terapkan per parent, index menurun, agar splice tidak menggeser index lain.
+    const byParent = new Map<Parent, Array<{ index: number; parts: PhrasingContent[] }>>();
+    for (const edit of edits) {
+      const list = byParent.get(edit.parent) ?? [];
+      list.push({ index: edit.index, parts: edit.parts });
+      byParent.set(edit.parent, list);
+    }
+    for (const [parent, list] of byParent) {
+      list.sort((a, b) => b.index - a.index);
+      for (const { index, parts } of list) {
+        (parent.children as PhrasingContent[]).splice(index, 1, ...parts);
+      }
+    }
+  };
 }
 
 /*
@@ -67,7 +128,7 @@ export function MarkdownBody({ content, className }: Props) {
   if (!content) return null;
   return (
     <div className={`space-y-4 text-base ${className ?? ''}`}>
-      <Markdown remarkPlugins={[remarkGfm]} components={components}>
+      <Markdown remarkPlugins={[remarkGfm, remarkLinkifyDomains]} components={components}>
         {content}
       </Markdown>
     </div>
