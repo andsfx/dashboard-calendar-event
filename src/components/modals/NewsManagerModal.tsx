@@ -489,33 +489,57 @@ export function NewsManagerModal({ readOnly = false }: Props) {
               {/* Cover */}
               <div>
                 <Label className={labelClass}>Cover</Label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => handleCoverSelect(e.target.files?.[0])}
+                  disabled={isUploading}
+                />
                 {coverImageUrl ? (
-                  <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)]">
-                    <img src={coverImageUrl} alt="Cover artikel" className="h-auto w-full object-contain" />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Hapus cover"
-                      onClick={() => { setCoverImageUrl(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
-                      className="absolute right-2 top-2"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                  <div className="space-y-2">
+                    <div className="overflow-hidden rounded-xl border border-[var(--wf-rule)]">
+                      <img src={coverImageUrl} alt="Cover artikel" className="h-auto w-full object-contain" />
+                    </div>
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="h-auto gap-1.5 px-3 py-1.5 text-xs active:translate-y-0"
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        {isUploading ? 'Mengunggah…' : 'Ganti cover'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => { setCoverImageUrl(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                        disabled={isUploading}
+                        className="h-auto gap-1.5 px-3 py-1.5 text-xs text-[var(--wf-danger)] active:translate-y-0"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        Hapus
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <Label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-6 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="flex h-auto w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] bg-transparent py-6 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:bg-transparent hover:text-[var(--wf-accent)] active:translate-y-0"
+                  >
                     <Upload className="h-5 w-5" />
                     {isUploading ? 'Mengunggah…' : 'Pilih gambar cover'}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="sr-only"
-                      onChange={(e) => handleCoverSelect(e.target.files?.[0])}
-                      disabled={isUploading}
-                    />
-                  </Label>
+                  </Button>
                 )}
+                <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
+                  Format gambar, maksimal 10MB. Ukuran tampil mengikuti rasio asli materi.
+                </p>
               </div>
 
               {/* Action buttons */}
