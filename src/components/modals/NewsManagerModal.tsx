@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { X, Plus, Trash2, Image as ImageIcon, Upload, Save, Newspaper, ChevronLeft, Pencil, AlertCircle, RefreshCw } from 'lucide-react';
+import { X, Plus, Trash2, Image as ImageIcon, Upload, Save, Newspaper, ChevronLeft, Pencil, AlertCircle, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { NewsArticle } from '../../types';
 import { fetchAllNewsArticles, createNewsArticle, updateNewsArticle, deleteNewsArticle, uploadToR2 } from '../../utils/domainApi';
 import { adminThumbUrl } from '../../utils/imageOptim';
@@ -8,6 +8,7 @@ import { Button } from '../shadcn/button';
 import { Input } from '../shadcn/input';
 import { Label } from '../shadcn/label';
 import { Textarea } from '../shadcn/textarea';
+import { MarkdownBody } from '../shared/MarkdownBody';
 
 interface Props {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
@@ -30,6 +31,7 @@ export function NewsManagerModal({ readOnly = false }: Props) {
   const [title, setTitle] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
   const [author, setAuthor] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -364,16 +366,44 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                 />
               </div>
               <div>
-                <Label htmlFor="news-content" className={labelClass}>Isi Artikel</Label>
-                <Textarea
-                  id="news-content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Tulis isi artikel di sini…"
-                  rows={8}
-                  aria-label="Isi Artikel"
-                  className="w-full"
-                />
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <Label htmlFor="news-content" className="block text-xs font-semibold text-[var(--wf-ink-muted)]">Isi Artikel</Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    aria-pressed={showPreview}
+                    onClick={() => setShowPreview((prev) => !prev)}
+                    className="h-auto gap-1.5 px-2 py-1 text-xs font-medium text-[var(--wf-ink-muted)] active:translate-y-0 hover:text-[var(--wf-ink)]"
+                  >
+                    {showPreview ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    {showPreview ? 'Kembali sunting' : 'Pratinjau'}
+                  </Button>
+                </div>
+                {showPreview ? (
+                  <div className="min-h-[8rem] w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-page)] px-4 py-3">
+                    {content.trim() ? (
+                      <MarkdownBody content={content} />
+                    ) : (
+                      <p className="text-sm text-[var(--wf-ink-muted)]">Belum ada isi untuk dipratinjau.</p>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <Textarea
+                      id="news-content"
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder="Tulis isi artikel di sini…"
+                      rows={8}
+                      aria-label="Isi Artikel"
+                      className="w-full"
+                    />
+                    <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
+                      Mendukung Markdown: <code className="rounded bg-[var(--wf-board-2)] px-1">##</code> judul, <code className="rounded bg-[var(--wf-board-2)] px-1">**tebal**</code>, <code className="rounded bg-[var(--wf-board-2)] px-1">-</code> daftar, <code className="rounded bg-[var(--wf-board-2)] px-1">1.</code> daftar bernomor.
+                    </p>
+                  </>
+                )}
               </div>
 
               <div>

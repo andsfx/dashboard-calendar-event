@@ -7,6 +7,7 @@ import { usePageMeta } from '../utils/pageMeta';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import { Button } from '../components/shadcn/button';
 import { RevealSection } from '../components/community/CommunityRevealPrimitives';
+import { MarkdownBody } from '../components/shared/MarkdownBody';
 
 function formatNewsDate(value?: string): string {
   if (!value) return '';
@@ -123,8 +124,8 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
             )}
 
             {article.content && (
-              <div className="mt-8 whitespace-pre-wrap text-base leading-relaxed text-[var(--wf-ink-muted)]">
-                {article.content}
+              <div className="mt-8">
+                <MarkdownBody content={article.content} />
               </div>
             )}
 
