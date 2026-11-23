@@ -91,7 +91,7 @@ describe('CommandCenterSummary: register "Perlu tindakan"', () => {
   it('memasukkan pengajuan pameran yang menunggu tinjauan', () => {
     renderRegister({
       exhibitionLeads: [
-        { id: 'l1', status: 'pending' },
+        { id: 'l1', status: 'submitted' },
         { id: 'l2', status: 'approved' },
       ] as never,
     });

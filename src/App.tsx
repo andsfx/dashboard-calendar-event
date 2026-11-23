@@ -321,11 +321,18 @@ export default function App() {
     exhibitions: exhibitions.exhibitions,
     leads: exhibitions.leads,
     activations: exhibitions.activations,
+    slots: exhibitions.slots,
     isLoading: exhibitions.isLoading,
     error: exhibitions.error,
     onSave: exhibitions.saveExhibition,
     onDelete: exhibitions.removeExhibition,
     onReviewLead: exhibitions.reviewLead,
+    onPublishLead: exhibitions.publishLead,
+    onSaveSlot: exhibitions.saveSlot,
+    onDeleteSlot: exhibitions.removeSlot,
+    onGenerateSlots: (id: string) => exhibitions.generateSlots(id, {
+      startTime: '06:30', endTime: '10:00', zoneName: 'Area Utama', capacity: 3,
+    }),
     onLinkActivation: exhibitions.linkActivation,
     onUnlinkActivation: exhibitions.unlinkActivation,
   };
@@ -457,12 +464,19 @@ export default function App() {
           </Suspense>
         } />
       )}
-      {/* Pameran & kolaborasi — publik */}
-      <Route path="/pameran" element={
+      {/* Kolaborasi (pameran & aktivasi marcomm) — publik */}
+      <Route path="/kolaborasi" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <ExhibitionsLandingPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
+      <Route path="/kolaborasi/:id" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <ExhibitionsLandingPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+      {/* Alias lama: tautan /pameran tidak boleh 404. */}
+      <Route path="/pameran" element={<Navigate to="/kolaborasi" replace />} />
       <Route path="/pameran/:id" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <ExhibitionsLandingPage isDark={isDark} onToggleDark={toggleDark} />

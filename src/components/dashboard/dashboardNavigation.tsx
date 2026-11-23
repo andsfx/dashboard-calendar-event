@@ -304,7 +304,7 @@ export function getCommandCenterCards({
   permissions,
 }: CommandCenterCardParams): CommandCenterCard[] {
   const pendingRegistrations = communityRegistrations.filter(r => r.status === 'pending').length;
-  const pendingLeads = exhibitionLeads.filter(l => l.status === 'pending').length;
+  const pendingLeads = exhibitionLeads.filter(l => l.status === 'submitted').length;
   const pendingTenantProposals = tenantProposals.filter(p => p.status === 'pending').length;
   const pendingTenantParticipations = tenantParticipations.filter(p => p.status === 'pending').length;
   const isTrOnly = permissions.isTenantRelation && !permissions.canEditEvents;

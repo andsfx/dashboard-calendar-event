@@ -92,6 +92,7 @@ export const DEMO_READ_ACTIONS = new Set([
   'listExhibitions',
   'listExhibitionLeads',
   'listExhibitionActivations',
+  'listExhibitionSlots',
   'listTenantEventProposals',
   'listTenantParticipations',
   'listTenantParticipationOptions',

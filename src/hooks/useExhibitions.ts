@@ -2,33 +2,38 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   fetchExhibitions, createExhibition, updateExhibition, deleteExhibition,
   fetchExhibitionLeads, updateExhibitionLead, fetchExhibitionActivations,
+  fetchExhibitionSlots, createExhibitionSlot, updateExhibitionSlot, deleteExhibitionSlot,
+  generateExhibitionSlots, publishCollaborationToEvent,
   linkExhibitionActivation, unlinkExhibitionActivation,
-  type AdminExhibition,
+  type AdminExhibition, type CollaborationReviewPatch, type ExhibitionSlotInput,
 } from '../utils/api/exhibitionsApi';
-import type { ExhibitionActivation, ExhibitionInput, ExhibitionLead } from '../types';
+import type { ExhibitionActivation, ExhibitionInput, ExhibitionLead, ExhibitionSlot } from '../types';
 
 /**
- * State pameran untuk dashboard admin.
+ * State pameran/kolaborasi untuk dashboard admin.
  *
  * Mutasi tidak optimistic: create/link membutuhkan ID + validasi server
- * (periode aktivasi), jadi UI hanya menampilkan hasil setelah server sukses.
+ * (periode aktivasi, kapasitas slot), jadi UI hanya menampilkan hasil setelah
+ * server sukses.
  */
 export function useExhibitions(enabled: boolean) {
   const [exhibitions, setExhibitions] = useState<AdminExhibition[]>([]);
   const [leads, setLeads] = useState<ExhibitionLead[]>([]);
   const [activations, setActivations] = useState<ExhibitionActivation[]>([]);
+  const [slots, setSlots] = useState<ExhibitionSlot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const reload = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [nextExhibitions, nextLeads, nextActivations] = await Promise.all([
-        fetchExhibitions(), fetchExhibitionLeads(), fetchExhibitionActivations(),
+      const [nextExhibitions, nextLeads, nextActivations, nextSlots] = await Promise.all([
+        fetchExhibitions(), fetchExhibitionLeads(), fetchExhibitionActivations(), fetchExhibitionSlots(),
       ]);
       setExhibitions(nextExhibitions);
       setLeads(nextLeads);
       setActivations(nextActivations);
+      setSlots(nextSlots);
       setError('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat data pameran');
@@ -67,8 +72,32 @@ export function useExhibitions(enabled: boolean) {
   );
 
   const reviewLead = useCallback(
-    (id: string, status: ExhibitionLead['status'], internalNotes?: string) =>
-      runMutation(() => updateExhibitionLead(id, status, internalNotes)),
+    (id: string, patch: CollaborationReviewPatch) =>
+      runMutation(() => updateExhibitionLead(id, patch)),
+    [runMutation],
+  );
+
+  const publishLead = useCallback(
+    (id: string) => runMutation(async () => { await publishCollaborationToEvent(id); }),
+    [runMutation],
+  );
+
+  const saveSlot = useCallback(
+    (exhibitionId: string, input: ExhibitionSlotInput, id?: string) => runMutation(async () => {
+      if (id) await updateExhibitionSlot(id, input);
+      else await createExhibitionSlot(exhibitionId, input);
+    }),
+    [runMutation],
+  );
+
+  const removeSlot = useCallback(
+    (id: string) => runMutation(() => deleteExhibitionSlot(id)),
+    [runMutation],
+  );
+
+  const generateSlots = useCallback(
+    (exhibitionId: string, options: Pick<ExhibitionSlotInput, 'startTime' | 'endTime' | 'zoneName' | 'capacity'>) =>
+      runMutation(async () => { await generateExhibitionSlots(exhibitionId, options); }),
     [runMutation],
   );
 
@@ -83,7 +112,8 @@ export function useExhibitions(enabled: boolean) {
   );
 
   return {
-    exhibitions, leads, activations, isLoading, error,
-    reload, saveExhibition, removeExhibition, reviewLead, linkActivation, unlinkActivation,
+    exhibitions, leads, activations, slots, isLoading, error,
+    reload, saveExhibition, removeExhibition, reviewLead, publishLead,
+    saveSlot, removeSlot, generateSlots, linkActivation, unlinkActivation,
   };
 }

@@ -250,22 +250,59 @@ export interface SponsorLeadInput {
 }
 
 // ─── Pameran & kolaborasi Casual Leasing ───────────────────────────
-export type ExhibitionPublication = 'draft' | 'published' | 'archived';
-export type ExhibitionLeadStatus = 'pending' | 'contacted' | 'approved' | 'rejected';
+export type ExhibitionLeadStatus =
+  | 'submitted' | 'in_review' | 'need_info' | 'approved' | 'scheduled' | 'completed' | 'rejected' | 'cancelled';
 export type ExhibitionParticipation = 'booth' | 'activation' | 'both';
+
+export type ExhibitionPublication = 'draft' | 'published' | 'archived';
+export type ExhibitionProgramType = 'pameran' | 'aktivasi_marcomm';
+export type ExhibitionProgramStatus = 'draft' | 'open' | 'full' | 'ongoing' | 'completed' | 'archived';
+export type ExhibitionOrganizationType =
+  | 'komunitas' | 'umkm_brand' | 'event_organizer' | 'kampus_sekolah' | 'instansi_ngo' | 'lainnya'
+  | 'brand' | 'eo';
+export type CollaborationContributionType =
+  | 'pengisi_aktivasi' | 'booth_umkm' | 'sponsor_hadiah' | 'media_partner' | 'lainnya';
+export type ExhibitionSlotStatus = 'open' | 'limited' | 'full' | 'closed';
+export type EstimatedParticipants = 'under_15' | '15_to_30' | '30_to_50' | 'over_50' | 'unsure';
+export type TechnicalNeed = 'listrik' | 'area_teduh' | 'sound_system' | 'meja_kursi' | 'tanpa_kebutuhan';
+
+export interface ExhibitionBenefit {
+  title: string;
+  description: string;
+}
+
+export interface ExhibitionFormConfig {
+  concept_placeholder?: string;
+  allowed_contributions?: CollaborationContributionType[];
+  show_technical_needs?: boolean;
+  show_participant_estimate?: boolean;
+}
 
 export interface ExhibitionInput {
   title: string;
+  slug: string;
+  subtitle: string;
+  programType: ExhibitionProgramType;
   theme: string;
   description: string;
   location: string;
   dateStart: string;
   dateEnd: string;
+  scheduleNote: string;
+  targetAudience: string;
   collaborationBrief: string;
+  lookingForSummary: string;
+  lookingForTags: string[];
+  benefits: ExhibitionBenefit[];
+  coverImageUrl: string;
   leasingPic: string;
   marcommPic: string;
   publication: ExhibitionPublication;
+  status: ExhibitionProgramStatus;
+  isFeatured: boolean;
   acceptingApplications: boolean;
+  defaultOrganizationType: ExhibitionOrganizationType;
+  formConfig: ExhibitionFormConfig;
 }
 
 export interface Exhibition extends ExhibitionInput {
@@ -273,22 +310,84 @@ export interface Exhibition extends ExhibitionInput {
   createdAt: string;
 }
 
+export interface ExhibitionSlot {
+  id: string;
+  exhibitionId: string;
+  slotDate: string;
+  startTime: string;
+  endTime: string;
+  zoneName: string;
+  capacity: number;
+  slotStatus: ExhibitionSlotStatus;
+  publicNote: string;
+}
+
+export interface PublicAgendaItem {
+  id: string;
+  programId: string;
+  slotId: string;
+  organizationName: string;
+  organizationType: ExhibitionOrganizationType;
+  contributionType: CollaborationContributionType;
+  publicActivityTitle: string;
+  publicActivitySummary: string;
+  status: Exhibition['status'];
+  slotDate: string;
+  startTime: string;
+  endTime: string;
+  zoneName: string;
+}
+
 export interface ExhibitionLeadInput {
   exhibitionId: string;
+  programSlug?: string;
   organizationName: string;
-  organizationType: 'brand' | 'eo';
+  organizationType: ExhibitionOrganizationType;
+  socialMediaHandle: string;
+  contributionType: CollaborationContributionType;
+  conceptDescription: string;
+  preferredSlotId: string;
+  preferredDateNote: string;
+  flexibleDate: boolean;
+  estimatedParticipants: EstimatedParticipants | null;
+  technicalNeeds: TechnicalNeed[];
+  technicalNeedsNote: string;
+  contactName: string;
+  phone: string;
+  email: string;
+}
+
+export interface ExhibitionLead {
+  id: string;
+  exhibitionId: string;
+  referenceCode: string;
+  slotId: string;
+  organizationName: string;
+  organizationType: ExhibitionOrganizationType;
   participation: ExhibitionParticipation;
+  contributionType: CollaborationContributionType;
+  socialMediaHandle: string;
+  preferredDateNote: string;
+  estimatedParticipants: EstimatedParticipants | null;
+  technicalNeeds: TechnicalNeed[];
+  technicalNeedsNote: string;
   contactName: string;
   phone: string;
   email: string;
   proposal: string;
+  status: ExhibitionLeadStatus;
+  publicActivityTitle: string;
+  publicActivitySummary: string;
+  isPublicAgenda: boolean;
+  syncedEventId: string;
+  internalNotes: string;
+  reviewedAt: string;
+  createdAt: string;
 }
 
-export interface ExhibitionLead extends ExhibitionLeadInput {
+export interface ExhibitionSubmissionResult {
   id: string;
-  status: ExhibitionLeadStatus;
-  internalNotes: string;
-  createdAt: string;
+  referenceCode: string;
 }
 
 /** Jadwal resmi yang ditautkan ke pameran; bukan salinan event. */
@@ -306,6 +405,8 @@ export interface ExhibitionActivation {
 export interface ExhibitionDetail {
   exhibition: Exhibition;
   activations: ExhibitionActivation[];
+  slots: ExhibitionSlot[];
+  agenda: PublicAgendaItem[];
   leads: ExhibitionLead[];
 }
 

@@ -128,9 +128,18 @@ export {
   deleteExhibition,
   fetchExhibitionLeads,
   updateExhibitionLead,
+  publishCollaborationToEvent,
+  fetchExhibitionSlots,
+  createExhibitionSlot,
+  updateExhibitionSlot,
+  deleteExhibitionSlot,
+  generateExhibitionSlots,
   linkExhibitionActivation,
   unlinkExhibitionActivation,
   type AdminExhibition,
+  type CollaborationReviewPatch,
+  type ExhibitionSlotInput,
+  type PublicExhibitionDetail,
 } from './api/exhibitionsApi';
 
 export {

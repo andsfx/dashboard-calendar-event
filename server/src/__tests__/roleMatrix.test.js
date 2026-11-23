@@ -83,7 +83,8 @@ describe('demo — baca terbuka kecuali aksi berbiaya AI', () => {
     // 15 → 14: `getInsightNarrative` dikeluarkan dari allowlist DEMO saja
     // (audit 2026-10-31): akun peragaan dibagikan, sedangkan handler memanggil
     // API AI berbayar + INSERT log. Viewer tetap memilikinya (SPEC.md §2).
-    expect(DEMO_READ_ACTIONS.size).toBe(14);
+    // +1 (2026-11-23): `listExhibitionSlots` untuk modul Kolaborasi (slot tanggal).
+    expect(DEMO_READ_ACTIONS.size).toBe(15);
     for (const action of DEMO_READ_ACTIONS) {
       expect(canPerformAdminAction('demo', action), action).toBe(true);
     }

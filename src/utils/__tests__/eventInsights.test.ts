@@ -437,8 +437,8 @@ describe('buildEventInsights', () => {
         registrations: [],
         areas: [],
         exhibitionLeads: [
-          { id: 'l1', status: 'pending' },
-          { id: 'l2', status: 'pending' },
+          { id: 'l1', status: 'submitted' },
+          { id: 'l2', status: 'submitted' },
           { id: 'l3', status: 'approved' },
         ] as unknown as ExhibitionLead[],
         now: NOW,

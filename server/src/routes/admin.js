@@ -192,6 +192,32 @@ const AREA_COLUMNS = new Set(['name', 'description', 'cover_photo_url', 'sort_or
 
 const NEWS_COLUMNS = new Set(['title', 'slug', 'excerpt', 'content', 'cover_image_url', 'author', 'status']);
 
+/** Alamat publik program: huruf kecil, angka, tanda hubung. */
+function slugify(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 100) || 'program';
+}
+
+/** Pastikan slug unik; tambah akhiran angka bila sudah dipakai program lain. */
+async function resolveExhibitionSlug(rawSlug, title, excludeId) {
+  const base = slugify(rawSlug || title);
+  let candidate = base;
+  for (let i = 2; i <= 100; i += 1) {
+    const { rows } = await db.query(
+      `SELECT id FROM exhibitions WHERE slug = $1 AND ($2::text IS NULL OR id <> $2) LIMIT 1`,
+      [candidate, excludeId || null],
+    );
+    if (rows.length === 0) return candidate;
+    candidate = `${base}-${i}`;
+  }
+  return `${base}-${Date.now()}`;
+}
+
 async function switchAction(action, req) {
   const { body } = req;
   const auth = req.auth;
@@ -1502,14 +1528,22 @@ async function switchAction(action, req) {
 
     case 'createExhibition': {
       const d = body.data;
+      const slug = await resolveExhibitionSlug(d.slug, d.title, null);
+      const status = d.publication === 'published' && d.status === 'draft' ? 'open' : d.status;
       const { rows } = await db.query(
-        `INSERT INTO exhibitions (title, theme, description, location, date_start, date_end,
-                                  collaboration_brief, leasing_pic, marcomm_pic, publication,
-                                  accepting_applications)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id`,
+        `INSERT INTO exhibitions (title, slug, subtitle, program_type, theme, description, location,
+                                  date_start, date_end, schedule_note, target_audience,
+                                  looking_for_summary, looking_for_tags, benefits, cover_image_url,
+                                  collaboration_brief, leasing_pic, marcomm_pic, publication, status,
+                                  is_featured, accepting_applications, default_organization_type, form_config)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
+         RETURNING id`,
         [
-          d.title, d.theme, d.description, d.location, d.dateStart, d.dateEnd,
-          d.collaborationBrief, d.leasingPic, d.marcommPic, d.publication, d.acceptingApplications,
+          d.title, slug, d.subtitle, d.programType, d.theme, d.description, d.location,
+          d.dateStart, d.dateEnd, d.scheduleNote, d.targetAudience,
+          d.lookingForSummary, toTextArray(d.lookingForTags), toJsonb(d.benefits), d.coverImageUrl,
+          d.collaborationBrief, d.leasingPic, d.marcommPic, d.publication, status,
+          d.isFeatured, d.acceptingApplications, d.defaultOrganizationType, toJsonb(d.formConfig),
         ],
       );
       const id = rows[0]?.id || '';
@@ -1532,16 +1566,25 @@ async function switchAction(action, req) {
       if ((outside[0]?.total || 0) > 0) {
         return { success: false, error: 'Periode baru membuat event aktivasi berada di luar pameran. Lepas atau ubah jadwal aktivasi terlebih dahulu.' };
       }
+      const slug = await resolveExhibitionSlug(d.slug, d.title, body.id);
+      const status = d.publication === 'published' && d.status === 'draft' ? 'open' : d.status;
       const { rowCount } = await db.query(
-        `UPDATE exhibitions SET title = $1, theme = $2, description = $3, location = $4,
-                                date_start = $5, date_end = $6, collaboration_brief = $7,
-                                leasing_pic = $8, marcomm_pic = $9, publication = $10,
-                                accepting_applications = $11
-         WHERE id = $12`,
+        `UPDATE exhibitions SET title = $1, slug = $2, subtitle = $3, program_type = $4,
+                                theme = $5, description = $6, location = $7,
+                                date_start = $8, date_end = $9, schedule_note = $10,
+                                target_audience = $11, looking_for_summary = $12,
+                                looking_for_tags = $13, benefits = $14, cover_image_url = $15,
+                                collaboration_brief = $16, leasing_pic = $17, marcomm_pic = $18,
+                                publication = $19, status = $20, is_featured = $21,
+                                accepting_applications = $22, default_organization_type = $23,
+                                form_config = $24
+         WHERE id = $25`,
         [
-          d.title, d.theme, d.description, d.location, d.dateStart, d.dateEnd,
-          d.collaborationBrief, d.leasingPic, d.marcommPic, d.publication,
-          d.acceptingApplications, body.id,
+          d.title, slug, d.subtitle, d.programType, d.theme, d.description, d.location,
+          d.dateStart, d.dateEnd, d.scheduleNote, d.targetAudience, d.lookingForSummary,
+          toTextArray(d.lookingForTags), toJsonb(d.benefits), d.coverImageUrl, d.collaborationBrief,
+          d.leasingPic, d.marcommPic, d.publication, status, d.isFeatured,
+          d.acceptingApplications, d.defaultOrganizationType, toJsonb(d.formConfig), body.id,
         ],
       );
       if (!rowCount) return { success: false, error: 'Pameran ini tidak ada atau sudah dihapus. Muat ulang daftar pameran.' };
@@ -1580,6 +1623,7 @@ async function switchAction(action, req) {
             contact_name: maskName(r.contact_name),
             phone: maskPhone(r.phone),
             email: maskEmail(r.email),
+            social_media_handle: r.social_media_handle ? '•••' : '',
           })),
         };
       }
@@ -1588,9 +1632,24 @@ async function switchAction(action, req) {
 
     case 'updateExhibitionLead': {
       const { rowCount } = await db.query(
-        `UPDATE exhibition_leads SET status = $1, internal_notes = COALESCE($2, internal_notes)
-         WHERE id = $3`,
-        [body.status, body.internalNotes ?? null, body.id],
+        `UPDATE exhibition_leads SET
+           status = $1,
+           internal_notes = COALESCE($2, internal_notes),
+           public_activity_title = COALESCE($3, public_activity_title),
+           public_activity_summary = COALESCE($4, public_activity_summary),
+           is_public_agenda = COALESCE($5, is_public_agenda),
+           reviewed_by = CASE WHEN $1 = 'submitted' THEN reviewed_by ELSE $6 END,
+           reviewed_at = CASE WHEN $1 = 'submitted' THEN reviewed_at ELSE NOW() END
+         WHERE id = $7`,
+        [
+          body.status,
+          body.internalNotes ?? null,
+          body.publicActivityTitle ?? null,
+          body.publicActivitySummary ?? null,
+          typeof body.isPublicAgenda === 'boolean' ? body.isPublicAgenda : null,
+          auth.user?.id ?? null,
+          body.id,
+        ],
       );
       if (!rowCount) return { success: false, error: 'Pengajuan ini tidak ada atau sudah dihapus. Muat ulang daftar pengajuan.' };
       // Catatan: approve TIDAK membuat event (ADR 003) — penjadwalan tetap eksplisit.
@@ -1639,6 +1698,135 @@ async function switchAction(action, req) {
       if (!rowCount) return { success: false, error: 'Tautan aktivasi ini tidak ada atau sudah dilepas. Muat ulang daftar pameran.' };
       logActivity(auth.user, 'unlink_exhibition_activation', 'event', body.eventId, null, req);
       return { success: true };
+    }
+
+    // ── Slot tanggal agenda aktivasi ─────────────────────────────────
+    case 'listExhibitionSlots': {
+      const params = [];
+      let where = '';
+      if (body.exhibitionId) { params.push(body.exhibitionId); where = 'WHERE exhibition_id = $1'; }
+      const { rows } = await db.query(
+        `SELECT * FROM exhibition_slots ${where}
+         ORDER BY slot_date ASC, start_time ASC`,
+        params,
+      );
+      return { success: true, data: rows };
+    }
+
+    case 'createExhibitionSlot': {
+      const d = body.data;
+      const { rows } = await db.query(
+        `INSERT INTO exhibition_slots
+           (exhibition_id, slot_date, start_time, end_time, zone_name, capacity, slot_status, public_note)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+         RETURNING id`,
+        [body.exhibitionId, d.slotDate, d.startTime, d.endTime, d.zoneName, d.capacity, d.slotStatus, d.publicNote],
+      );
+      const id = rows[0]?.id || '';
+      logActivity(auth.user, 'create_exhibition_slot', 'exhibition', body.exhibitionId, { slotDate: d.slotDate }, req);
+      return { success: true, id };
+    }
+
+    case 'updateExhibitionSlot': {
+      const d = body.data;
+      const { rowCount } = await db.query(
+        `UPDATE exhibition_slots
+         SET slot_date = $1, start_time = $2, end_time = $3, zone_name = $4,
+             capacity = $5, slot_status = $6, public_note = $7
+         WHERE id = $8`,
+        [d.slotDate, d.startTime, d.endTime, d.zoneName, d.capacity, d.slotStatus, d.publicNote, body.id],
+      );
+      if (!rowCount) return { success: false, error: 'Slot tanggal ini tidak ada atau sudah dihapus. Muat ulang daftar slot.' };
+      logActivity(auth.user, 'update_exhibition_slot', 'exhibition_slot', body.id, { slotDate: d.slotDate }, req);
+      return { success: true };
+    }
+
+    case 'deleteExhibitionSlot': {
+      const { rows: used } = await db.query(
+        'SELECT COUNT(*)::int AS total FROM exhibition_leads WHERE slot_id = $1',
+        [body.id],
+      );
+      if ((used[0]?.total || 0) > 0) {
+        return { success: false, error: 'Slot ini sudah dipakai pengajuan. Tutup slotnya (status Ditutup) alih-alih menghapus.' };
+      }
+      const { rowCount } = await db.query('DELETE FROM exhibition_slots WHERE id = $1', [body.id]);
+      if (!rowCount) return { success: false, error: 'Slot tanggal ini tidak ada atau sudah dihapus. Muat ulang daftar slot.' };
+      logActivity(auth.user, 'delete_exhibition_slot', 'exhibition_slot', body.id, null, req);
+      return { success: true };
+    }
+
+    case 'generateExhibitionSlots': {
+      const d = body.data;
+      const { rows: programRows } = await db.query(
+        'SELECT date_start, date_end FROM exhibitions WHERE id = $1',
+        [body.exhibitionId],
+      );
+      const program = programRows[0];
+      if (!program) return { success: false, error: 'Program tidak ditemukan. Muat ulang halaman lalu coba lagi.' };
+      const { rows } = await db.query(
+        `INSERT INTO exhibition_slots
+           (exhibition_id, slot_date, start_time, end_time, zone_name, capacity, slot_status)
+         SELECT $1, d::date, $2::time, $3::time, $4, $5, 'open'
+         FROM generate_series($6::date, $7::date, INTERVAL '1 day') AS d
+         WHERE EXTRACT(DOW FROM d) = 0
+         ON CONFLICT (exhibition_id, slot_date, start_time) DO NOTHING
+         RETURNING id`,
+        [body.exhibitionId, d.startTime, d.endTime, d.zoneName, d.capacity, program.date_start, program.date_end],
+      );
+      logActivity(auth.user, 'generate_exhibition_slots', 'exhibition', body.exhibitionId, { created: rows.length }, req);
+      return { success: true, created: rows.length };
+    }
+
+    case 'publishCollaborationToEvent': {
+      const { rows } = await db.query(
+        `SELECT l.id, l.exhibition_id, l.organization_name, l.contact_name, l.phone,
+                l.public_activity_title, l.public_activity_summary, l.proposal,
+                l.synced_event_id, l.status,
+                x.title AS program_title, x.location AS program_location, x.date_start,
+                s.slot_date, s.start_time, s.end_time, s.zone_name
+         FROM exhibition_leads l
+         JOIN exhibitions x ON x.id = l.exhibition_id
+         LEFT JOIN exhibition_slots s ON s.id = l.slot_id
+         WHERE l.id = $1 LIMIT 1`,
+        [body.id],
+      );
+      const lead = rows[0];
+      if (!lead) return { success: false, error: 'Pengajuan tidak ditemukan. Muat ulang daftar pengajuan.' };
+      if (lead.synced_event_id) return { success: true, id: lead.synced_event_id, alreadyPublished: true };
+
+      const dateStr = String(lead.slot_date || lead.date_start);
+      const title = lead.public_activity_title || `${lead.organization_name} di ${lead.program_title}`;
+      const timeLabel = lead.start_time
+        ? `${String(lead.start_time).slice(0, 5)} - ${String(lead.end_time || '').slice(0, 5)} WIB`
+        : '';
+      const { rows: created } = await db.query(
+        `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, acara, eo, keterangan,
+                             status, category, poster_url)
+         VALUES ($1,$1,'',$1,$2,$3,$4,$5,$6,'published','Kolaborasi',NULL)
+         RETURNING id`,
+        [
+          dateStr,
+          timeLabel,
+          lead.zone_name ? `${lead.zone_name} - ${lead.program_location}` : lead.program_location,
+          title,
+          lead.organization_name,
+          lead.public_activity_summary || lead.proposal || '',
+        ],
+      );
+      const eventId = created[0]?.id || '';
+      await db.query(
+        `UPDATE exhibition_leads SET synced_event_id = $1, is_public_agenda = true,
+                status = CASE WHEN status IN ('approved', 'scheduled') THEN 'scheduled' ELSE status END
+         WHERE id = $2`,
+        [eventId, body.id],
+      );
+      await db.query(
+        `INSERT INTO exhibition_activations (event_id, exhibition_id) VALUES ($1, $2)
+         ON CONFLICT (event_id) DO NOTHING`,
+        [eventId, lead.exhibition_id],
+      );
+      logActivity(auth.user, 'publish_collaboration_event', 'exhibition_lead', body.id, { eventId }, req);
+      return { success: true, id: eventId };
     }
 
     // ══════════ KOLABORASI TENANT ══════════

@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Handshake, MapPin, RefreshCw } from 'lucide-react';
-import type { Exhibition, ExhibitionActivation, ExhibitionLeadInput } from '../types';
-import { fetchPublicExhibitions, fetchPublicExhibition, submitExhibitionLead } from '../utils/domainApi';
-import { formatDateRange } from '../utils/eventUtils';
-import { validateEmail, validatePhone } from '../utils/validation';
+import {
+  ArrowLeft, CalendarDays, CheckCircle2, Clock, Handshake, MapPin, RefreshCw, Users,
+} from 'lucide-react';
+import type {
+  Exhibition, ExhibitionProgramStatus, ExhibitionProgramType, ExhibitionSlot, PublicAgendaItem,
+} from '../types';
+import { fetchPublicExhibitions, fetchPublicExhibition } from '../utils/domainApi';
+import { formatDateRange, MONTH_NAMES } from '../utils/eventUtils';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import { RevealSection } from '../components/community/CommunityRevealPrimitives';
+import { CollaborationForm } from '../components/collaboration/CollaborationForm';
+import { Badge } from '../components/shadcn/badge';
 import { Button } from '../components/shadcn/button';
-import { Input } from '../components/shadcn/input';
-import { Label } from '../components/shadcn/label';
-import { NativeSelect } from '../components/shadcn/native-select';
-import { Textarea } from '../components/shadcn/textarea';
 import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
@@ -19,40 +20,72 @@ interface Props {
   onToggleDark: () => void;
 }
 
-const PARTICIPATION_OPTIONS: { value: ExhibitionLeadInput['participation']; label: string; hint: string }[] = [
-  { value: 'booth', label: 'Peserta pameran', hint: 'Mengisi booth selama pameran berlangsung' },
-  { value: 'activation', label: 'Pengisi aktivasi', hint: 'Mengadakan kegiatan seperti kelas atau demo' },
-  { value: 'both', label: 'Keduanya', hint: 'Booth sekaligus kegiatan aktivasi' },
-];
-
-const INITIAL_FORM: ExhibitionLeadInput = {
-  exhibitionId: '', organizationName: '', organizationType: 'brand', participation: 'booth',
-  contactName: '', phone: '', email: '', proposal: '',
+const TYPE_LABELS: Record<ExhibitionProgramType, string> = {
+  aktivasi_marcomm: 'Aktivasi Marcomm',
+  pameran: 'Pameran',
 };
 
-const inputClass = 'w-full rounded-[var(--radius-control)]! border border-[var(--wf-rule)]! bg-[var(--wf-board)]! px-4 py-3 text-sm text-[var(--wf-ink)] outline-none transition h-auto field-sizing-fixed! focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]!';
-const labelClass = 'mb-1.5 block! text-xs font-semibold leading-normal text-[var(--wf-ink-muted)]';
-// NativeSelect menaruh className di pembungkus: token kontrol lama dipindah ke <select> di dalamnya.
-const selectClass = 'w-full [&>select]:h-auto [&>select]:rounded-[var(--radius-control)]! [&>select]:border-[var(--wf-rule)]! [&>select]:bg-[var(--wf-board)]! [&>select]:py-3 [&>select]:pl-4 [&>select]:focus-visible:ring-2! [&>select]:focus-visible:ring-[var(--brand-tosca)]!';
+const TYPE_BADGE: Record<ExhibitionProgramType, string> = {
+  aktivasi_marcomm: 'bg-[var(--brand-pink)]/10 text-[var(--brand-pink-600)]',
+  pameran: 'bg-[var(--wf-accent-soft)] text-[var(--brand-tosca-600)]',
+};
+
+const STATUS_META: Record<ExhibitionProgramStatus, { label: string; className: string }> = {
+  draft: { label: 'Draft', className: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' },
+  open: { label: 'Dibuka untuk Kolaborasi', className: 'bg-[var(--wf-accent-soft)] text-[var(--brand-tosca-600)]' },
+  full: { label: 'Slot Penuh', className: 'bg-[var(--brand-pink)]/10 text-[var(--brand-pink-600)]' },
+  ongoing: { label: 'Sedang Berlangsung', className: 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]' },
+  completed: { label: 'Selesai', className: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' },
+  archived: { label: 'Diarsipkan', className: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' },
+};
+
+const SLOT_META: Record<ExhibitionSlot['slotStatus'], { label: string; className: string }> = {
+  open: { label: 'Slot Tersedia', className: 'bg-[var(--wf-accent-soft)] text-[var(--brand-tosca-600)]' },
+  limited: { label: 'Tersisa 1 Slot', className: 'bg-[var(--brand-pink)]/10 text-[var(--brand-pink-600)]' },
+  full: { label: 'Penuh', className: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' },
+  closed: { label: 'Ditutup', className: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' },
+};
+
+const ctaClass = 'h-auto items-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0!';
+
+const WEEKDAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+function longDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  if (!year || !month || !day) return dateStr;
+  const date = new Date(year, month - 1, day);
+  return `${WEEKDAYS[date.getDay()] ?? ''}, ${day} ${MONTH_NAMES[month - 1] ?? ''} ${year}`.trim();
+}
+
+function ProgramBadges({ program }: { program: Exhibition }) {
+  const status = STATUS_META[program.status];
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Badge variant="outline" className={`border-0 font-semibold ${TYPE_BADGE[program.programType]}`}>
+        {TYPE_LABELS[program.programType]}
+      </Badge>
+      <Badge variant="outline" className={`border-0 font-semibold ${status.className}`}>{status.label}</Badge>
+    </div>
+  );
+}
 
 export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
   const { id } = useParams<{ id: string }>();
   usePageMeta({
-    title: 'Pameran dan kolaborasi - Metropolitan Mall Bekasi',
-    description: 'Ajak brand dan EO bekerja sama mengisi pameran serta aktivasi di Metropolitan Mall Bekasi.',
+    title: 'Kolaborasi pameran dan aktivasi - Metropolitan Mall Bekasi',
+    description: 'Ikut meramaikan program rutin, pameran, dan aktivasi akhir pekan di Metropolitan Mall Bekasi.',
   });
 
   const [list, setList] = useState<Exhibition[]>([]);
-  const [detail, setDetail] = useState<{ exhibition: Exhibition; activations: ExhibitionActivation[] } | null>(null);
+  const [detail, setDetail] = useState<{
+    exhibition: Exhibition;
+    slots: ExhibitionSlot[];
+    agenda: PublicAgendaItem[];
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [retryCount, setRetryCount] = useState(0);
-
-  const [form, setForm] = useState<ExhibitionLeadInput>({ ...INITIAL_FORM });
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [submitError, setSubmitError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [filter, setFilter] = useState<'semua' | ExhibitionProgramType>('semua');
 
   useEffect(() => {
     let alive = true;
@@ -62,49 +95,29 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
     load
       .then(result => {
         if (!alive) return;
-        if (Array.isArray(result)) { setList(result); setDetail(null); }
-        else { setDetail(result); setForm(prev => ({ ...prev, exhibitionId: result.exhibition.id })); }
+        if (Array.isArray(result)) {
+          setList(result);
+          setDetail(null);
+        } else {
+          setDetail({ exhibition: result.exhibition, slots: result.slots, agenda: result.agenda });
+        }
       })
       .catch(err => {
         if (!alive) return;
-        setLoadError(err instanceof Error ? err.message : 'Gagal memuat pameran');
+        setLoadError(err instanceof Error ? err.message : 'Gagal memuat program kolaborasi');
       })
       .finally(() => { if (alive) setIsLoading(false); });
     return () => { alive = false; };
   }, [id, retryCount]);
 
-  const openExhibitions = useMemo(() => list.filter(item => item.acceptingApplications), [list]);
+  useEffect(() => {
+    if (!id) setFilter('semua');
+  }, [id]);
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    const errs: Record<string, string> = {};
-    if (form.organizationName.trim().length < 3) errs.organizationName = 'Nama brand/EO minimal 3 karakter';
-    if (form.contactName.trim().length < 3) errs.contactName = 'Nama PIC minimal 3 karakter';
-    const phoneCheck = validatePhone(form.phone);
-    if (!phoneCheck.valid) errs.phone = phoneCheck.error || 'Nomor telepon belum sesuai format. Gunakan 08xxx, +628xxx, atau 628xxx.';
-    if (form.email) {
-      const emailCheck = validateEmail(form.email);
-      if (!emailCheck.valid) errs.email = emailCheck.error || 'Email belum sesuai format. Contoh yang benar: nama@email.com';
-    }
-    if (form.participation !== 'booth' && form.proposal.trim().length < 10) {
-      errs.proposal = 'Jelaskan konsep aktivasi minimal 10 karakter';
-    }
-    setFieldErrors(errs);
-    if (Object.keys(errs).length > 0) return;
-
-    setSubmitError('');
-    setSubmitting(true);
-    try {
-      await submitExhibitionLead(form);
-      setSubmitted(true);
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Gagal mengirim pengajuan kolaborasi');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const exhibition = detail?.exhibition;
+  const filtered = useMemo(
+    () => (filter === 'semua' ? list : list.filter(item => item.programType === filter)),
+    [filter, list],
+  );
 
   return (
     <div className="ui-dashboard-page min-h-screen bg-[var(--wf-page)] text-[var(--wf-ink)] transition-colors duration-300">
@@ -116,198 +129,316 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
       </a>
       <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
-      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 outline-none">
-        {isLoading && <p className="text-sm text-[var(--wf-ink-muted)]">Memuat pameran…</p>}
+      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 outline-none">
+        {isLoading && <p className="text-sm text-[var(--wf-ink-muted)]">Memuat program kolaborasi...</p>}
 
         {!isLoading && loadError && (
-          <div className="rounded-[var(--radius-card)] border border-red-200 bg-red-50 p-5 dark:border-red-800 dark:bg-red-950/40">
-            <p role="alert" className="text-sm text-red-700 dark:text-red-400">{loadError}</p>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setRetryCount(c => c + 1)}
-              className="mt-3 h-auto items-center gap-2 rounded-full bg-[var(--wf-accent)]! px-4 py-2 text-sm font-bold! text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0!"
-            >
+          <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5">
+            <p role="alert" className="text-sm text-[var(--wf-danger)]">{loadError}</p>
+            <Button type="button" variant="ghost" onClick={() => setRetryCount(c => c + 1)} className={`mt-3 ${ctaClass}`}>
               <RefreshCw className="h-4 w-4" aria-hidden="true" /> Coba lagi
             </Button>
           </div>
         )}
 
         {!isLoading && !loadError && !id && (
-          <RevealSection as="div" refreshKey={`${list.length}:${list[0]?.id ?? ''}`}>
-            <h1 className="font-display text-3xl font-extrabold sm:text-4xl">Kolaborasi pameran</h1>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">
-              Metropolitan Mall Bekasi mengajak brand dan event organizer mengisi pameran bersama tim Casual Leasing dan Marcomm, baik sebagai peserta booth maupun pengisi aktivasi.
-            </p>
+          <>
+            <RevealSection as="div" refreshKey={`${list.length}:${list[0]?.id ?? ''}`}>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--brand-tosca-600)]">
+                Pameran &amp; Aktivasi Marcomm
+              </p>
+              <h1 className="mt-3 max-w-3xl font-display text-3xl font-extrabold leading-tight sm:text-4xl">
+                Ruang Pameran &amp; Kolaborasi di Metmal
+              </h1>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">
+                Ikut meramaikan program rutin, pameran, dan aktivasi akhir pekan yang diselenggarakan oleh
+                Metropolitan Mall Bekasi. Pilih program yang cocok dengan komunitas, UMKM, atau brand Anda.
+              </p>
 
-            {list.length === 0 && (
-              <p className="mt-8 text-sm text-[var(--wf-ink-muted)]">Belum ada pameran yang dibuka. Silakan cek kembali nanti.</p>
+              <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Filter jenis program">
+                {([
+                  { value: 'semua' as const, label: 'Semua' },
+                  { value: 'aktivasi_marcomm' as const, label: 'Aktivasi Marcomm' },
+                  { value: 'pameran' as const, label: 'Pameran' },
+                ]).map(tab => (
+                  <Button
+                    key={tab.value}
+                    type="button"
+                    variant="outline"
+                    role="tab"
+                    aria-selected={filter === tab.value}
+                    onClick={() => setFilter(tab.value)}
+                    className={`h-auto rounded-full px-4 py-2 text-sm font-semibold active:translate-y-0 ${
+                      filter === tab.value
+                        ? 'border-[var(--wf-accent)]! bg-[var(--wf-accent-soft)]! text-[var(--brand-tosca-600)]!'
+                        : 'border-[var(--wf-rule)]! bg-[var(--wf-board)]! text-[var(--wf-ink-muted)]!'
+                    }`}
+                  >
+                    {tab.label}
+                  </Button>
+                ))}
+              </div>
+            </RevealSection>
+
+            {filtered.length === 0 && (
+              <div className="mt-8 rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-6">
+                <h2 className="font-display text-lg font-bold">Belum ada program di kategori ini</h2>
+                <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--wf-ink-muted)]">
+                  Program pameran dan aktivasi baru akan segera dibuka. Sementara itu, Anda tetap bisa
+                  mengajukan rencana acara mandiri.
+                </p>
+              </div>
             )}
 
             <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-              {list.map(item => (
-                <li key={item.id} data-reveal-item className="rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-[var(--wf-board)] p-5">
-                  <h2 className="font-display text-xl font-bold">{item.title}</h2>
-                  {item.theme && <p className="mt-1 text-sm font-medium text-[var(--wf-accent)]">{item.theme}</p>}
-                  <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--wf-ink-muted)]">
-                    <span className="inline-flex items-center gap-1"><CalendarDays className="h-4 w-4" aria-hidden="true" />{formatDateRange(item.dateStart, item.dateEnd)}</span>
-                    {item.location && <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" aria-hidden="true" />{item.location}</span>}
+              {filtered.map(item => (
+                <li key={item.id} className="flex flex-col rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 shadow-sm">
+                  <ProgramBadges program={item} />
+                  <h2 className="mt-3 font-display text-xl font-bold">{item.title}</h2>
+                  {item.subtitle && <p className="mt-1 text-sm font-medium text-[var(--wf-ink-muted)]">{item.subtitle}</p>}
+                  <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--wf-ink-muted)]">
+                    <span className="inline-flex items-center gap-1">
+                      <CalendarDays className="h-4 w-4" aria-hidden="true" />{formatDateRange(item.dateStart, item.dateEnd)}
+                    </span>
+                    {item.location && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-4 w-4" aria-hidden="true" />{item.location}
+                      </span>
+                    )}
                   </p>
-                  {item.description && <p className="mt-3 text-sm leading-6 text-[var(--wf-ink-muted)]">{item.description}</p>}
-                  <Link to={`/pameran/${item.id}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]">
-                    <Handshake className="h-4 w-4" aria-hidden="true" />
-                    {item.acceptingApplications ? 'Ajukan kolaborasi' : 'Lihat detail'}
-                  </Link>
+                  {item.description && (
+                    <p className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--wf-ink-muted)]">{item.description}</p>
+                  )}
+                  <div className="mt-auto pt-4">
+                    <Button asChild variant="ghost" className={ctaClass}>
+                      <Link to={`/kolaborasi/${item.slug || item.id}`}>
+                        <Handshake className="h-4 w-4" aria-hidden="true" /> Lihat detail &amp; gabung
+                      </Link>
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>
 
-            {list.length > 0 && openExhibitions.length === 0 && (
-              <p className="mt-6 text-sm text-[var(--wf-ink-muted)]">
-                Saat ini belum ada pameran yang membuka pengajuan kolaborasi baru.
+            <section className="mt-10 rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-6">
+              <h2 className="font-display text-lg font-bold">Punya konsep acara sendiri di luar daftar di atas?</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--wf-ink-muted)]">
+                Jika komunitas atau organisasi Anda ingin mengadakan acara mandiri di area Metropolitan Mall Bekasi,
+                silakan ajukan lewat formulir pendaftaran event.
               </p>
-            )}
-          </RevealSection>
-        )}
-
-        {!isLoading && !loadError && id && exhibition && (
-          <>
-            <RevealSection as="div" refreshKey={`${exhibition.id}:${detail?.activations.length ?? 0}`}>
-            <Link to="/pameran" className="inline-flex items-center gap-1 text-sm font-medium text-[var(--wf-ink-muted)]">
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Semua pameran
-            </Link>
-            <h1 className="mt-4 font-display text-3xl font-extrabold sm:text-4xl">{exhibition.title}</h1>
-            {exhibition.theme && <p className="mt-1 text-base font-medium text-[var(--wf-accent)]">{exhibition.theme}</p>}
-            <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--wf-ink-muted)]">
-              <span className="inline-flex items-center gap-1"><CalendarDays className="h-4 w-4" aria-hidden="true" />{formatDateRange(exhibition.dateStart, exhibition.dateEnd)}</span>
-              {exhibition.location && <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" aria-hidden="true" />{exhibition.location}</span>}
-            </p>
-            {exhibition.description && <p className="mt-4 text-base leading-7 text-[var(--wf-ink-muted)]">{exhibition.description}</p>}
-            </RevealSection>
-
-            {exhibition.collaborationBrief && (
-              <RevealSection className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-[var(--wf-board)] p-5">
-                <h2 className="font-display text-lg font-bold">Yang kami cari</h2>
-                <p className="mt-2 whitespace-pre-line text-sm leading-6 text-[var(--wf-ink-muted)]">{exhibition.collaborationBrief}</p>
-              </RevealSection>
-            )}
-
-            <RevealSection className="mt-8" refreshKey={detail?.activations.length ?? 0}>
-              <h2 className="font-display text-lg font-bold">Agenda aktivasi</h2>
-              {detail && detail.activations.length === 0 && (
-                <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">
-                  Agenda aktivasi belum diumumkan. Konsep kegiatan dari mitra masih kami kurasi.
-                </p>
-              )}
-              <ul className="mt-3 space-y-2">
-                {detail?.activations.map(activation => (
-                  <li key={activation.eventId} className="rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--wf-board)] p-4  ">
-                    <p className="font-semibold">{activation.title}</p>
-                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--wf-ink-muted)]">
-                      <span className="inline-flex items-center gap-1"><CalendarDays className="h-4 w-4" aria-hidden="true" />{formatDateRange(activation.dateStart, activation.dateEnd)}</span>
-                      {activation.time && <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" aria-hidden="true" />{activation.time}</span>}
-                      {activation.location && <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" aria-hidden="true" />{activation.location}</span>}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </RevealSection>
-
-            <section id="ajukan" className="mt-10 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-[var(--wf-board)] p-5 sm:p-6">
-              <RevealSection as="div">
-                <h2 className="font-display text-lg font-bold">Ajukan kolaborasi</h2>
-              </RevealSection>
-
-              {!exhibition.acceptingApplications && (
-                <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">
-                  Pengajuan kolaborasi untuk pameran ini sedang ditutup.
-                </p>
-              )}
-
-              {exhibition.acceptingApplications && submitted && (
-                <div className="mt-3 flex items-start gap-3 rounded-[var(--radius-card)] bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-                  <p>Pengajuan terkirim. Tim kami akan meninjau dan menghubungi kamu. Pengajuan ini belum berarti booth atau jadwal sudah dikonfirmasi.</p>
-                </div>
-              )}
-
-              {exhibition.acceptingApplications && !submitted && (
-                <form onSubmit={handleSubmit} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
-                  <div className="sm:col-span-2">
-                    <Label className={labelClass} htmlFor="lead-org">
-                      Nama brand / EO <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                    </Label>
-                    <Input id="lead-org" className={inputClass} value={form.organizationName} onChange={e => setForm({ ...form, organizationName: e.target.value })} aria-invalid={!!fieldErrors.organizationName} aria-describedby={fieldErrors.organizationName ? 'lead-org-err' : undefined} />
-                    {fieldErrors.organizationName && <p id="lead-org-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.organizationName}</p>}
-                  </div>
-
-                  <div>
-                    <Label className={labelClass} htmlFor="lead-type">Jenis organisasi</Label>
-                    <NativeSelect id="lead-type" className={selectClass} value={form.organizationType} onChange={e => setForm({ ...form, organizationType: e.target.value as ExhibitionLeadInput['organizationType'] })}>
-                      <option value="brand">Brand</option>
-                      <option value="eo">Event organizer</option>
-                    </NativeSelect>
-                  </div>
-
-                  <div>
-                    <Label className={labelClass} htmlFor="lead-participation">Bentuk kontribusi</Label>
-                    <NativeSelect id="lead-participation" className={selectClass} value={form.participation} onChange={e => setForm({ ...form, participation: e.target.value as ExhibitionLeadInput['participation'] })}>
-                      {PARTICIPATION_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>{option.label} · {option.hint}</option>
-                      ))}
-                    </NativeSelect>
-                  </div>
-
-                  <div>
-                    <Label className={labelClass} htmlFor="lead-contact">
-                      Nama PIC <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                    </Label>
-                    <Input id="lead-contact" className={inputClass} value={form.contactName} onChange={e => setForm({ ...form, contactName: e.target.value })} aria-invalid={!!fieldErrors.contactName} aria-describedby={fieldErrors.contactName ? 'lead-contact-err' : undefined} />
-                    {fieldErrors.contactName && <p id="lead-contact-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.contactName}</p>}
-                  </div>
-
-                  <div>
-                    <Label className={labelClass} htmlFor="lead-phone">
-                      Nomor WhatsApp <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                    </Label>
-                    <Input id="lead-phone" className={inputClass} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="08xxxxxxxxxx" aria-invalid={!!fieldErrors.phone} aria-describedby={fieldErrors.phone ? 'lead-phone-err' : undefined} />
-                    {fieldErrors.phone && <p id="lead-phone-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.phone}</p>}
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <Label className={labelClass} htmlFor="lead-email">Email</Label>
-                    <Input id="lead-email" className={inputClass} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} aria-invalid={!!fieldErrors.email} aria-describedby={fieldErrors.email ? 'lead-email-err' : undefined} />
-                    {fieldErrors.email && <p id="lead-email-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.email}</p>}
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <Label className={labelClass} htmlFor="lead-proposal">Konsep kontribusi</Label>
-                    <Textarea id="lead-proposal" rows={4} className={inputClass} value={form.proposal} onChange={e => setForm({ ...form, proposal: e.target.value })} placeholder="Contoh: beauty class 60 menit untuk 30 peserta." aria-invalid={!!fieldErrors.proposal} aria-describedby={fieldErrors.proposal ? 'lead-proposal-err' : undefined} />
-                    {fieldErrors.proposal && <p id="lead-proposal-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.proposal}</p>}
-                  </div>
-
-                  {submitError && <p role="alert" className="sm:col-span-2 text-sm text-red-600 dark:text-red-400">{submitError}</p>}
-
-                  <div className="sm:col-span-2">
-                    <Button
-                      type="submit"
-                      variant="ghost"
-                      disabled={submitting}
-                      className="h-auto items-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60"
-                    >
-                      <Handshake className="h-4 w-4" aria-hidden="true" />
-                      {submitting ? 'Mengirim…' : 'Kirim pengajuan'}
-                    </Button>
-                    <p className="mt-2 text-xs text-[var(--wf-ink-muted)]">
-                      Data kontak hanya dipakai tim Metropolitan Mall Bekasi untuk menindaklanjuti pengajuan ini.
-                    </p>
-                  </div>
-                </form>
-              )}
+              <Button asChild variant="ghost" className={`mt-4 ${ctaClass}`}>
+                <Link to="/daftar">Ajukan Event Mandiri</Link>
+              </Button>
             </section>
           </>
         )}
+
+        {!isLoading && !loadError && id && detail && (
+          <ProgramDetail exhibition={detail.exhibition} slots={detail.slots} agenda={detail.agenda} />
+        )}
       </main>
     </div>
+  );
+}
+
+interface ProgramDetailProps {
+  exhibition: Exhibition;
+  slots: ExhibitionSlot[];
+  agenda: PublicAgendaItem[];
+}
+
+function ProgramDetail({ exhibition, slots, agenda }: ProgramDetailProps) {
+  const [chosenSlotId, setChosenSlotId] = useState('');
+  const [copiedNotice, setCopiedNotice] = useState(false);
+  const canApply = exhibition.acceptingApplications
+    && exhibition.status !== 'full'
+    && exhibition.status !== 'completed'
+    && exhibition.status !== 'archived'
+    && exhibition.status !== 'draft';
+
+  const chooseSlot = (slotId: string) => {
+    setChosenSlotId(slotId);
+    setCopiedNotice(true);
+    window.requestAnimationFrame(() => {
+      document.getElementById('form-kolaborasi')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  return (
+    <>
+      <Link to="/kolaborasi" className="inline-flex items-center gap-1 text-sm font-medium text-[var(--wf-ink-muted)]">
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Semua program kolaborasi
+      </Link>
+
+      <RevealSection as="div" refreshKey={exhibition.id}>
+        <div className="mt-4"><ProgramBadges program={exhibition} /></div>
+        <h1 className="mt-3 max-w-4xl font-display text-3xl font-extrabold leading-tight sm:text-4xl">{exhibition.title}</h1>
+        {exhibition.subtitle && <p className="mt-2 max-w-3xl text-base font-medium text-[var(--wf-ink-muted)]">{exhibition.subtitle}</p>}
+
+        <div className="mt-4 flex flex-wrap gap-2 text-sm text-[var(--wf-ink-muted)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5">
+            <CalendarDays className="h-4 w-4" aria-hidden="true" />{formatDateRange(exhibition.dateStart, exhibition.dateEnd)}
+          </span>
+          {exhibition.scheduleNote && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5">
+              <Clock className="h-4 w-4" aria-hidden="true" />{exhibition.scheduleNote}
+            </span>
+          )}
+          {exhibition.location && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5">
+              <MapPin className="h-4 w-4" aria-hidden="true" />{exhibition.location}
+            </span>
+          )}
+          {exhibition.targetAudience && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5">
+              <Users className="h-4 w-4" aria-hidden="true" />{exhibition.targetAudience}
+            </span>
+          )}
+        </div>
+
+        {canApply && (
+          <Button asChild variant="ghost" className={`mt-5 ${ctaClass}`}>
+            <a href="#form-kolaborasi"><Handshake className="h-4 w-4" aria-hidden="true" /> Langsung Isi Formulir</a>
+          </Button>
+        )}
+      </RevealSection>
+
+      <section className="mt-8 rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
+        <h2 className="font-display text-xl font-bold">Tentang Program</h2>
+        <p className="mt-2 whitespace-pre-line text-sm leading-7 text-[var(--wf-ink-muted)]">{exhibition.description}</p>
+        {exhibition.benefits.length > 0 && (
+          <div className="mt-5 rounded-xl bg-[var(--wf-board-2)] p-4">
+            <h3 className="font-display text-base font-bold">Yang Didapatkan Mitra</h3>
+            <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+              {exhibition.benefits.slice(0, 5).map(benefit => (
+                <li key={benefit.title} className="flex items-start gap-2 text-sm text-[var(--wf-ink)]">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand-tosca-600)]" aria-hidden="true" />
+                  <span>
+                    <strong className="font-semibold">{benefit.title}</strong>
+                    {benefit.description && <>: {benefit.description}</>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-5 rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
+        <h2 className="font-display text-xl font-bold">Siapa yang Kami Cari?</h2>
+        {exhibition.lookingForSummary && (
+          <p className="mt-2 text-sm leading-7 text-[var(--wf-ink-muted)]">{exhibition.lookingForSummary}</p>
+        )}
+        {exhibition.lookingForTags.length > 0 && (
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {exhibition.lookingForTags.map(tag => (
+              <li key={tag} className="rounded-full bg-[var(--wf-accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-tosca-600)]">{tag}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="mt-5">
+        <h2 className="font-display text-xl font-bold">Jadwal &amp; Agenda Aktivasi</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--wf-ink-muted)]">
+          {canApply
+            ? 'Lihat jadwal kegiatan yang sudah terkonfirmasi atau pilih tanggal yang masih tersedia untuk komunitas Anda.'
+            : 'Jadwal dan agenda kegiatan program ini.'}
+        </p>
+        {slots.length === 0 && (
+          <p className="mt-4 rounded-xl bg-[var(--wf-board)] p-4 text-sm text-[var(--wf-ink-muted)]">
+            {canApply
+              ? 'Jadwal tanggal akan diumumkan. Anda tetap bisa mengajukan tanggal fleksibel di formulir bawah.'
+              : 'Belum ada jadwal tanggal yang ditampilkan untuk program ini.'}
+          </p>
+        )}
+        <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+          {slots.map(slot => {
+            const slotAgenda = agenda.filter(item => item.slotId === slot.id);
+            const selectable = slot.slotStatus === 'open' || slot.slotStatus === 'limited';
+            const slotMeta = SLOT_META[slot.slotStatus];
+            return (
+              <li key={slot.id} className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <p className="font-display text-base font-bold">{longDate(slot.slotDate)}</p>
+                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--wf-ink-muted)]">
+                      <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" aria-hidden="true" />{slot.startTime} - {slot.endTime} WIB</span>
+                      <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" aria-hidden="true" />{slot.zoneName}</span>
+                    </p>
+                  </div>
+                  <Badge variant="outline" className={`border-0 font-semibold ${slotMeta.className}`}>{slotMeta.label}</Badge>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {slotAgenda.length === 0 && (
+                    <p className="text-sm text-[var(--wf-ink-muted)]">
+                      Belum ada agenda terkonfirmasi. Jadilah yang pertama mengisi tanggal ini!
+                    </p>
+                  )}
+                  {slotAgenda.map(item => (
+                    <div key={item.id} className="rounded-xl bg-[var(--wf-board-2)] p-3">
+                      <p className="text-sm font-semibold">{item.publicActivityTitle}</p>
+                      <p className="text-xs text-[var(--wf-ink-muted)]">oleh {item.organizationName}</p>
+                      {item.publicActivitySummary && (
+                        <p className="mt-1 text-sm text-[var(--wf-ink)]">{item.publicActivitySummary}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {selectable && canApply && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => chooseSlot(slot.id)}
+                    className="mt-4 h-auto rounded-full px-4 py-2 text-sm font-semibold active:translate-y-0"
+                  >
+                    Pilih tanggal ini
+                  </Button>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section id="form-kolaborasi" className="mt-10 scroll-mt-20 rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
+        <h2 className="font-display text-xl font-bold">
+          {canApply ? 'Ajukan Kolaborasi' : exhibition.status === 'completed' ? 'Program Telah Selesai' : 'Kolaborasi Ditutup'}
+        </h2>
+        {canApply && (
+          <p className="mt-1 text-sm leading-6 text-[var(--wf-ink-muted)]">
+            Cukup isi data singkat di bawah ini, kurang lebih 2 menit. Belum perlu kirim proposal resmi.
+          </p>
+        )}
+        {copiedNotice && chosenSlotId && (
+          <p role="status" className="mt-2 text-sm font-medium text-[var(--brand-tosca-600)]">
+            Tanggal sudah dipilih. Lengkapi data di bawah untuk mengirim pengajuan.
+          </p>
+        )}
+        {!canApply ? (
+          <div className="mt-4 rounded-xl bg-[var(--wf-board-2)] p-4">
+            {exhibition.status === 'full' ? (
+              <>
+                <p className="text-sm font-semibold text-[var(--wf-ink)]">Slot periode ini sudah penuh</p>
+                <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
+                  Terima kasih atas minat Anda. Silakan lihat program lain yang masih membuka kolaborasi.
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-[var(--wf-ink-muted)]">
+                Silakan lihat program lain yang masih membuka kolaborasi.
+              </p>
+            )}
+            <Button asChild variant="ghost" className={`mt-3 ${ctaClass}`}>
+              <Link to="/kolaborasi">Lihat program lain</Link>
+            </Button>
+          </div>
+        ) : (
+          <CollaborationForm exhibition={exhibition} slots={slots} chosenSlotId={chosenSlotId} />
+        )}
+      </section>
+    </>
   );
 }

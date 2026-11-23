@@ -97,9 +97,29 @@ describe('exhibitionsApi', () => {
       '/api/v1/exhibition-leads': { status: 409, body: { success: false, error: 'Pengajuan sudah ditutup' } },
     });
     await expect(submitExhibitionLead({
-      exhibitionId: 'exh-1', organizationName: 'Brand A', organizationType: 'brand', participation: 'booth',
-      contactName: 'Rani', phone: '08123456789', email: '', proposal: '',
+      exhibitionId: 'exh-1', organizationName: 'Brand A', organizationType: 'umkm_brand',
+      socialMediaHandle: '', contributionType: 'booth_umkm',
+      conceptDescription: 'Booth kopi pagi untuk pengunjung keluarga.',
+      preferredSlotId: 'slot-1', preferredDateNote: '', flexibleDate: false,
+      estimatedParticipants: '15_to_30', technicalNeeds: ['listrik'], technicalNeedsNote: '',
+      contactName: 'Rani', phone: '08123456789', email: '',
     })).rejects.toThrow(/Pengajuan sudah ditutup/);
+  });
+
+  it('mengembalikan kode referensi pengajuan', async () => {
+    mockFetchRoutes({
+      '/api/v1/exhibition-leads': { body: { success: true, id: 'lead-1', referenceCode: 'KOL-2611-A4F2' } },
+    });
+    const result = await submitExhibitionLead({
+      exhibitionId: 'exh-1', programSlug: 'sarapan-di-metmal',
+      organizationName: 'Komunitas Senam', organizationType: 'komunitas',
+      socialMediaHandle: '@senam', contributionType: 'pengisi_aktivasi',
+      conceptDescription: 'Senam bersama 45 menit untuk semua usia.',
+      preferredSlotId: '', preferredDateNote: 'Bebas Desember', flexibleDate: true,
+      estimatedParticipants: null, technicalNeeds: [], technicalNeedsNote: '',
+      contactName: 'Rani', phone: '08123456789', email: '',
+    });
+    expect(result.referenceCode).toBe('KOL-2611-A4F2');
   });
 
   it('memetakan daftar admin termasuk jumlah aktivasi', async () => {

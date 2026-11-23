@@ -654,38 +654,105 @@ CREATE INDEX IF NOT EXISTS idx_generated_letters_created_at ON generated_letters
 
 CREATE TABLE IF NOT EXISTS exhibitions (
   id TEXT PRIMARY KEY DEFAULT ('exh_' || replace(gen_random_uuid()::text, '-', '')),
+  slug TEXT UNIQUE,
   title TEXT NOT NULL,
+  subtitle TEXT NOT NULL DEFAULT '',
+  program_type TEXT NOT NULL DEFAULT 'pameran' CHECK (program_type IN ('pameran', 'aktivasi_marcomm')),
   theme TEXT NOT NULL DEFAULT '',
   description TEXT NOT NULL DEFAULT '',
   location TEXT NOT NULL DEFAULT '',
   date_start DATE NOT NULL,
   date_end DATE NOT NULL,
+  schedule_note TEXT NOT NULL DEFAULT '',
+  target_audience TEXT NOT NULL DEFAULT 'Terbuka untuk umum (semua usia)',
+  looking_for_summary TEXT NOT NULL DEFAULT '',
+  looking_for_tags TEXT[] NOT NULL DEFAULT '{}',
+  benefits JSONB NOT NULL DEFAULT '[]'::jsonb,
+  cover_image_url TEXT NOT NULL DEFAULT '',
   collaboration_brief TEXT NOT NULL DEFAULT '',
   leasing_pic TEXT NOT NULL DEFAULT '',
   marcomm_pic TEXT NOT NULL DEFAULT '',
   publication TEXT NOT NULL DEFAULT 'draft' CHECK (publication IN ('draft', 'published', 'archived')),
+  status TEXT NOT NULL DEFAULT 'draft'
+    CHECK (status IN ('draft', 'open', 'full', 'ongoing', 'completed', 'archived')),
+  is_featured BOOLEAN NOT NULL DEFAULT false,
   accepting_applications BOOLEAN NOT NULL DEFAULT false,
+  default_organization_type TEXT NOT NULL DEFAULT 'komunitas'
+    CHECK (default_organization_type IN (
+      'komunitas', 'umkm_brand', 'event_organizer', 'kampus_sekolah', 'instansi_ngo', 'lainnya'
+    )),
+  form_config JSONB NOT NULL DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   CONSTRAINT chk_exhibitions_period CHECK (date_end >= date_start),
   CONSTRAINT chk_exhibitions_title CHECK (length(trim(title)) BETWEEN 3 AND 200)
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_exhibitions_slug ON exhibitions (slug);
 CREATE INDEX IF NOT EXISTS idx_exhibitions_publication ON exhibitions (publication);
 CREATE INDEX IF NOT EXISTS idx_exhibitions_period ON exhibitions (date_start, date_end);
 
+-- Slot tanggal/sesi agenda aktivasi. Kapasitas dikelola trigger
+-- recalculate_exhibition_slot_status (lihat migrasi 2026-11-23).
+CREATE TABLE IF NOT EXISTS exhibition_slots (
+  id TEXT PRIMARY KEY DEFAULT ('slot_' || replace(gen_random_uuid()::text, '-', '')),
+  exhibition_id TEXT NOT NULL REFERENCES exhibitions(id) ON DELETE CASCADE,
+  slot_date DATE NOT NULL,
+  start_time TIME NOT NULL DEFAULT '06:30',
+  end_time TIME NOT NULL DEFAULT '10:00',
+  zone_name TEXT NOT NULL DEFAULT 'Area Utama',
+  capacity INTEGER NOT NULL DEFAULT 3 CHECK (capacity >= 1),
+  slot_status TEXT NOT NULL DEFAULT 'open'
+    CHECK (slot_status IN ('open', 'limited', 'full', 'closed')),
+  public_note TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT chk_exhibition_slots_time CHECK (end_time > start_time)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_exhibition_slots_slot
+  ON exhibition_slots (exhibition_id, slot_date, start_time);
+CREATE INDEX IF NOT EXISTS idx_exhibition_slots_program_date
+  ON exhibition_slots (exhibition_id, slot_date);
+
 CREATE TABLE IF NOT EXISTS exhibition_leads (
   id TEXT PRIMARY KEY DEFAULT ('exl_' || replace(gen_random_uuid()::text, '-', '')),
+  reference_code TEXT UNIQUE,
   exhibition_id TEXT NOT NULL REFERENCES exhibitions(id) ON DELETE CASCADE,
+  slot_id TEXT REFERENCES exhibition_slots(id) ON DELETE SET NULL,
   organization_name TEXT NOT NULL,
-  organization_type TEXT NOT NULL CHECK (organization_type IN ('brand', 'eo')),
+  organization_type TEXT NOT NULL CHECK (organization_type IN (
+    'komunitas', 'umkm_brand', 'event_organizer', 'kampus_sekolah', 'instansi_ngo', 'lainnya',
+    'brand', 'eo'
+  )),
   participation TEXT NOT NULL CHECK (participation IN ('booth', 'activation', 'both')),
+  contribution_type TEXT NOT NULL DEFAULT 'pengisi_aktivasi'
+    CHECK (contribution_type IN (
+      'pengisi_aktivasi', 'booth_umkm', 'sponsor_hadiah', 'media_partner', 'lainnya'
+    )),
+  social_media_handle TEXT NOT NULL DEFAULT '',
+  preferred_date_note TEXT NOT NULL DEFAULT '',
+  estimated_participants TEXT
+    CHECK (estimated_participants IS NULL OR estimated_participants IN (
+      'under_15', '15_to_30', '30_to_50', 'over_50', 'unsure'
+    )),
+  technical_needs TEXT[] NOT NULL DEFAULT '{}',
+  technical_needs_note TEXT NOT NULL DEFAULT '',
   contact_name TEXT NOT NULL,
   phone TEXT NOT NULL,
   email TEXT NOT NULL DEFAULT '',
   proposal TEXT NOT NULL DEFAULT '',
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'contacted', 'approved', 'rejected')),
+  status TEXT NOT NULL DEFAULT 'submitted'
+    CHECK (status IN (
+      'submitted', 'in_review', 'need_info', 'approved', 'scheduled', 'completed', 'rejected', 'cancelled'
+    )),
+  public_activity_title TEXT NOT NULL DEFAULT '',
+  public_activity_summary TEXT NOT NULL DEFAULT '',
+  is_public_agenda BOOLEAN NOT NULL DEFAULT false,
+  synced_event_id TEXT REFERENCES events(id) ON DELETE SET NULL,
   internal_notes TEXT NOT NULL DEFAULT '',
+  reviewed_by TEXT,
+  reviewed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   CONSTRAINT chk_exhibition_leads_org CHECK (length(trim(organization_name)) BETWEEN 3 AND 200),
@@ -695,6 +762,83 @@ CREATE TABLE IF NOT EXISTS exhibition_leads (
 
 CREATE INDEX IF NOT EXISTS idx_exhibition_leads_exhibition ON exhibition_leads (exhibition_id);
 CREATE INDEX IF NOT EXISTS idx_exhibition_leads_status ON exhibition_leads (status);
+CREATE INDEX IF NOT EXISTS idx_exhibition_leads_program_status ON exhibition_leads (exhibition_id, status);
+CREATE INDEX IF NOT EXISTS idx_exhibition_leads_slot ON exhibition_leads (slot_id);
+
+-- View agenda publik: hanya kolom aman, tanpa PIC/admin notes.
+CREATE OR REPLACE VIEW public_program_agenda AS
+SELECT id, exhibition_id AS program_id, slot_id, organization_name, organization_type,
+       contribution_type, public_activity_title, public_activity_summary, status
+FROM exhibition_leads
+WHERE is_public_agenda = true AND status IN ('approved', 'scheduled', 'completed');
+
+-- Kode referensi pengajuan: KOL-YYMM-XXXX.
+CREATE OR REPLACE FUNCTION generate_collaboration_reference_code()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.reference_code IS NULL OR NEW.reference_code = '' THEN
+    NEW.reference_code := 'KOL-' || to_char(COALESCE(NEW.created_at, NOW()), 'YYMM') || '-'
+                       || upper(substr(md5(random()::text || clock_timestamp()::text), 1, 4));
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_exhibition_leads_reference_code ON exhibition_leads;
+CREATE TRIGGER trg_exhibition_leads_reference_code
+  BEFORE INSERT ON exhibition_leads
+  FOR EACH ROW EXECUTE FUNCTION generate_collaboration_reference_code();
+
+-- Kapasitas slot mengikuti jumlah kolaborasi approved/scheduled; `closed` manual dihormati.
+CREATE OR REPLACE FUNCTION recalculate_exhibition_slot_status()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_slot_id TEXT;
+  v_capacity INTEGER;
+  v_count INTEGER;
+  v_manual_status TEXT;
+  v_next_status TEXT;
+BEGIN
+  v_slot_id := CASE WHEN TG_OP = 'DELETE' THEN OLD.slot_id ELSE NEW.slot_id END;
+  IF v_slot_id IS NULL THEN
+    RETURN COALESCE(NEW, OLD);
+  END IF;
+
+  SELECT capacity, slot_status INTO v_capacity, v_manual_status
+  FROM exhibition_slots WHERE id = v_slot_id;
+  IF NOT FOUND OR v_manual_status = 'closed' THEN
+    RETURN COALESCE(NEW, OLD);
+  END IF;
+
+  SELECT COUNT(*)::int INTO v_count
+  FROM exhibition_leads
+  WHERE slot_id = v_slot_id AND status IN ('approved', 'scheduled');
+
+  v_next_status := CASE
+    WHEN v_count >= v_capacity THEN 'full'
+    WHEN v_capacity > 1 AND (v_capacity - v_count) = 1 THEN 'limited'
+    ELSE 'open'
+  END;
+
+  UPDATE exhibition_slots SET slot_status = v_next_status, updated_at = NOW() WHERE id = v_slot_id;
+  RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_exhibition_leads_slot_insert ON exhibition_leads;
+CREATE TRIGGER trg_exhibition_leads_slot_insert
+  AFTER INSERT ON exhibition_leads
+  FOR EACH ROW EXECUTE FUNCTION recalculate_exhibition_slot_status();
+
+DROP TRIGGER IF EXISTS trg_exhibition_leads_slot_update ON exhibition_leads;
+CREATE TRIGGER trg_exhibition_leads_slot_update
+  AFTER UPDATE OF slot_id, status ON exhibition_leads
+  FOR EACH ROW EXECUTE FUNCTION recalculate_exhibition_slot_status();
+
+DROP TRIGGER IF EXISTS trg_exhibition_leads_slot_delete ON exhibition_leads;
+CREATE TRIGGER trg_exhibition_leads_slot_delete
+  AFTER DELETE ON exhibition_leads
+  FOR EACH ROW EXECUTE FUNCTION recalculate_exhibition_slot_status();
 
 -- Satu event hanya boleh jadi aktivasi satu pameran (PK event_id).
 CREATE TABLE IF NOT EXISTS exhibition_activations (

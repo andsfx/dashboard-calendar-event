@@ -201,9 +201,9 @@ describe('getCommandCenterCards: modul Pameran dan aktivasi', () => {
     const cards = getCommandCenterCards({
       ...baseParams,
       exhibitionLeads: [
-        { id: 'l1', status: 'pending' },
-        { id: 'l2', status: 'contacted' },
-        { id: 'l3', status: 'pending' },
+        { id: 'l1', status: 'submitted' },
+        { id: 'l2', status: 'in_review' },
+        { id: 'l3', status: 'submitted' },
       ] as never,
     });
 

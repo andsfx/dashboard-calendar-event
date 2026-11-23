@@ -459,7 +459,7 @@ function tenantRatingInsight(surveys: TenantEventSurvey[], now: Date): EventInsi
 
 /** Pengajuan kolaborasi pameran yang belum ditinjau. */
 function exhibitionQueueInsight(leads: ExhibitionLead[]): EventInsight[] {
-  const pending = leads.filter((lead) => lead.status === 'pending').length;
+  const pending = leads.filter((lead) => lead.status === 'submitted').length;
   if (pending === 0) return [];
 
   return [{

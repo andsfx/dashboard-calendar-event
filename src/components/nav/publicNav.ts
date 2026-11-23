@@ -16,7 +16,7 @@ export const PUBLIC_PRIMARY_LINKS: readonly PublicNavLink[] = [
   { label: 'Jadwal Event', to: '/events' },
   { label: 'Galeri', to: '/gallery' },
   { label: 'Berita', to: '/news' },
-  { label: 'Pameran', to: '/pameran' },
+  { label: 'Kolaborasi', to: '/kolaborasi' },
   { label: 'Tenant', to: '/tenants' },
 ];
 
@@ -41,7 +41,7 @@ export const PUBLIC_CTA: PublicNavLink = { label: 'Daftar event', to: '/daftar' 
  *
  * Rute turunan dipegang induknya, dan hanya satu link boleh aktif:
  * `/events/:id` oleh `Jadwal Event`, `/gallery/:slug` oleh `Galeri`,
- * `/news/:slug` oleh `Berita`, `/pameran/:id` oleh `Pameran`. Prefix diuji
+ * `/news/:slug` oleh `Berita`, `/kolaborasi/:slug` oleh `Kolaborasi`. Prefix diuji
  * dengan `to + '/'` supaya tujuan yang hanya mirip tidak ikut cocok:
  * `/tenant-survey` bukan `/tenants`, `/newsletter` bukan `/news`. `/` selalu
  * exact match.

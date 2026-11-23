@@ -4,9 +4,9 @@ import { Radio, Clock3 } from 'lucide-react';
 import { Skeleton } from '../shadcn/skeleton';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
-import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, TenantEventProposal, TenantEventProposalStatus, TenantParticipation, TenantParticipationStatus, InsightAction } from '../../types';
+import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, ExhibitionSlot, TenantEventProposal, TenantEventProposalStatus, TenantParticipation, TenantParticipationStatus, InsightAction } from '../../types';
 import type { TenantParticipationPatch } from '../../utils/api/tenantParticipationsApi';
-import type { AdminExhibition } from '../../utils/api/exhibitionsApi';
+import type { AdminExhibition, CollaborationReviewPatch, ExhibitionSlotInput } from '../../utils/api/exhibitionsApi';
 import type { SectionNavItem } from '../ui/SectionNav';
 import { DashboardShell } from './DashboardShell';
 import { DashboardHeader } from './DashboardHeader';
@@ -79,11 +79,16 @@ export interface DashboardPageExhibitions {
   exhibitions: AdminExhibition[];
   leads: ExhibitionLead[];
   activations: ExhibitionActivation[];
+  slots: ExhibitionSlot[];
   isLoading: boolean;
   error: string;
   onSave: (input: ExhibitionInput, id?: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
-  onReviewLead: (id: string, status: ExhibitionLead['status']) => Promise<boolean>;
+  onReviewLead: (id: string, patch: CollaborationReviewPatch) => Promise<boolean>;
+  onPublishLead: (id: string) => Promise<boolean>;
+  onSaveSlot: (exhibitionId: string, input: ExhibitionSlotInput, id?: string) => Promise<boolean>;
+  onDeleteSlot: (id: string) => Promise<boolean>;
+  onGenerateSlots: (exhibitionId: string) => Promise<boolean>;
   onLinkActivation: (exhibitionId: string, eventId: string) => Promise<boolean>;
   onUnlinkActivation: (eventId: string) => Promise<boolean>;
 }
@@ -383,7 +388,7 @@ export function DashboardPage({
               draftCount: drafts.activeDrafts.length,
               pendingRegistrations: registrations.communityRegistrations.filter(r => r.status === 'pending').length,
               pendingExhibitionLeads: permissions.canViewExhibitions
-                ? exhibitions.leads.filter(lead => lead.status === 'pending').length
+                ? exhibitions.leads.filter(lead => lead.status === 'submitted').length
                 : 0,
               pendingTenantProposals: permissions.canViewTenantProposals
                 ? tenantProposals.proposals.filter(item => item.status === 'pending').length
@@ -528,6 +533,7 @@ export function DashboardPage({
               exhibitions={exhibitions.exhibitions}
               leads={exhibitions.leads}
               activations={exhibitions.activations}
+              slots={exhibitions.slots}
               events={events.events}
               isLoading={exhibitions.isLoading}
               error={exhibitions.error}
@@ -535,6 +541,10 @@ export function DashboardPage({
               onSave={exhibitions.onSave}
               onDelete={exhibitions.onDelete}
               onReviewLead={exhibitions.onReviewLead}
+              onPublishLead={exhibitions.onPublishLead}
+              onSaveSlot={exhibitions.onSaveSlot}
+              onDeleteSlot={exhibitions.onDeleteSlot}
+              onGenerateSlots={exhibitions.onGenerateSlots}
               onLinkActivation={exhibitions.onLinkActivation}
               onUnlinkActivation={exhibitions.onUnlinkActivation}
               onConfirm={modalState.openConfirm}
