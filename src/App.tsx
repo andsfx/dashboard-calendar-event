@@ -87,6 +87,7 @@ const ExhibitionsLandingPage = lazy(() => import('./pages/ExhibitionsLandingPage
 const RegistrationPage = lazy(() => import('./pages/RegistrationPage').then(m => ({ default: m.RegistrationPage })));
 const TenantCollaborationPage = lazy(() => import('./pages/TenantCollaborationPage').then(m => ({ default: m.TenantCollaborationPage })));
 const TenantParticipationPage = lazy(() => import('./pages/TenantParticipationPage').then(m => ({ default: m.TenantParticipationPage })));
+const SurveyHubPage = lazy(() => import('./pages/SurveyHubPage').then(m => ({ default: m.SurveyHubPage })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const PublicLetterViewer = lazy(() => import('./pages/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
@@ -518,6 +519,13 @@ export default function App() {
           <CommunityDirectoryPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
+      {/* Public survey hub for tenant impact and EO satisfaction surveys */}
+      <Route path="/survei" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <SurveyHubPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+      <Route path="/survey" element={<Navigate to="/survei" replace />} />
       {/* Survey — standalone page */}
       <Route path="/survey/:eventId" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
@@ -533,12 +541,18 @@ export default function App() {
               <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
-                  <div className="h-8 w-px bg-[var(--wf-rule)]" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--wf-ink-muted)]">Evaluasi Tenant</span>
+                  <div className="hidden h-8 w-px bg-[var(--wf-rule)] sm:block" />
+                  <span className="hidden text-xs font-bold uppercase tracking-widest text-[var(--wf-ink-muted)] sm:inline">Evaluasi Tenant</span>
                 </div>
-                <Link to="/" className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-accent)]">
-                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />Kembali ke Beranda
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link to="/" className="inline-flex min-h-11 items-center text-sm font-medium text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-accent)]">
+                    Beranda
+                  </Link>
+                  <span aria-hidden="true" className="h-4 w-px bg-[var(--wf-rule)]" />
+                  <Link to="/survei" className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-accent)]">
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />Pusat survei
+                  </Link>
+                </div>
               </div>
               <div className="ui-dashboard-surface overflow-hidden">
                 <div className="border-b border-[var(--wf-rule)] bg-gradient-to-r from-brand-primary-50/50 to-transparent px-6 py-5 dark:from-brand-primary-950/30">

@@ -186,8 +186,8 @@ export default function SurveyPage() {
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <AlertTriangle className="h-10 w-10 text-rose-500" />
           <p className="mt-3 text-sm font-medium text-[var(--wf-ink-muted)]">{error}</p>
-          <Button variant="link" onClick={() => navigate('/dashboard')} className="mt-4 h-auto px-0! text-sm font-normal text-[var(--wf-accent)]">
-            Kembali ke Dashboard
+          <Button variant="link" onClick={() => navigate('/survei')} className="mt-4 h-auto px-0! text-sm font-normal text-[var(--wf-accent)]">
+            Kembali ke Pusat Survei
           </Button>
         </div>
       </PageShell>
@@ -204,8 +204,8 @@ export default function SurveyPage() {
           <p className="mt-2 max-w-xs text-sm text-[var(--wf-ink-muted)]">
             Terima kasih! Kamu sudah pernah mengisi survei untuk event "{event?.acara}".
           </p>
-          <Button onClick={() => navigate('/dashboard')} className="mt-6 h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]!">
-            Kembali ke Dashboard
+          <Button onClick={() => navigate('/survei')} className="mt-6 h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]!">
+            Kembali ke Pusat Survei
           </Button>
         </div>
       </PageShell>
@@ -216,7 +216,7 @@ export default function SurveyPage() {
   if (submitted) {
     return (
       <PageShell>
-        <SurveySuccess eventName={event?.acara || ''} onBack={() => navigate('/dashboard')} />
+        <SurveySuccess eventName={event?.acara || ''} onBack={() => navigate('/survei')} />
       </PageShell>
     );
   }
