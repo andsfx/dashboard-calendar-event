@@ -409,7 +409,7 @@ function ProgramDetail({ exhibition, slots, agenda }: ProgramDetailProps) {
         </h2>
         {canApply && (
           <p className="mt-1 text-sm leading-6 text-[var(--wf-ink-muted)]">
-            Cukup isi data singkat di bawah ini, kurang lebih 2 menit. Belum perlu kirim proposal resmi.
+            Isi data singkat di bawah ini.
           </p>
         )}
         {copiedNotice && chosenSlotId && (
