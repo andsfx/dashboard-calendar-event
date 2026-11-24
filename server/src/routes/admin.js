@@ -1606,6 +1606,30 @@ async function switchAction(action, req) {
       return { success: true };
     }
 
+    case 'setExhibitionPublication': {
+      const { rows: current } = await db.query(
+        `SELECT status, (date_end >= (now() AT TIME ZONE 'Asia/Jakarta')::date) AS date_active
+         FROM exhibitions WHERE id = $1`,
+        [body.id],
+      );
+      const program = current[0];
+      if (!program) return { success: false, error: 'Program ini tidak ada atau sudah dihapus. Muat ulang daftar program.' };
+      if (body.published && ['completed', 'archived'].includes(program.status)) {
+        return { success: false, status: 400, error: 'Program yang sudah selesai atau diarsipkan tidak bisa ditayangkan lagi.' };
+      }
+      if (body.published && !program.date_active) {
+        return { success: false, status: 400, error: 'Tanggal program sudah lewat. Perpanjang tanggal selesai dulu, lalu tayangkan kembali.' };
+      }
+      const nextStatus = body.published && program.status === 'draft' ? 'open' : program.status;
+      const nextPublication = body.published ? 'published' : 'draft';
+      await db.query(
+        'UPDATE exhibitions SET publication = $1, status = $2, updated_at = now() WHERE id = $3',
+        [nextPublication, nextStatus, body.id],
+      );
+      logActivity(auth.user, 'set_exhibition_publication', 'exhibition', body.id, { publication: nextPublication }, req);
+      return { success: true };
+    }
+
     case 'listExhibitionLeads': {
       const params = [];
       let where = '';

@@ -251,6 +251,11 @@ export async function deleteExhibition(id: string): Promise<void> {
   if (!result.success) throw new ApiError(result.error || 'Gagal menghapus pameran');
 }
 
+export async function setExhibitionPublication(id: string, published: boolean): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('setExhibitionPublication', { id, published });
+  if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui publikasi program');
+}
+
 export async function fetchExhibitionLeads(exhibitionId?: string): Promise<ExhibitionLead[]> {
   const result = await adminAction<{ success: boolean; error?: string; data?: Record<string, unknown>[] }>(
     'listExhibitionLeads', exhibitionId ? { exhibitionId } : {},

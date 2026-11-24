@@ -24,6 +24,13 @@
  */
 @custom-variant data-horizontal (&[data-orientation="horizontal"], &[data-horizontal]);
 @custom-variant data-vertical (&[data-orientation="vertical"], &[data-vertical]);
+/*
+ * Komponen shadcn RadioGroup / Checkbox / Switch memakai `data-checked:*`,
+ * tetapi Radix memancarkan `data-state="checked|unchecked"`. Tanpa alias ini,
+ * pilihan yang sudah aktif tetap terlihat seperti belum dipilih.
+ */
+@custom-variant data-checked (&[data-state="checked"], &[data-checked], &[data-checked="true"]);
+@custom-variant data-unchecked (&[data-state="unchecked"], &[data-unchecked], &[data-checked="false"]);
 /* Report coverage HTML memuat kelas lama — jangan discan Tailwind (kelas mati di bundle) */
 @source not "../coverage";
 /* Doc audit memuat nama kelas lama dalam teks — idem */

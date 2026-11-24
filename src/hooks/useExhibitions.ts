@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  fetchExhibitions, createExhibition, updateExhibition, deleteExhibition,
+  fetchExhibitions, createExhibition, updateExhibition, deleteExhibition, setExhibitionPublication,
   fetchExhibitionLeads, updateExhibitionLead, fetchExhibitionActivations,
   fetchExhibitionSlots, createExhibitionSlot, updateExhibitionSlot, deleteExhibitionSlot,
   generateExhibitionSlots, publishCollaborationToEvent,
@@ -71,6 +71,11 @@ export function useExhibitions(enabled: boolean) {
     [runMutation],
   );
 
+  const togglePublication = useCallback(
+    (id: string, published: boolean) => runMutation(() => setExhibitionPublication(id, published)),
+    [runMutation],
+  );
+
   const reviewLead = useCallback(
     (id: string, patch: CollaborationReviewPatch) =>
       runMutation(() => updateExhibitionLead(id, patch)),
@@ -113,7 +118,7 @@ export function useExhibitions(enabled: boolean) {
 
   return {
     exhibitions, leads, activations, slots, isLoading, error,
-    reload, saveExhibition, removeExhibition, reviewLead, publishLead,
+    reload, saveExhibition, removeExhibition, togglePublication, reviewLead, publishLead,
     saveSlot, removeSlot, generateSlots, linkActivation, unlinkActivation,
   };
 }

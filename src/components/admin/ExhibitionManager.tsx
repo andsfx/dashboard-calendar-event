@@ -133,6 +133,7 @@ interface Props {
   onDelete: (id: string) => Promise<boolean>;
   onReviewLead: (id: string, patch: CollaborationReviewPatch) => Promise<boolean>;
   onPublishLead: (id: string) => Promise<boolean>;
+  onTogglePublication: (id: string, published: boolean) => Promise<boolean>;
   onSaveSlot: (exhibitionId: string, input: ExhibitionSlotInput, id?: string) => Promise<boolean>;
   onDeleteSlot: (id: string) => Promise<boolean>;
   onGenerateSlots: (exhibitionId: string) => Promise<boolean>;
@@ -145,7 +146,7 @@ interface Props {
 
 export function ExhibitionManager({
   exhibitions, leads, activations, slots, events, isLoading, error, canDelete,
-  onSave, onDelete, onReviewLead, onPublishLead, onSaveSlot, onDeleteSlot, onGenerateSlots,
+  onSave, onDelete, onReviewLead, onPublishLead, onTogglePublication, onSaveSlot, onDeleteSlot, onGenerateSlots,
   onLinkActivation, onUnlinkActivation, onConfirm, readOnly = false,
 }: Props) {
   const [form, setForm] = useState<ExhibitionInput>(EMPTY_FORM);
@@ -448,11 +449,19 @@ export function ExhibitionManager({
           <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">Belum ada program. Buat program untuk mulai mengajak komunitas, UMKM, dan brand.</p>
         )}
         <ul className="mt-3 space-y-3">
-          {exhibitions.map(exhibition => {
+          {(() => {
+            const parts = new Intl.DateTimeFormat('en-CA', {
+              timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit',
+            }).formatToParts(new Date());
+            const get = (type: Intl.DateTimeFormatPartTypes) => parts.find(p => p.type === type)?.value ?? '';
+            const jakartaToday = `${get('year')}-${get('month')}-${get('day')}`;
+            return exhibitions.map(exhibition => {
             const linkedActivations = activations.filter(item => item.exhibitionId === exhibition.id);
             const programLeads = leads.filter(lead => lead.exhibitionId === exhibition.id);
             const acceptsLeads = exhibition.acceptingApplications
               && (exhibition.status === 'open' || exhibition.status === 'ongoing');
+            const isHiddenByRule = exhibition.status === 'completed' || exhibition.status === 'archived' || exhibition.dateEnd < jakartaToday;
+            const isVisible = exhibition.publication === 'published' && !isHiddenByRule;
             return (
               <li key={exhibition.id} className="rounded-[var(--radius-card)] border border-[var(--wf-rule)] p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -482,6 +491,19 @@ export function ExhibitionManager({
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
+                    {!readOnly && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={isHiddenByRule}
+                        aria-label={isHiddenByRule
+                          ? `Otomatis tersembunyi ${exhibition.title}`
+                          : `${isVisible ? 'Sembunyikan' : 'Tayangkan'} ${exhibition.title}`}
+                        onClick={() => onTogglePublication(exhibition.id, !isVisible)}
+                      >
+                        {isHiddenByRule ? 'Otomatis tersembunyi' : isVisible ? 'Sembunyikan' : 'Tayangkan'}
+                      </Button>
+                    )}
                     <Button variant="outline" size="sm" onClick={() => { setSelectedId(exhibition.id === selectedId ? '' : exhibition.id); resetSlotForm(exhibition); }}>
                       {exhibition.id === selectedId ? 'Tutup' : 'Kelola'}
                     </Button>
@@ -655,7 +677,8 @@ export function ExhibitionManager({
                 )}
               </li>
             );
-          })}
+          });
+          })()}
         </ul>
       </section>
     </div>

@@ -84,6 +84,7 @@ export interface DashboardPageExhibitions {
   error: string;
   onSave: (input: ExhibitionInput, id?: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
+  onTogglePublication: (id: string, published: boolean) => Promise<boolean>;
   onReviewLead: (id: string, patch: CollaborationReviewPatch) => Promise<boolean>;
   onPublishLead: (id: string) => Promise<boolean>;
   onSaveSlot: (exhibitionId: string, input: ExhibitionSlotInput, id?: string) => Promise<boolean>;
@@ -540,6 +541,7 @@ export function DashboardPage({
               canDelete={permissions.canDeleteEvents}
               onSave={exhibitions.onSave}
               onDelete={exhibitions.onDelete}
+              onTogglePublication={exhibitions.onTogglePublication}
               onReviewLead={exhibitions.onReviewLead}
               onPublishLead={exhibitions.onPublishLead}
               onSaveSlot={exhibitions.onSaveSlot}

@@ -143,6 +143,11 @@ export const EXHIBITION_ACTION_SCHEMAS = {
     data: exhibitionDataSchema,
   }),
   deleteExhibition: z.object({ action: z.literal('deleteExhibition'), id: z.string().min(1) }),
+  setExhibitionPublication: z.object({
+    action: z.literal('setExhibitionPublication'),
+    id: z.string().min(1),
+    published: z.boolean(),
+  }),
   listExhibitionLeads: z.object({ action: z.literal('listExhibitionLeads'), exhibitionId: z.string().optional() }),
   updateExhibitionLead: z.object({
     action: z.literal('updateExhibitionLead'),

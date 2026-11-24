@@ -326,6 +326,7 @@ export default function App() {
     error: exhibitions.error,
     onSave: exhibitions.saveExhibition,
     onDelete: exhibitions.removeExhibition,
+    onTogglePublication: exhibitions.togglePublication,
     onReviewLead: exhibitions.reviewLead,
     onPublishLead: exhibitions.publishLead,
     onSaveSlot: exhibitions.saveSlot,

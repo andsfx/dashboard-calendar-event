@@ -309,8 +309,8 @@ export function CollaborationForm({ exhibition, slots, chosenSlotId }: Props) {
               className="grid gap-2 sm:grid-cols-2"
             >
               {contributionOptions.map(option => (
-                <label key={option.value} className="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3 hover:border-[var(--wf-rule-strong)]">
-                  <RadioGroupItem value={option.value} className="mt-0.5" />
+                <label key={option.value} htmlFor={`kolaborasi-contribution-${option.value}`} className="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3 hover:border-[var(--wf-rule-strong)]">
+                  <RadioGroupItem id={`kolaborasi-contribution-${option.value}`} value={option.value} className="mt-0.5" />
                   <span>
                     <span className="block text-sm font-semibold text-[var(--wf-ink)]">{option.title}</span>
                     <span className="mt-0.5 block text-xs leading-5 text-[var(--wf-ink-muted)]">{option.hint}</span>
@@ -387,8 +387,8 @@ export function CollaborationForm({ exhibition, slots, chosenSlotId }: Props) {
                 className="flex flex-wrap gap-2"
               >
                 {ESTIMATE_OPTIONS.map(option => (
-                  <label key={option.value} className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-sm">
-                    <RadioGroupItem value={option.value} />
+                  <label key={option.value} htmlFor={`kolaborasi-estimate-${option.value}`} className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-sm">
+                    <RadioGroupItem id={`kolaborasi-estimate-${option.value}`} value={option.value} />
                     <span>{option.label}</span>
                   </label>
                 ))}
@@ -401,8 +401,9 @@ export function CollaborationForm({ exhibition, slots, chosenSlotId }: Props) {
               <p className={labelClass}>Kebutuhan dasar di lokasi</p>
               <div className="flex flex-wrap gap-2">
                 {TECHNICAL_OPTIONS.map(option => (
-                  <label key={option.value} className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-sm">
+                  <label key={option.value} htmlFor={`kolaborasi-need-${option.value}`} className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-sm">
                     <Checkbox
+                      id={`kolaborasi-need-${option.value}`}
                       checked={form.technicalNeeds.includes(option.value)}
                       onCheckedChange={checked => toggleTechnical(option.value, checked === true)}
                     />

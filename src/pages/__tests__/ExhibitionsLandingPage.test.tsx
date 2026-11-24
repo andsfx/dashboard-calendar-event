@@ -141,6 +141,35 @@ describe('ExhibitionsLandingPage (Kolaborasi)', () => {
     });
   });
 
+  it('memilih opsi formulir lewat klik pada teks kartu, bukan hanya titik radio', async () => {
+    mockFetchRoutes({
+      '/api/v1/exhibitions/sarapan-di-metmal': {
+        body: {
+          success: true,
+          data: { exhibition: PROGRAM, activations: [], slots: [SLOT], agenda: [] },
+        },
+      },
+    });
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/kolaborasi/sarapan-di-metmal']}>
+        <Routes><Route path="/kolaborasi/:id" element={<ExhibitionsLandingPage isDark={false} onToggleDark={() => undefined} />} /></Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(screen.getByText('Tenant / Booth UMKM')).toBeInTheDocument());
+    const contribution = screen.getByRole('radio', { name: /Tenant \/ Booth UMKM/ });
+    expect(contribution).toHaveAttribute('id', 'kolaborasi-contribution-booth_umkm');
+    await user.click(screen.getByText('Tenant / Booth UMKM'));
+    expect(contribution).toBeChecked();
+
+    await user.click(screen.getByText('30 - 50 orang'));
+    expect(screen.getByRole('radio', { name: '30 - 50 orang' })).toBeChecked();
+
+    await user.click(screen.getByText('Akses listrik'));
+    expect(screen.getByRole('checkbox', { name: 'Akses listrik' })).toBeChecked();
+  });
+
   it('menampilkan kartu info saat slot program penuh', async () => {
     mockFetchRoutes({
       '/api/v1/exhibitions/exh-full': {

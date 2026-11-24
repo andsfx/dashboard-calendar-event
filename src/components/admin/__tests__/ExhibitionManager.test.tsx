@@ -10,7 +10,7 @@ function makeExhibition(overrides: Partial<AdminExhibition> = {}): AdminExhibiti
   return {
     id: 'exh-1', slug: 'beauty-fair', title: 'Beauty Fair', subtitle: '',
     programType: 'pameran', theme: 'Kecantikan', description: 'Pameran kecantikan',
-    location: 'Atrium', dateStart: '2026-10-01', dateEnd: '2026-10-05',
+    location: 'Atrium', dateStart: '2026-10-01', dateEnd: '2099-10-05',
     scheduleNote: '', targetAudience: 'Umum', collaborationBrief: 'Butuh brand',
     lookingForSummary: '', lookingForTags: [], benefits: [], coverImageUrl: '',
     leasingPic: 'Casual', marcommPic: 'Marcomm', publication: 'published', status: 'open',
@@ -50,6 +50,7 @@ const props = {
   onDelete: vi.fn(async () => true),
   onReviewLead: vi.fn(async () => true),
   onPublishLead: vi.fn(async () => true),
+  onTogglePublication: vi.fn(async () => true),
   onSaveSlot: vi.fn(async () => true),
   onDeleteSlot: vi.fn(async () => true),
   onGenerateSlots: vi.fn(async () => true),
@@ -93,5 +94,12 @@ describe('ExhibitionManager', () => {
     render(<ExhibitionManager {...props} exhibitions={[makeExhibition({ status: 'completed' })]} />);
     expect(screen.getByText('Tidak menerima pengajuan')).toBeInTheDocument();
     expect(screen.queryByText('Menerima pengajuan')).not.toBeInTheDocument();
+  });
+
+  it('menonaktifkan tombol tayang untuk program yang sudah lewat tanggalnya', () => {
+    render(<ExhibitionManager {...props} exhibitions={[makeExhibition({ status: 'open', publication: 'draft', dateEnd: '2000-01-01' })]} />);
+    const button = screen.getByRole('button', { name: 'Otomatis tersembunyi Beauty Fair' });
+    expect(button).toBeDisabled();
+    expect(button).toHaveTextContent('Otomatis tersembunyi');
   });
 });
