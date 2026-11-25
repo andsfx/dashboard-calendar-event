@@ -1,9 +1,18 @@
 import '@testing-library/jest-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { SurveyDashboard } from '../SurveyDashboard';
 import TenantSurveyPage from '../TenantSurveyPage';
 import type { EventItem } from '../../../types';
+
+function renderDashboard(props: Parameters<typeof SurveyDashboard>[0]) {
+  return render(
+    <MemoryRouter>
+      <SurveyDashboard {...props} />
+    </MemoryRouter>,
+  );
+}
 
 vi.mock('../../../lib/rest', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../lib/rest')>();
@@ -62,14 +71,14 @@ describe('SurveyDashboard — tombol CSV', () => {
   });
 
   it('menyembunyikan CSV saat canExport=false (demo)', async () => {
-    render(<SurveyDashboard events={EVENTS} readOnly canExport={false} />);
+    renderDashboard({ events: EVENTS, readOnly: true, canExport: false });
     // Link tetap ada
     expect(await screen.findByText('Tautan')).toBeInTheDocument();
     expect(screen.queryByText('CSV')).not.toBeInTheDocument();
   });
 
   it('menampilkan CSV saat canExport=true (viewer/eo/admin)', async () => {
-    render(<SurveyDashboard events={EVENTS} canExport />);
+    renderDashboard({ events: EVENTS, canExport: true });
     expect(await screen.findByText('CSV')).toBeInTheDocument();
   });
 });

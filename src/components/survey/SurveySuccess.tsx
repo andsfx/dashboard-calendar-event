@@ -36,7 +36,7 @@ export default function SurveySuccess({ eventName, onBack }: SurveySuccessProps)
         className="h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-sm transition-colors hover:bg-[var(--wf-accent)]! focus:outline-none focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! focus-visible:ring-offset-2"
       >
         <ArrowLeft className="h-4 w-4" />
-        Kembali ke Pusat Survei
+        Kembali ke Beranda
       </Button>
     </div>
   );

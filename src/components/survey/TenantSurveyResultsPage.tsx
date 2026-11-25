@@ -409,17 +409,19 @@ export default function TenantSurveyResultsPage({
             </p>
           ) : null}
         </div>
-        {canExport && (
-          <Button
-            type="button"
-            onClick={() => setShowExportOptions(true)}
-            disabled={agg.total === 0}
-            className="h-auto w-full shrink-0 gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold sm:w-auto sm:py-2"
-          >
-            <Download className="h-4 w-4" aria-hidden />
-            Ekspor PDF
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
+          {canExport && (
+            <Button
+              type="button"
+              onClick={() => setShowExportOptions(true)}
+              disabled={agg.total === 0}
+              className="h-auto w-full shrink-0 gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold sm:w-auto sm:py-2"
+            >
+              <Download className="h-4 w-4" aria-hidden />
+              Ekspor PDF
+            </Button>
+          )}
+        </div>
       </header>
 
       {error && (

@@ -1,8 +1,17 @@
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import type { EventItem } from '../../../types';
 import TenantSurveyResultsPage from '../TenantSurveyResultsPage';
+
+function renderPage(props: Parameters<typeof TenantSurveyResultsPage>[0]) {
+  return render(
+    <MemoryRouter>
+      <TenantSurveyResultsPage {...props} />
+    </MemoryRouter>,
+  );
+}
 
 // Jalur ekspor hasil evaluasi: tombol membuka pemilih bagian, lalu bagian
 // terpilih diteruskan ke generator PDF.
@@ -48,7 +57,7 @@ const EVENTS = [
 describe('TenantSurveyResultsPage — ekspor PDF', () => {
   it('membuka pemilih bagian dengan seluruh bagian hasil evaluasi', async () => {
     surveyHook.surveys = SURVEYS;
-    render(<TenantSurveyResultsPage events={EVENTS} canExport />);
+    renderPage({ events: EVENTS, canExport: true });
     fireEvent.click(screen.getByRole('button', { name: /Ekspor PDF/i }));
 
     const dialog = await screen.findByRole('dialog');
@@ -66,7 +75,7 @@ describe('TenantSurveyResultsPage — ekspor PDF', () => {
 
   it('meneruskan bagian terpilih lalu menahan hasilnya di pratinjau', async () => {
     surveyHook.surveys = SURVEYS;
-    render(<TenantSurveyResultsPage events={EVENTS} canExport />);
+    renderPage({ events: EVENTS, canExport: true });
     fireEvent.click(screen.getByRole('button', { name: /Ekspor PDF/i }));
     await screen.findByRole('dialog');
 
@@ -88,7 +97,7 @@ describe('TenantSurveyResultsPage — ekspor PDF', () => {
 describe('TenantSurveyResultsPage — landmark main', () => {
   it('TIDAK merender <main> saat dipakai di dalam DashboardShell (publicMode, standalone=false)', () => {
     surveyHook.surveys = SURVEYS;
-    const { container } = render(<TenantSurveyResultsPage events={EVENTS} publicMode />);
+    const { container } = renderPage({ events: EVENTS, publicMode: true });
 
     // Rute /tenant-survey-results sudah dibungkus DashboardShell yang punya
     // <main>; root komponen ini harus tetap <div> agar tidak nested main.
@@ -98,7 +107,7 @@ describe('TenantSurveyResultsPage — landmark main', () => {
 
   it('memakai <main id="konten-utama"> hanya bila standalone', () => {
     surveyHook.surveys = SURVEYS;
-    const { container } = render(<TenantSurveyResultsPage events={EVENTS} standalone />);
+    const { container } = renderPage({ events: EVENTS, standalone: true });
 
     const main = container.querySelector('main');
     expect(main).not.toBeNull();

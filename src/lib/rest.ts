@@ -71,7 +71,7 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler | null): voi
 
 /**
  * Endpoint yang memang anonim (pengunjung tanpa sesi). 401 di sini TIDAK
- * boleh mereset sesi: halaman publik/survei anonim tidak membawa kredensial
+ * boleh mereset sesi: halaman publik anonim tidak membawa kredensial
  * yang bermakna, dan kegagalan satu request publik jangan sampai mengeluarkan
  * admin yang sedang membuka halaman publik.
  */

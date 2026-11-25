@@ -31,7 +31,6 @@ export const PUBLIC_SECONDARY_LINKS: readonly PublicNavLink[] = [
   { label: 'Booth dan voucher', to: '/partisipasi-tenant' },
   { label: 'Ajukan event', to: '/ajukan-event' },
   { label: 'Dokumentasi', to: '/docs' },
-  { label: 'Pusat survei', to: '/survei' },
 ];
 
 /** Satu-satunya CTA konversi header; label dan tujuan tidak boleh bercabang. */
