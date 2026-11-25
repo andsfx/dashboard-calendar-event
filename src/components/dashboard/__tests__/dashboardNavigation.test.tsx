@@ -239,6 +239,7 @@ describe('getCommandCenterCards: register Pusat Komando (ADR-009)', () => {
       Ringkasan: true,
       'Kelola event': true,
       Interaksi: true,
+      Survei: true,
       Sistem: true,
       Konten: true,
     };

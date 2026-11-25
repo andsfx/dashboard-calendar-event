@@ -1,14 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { downloadBlob } from '../../lib/download';
 import {
   ClipboardCheck, Download, Star, Users, Building2,
   TrendingUp, Loader2, RefreshCw, Link2, Check,
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
+  ChevronLeft, ChevronRight,
   MessageSquare, Calendar, AlertCircle, Search,
 } from 'lucide-react';
 import { apiGet, apiPost } from '../../lib/rest';
 import { Button } from '../shadcn/button';
 import { Input } from '../shadcn/input';
+import { NativeSelect } from '../shadcn/native-select';
 
 // Base REST untuk download blob CSV (fetch native — apiGet meng-unwrap JSON).
 const API_V1 = ((import.meta.env.VITE_API_URL as string | undefined) || '').replace(/\/+$/, '') + '/api/v1';
@@ -179,7 +182,7 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
     if (dateFrom && d < dateFrom) return false;
     if (dateTo && d > dateTo) return false;
     return true;
-  }) || [];
+  }) ?? [];
 
   if (loading) {
     return (
@@ -191,9 +194,25 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-600/10 p-4 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
-        {error}
-        <Button variant="ghost" className="ml-2" onClick={fetchStats}>Coba lagi</Button>
+      <div className="space-y-4">
+        <div
+          role="alert"
+          className="flex flex-wrap items-center gap-3 rounded-2xl border border-red-200 bg-red-600/10 p-4 text-sm text-red-700 dark:border-red-800 dark:text-red-300"
+        >
+          <span className="min-w-0 flex-1">Ringkasan survei gagal dimuat: {error}</span>
+          <Button variant="outline" onClick={fetchStats}>Coba lagi</Button>
+        </div>
+        <EventManagementSection
+          events={events}
+          copiedId={copiedId}
+          onCopyLink={handleCopyLink}
+          onExport={handleExport}
+          onToggleConfig={handleToggleConfig}
+          configLoading={configLoading}
+          activeConfigs={activeConfigs}
+          readOnly={readOnly}
+          canExport={canExport}
+        />
       </div>
     );
   }
@@ -265,6 +284,13 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
         <StatMini icon={<Building2 className="h-4 w-4" />} label="Penyelenggara" value={stats.organizer_responses} color="blue" />
         <StatMini icon={<Users className="h-4 w-4" />} label="Peserta" value={stats.public_responses} color="emerald" />
         <StatMini icon={<Star className="h-4 w-4" />} label="Event dinilai" value={stats.unique_events} color="amber" />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2 text-xs text-[var(--wf-ink-muted)]">
+        <span>Butuh hasil evaluasi tenant per event?</span>
+        <Link to="/tenant-survey-results" className="font-medium text-[var(--wf-action)] underline-offset-2 hover:underline">
+          Buka halaman hasil evaluasi tenant
+        </Link>
       </div>
 
       {/* Mall average ratings */}
@@ -460,6 +486,8 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
 
 /* ─── Event Management Section ─────────────────────────────────── */
 
+const EVENT_PAGE_SIZE = 8;
+
 function EventManagementSection({ events, copiedId, onCopyLink, onExport, onToggleConfig, configLoading, activeConfigs, readOnly = false, canExport = false }: {
   events: Array<{ id: string; acara: string; status: string }>;
   copiedId: string;
@@ -472,13 +500,32 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
   activeConfigs: Record<string, boolean>;
 }) {
   const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [page, setPage] = useState(1);
 
   // past + ongoing, tanpa hard-limit (rules.md melarang cap 30 di dashboard kelola).
-  const surveyableEvents = events.filter(e => e.status === 'past' || e.status === 'ongoing');
-  const q = query.trim().toLowerCase();
-  const visibleEvents = q
-    ? surveyableEvents.filter(e => e.acara.toLowerCase().includes(q))
-    : surveyableEvents;
+  const surveyableEvents = useMemo(
+    () => events.filter(e => e.status === 'past' || e.status === 'ongoing'),
+    [events],
+  );
+
+  const filteredEvents = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return surveyableEvents.filter((ev) => {
+      if (q && !ev.acara.toLowerCase().includes(q)) return false;
+      const isActive = activeConfigs[ev.id] === true;
+      if (statusFilter === 'active' && !isActive) return false;
+      if (statusFilter === 'inactive' && isActive) return false;
+      return true;
+    });
+  }, [surveyableEvents, query, statusFilter, activeConfigs]);
+
+  useEffect(() => { setPage(1); }, [query, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / EVENT_PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageStart = (safePage - 1) * EVENT_PAGE_SIZE;
+  const pageItems = filteredEvents.slice(pageStart, pageStart + EVENT_PAGE_SIZE);
 
   if (surveyableEvents.length === 0) return null;
 
@@ -487,24 +534,38 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
       <div className="border-b border-[var(--wf-rule)] px-4 py-3">
         <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola survei per event</h3>
         <p className="text-[10px] text-[var(--wf-ink-muted)]">Salin tautan, aktifkan atau nonaktifkan{canExport ? ', atau ekspor data' : ''}</p>
-        <div className="relative mt-2">
-          <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari nama event…"
-            aria-label="Cari event"
-            className="w-full pl-9"
-          />
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Cari nama event…"
+              aria-label="Cari event"
+              className="w-full pl-9"
+            />
+          </div>
+          <NativeSelect
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+            aria-label="Filter status survei"
+            className="w-auto shrink-0"
+          >
+            <option value="all">Semua status</option>
+            <option value="active">Aktif</option>
+            <option value="inactive">Nonaktif</option>
+          </NativeSelect>
         </div>
       </div>
-      <div className="max-h-72 divide-y divide-[var(--wf-rule)] overflow-y-auto">
-        {visibleEvents.length === 0 ? (
+      <div className="divide-y divide-[var(--wf-rule)]">
+        {pageItems.length === 0 ? (
           <p className="px-4 py-6 text-center text-xs text-[var(--wf-ink-muted)]">
-            Tidak ada event cocok “{query}”
+            {query.trim() || statusFilter !== 'all'
+              ? 'Tidak ada event yang cocok dengan pencarian atau filter.'
+              : 'Belum ada event untuk dikelola.'}
           </p>
-        ) : visibleEvents.map((ev) => {
+        ) : pageItems.map((ev) => {
           // Default OFF: cocok dengan gate is_active server (schema:
           // survey_config.is_active DEFAULT FALSE). Nilai sebenarnya dihidrasi
           // lewat GET /survey/config di komponen induk.
@@ -565,6 +626,40 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
           );
         })}
       </div>
+      {filteredEvents.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--wf-rule)] px-4 py-2">
+          <p className="text-[10px] tabular-nums text-[var(--wf-ink-muted)]">
+            {pageStart + 1}–{Math.min(pageStart + EVENT_PAGE_SIZE, filteredEvents.length)} dari {filteredEvents.length} event
+          </p>
+          <div className="flex items-center gap-1.5">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              disabled={safePage <= 1}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              aria-label="Halaman sebelumnya"
+              className="active:translate-y-0"
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+            <span className="text-[10px] tabular-nums text-[var(--wf-ink-muted)]">
+              Hal {safePage}/{totalPages}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              disabled={safePage >= totalPages}
+              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+              aria-label="Halaman berikutnya"
+              className="active:translate-y-0"
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

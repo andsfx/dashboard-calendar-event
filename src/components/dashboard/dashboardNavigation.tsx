@@ -62,14 +62,15 @@ export const CONTENT_ROUTES = {
 } as const satisfies Record<string, string>;
 
 /** Canonical Dashboard Group labels, in display order, used by the register
- *  "Semua modul" to group its rows. The rail lists the same five groups, but
+ *  "Semua modul" to group its rows. The rail lists the same six groups, but
  *  with its own literal labels: this constant does not drive the rail. */
-export type DashboardGroupLabel = 'Ringkasan' | 'Kelola event' | 'Interaksi' | 'Sistem' | 'Konten';
+export type DashboardGroupLabel = 'Ringkasan' | 'Kelola event' | 'Interaksi' | 'Survei' | 'Sistem' | 'Konten';
 
 export const DASHBOARD_GROUP_ORDER: DashboardGroupLabel[] = [
   'Ringkasan',
   'Kelola event',
   'Interaksi',
+  'Survei',
   'Sistem',
   'Konten',
 ];
@@ -139,7 +140,6 @@ export function getDashboardNavGroups(
         ...(!isTrOnly ? [{ id: 'overview', label: 'Pusat Komando', icon: <LayoutDashboard className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard' }] : []),
         ...(!isTrOnly && !permissions.isDemo ? [{ id: 'insights', label: 'Insight Cerdas', icon: <Sparkles className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/insights' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analitik', icon: <BarChart3 className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
-        ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil evaluasi tenant', icon: <TrendingUp className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
       ],
     },
     {
@@ -157,8 +157,14 @@ export function getDashboardNavGroups(
         ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
         ...(permissions.canViewTenantProposals ? [{ id: 'tenant-proposals', label: 'Kolaborasi tenant', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-proposals' }] : []),
         ...(permissions.canViewTenantParticipations ? [{ id: 'tenant-participations', label: 'Partisipasi tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-participations' }] : []),
+      ],
+    },
+    {
+      label: 'Survei',
+      items: [
         ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survei kepuasan', icon: <ClipboardCheck className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/survey' }] : []),
-        ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
+        ...(permissions.canViewTenantSurveys ? [{ id: 'tenant-surveys', label: 'Evaluasi tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
+        ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil evaluasi tenant', icon: <TrendingUp className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
       ],
     },
     {
@@ -400,15 +406,15 @@ export function getCommandCenterCards({
       subtitle: MODULE_PURPOSE['/survey'] ?? 'Kelola survei kepuasan pengunjung dan organizer per event',
       icon: <ClipboardCheck className={CARD} strokeWidth={sw} />,
       route: '/dashboard/survey',
-      group: 'Interaksi' as const,
+      group: 'Survei' as const,
     }] : []),
-    ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{
+    ...(permissions.canViewTenantSurveys ? [{
       id: 'tenant-surveys',
       title: 'Evaluasi tenant',
       subtitle: MODULE_PURPOSE['/tenant-surveys'] ?? 'Self-assessment tenant per event',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-surveys',
-      group: 'Interaksi' as const,
+      group: 'Survei' as const,
     }] : []),
     ...(permissions.canViewTenantSurveyResults ? [{
       id: 'tenant-survey-results',
@@ -416,7 +422,7 @@ export function getCommandCenterCards({
       subtitle: 'Hasil evaluasi tenant',
       icon: <TrendingUp className={CARD} strokeWidth={sw} />,
       route: '/tenant-survey-results',
-      group: 'Ringkasan' as const,
+      group: 'Survei' as const,
     }] : []),
     ...(permissions.canViewSurvey ? [{
       id: 'analytics',

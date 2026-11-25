@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import { downloadBlob } from '../../lib/download';
 import { ClipboardCheck, BarChart3, List, ChevronLeft, ChevronDown, ChevronUp, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar, Search, Edit, Send, Trash2, Eye, AlertTriangle } from 'lucide-react';
 import type {
@@ -45,9 +46,11 @@ interface TenantSurveyPageProps {
    * permukaan yang pasti gagal (dan polling-nya tidak mengulang 403).
    */
   canViewAnalytics?: boolean;
+  /** Boleh membuka halaman hasil evaluasi tenant (`/tenant-survey-results`). */
+  canViewResults?: boolean;
 }
 
-export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv = false, canViewAnalytics = true }: TenantSurveyPageProps) {
+export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv = false, canViewAnalytics = true, canViewResults = false }: TenantSurveyPageProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('list');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [editingSurvey, setEditingSurvey] = useState<TenantEventSurvey | null>(null);
@@ -76,6 +79,18 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
    * dirender, tapi state lama tidak boleh menampilkan panel yatim.
    */
   const effectiveTab: TabKey = canViewAnalytics ? activeTab : 'list';
+
+  /** Event yang bisa disurvei: ongoing dulu, lalu past, urut nama. */
+  const surveyableEvents = useMemo(
+    () =>
+      events
+        .filter((event) => event.status === 'past' || event.status === 'ongoing')
+        .sort((a, b) => {
+          if (a.status === b.status) return a.acara.localeCompare(b.acara, 'id');
+          return a.status === 'ongoing' ? -1 : 1;
+        }),
+    [events],
+  );
 
   // ─── Detail CRUD state ─────────────────────────────────────────
   const [reviewNotes, setReviewNotes] = useState('');
@@ -175,6 +190,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
 
   // ─── Handlers ──────────────────────────────────────────────────
   const handleNewSurvey = useCallback((eventId: string) => {
+    setActiveTab('list');
     setSelectedEventId(eventId);
     setEditingSurvey(null);
     setFormStatus('idle');
@@ -184,6 +200,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
   }, []);
 
   const handleEditDraft = useCallback((survey: TenantEventSurvey) => {
+    setActiveTab('list');
     setEditingSurvey(survey);
     setSelectedEventId(survey.event_id);
     setFormStatus('idle');
@@ -192,6 +209,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
   }, []);
 
   const handleViewDetail = useCallback((survey: TenantEventSurvey) => {
+    setActiveTab('list');
     setEditingSurvey(survey);
     setSelectedEventId(survey.event_id);
     setReviewNotes(survey.review_notes || '');
@@ -401,6 +419,15 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
           </div>
         )}
 
+        {canViewResults && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2 text-xs text-[var(--wf-ink-muted)]">
+            <span>Ringkasan hasil, checklist tenant, dan ekspor PDF ada di halaman hasil evaluasi.</span>
+            <Link to="/tenant-survey-results" className="font-semibold text-[var(--wf-action)] underline-offset-2 hover:underline">
+              Buka hasil evaluasi tenant
+            </Link>
+          </div>
+        )}
+
         {/* Tabs — primitif Tabs menyediakan roving tabindex + navigasi panah (APG) */}
         <Tabs
           value={effectiveTab}
@@ -452,9 +479,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                 aria-label="Filter event"
               >
                 <option value="all">Semua event</option>
-                {events
-                  .filter(ev => ev.status === 'past' || ev.status === 'ongoing')
-                  .map(ev => <option key={ev.id} value={ev.id}>{ev.acara}</option>)}
+                {surveyableEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.acara}</option>)}
               </NativeSelect>
             </div>
 
@@ -1027,8 +1052,8 @@ function TenantSurveyManagementSection({
   canExportCsv?: boolean;
 }) {
   const [query, setQuery] = useState('');
-  // Collapsed by default so list tab stays primary focus
-  const [open, setOpen] = useState(false);
+  // Terbuka default: kelola toggle/link/QR adalah aksi utama admin di halaman ini.
+  const [open, setOpen] = useState(true);
 
   // past + ongoing (bukan cuma past, tanpa hard-limit 30)
   const surveyableEvents = useMemo(() => {
@@ -1070,13 +1095,14 @@ function TenantSurveyManagementSection({
        * Click-target baris penuh yang membungkus heading + subteks (layout
        * disclosure header) — shadcn `Button` ghost dengan chrome primitif
        * dinetralkan: `h-auto!`/`border-0!`/`rounded-none` + padding asli, jadi
-       * tinggi baris dan latar tetap sama seperti sebelumnya. Tidak ada atribut
-       * a11y baru (aria-expanded tidak ditambahkan) — kontraknya tak berubah.
+       * tinggi baris dan latar tetap sama seperti sebelumnya. `aria-expanded`
+       * menandai state buka/tutup karena panel ini bisa dibuka-tutup.
        */}
       <Button
         type="button"
         variant="ghost"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
         className="flex! h-auto! w-full! items-center justify-start! gap-3 whitespace-normal! rounded-none border-0! px-4 py-3 text-left! font-normal! transition-colors hover:bg-[var(--wf-board-2)]! active:translate-y-0!"
       >
         <div className="min-w-0 flex-1">

@@ -77,6 +77,30 @@ describe('SurveyDashboard — tombol CSV', () => {
     expect(screen.queryByText('CSV')).not.toBeInTheDocument();
   });
 
+  it('mencari, memfilter status, dan memaginasi event tanpa bergantung pada statistik per-event', async () => {
+    const events = Array.from({ length: 10 }, (_, index) => ({
+      id: `event-${index + 1}`,
+      acara: index === 9 ? 'Festival Penutup' : `Pameran ${index + 1}`,
+      status: 'past',
+    }));
+    renderDashboard({ events });
+
+    expect(await screen.findByText('1–8 dari 10 event')).toBeInTheDocument();
+    expect(screen.getAllByText('Tautan')).toHaveLength(8);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Halaman berikutnya' }));
+    expect(screen.getByText('9–10 dari 10 event')).toBeInTheDocument();
+    expect(screen.getAllByText('Tautan')).toHaveLength(2);
+
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Cari event' }), { target: { value: 'Festival' } });
+    expect(screen.getByText('1–1 dari 1 event')).toBeInTheDocument();
+    expect(screen.getByText('Festival Penutup')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Filter status survei' }), { target: { value: 'active' } });
+    expect(screen.getByText('Tidak ada event yang cocok dengan pencarian atau filter.')).toBeInTheDocument();
+    expect(screen.queryByText('Tautan')).not.toBeInTheDocument();
+  });
+
   it('menampilkan CSV saat canExport=true (viewer/eo/admin)', async () => {
     renderDashboard({ events: EVENTS, canExport: true });
     expect(await screen.findByText('CSV')).toBeInTheDocument();
@@ -85,7 +109,8 @@ describe('SurveyDashboard — tombol CSV', () => {
 
 describe('TenantSurveyPage — tombol CSV', () => {
   function openManagement() {
-    fireEvent.click(screen.getByRole('button', { name: /Kelola penilaian mandiri per event/ }));
+    const trigger = screen.getByRole('button', { name: /Kelola penilaian mandiri per event/ });
+    if (trigger.getAttribute('aria-expanded') !== 'true') fireEvent.click(trigger);
   }
 
   it('menyembunyikan CSV untuk eo/demo (canExportCsv=false)', () => {

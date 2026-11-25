@@ -244,7 +244,7 @@ export function DashboardPage({
   // Insight Cerdas: data lintas-modul dimuat sekali & gagal senyap; izin tetap
   // ditentukan di sini (hook hanya tahu "muat atau tidak").
   const insightContext = useInsightContext({
-    surveys: permissions.canViewTenantSurveys && !permissions.isTenantRelation,
+    surveys: permissions.canViewTenantSurveys,
     exhibitionLeads: permissions.canViewExhibitions,
     tenantProposals: permissions.canViewTenantProposals,
     tenantParticipations: permissions.canViewTenantParticipations,
@@ -733,6 +733,7 @@ export function DashboardPage({
               events={events.events}
               isAdmin={permissions.canEditEvents}
               canExportCsv={permissions.canExportTenantSurveyCsv}
+              canViewResults={permissions.canViewTenantSurveyResults}
               // Analitik server-side: staff/TR/demo (bukan eo_tenant).
               canViewAnalytics={permissions.canViewTenantSurveyResults || permissions.isDemo}
             />
