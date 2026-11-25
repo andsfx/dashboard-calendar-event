@@ -23,7 +23,9 @@ vi.mock('../../../lib/rest', async (importOriginal) => {
         ? { total_responses: 0, recent: [] }
         : path.startsWith('/auth/me')
           ? { success: true, user: null }
-          : { is_active: false }
+          : path.startsWith('/survey/config')
+            ? { is_active: false, has_config: true }
+            : { is_active: false }
     )),
     apiPost: vi.fn(async () => ({ success: true })),
   };
@@ -77,6 +79,15 @@ describe('SurveyDashboard — tombol CSV', () => {
     expect(screen.queryByText('CSV')).not.toBeInTheDocument();
   });
 
+  it('menampilkan alur kerja dan tautan buka form per event', async () => {
+    renderDashboard({ events: EVENTS });
+
+    expect(await screen.findByText('Aktifkan survei per event')).toBeInTheDocument();
+    const openLink = screen.getByRole('link', { name: 'Buka form survei Pameran Foto Kota' });
+    expect(openLink).toHaveAttribute('href', '/survey/e1');
+    expect(screen.getByText('Nonaktif · ajakan disembunyikan')).toBeInTheDocument();
+  });
+
   it('mencari, memfilter status, dan memaginasi event tanpa bergantung pada statistik per-event', async () => {
     const events = Array.from({ length: 10 }, (_, index) => ({
       id: `event-${index + 1}`,
@@ -87,10 +98,12 @@ describe('SurveyDashboard — tombol CSV', () => {
 
     expect(await screen.findByText('1–8 dari 10 event')).toBeInTheDocument();
     expect(screen.getAllByText('Tautan')).toHaveLength(8);
+    expect(screen.getAllByRole('link', { name: /^Buka form survei/ })).toHaveLength(8);
 
     fireEvent.click(screen.getByRole('button', { name: 'Halaman berikutnya' }));
     expect(screen.getByText('9–10 dari 10 event')).toBeInTheDocument();
     expect(screen.getAllByText('Tautan')).toHaveLength(2);
+    expect(screen.getAllByRole('link', { name: /^Buka form survei/ })).toHaveLength(2);
 
     fireEvent.change(screen.getByRole('searchbox', { name: 'Cari event' }), { target: { value: 'Festival' } });
     expect(screen.getByText('1–1 dari 1 event')).toBeInTheDocument();

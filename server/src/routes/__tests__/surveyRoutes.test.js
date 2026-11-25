@@ -151,6 +151,43 @@ beforeEach(() => {
   dbState.config = { event_id: 'evt_1', is_active: false };
 });
 
+describe('survey — status publik & has_config config', () => {
+  it('mengembalikan is_active/has_config tanpa memeriksa role', async () => {
+    dbState.config = { event_id: 'evt_1', is_active: true };
+    const { status, body } = await callAs('viewer', 'GET', '/status', { queryParams: { event_id: 'evt_1' } });
+    expect(status).toBe(200);
+    expect(body.data).toEqual({ is_active: true, has_config: true });
+  });
+
+  it('is_active false saat ajakan disembunyikan admin', async () => {
+    dbState.config = { event_id: 'evt_1', is_active: false };
+    const { body } = await callAs('viewer', 'GET', '/status', { queryParams: { event_id: 'evt_1' } });
+    expect(body.data).toEqual({ is_active: false, has_config: true });
+  });
+
+  it('404 saat event tidak ada', async () => {
+    dbState.events = [];
+    const { status } = await callAs('viewer', 'GET', '/status', { queryParams: { event_id: 'evt_x' } });
+    expect(status).toBe(404);
+  });
+
+  it('config menyertakan has_config=true saat baris ada', async () => {
+    dbState.config = { event_id: 'evt_1', is_active: false };
+    const { status, body } = await callAs('viewer', 'GET', '/config', { queryParams: { event_id: 'evt_1' } });
+    expect(status).toBe(200);
+    expect(body.data.has_config).toBe(true);
+    expect(body.data.is_active).toBe(false);
+  });
+
+  it('config has_config=false saat event belum diatur', async () => {
+    dbState.config = null;
+    const { status, body } = await callAs('viewer', 'GET', '/config', { queryParams: { event_id: 'evt_1' } });
+    expect(status).toBe(200);
+    expect(body.data.has_config).toBe(false);
+    expect(body.data.is_active).toBe(false);
+  });
+});
+
 describe('survey — role baca', () => {
   it('viewer boleh membaca config yang dulu 403', async () => {
     const { status } = await callAs('viewer', 'GET', '/config', { queryParams: { event_id: 'evt_1' } });

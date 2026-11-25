@@ -12,7 +12,7 @@ import { resolveEventPoster } from '../utils/eventPoster';
 import { CategoryBadges } from '../components/ui/CategoryBadges';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import type { EventItem, PhotoAlbum } from '../types';
-import { fetchEventById, fetchAlbums } from '../utils/domainApi';
+import { fetchEventById, fetchAlbums, fetchSurveyStatus, isSurveyPromoted } from '../utils/domainApi';
 import { isMultiDayEvent, getEventDuration, isRecurringEvent } from '../utils/eventUtils';
 import { usePageMeta } from '../utils/pageMeta';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
@@ -35,6 +35,8 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
   const [isCalendarSyncOpen, setIsCalendarSyncOpen] = useState(false);
   // Album foto dipakai sebagai fallback poster bila event belum punya poster unggahan.
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
+  /** Status discoverability survey kepuasan — hanya untuk event yang sudah lewat. */
+  const [surveyStatus, setSurveyStatus] = useState<{ is_active: boolean; has_config: boolean } | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -62,6 +64,21 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
       .catch(() => { /* fallback opsional — abaikan bila gagal */ });
     return () => { cancelled = true; };
   }, []);
+
+  // Ajakan survei hanya relevan untuk event yang sudah lewat. Status yang gagal
+  // dimuat dibiarkan null → aturan legacy-safe menampilkan CTA (tautan lama
+  // memang tetap bisa diisi). Hanya penonaktifan eksplisit yang menyembunyikan.
+  useEffect(() => {
+    if (!event || event.status !== 'past') {
+      setSurveyStatus(null);
+      return;
+    }
+    let cancelled = false;
+    fetchSurveyStatus(event.id)
+      .then((status) => { if (!cancelled) setSurveyStatus(status); })
+      .catch(() => { if (!cancelled) setSurveyStatus(null); });
+    return () => { cancelled = true; };
+  }, [event]);
 
   // ─── Meta client-side (tab title; OG server-side via api/event-og.js) ───
   const metaDescription = useMemo(() => {
@@ -286,7 +303,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
             </div>
 
             {/* Survey CTA untuk event past */}
-            {event.status === 'past' && (
+            {event.status === 'past' && isSurveyPromoted(surveyStatus) && (
               <a
                 href={`/survey/${event.id}`}
                 className="flex items-center gap-3 rounded-xl border border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] p-3.5 transition hover:bg-[var(--wf-accent-soft)]"
@@ -300,6 +317,12 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                 </div>
                 <span className="shrink-0 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)]">Isi survei</span>
               </a>
+            )}
+
+            {event.status === 'past' && surveyStatus?.has_config === true && surveyStatus.is_active === false && (
+              <p className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3.5 py-3 text-xs text-[var(--wf-ink-muted)]">
+                Survei kepuasan untuk event ini sedang tidak dibuka.
+              </p>
             )}
 
             {/* Foto event (read-only) */}

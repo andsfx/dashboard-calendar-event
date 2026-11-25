@@ -216,6 +216,30 @@ router.get('/check', async (req, res, next) => {
   }
 });
 
+// ─── GET /status — publik ──────────────────────────────────────────
+// Sinyal discoverability untuk halaman event: apakah ajakan "Isi survei
+// kepuasan" perlu ditampilkan. TIDAK mengikat submit — tautan lama yang sudah
+// dibagikan tetap bisa diisi (lihat catatan di POST /submit). Tanpa auth
+// karena halaman detail event publik yang memakainya.
+router.get('/status', async (req, res, next) => {
+  if (!enforceRateLimit(req, res, 'survey-status', 120, 60_000)) return;
+  const eventId = String(req.query?.event_id || '').trim();
+  if (!eventId) return res.status(400).json({ success: false, error: 'Event survey belum terpilih.' });
+
+  try {
+    const { rows: eventRows } = await db.query('SELECT id FROM events WHERE id = $1 LIMIT 1', [eventId]);
+    if (!eventRows[0]) return res.status(404).json({ success: false, error: 'Event tidak ditemukan.' });
+
+    const { rows } = await db.query('SELECT is_active FROM survey_config WHERE event_id = $1 LIMIT 1', [eventId]);
+    return res.json({
+      success: true,
+      data: { is_active: rows[0]?.is_active === true, has_config: !!rows[0] },
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 // ─── GET /summary — publik (SQL agregat ganti RPC get_survey_summary) ──
 router.get('/summary', async (req, res, next) => {
   if (!enforceRateLimit(req, res, 'survey-summary', 60, 60_000)) return;
@@ -341,14 +365,20 @@ router.get('/config', requireRole(SURVEY_READ_ROLES), async (req, res, next) => 
 
   try {
     const { rows } = await db.query('SELECT * FROM survey_config WHERE event_id = $1 LIMIT 1', [eventId]);
+    const row = rows[0] || null;
     return res.json({
       success: true,
-      data: rows[0] || {
-        event_id: eventId,
-        is_active: false,
-        auto_activate_after_event: true,
-        activated_at: null,
-        deactivated_at: null,
+      data: {
+        ...(row || {
+          event_id: eventId,
+          is_active: false,
+          auto_activate_after_event: true,
+          activated_at: null,
+          deactivated_at: null,
+        }),
+        // Turunan dari keberadaan baris — bukan kolom. Dashboard memakai ini
+        // untuk membedakan "belum diatur (tampil default)" dari "nonaktif".
+        has_config: !!row,
       },
     });
   } catch (err) {

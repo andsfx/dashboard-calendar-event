@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { downloadBlob } from '../../lib/download';
 import {
@@ -6,9 +6,10 @@ import {
   TrendingUp, Loader2, RefreshCw, Link2, Check,
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight,
-  MessageSquare, Calendar, AlertCircle, Search,
+  MessageSquare, Calendar, AlertCircle, Search, ExternalLink,
 } from 'lucide-react';
 import { apiGet, apiPost } from '../../lib/rest';
+import type { SurveyStatus } from '../../utils/api/surveysApi';
 import { Button } from '../shadcn/button';
 import { Input } from '../shadcn/input';
 import { NativeSelect } from '../shadcn/native-select';
@@ -74,7 +75,8 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
   const [copiedId, setCopiedId] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [configLoading, setConfigLoading] = useState<string | null>(null);
-  const [activeConfigs, setActiveConfigs] = useState<Record<string, boolean>>({});
+  const configLoadingRef = useRef<string | null>(null);
+  const [activeConfigs, setActiveConfigs] = useState<Record<string, SurveyStatus>>({});
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   /** Error aksi (export/copy/toggle) — tidak menggantikan seluruh halaman. */
@@ -96,10 +98,10 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
-  // ─── Hidrasi is_active per event (GET /survey/config) ──────────────
-  // Tanpa ini `activeConfigs` selalu kosong, sehingga toggle menampilkan
-  // status yang salah. Endpoint /survey/config sudah ada di server.
-  // Default false (schema: survey_config.is_active DEFAULT FALSE).
+  // ─── Hidrasi status discoverability per event (GET /survey/config) ──
+  // `has_config=false` berarti event belum pernah diatur admin → CTA tetap
+  // tampil seperti perilaku lama. Kegagalan fetch tidak menulis status palsu:
+  // baris dibiarkan undefined supaya tetap dianggap "tampil".
   useEffect(() => {
     const surveyableIds = events
       .filter(e => e.status === 'past' || e.status === 'ongoing')
@@ -111,16 +113,35 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
       const entries = await Promise.all(
         surveyableIds.map(async (id) => {
           try {
-            const cfg = await apiGet<{ is_active?: boolean }>(
+            // Authenticated endpoint (tanpa rate-limit publik): dashboard bisa
+            // punya ratusan event, jadi jangan memakai /survey/status yang
+            // dibatasi 120 req/menit.
+            const cfg = await apiGet<{ is_active?: boolean; has_config?: boolean }>(
               `/survey/config?event_id=${encodeURIComponent(id)}`,
             );
-            return [id, cfg?.is_active === true] as const;
+            return [id, {
+              is_active: cfg?.is_active === true,
+              // Rollout server lama belum mengirim has_config → pertahankan
+              // perilaku lama (anggap sudah diatur) agar event nonaktif tidak
+              // tiba-tiba tampil lagi.
+              has_config: typeof cfg?.has_config === 'boolean' ? cfg.has_config : true,
+            }] as const;
           } catch {
-            return [id, false] as const;
+            return null;
           }
         }),
       );
-      if (!cancelled) setActiveConfigs(Object.fromEntries(entries));
+      if (cancelled) return;
+      setActiveConfigs(prev => {
+        const next = { ...prev };
+        for (const entry of entries) {
+          if (!entry) continue;
+          const [id, status] = entry;
+          if (configLoadingRef.current === id) continue;
+          next[id] = status;
+        }
+        return next;
+      });
     })();
     return () => { cancelled = true; };
   }, [events]);
@@ -157,6 +178,7 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
 
   const handleToggleConfig = useCallback(async (eventId: string, currentActive: boolean) => {
     setConfigLoading(eventId);
+    configLoadingRef.current = eventId;
     setActionError('');
     try {
       // POST /api/v1/survey/config-set — upsert survey_config per event.
@@ -165,14 +187,17 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
         is_active: !currentActive,
       });
       if (json.success) {
-        setActiveConfigs(prev => ({ ...prev, [eventId]: !currentActive }));
+        setActiveConfigs(prev => ({
+          ...prev,
+          [eventId]: { is_active: !currentActive, has_config: true },
+        }));
       } else {
         setActionError(json.error || 'Gagal mengubah status survei.');
       }
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Gagal mengubah status survei.');
     }
-    finally { setConfigLoading(null); }
+    finally { setConfigLoading(null); configLoadingRef.current = null; }
   }, []);
 
   // Filter recent by date range
@@ -195,6 +220,7 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
   if (error) {
     return (
       <div className="space-y-4">
+        <SurveyWorkflowBanner />
         <div
           role="alert"
           className="flex flex-wrap items-center gap-3 rounded-2xl border border-red-200 bg-red-600/10 p-4 text-sm text-red-700 dark:border-red-800 dark:text-red-300"
@@ -220,20 +246,8 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
   if (!stats || stats.total_responses === 0) {
     return (
       <div className="space-y-4">
-        <div className="ui-dashboard-surface p-6 text-center">
-          <ClipboardCheck className="mx-auto h-10 w-10 text-[var(--wf-ink-muted)]" />
-          <p className="mt-3 text-sm font-medium text-[var(--wf-ink-muted)]">
-            Belum ada respons survei
-          </p>
-        </div>
-        {actionError && (
-          <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-600/10 p-3 text-xs text-red-700 dark:border-red-800 dark:text-red-300">
-            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            <span className="flex-1">{actionError}</span>
-            <Button variant="ghost" onClick={() => setActionError('')}>Tutup</Button>
-          </div>
-        )}
-        {/* Still show event management even with no responses */}
+        <SurveyWorkflowBanner />
+        {/* Aksi lebih dulu: admin bisa mengaktifkan/membagikan walau belum ada respons. */}
         <EventManagementSection
           events={events}
           copiedId={copiedId}
@@ -245,6 +259,19 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
           readOnly={readOnly}
           canExport={canExport}
         />
+        {actionError && (
+          <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-600/10 p-3 text-xs text-red-700 dark:border-red-800 dark:text-red-300">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span className="flex-1">{actionError}</span>
+            <Button variant="ghost" onClick={() => setActionError('')}>Tutup</Button>
+          </div>
+        )}
+        <div className="ui-dashboard-surface p-6 text-center">
+          <ClipboardCheck className="mx-auto h-10 w-10 text-[var(--wf-ink-muted)]" />
+          <p className="mt-3 text-sm font-medium text-[var(--wf-ink-muted)]">
+            Belum ada respons survei
+          </p>
+        </div>
       </div>
     );
   }
@@ -277,6 +304,22 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
           <Button variant="ghost" onClick={() => setActionError('')}>Tutup</Button>
         </div>
       )}
+
+      {/* Alur singkat — menjelaskan efek toggle dan urutan kerja */}
+      <SurveyWorkflowBanner />
+
+      {/* Event management — aksi utama, ditempatkan sebelum ringkasan */}
+      <EventManagementSection
+        events={events}
+        copiedId={copiedId}
+        onCopyLink={handleCopyLink}
+        onExport={handleExport}
+        onToggleConfig={handleToggleConfig}
+        configLoading={configLoading}
+        activeConfigs={activeConfigs}
+        readOnly={readOnly}
+        canExport={canExport}
+      />
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -467,22 +510,25 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
         </div>
       )}
 
-      {/* Event management: copy link, toggle, export */}
-      <EventManagementSection
-        events={events}
-        copiedId={copiedId}
-        onCopyLink={handleCopyLink}
-        onExport={handleExport}
-        onToggleConfig={handleToggleConfig}
-        configLoading={configLoading}
-        activeConfigs={activeConfigs}
-        readOnly={readOnly}
-        canExport={canExport}
-      />
+      {/* Event management dipindah ke atas ringkasan agar aksi utama terlihat dulu. */}
     </div>
   );
 }
 
+
+/* ─── Workflow Banner ──────────────────────────────────────────── */
+
+function SurveyWorkflowBanner() {
+  return (
+    <div className="flex flex-col gap-1.5 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2.5 text-xs text-[var(--wf-ink-muted)] sm:flex-row sm:items-center sm:gap-3">
+      <span className="flex items-center gap-1.5"><span className="font-semibold text-[var(--wf-ink)]">1.</span> Aktifkan survei per event</span>
+      <span className="hidden text-[var(--wf-rule)] sm:inline" aria-hidden="true">→</span>
+      <span className="flex items-center gap-1.5"><span className="font-semibold text-[var(--wf-ink)]">2.</span> Bagikan tautan atau QR</span>
+      <span className="hidden text-[var(--wf-rule)] sm:inline" aria-hidden="true">→</span>
+      <span className="flex items-center gap-1.5"><span className="font-semibold text-[var(--wf-ink)]">3.</span> Pantau respons di ringkasan</span>
+    </div>
+  );
+}
 
 /* ─── Event Management Section ─────────────────────────────────── */
 
@@ -497,7 +543,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
   readOnly?: boolean;
   canExport?: boolean;
   configLoading: string | null;
-  activeConfigs: Record<string, boolean>;
+  activeConfigs: Record<string, SurveyStatus>;
 }) {
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
@@ -513,7 +559,8 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
     const q = query.trim().toLowerCase();
     return surveyableEvents.filter((ev) => {
       if (q && !ev.acara.toLowerCase().includes(q)) return false;
-      const isActive = activeConfigs[ev.id] === true;
+      const status = activeConfigs[ev.id];
+      const isActive = status ? (status.has_config ? status.is_active : true) : true;
       if (statusFilter === 'active' && !isActive) return false;
       if (statusFilter === 'inactive' && isActive) return false;
       return true;
@@ -533,7 +580,9 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
     <div className="ui-dashboard-surface">
       <div className="border-b border-[var(--wf-rule)] px-4 py-3">
         <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola survei per event</h3>
-        <p className="text-[10px] text-[var(--wf-ink-muted)]">Salin tautan, aktifkan atau nonaktifkan{canExport ? ', atau ekspor data' : ''}</p>
+        <p className="text-[10px] text-[var(--wf-ink-muted)]">
+          Aktifkan agar ajakan &quot;Isi survei kepuasan&quot; muncul di halaman event, lalu bagikan tautan atau QR.
+        </p>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
@@ -566,16 +615,30 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
               : 'Belum ada event untuk dikelola.'}
           </p>
         ) : pageItems.map((ev) => {
-          // Default OFF: cocok dengan gate is_active server (schema:
-          // survey_config.is_active DEFAULT FALSE). Nilai sebenarnya dihidrasi
-          // lewat GET /survey/config di komponen induk.
-          const isActive = activeConfigs[ev.id] ?? false;
+          // Event tanpa baris config dianggap "belum diatur" → ajakan tampil
+          // (perilaku lama). Sakelar baru mengubah status setelah admin
+          // menyentuhnya.
+          const config = activeConfigs[ev.id];
+          const isActive = config ? (config.has_config ? config.is_active : true) : true;
           const isCopied = copiedId === ev.id;
           const isToggling = configLoading === ev.id;
+          const statusLabel = !config || !config.has_config
+            ? 'Belum diatur · ajakan tampil (default)'
+            : config.is_active
+              ? 'Aktif · ajakan tampil di halaman event'
+              : 'Nonaktif · ajakan disembunyikan';
+          const statusTone = config?.has_config && config.is_active
+            ? 'text-[var(--wf-live)]'
+            : 'text-[var(--wf-ink-muted)]';
           return (
             <div key={ev.id} className="flex items-center gap-2 px-4 py-2.5">
-              {/* Event name */}
-              <p className="min-w-0 flex-1 truncate text-xs text-[var(--wf-ink)]">{ev.acara}</p>
+              {/* Event name + status discoverability */}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs text-[var(--wf-ink)]">{ev.acara}</p>
+                <p className={`text-[10px] ${statusTone}`}>
+                  {statusLabel}
+                </p>
+              </div>
 
               {/* Toggle active */}
               {!readOnly && <Button
@@ -585,8 +648,8 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                 onClick={() => onToggleConfig(ev.id, isActive)}
                 disabled={isToggling}
                 aria-pressed={isActive}
-                aria-label={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survei ${ev.acara}`}
-                title={isActive ? 'Survei aktif - klik untuk nonaktifkan' : 'Survei nonaktif - klik untuk aktifkan'}
+                aria-label={`${isActive ? 'Sembunyikan' : 'Tampilkan'} ajakan survei ${ev.acara}`}
+                title={isActive ? 'Ajakan tampil di halaman event - klik untuk menyembunyikan' : 'Ajakan disembunyikan - klik untuk menampilkan'}
                 className="active:translate-y-0"
               >
                 {isToggling ? (
@@ -609,6 +672,19 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                 {isCopied ? <Check className="size-3 text-[var(--wf-live)]" /> : <Link2 className="size-3" />}
                 {isCopied ? 'Tersalin' : 'Tautan'}
               </Button>
+
+              {/* Buka form di tab baru — jalur navigasi langsung ke halaman publik */}
+              <Link
+                to={`/survey/${ev.id}`}
+                target="_blank"
+                rel="noreferrer"
+                title="Buka form survei"
+                aria-label={`Buka form survei ${ev.acara}`}
+                className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
+              >
+                <ExternalLink className="size-3" />
+                Buka
+              </Link>
 
               {/* Export — backend menolak demo; tombol disembunyikan agar tak 403 */}
               {canExport && (

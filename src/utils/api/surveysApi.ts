@@ -9,6 +9,37 @@ import type {
 } from '../../types';
 import { normalizeLetterData, readDocType } from '../../lib/letterDocType';
 
+// ─── Visitor Survey (kepuasan pengunjung/EO) ─────────────────────
+
+export interface SurveyStatus {
+  /** Ajakan "Isi survei kepuasan" ditampilkan di halaman event. */
+  is_active: boolean;
+  /** Event sudah punya baris konfigurasi (pernah diaktifkan/dinonaktifkan admin). */
+  has_config: boolean;
+}
+
+/**
+ * Status discoverability survey kepuasan per event. Publik, tanpa auth —
+ * dipakai halaman detail event untuk memutuskan apakah CTA ditampilkan.
+ * Sengaja TIDAK dipakai sebagai gate submit: tautan lama tetap bisa diisi.
+ */
+export async function fetchSurveyStatus(eventId: string): Promise<SurveyStatus> {
+  return apiGet<SurveyStatus>(`/survey/status?event_id=${encodeURIComponent(eventId)}`);
+}
+
+/**
+ * Apakah ajakan survei ditampilkan di halaman event.
+ *
+ * Aturan legacy-safe: event tanpa baris `survey_config` (belum pernah diatur
+ * admin) tetap menampilkan CTA seperti sebelum fitur sakelar ada. Status yang
+ * gagal dimuat juga dianggap "tampil" — tautan lama memang tetap bisa diisi,
+ * jadi kegagalan sementara tidak boleh menghapus ajakan dari halaman sehat.
+ */
+export function isSurveyPromoted(status: SurveyStatus | null | undefined): boolean {
+  if (!status) return true;
+  return status.has_config ? status.is_active : true;
+}
+
 // ─── Community Registrations ────────────────────────────────────
 
 /**

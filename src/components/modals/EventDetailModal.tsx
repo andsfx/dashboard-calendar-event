@@ -14,6 +14,7 @@ import { CATEGORY_COLORS, isMultiDayEvent, getEventDuration, isRecurringEvent } 
 import { Button } from '../shadcn/button';
 import { downloadBlob } from '../../lib/download';
 import { buildIcsBlob, icsFileName } from '../../utils/calendarLinks';
+import { fetchSurveyStatus, isSurveyPromoted } from '../../utils/api/surveysApi';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -43,6 +44,23 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
   useEffect(() => {
     setIcsSaved(false);
   }, [eventId, isOpen]);
+
+  // Status discoverability survey kepuasan — event tanpa config atau status
+  // yang gagal dimuat tetap menampilkan CTA (perilaku lama); hanya penonaktifan
+  // eksplisit yang menyembunyikannya. Admin tetap melihat bagian ini untuk
+  // pratinjau dan pembagian QR.
+  const [surveyStatus, setSurveyStatus] = useState<{ is_active: boolean; has_config: boolean } | null>(null);
+  useEffect(() => {
+    if (!event || event.status !== 'past') {
+      setSurveyStatus(null);
+      return;
+    }
+    let cancelled = false;
+    fetchSurveyStatus(event.id)
+      .then((status) => { if (!cancelled) setSurveyStatus(status); })
+      .catch(() => { if (!cancelled) setSurveyStatus(null); });
+    return () => { cancelled = true; };
+  }, [event]);
 
   if (!event) return null;
 
@@ -134,8 +152,8 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
         {/* Survey section — for past events (both admin & public) */}
         {event.status === 'past' && (
           <div className="border-t border-[var(--wf-rule)] px-4 pt-4 sm:px-6">
-            {/* Public: CTA banner */}
-            {!isAdmin && (
+            {/* Public: CTA banner — hanya saat admin menandai survei aktif */}
+            {!isAdmin && isSurveyPromoted(surveyStatus) && (
               <a
                 href={`/survey/${event.id}`}
                 className="mb-3 flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-3 transition-colors hover:bg-[var(--wf-board-2)]"
@@ -152,7 +170,41 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
                 </span>
               </a>
             )}
-            {/* QR Code (both admin & public) */}
+
+            {!isAdmin && surveyStatus?.has_config === true && surveyStatus.is_active === false && (
+              <p className="mb-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2.5 text-[11px] text-[var(--wf-ink-muted)]">
+                Survei kepuasan untuk event ini sedang tidak dibuka.
+              </p>
+            )}
+
+            {isAdmin && (
+              <p className="mb-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2.5 text-[11px] text-[var(--wf-ink-muted)]">
+                {surveyStatus === null ? (
+                  'Status ajakan belum terbaca — ajakan tetap tampil seperti tautan lama.'
+                ) : !surveyStatus.has_config ? (
+                  <>
+                    Belum diatur — ajakan tampil (default).{' '}
+                    <Link to="/dashboard/survey" className="font-semibold text-[var(--wf-action)] underline-offset-2 hover:underline">
+                      Atur di Survei kepuasan
+                    </Link>
+                    .
+                  </>
+                ) : surveyStatus.is_active ? (
+                  'Ajakan survei tampil di halaman event publik.'
+                ) : (
+                  <>
+                    Ajakan survei disembunyikan dari halaman event publik.{' '}
+                    <Link to="/dashboard/survey" className="font-semibold text-[var(--wf-action)] underline-offset-2 hover:underline">
+                      Aktifkan di Survei kepuasan
+                    </Link>
+                    .
+                  </>
+                )}
+              </p>
+            )}
+
+            {/* QR Code survei kepuasan — publik hanya saat aktif */}
+            {(isAdmin || isSurveyPromoted(surveyStatus)) && (
             <details className="group">
 <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)]">
                 <QrCode className="h-3.5 w-3.5" />
@@ -166,6 +218,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
                 </Suspense>
               </div>
             </details>
+            )}
             {/* QR Code Tenant Self-Assessment */}
             <details className="group">
 <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)]">

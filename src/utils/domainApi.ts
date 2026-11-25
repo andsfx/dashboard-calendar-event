@@ -96,6 +96,9 @@ export {
   fetchPublicCommunityDirectory,
   checkPublicTenantSurveyDuplicate,
   submitPublicTenantSurvey,
+  fetchSurveyStatus,
+  isSurveyPromoted,
+  type SurveyStatus,
 } from './api/surveysApi';
 
 export {

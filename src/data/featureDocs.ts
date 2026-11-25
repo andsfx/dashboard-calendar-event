@@ -417,16 +417,20 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/dashboard/survey',
             audience: 'Admin',
             summary:
-              'Mengelola survei kepuasan pengunjung dan penyelenggara per event: statistik, NPS, respons terbaru, aktif atau nonaktif, tautan, dan ekspor CSV.',
+              'Mengelola survei kepuasan pengunjung dan penyelenggara per event: statistik, NPS, respons terbaru, ajakan di halaman event, tautan, dan ekspor CSV.',
             steps: [
               'Buka Survei kepuasan.',
-              'Baca kartu statistik, rata-rata rating, dan NPS.',
+              'Baca alur singkat di atas: aktifkan survei, bagikan tautan atau QR, lalu pantau respons.',
               'Pada bagian "Kelola survei per event", cari event yang dituju.',
-              'Nyalakan atau matikan survei dengan tombol sakelar.',
-              'Klik "Link" untuk menyalin URL form; klik "CSV" untuk mengunduh data.',
-              'Saring respons terbaru menurut rentang tanggal bila perlu.',
+              'Nyalakan sakelar agar ajakan "Isi survei kepuasan" muncul di halaman event publik; matikan untuk menyembunyikannya.',
+              'Klik "Tautan" untuk menyalin URL form, "Buka" untuk membuka form di tab baru, atau "CSV" untuk mengunduh data.',
+              'Baca kartu statistik, rata-rata rating, NPS, dan respons terbaru di bawahnya.',
             ],
-            notes: ['Survei hanya masuk akal untuk event yang sedang atau sudah berlangsung.'],
+            notes: [
+              'Event yang belum pernah diatur tampil secara default (perilaku lama). Sakelar hanya menyembunyikan ajakan setelah admin menonaktifkannya.',
+              'Sakelar mengatur discoverability (ajakan di halaman event), bukan menutup form: tautan lama yang sudah dibagikan tetap bisa diisi.',
+              'Survei hanya masuk akal untuk event yang sedang atau sudah berlangsung.',
+            ],
           },
           {
             id: 'evaluasi-tenant',
@@ -745,6 +749,7 @@ export const DOC_SECTIONS: DocSection[] = [
             ],
             notes: [
               'Tombol kalender disembunyikan untuk event yang sudah lewat; sebaliknya, ajakan survei hanya muncul untuk event yang sudah lewat.',
+              'Ajakan "Isi survei kepuasan" muncul hanya bila admin mengaktifkan survei untuk event itu di dashboard. Bila belum, halaman menampilkan keterangan singkat.',
               'Event berstatus draf tidak pernah tampil di halaman publik.',
               'Section "Tenant di event ini" hanya memuat partisipasi yang sudah disetujui tim; kebutuhan fasilitas dan skema booth bersifat internal dan tidak ikut tampil.',
               'Tenant yang ingin ikut memeriahkan event bisa menekan CTA "Punya tenant di Metropolitan Mall?" di section itu; event tujuannya langsung terpilih di form.',
