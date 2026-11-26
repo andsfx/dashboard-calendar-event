@@ -133,8 +133,6 @@ export default function App() {
     activeCategory, setActiveCategory,
     activePriority, setActivePriority,
     activeMonth, setActiveMonth,
-    dateFrom, setDateFrom,
-    dateTo, setDateTo,
     addEvent, updateEvent, setEventVisibility, deleteEvent,
     addRecurringEvents, deleteRecurringSeries,
     addTheme, updateTheme, deleteTheme,
@@ -362,7 +360,7 @@ export default function App() {
     onSaveCorrection: tenantParticipations.saveCorrection,
     onDelete: tenantParticipations.removeParticipation,
   };
-  const dpFilters: DashboardPageFilters = { searchQuery, setSearchQuery, activeFilter, setActiveFilter, activeCategory, setActiveCategory, activePriority, setActivePriority, activeMonth, setActiveMonth, dateFrom, setDateFrom, dateTo, setDateTo, visibleCategories, visibleMonths };
+  const dpFilters: DashboardPageFilters = { searchQuery, setSearchQuery, activeFilter, setActiveFilter, activeCategory, setActiveCategory, activePriority, setActivePriority, activeMonth, setActiveMonth, visibleCategories, visibleMonths };
   const dpView: DashboardPageView = { viewMode, setViewMode };
   const dpHandlers: DashboardPageHandlers = { handleLogout, handleAddNew, handleEdit, handleAddDraft, handleEditDraft, handleAddTheme, handleEditTheme, handleSaveTheme, handleDeleteTheme, handleDeleteClick, handleDetailClick, handleToggleVisibility, handleSave, handleSaveBatch, handleDeleteSeries, handleDeleteConfirm, handleSaveDraft, handleDeleteDraft, handlePublishDraft, handleDraftProgressChange, handleRestoreDraft, handleUpdateRegStatus, handleCreateEventFromRegistration, handleSaveInstagramPosts, handleSaveHeroImage, handleRegDetail };
   const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal, openConfirm: confirmDialog.confirm };

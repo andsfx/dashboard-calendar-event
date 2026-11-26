@@ -45,10 +45,6 @@ interface Props {
   setActivePriority: (value: string) => void;
   activeMonth: string;
   setActiveMonth: (value: string) => void;
-  dateFrom?: string;
-  setDateFrom?: (value: string) => void;
-  dateTo?: string;
-  setDateTo?: (value: string) => void;
   visibleCategories: string[];
   visibleMonths: string[];
   /** Master area — aktifkan section per lokasi di tabel. */
@@ -83,10 +79,6 @@ export function DashboardViewsSection(props: Props) {
     setActivePriority,
     activeMonth,
     setActiveMonth,
-    dateFrom = '',
-    setDateFrom,
-    dateTo = '',
-    setDateTo,
     visibleCategories,
     visibleMonths,
     areas,
@@ -127,8 +119,6 @@ export function DashboardViewsSection(props: Props) {
     setActiveCategory('Semua');
     setActivePriority('Semua');
     setActiveMonth('Semua');
-    setDateFrom?.('');
-    setDateTo?.('');
   };
 
   const handleExportSchedulePdf = async (sections: string[]) => {
@@ -142,8 +132,6 @@ export function DashboardViewsSection(props: Props) {
     activeCategory !== 'Semua' ? activeCategory : '',
     activePriority !== 'Semua' ? activePriority : '',
     activeMonth !== 'Semua' ? activeMonth : '',
-    dateFrom,
-    dateTo,
   ].filter(Boolean).length;
   const hasActiveFilters = activeFilterCount > 0;
   const panelId = `dashboard-panel-${viewMode}`;
@@ -166,10 +154,6 @@ export function DashboardViewsSection(props: Props) {
           months={visibleMonths}
           activeMonth={activeMonth}
           onMonthChange={setActiveMonth}
-          dateFrom={dateFrom}
-          onDateFromChange={setDateFrom}
-          dateTo={dateTo}
-          onDateToChange={setDateTo}
           showDraft={showInternalDraftFilter}
           showPriority={isAdmin}
         />
