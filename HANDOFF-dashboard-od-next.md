@@ -10,6 +10,41 @@ Sumber desain: prototipe Open Design (lihat §3) + `DESIGN.md` + `docs/agents/de
 
 ---
 
+## 0. Status pelaksanaan (2026-11-26)
+
+Seluruh irisan S1–S7 sudah dikerjakan dan di-push. Yang berubah sejak kontrak ini
+ditulis:
+
+| Irisan | Commit | Catatan |
+|---|---|---|
+| S1 chrome | `e65b80f` | rail `metmal.` + wordmark, breadcrumb topbar, eyebrow = nama grup (`getWayfindingGroup`) |
+| S2 Pusat Komando | `e65b80f`, `72aaf94`, `f922f36` | papan triage tunggal, seksi bernomor, `queueErrors` + **Coba lagi per sumber** |
+| S3 jadwal | `d446ff2` | toolbar berlabel, Status = `NativeSelect`, topline + pemilih tampilan, tabel mulai dari Nama event (judul = tombol detail) |
+| S4 draft | `79d480d` | tab Aktif/Riwayat berjumlah item, strip pemberitahuan, kartu mobile |
+| S5 modul pengajuan | `5bb43e3`, `162fee9` | pencarian per antrean (tenant/judul, organisasi/kontak), keadaan kosong dua tingkat |
+| S6 analitik | `e65b80f` | filter tahun + tabel angka YoY; grafik tetap bar/donut/heatmap milik repo |
+| S7 modul pendukung | `e65b80f` | keadaan kosong pengguna & tema tahunan |
+
+**Gap yang diterima (jangan ditambal dengan mengubah perilaku):**
+
+1. **Dari/Sampai tanggal** di toolbar prototipe tidak dipindahkan. Filter tanggal
+   berarti menambah state + filter di `useEvents`, yang dilarang §UI Rules 3 dan
+   §8. Percobaan `e0ee41c` sudah dicabut di `3adc32e`. Bila suatu saat diminta,
+   semantik yang benar adalah overlap (`end >= from && start <= to`), bukan
+   membandingkan `dateStr` saja — event multi-hari akan salah tersaring.
+2. **Analitik**: prototipe memakai rentang tanggal + bar chart; repo memakai
+   pemilih tahun, bar/donut/heatmap, dan tabel YoY. Setara fungsional.
+3. **Pameran**: prototipe memperlakukannya sebagai antrean pengajuan polos; repo
+   mempertahankan manajer program + pengajuan per program.
+4. **Antrean pengajuan**: chip status 4 nilai menggantikan 2 tab prototipe.
+
+**Angka verifikasi terakhir**: suite penuh 188 file / 1558 tes lulus
+(`NODE_ENV=test … --maxWorkers=2`), `npm run build` hijau + `assert-lazy-entry-chunks`,
+axe 0 pelanggaran pada `events`, `drafts`, `themes`, `analytics`, `exhibitions`,
+`registrations`, `tenant-proposals` × 375/1280 × terang/gelap.
+
+---
+
 ## 1. Aturan main
 
 1. **Jangan port CSS/JS prototipe.** Prototipe adalah referensi visual berjalan

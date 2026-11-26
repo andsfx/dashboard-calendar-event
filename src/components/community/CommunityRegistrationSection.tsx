@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Users, Inbox, Clock, CheckCircle2, XCircle, Eye, Filter, CalendarPlus } from 'lucide-react';
+import { Inbox, Clock, Eye, Filter, CalendarPlus } from 'lucide-react';
 import { CommunityRegistration, RegistrationStatus, OrganizationType, DraftEventItem, EventItem } from '../../types';
 import { Toggle } from '../shadcn/toggle';
 import { Button } from '../shadcn/button';
