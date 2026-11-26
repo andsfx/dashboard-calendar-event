@@ -5,6 +5,8 @@ import { CATEGORY_COLORS } from '../../utils/eventUtils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../shadcn/table';
 import { Label } from '../shadcn/label';
 import { NativeSelect } from '../shadcn/native-select';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../shadcn/empty';
+import { BarChart3 } from 'lucide-react';
 
 interface AnalyticsDashboardProps {
   events: EventItem[];
@@ -33,6 +35,8 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
     () => computeAnalytics(currentYearEvents, currentYear, prevYearEvents),
     [currentYearEvents, currentYear, prevYearEvents],
   );
+
+  const hasData = currentYearEvents.length > 0;
 
   return (
     <div className="space-y-4">
@@ -74,6 +78,18 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
         ))}
       </div>
 
+      {!hasData ? (
+        <div className="ui-dashboard-surface p-6">
+          <Empty className="border-0 p-0 md:p-0">
+            <EmptyHeader>
+              <EmptyMedia variant="icon"><BarChart3 /></EmptyMedia>
+              <EmptyTitle>Belum ada data</EmptyTitle>
+              <EmptyDescription>Tidak ada event pada periode ini.</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        </div>
+      ) : (
+      <>
       {/* 1. Tren Event per Bulan */}
       <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
@@ -209,6 +225,8 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
           Jam tersibuk: <span className="font-semibold">{analytics.peakHour}:00</span> ({analytics.peakHourCount} event)
         </p>
       </div>
+      </>
+      )}
     </div>
   );
 }
