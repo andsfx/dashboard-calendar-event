@@ -1,9 +1,10 @@
-import { Archive, ChevronDown, ChevronUp, ClipboardList, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { DraftEventItem, EventItem } from '../../types';
 import { DraftHistoryTable } from './DraftHistoryTable';
 import { DraftQueueTable } from './DraftQueueTable';
 import { Button } from '../shadcn/button';
 import { Skeleton } from '../shadcn/skeleton';
+import { Toggle } from '../shadcn/toggle';
 
 interface Props {
   activeDrafts: DraftEventItem[];
@@ -40,20 +41,32 @@ export function AdminDraftSection({
 }: Props) {
   return (
     <section id="drafts" className="space-y-4 scroll-mt-32">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ui-dashboard-card-padded">
-        <div className="flex items-start gap-3">
-          <div className="ui-icon-tile bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
-            <ClipboardList className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-bold text-[var(--wf-ink)]">Queue Aktif Draft Event</p>
-              <span className="rounded-full bg-[var(--wf-board-2)] px-2 py-0.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
-                {activeDrafts.length} draft
-              </span>
-            </div>
-            <p className="text-xs text-[var(--wf-ink-muted)]">Antrian event yang masih diproses</p>
-          </div>
+      {/* Tab kelompok draft mengikuti prototipe: satu baris di atas panel,
+          jumlah item di dalam tab. Kelompok memakai `Toggle` (aria-pressed),
+          bukan Tabs Radix: tidak ada `TabsContent`, jadi `role="tab"` +
+          `aria-controls` akan menjanjikan panel yang tidak pernah ada. */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div role="group" aria-label="Kelompok draft" className="flex items-center gap-1.5">
+          <Toggle
+            variant="outline"
+            size="sm"
+            pressed={!showDraftHistory}
+            onPressedChange={pressed => { if (pressed) setShowDraftHistory(false); }}
+            className="min-h-11 gap-2 rounded-full px-3 text-[var(--wf-ink-muted)] data-[state=on]:border-[var(--wf-accent)] data-[state=on]:bg-[var(--wf-accent-soft)] data-[state=on]:text-[var(--wf-accent)] aria-pressed:border-[var(--wf-accent)] aria-pressed:bg-[var(--wf-accent-soft)] aria-pressed:text-[var(--wf-accent)] sm:min-h-8"
+          >
+            Aktif
+            <span className="rounded-full bg-[var(--wf-board-2)] px-1.5 text-[11px] font-semibold tabular-nums">{activeDrafts.length}</span>
+          </Toggle>
+          <Toggle
+            variant="outline"
+            size="sm"
+            pressed={showDraftHistory}
+            onPressedChange={pressed => { if (pressed) setShowDraftHistory(true); }}
+            className="min-h-11 gap-2 rounded-full px-3 text-[var(--wf-ink-muted)] data-[state=on]:border-[var(--wf-accent)] data-[state=on]:bg-[var(--wf-accent-soft)] data-[state=on]:text-[var(--wf-accent)] aria-pressed:border-[var(--wf-accent)] aria-pressed:bg-[var(--wf-accent-soft)] aria-pressed:text-[var(--wf-accent)] sm:min-h-8"
+          >
+            Riwayat
+            <span className="rounded-full bg-[var(--wf-board-2)] px-1.5 text-[11px] font-semibold tabular-nums">{draftHistory.length}</span>
+          </Toggle>
         </div>
         {onAddDraft && (
           <Button onClick={onAddDraft} className="shrink-0">
@@ -61,6 +74,12 @@ export function AdminDraftSection({
           </Button>
         )}
       </div>
+
+      <p className="rounded-[var(--wf-radius-control)] bg-[var(--wf-board-2)] px-3 py-2 text-xs text-[var(--wf-ink-muted)]">
+        {showDraftHistory
+          ? 'Draft yang dihapus dapat dipulihkan. Event yang sudah diterbitkan tetap berada di Jadwal event.'
+          : 'Menyimpan perubahan tidak menerbitkan event. Hanya draft Dikonfirmasi yang dapat diterbitkan.'}
+      </p>
 
       {draftError && (
         <div role="alert" className="rounded-2xl border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
@@ -79,6 +98,8 @@ export function AdminDraftSection({
             <Skeleton key={i} className="h-16 rounded-xl bg-[var(--wf-board-2)]" />
           ))}
         </div>
+      ) : showDraftHistory ? (
+        <DraftHistoryTable drafts={draftHistory} onRestore={onRestoreDraft} />
       ) : (
         <DraftQueueTable
           drafts={activeDrafts}
@@ -88,43 +109,6 @@ export function AdminDraftSection({
           onProgressChange={onDraftProgressChange}
         />
       )}
-
-      <div className="ui-dashboard-card-padded">
-        {/* Baris disclosure full-width (ikon + dua blok teks + jumlah item +
-            chevron) dengan `justify-between`: shadcn `Button` ghost + chrome
-            primitif dinetralkan (`p-0!`/`border-0!`/`h-auto!` mematikan
-            px-2.5/h-8/border-transparent), sementara `justify-between` dan
-            kelas asli dipertahankan. `hover:*`/`aria-expanded:*` shadcn
-            dibatalkan karena baris ini tidak punya latar sendiri. */}
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => setShowDraftHistory(v => !v)}
-          className="flex! h-auto! w-full! items-center justify-between! gap-3 whitespace-normal! rounded-xl border-0! p-0! text-left! font-normal! hover:bg-transparent! dark:hover:bg-transparent! aria-expanded:bg-transparent! ui-focus-ring focus-visible:ring-0 active:translate-y-0!"
-          aria-expanded={showDraftHistory}
-          aria-controls="draft-history-content"
-        >
-          <div className="flex items-start gap-3">
-            <div className="ui-icon-tile bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]">
-              <Archive className="size-5" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-[var(--wf-ink)]">Riwayat Draft Event</p>
-              <p className="text-xs text-[var(--wf-ink-muted)]">Event yang dibatalkan atau sudah dipublikasikan</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--wf-ink-muted)]">
-            <span>{draftHistory.length} item</span>
-            {showDraftHistory ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-          </div>
-        </Button>
-
-        {/* Kontainer selalu ada di DOM: `aria-controls` menunjuk id ini, dan
-            id yang hilang saat tertutup memicu axe `aria-valid-attr-value`. */}
-        <div id="draft-history-content" className="mt-4" hidden={!showDraftHistory}>
-          <DraftHistoryTable drafts={draftHistory} onRestore={onRestoreDraft} />
-        </div>
-      </div>
     </section>
   );
 }

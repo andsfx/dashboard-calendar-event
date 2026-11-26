@@ -11,9 +11,9 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
     return (
       <div className="ui-empty-panel p-6">
         <Empty className="border-0 bg-transparent p-0">
-          <EmptyTitle className="text-sm font-semibold text-[var(--wf-ink)]">Belum ada riwayat draft</EmptyTitle>
+          <EmptyTitle className="text-sm font-semibold text-[var(--wf-ink)]">Riwayat masih kosong</EmptyTitle>
           <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">
-            Draft yang dibatalkan atau sudah diterbitkan tampil di sini.
+            Draft yang diterbitkan atau dihapus akan tampil di sini.
           </EmptyDescription>
         </Empty>
       </div>
@@ -22,6 +22,43 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
 
   return (
     <div className="ui-dashboard-surface overflow-hidden">
+      <div className="divide-y divide-[var(--wf-rule)] md:hidden">
+        {drafts.map(draft => {
+          const whatsappUrl = getWhatsAppUrl(draft.phone);
+          const canRestore = onRestore && !draft.published && (draft.deleted || draft.progress === 'cancel');
+          return (
+            <div key={draft.id} className="space-y-2.5 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-[var(--wf-ink)]">{draft.acara}</p>
+                  <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
+                    {draft.day}, {draft.tanggal} · {draft.lokasi || 'Lokasi belum ditentukan'}
+                  </p>
+                </div>
+                <DraftProgressBadge progress={draft.progress} />
+              </div>
+              <p className="text-xs text-[var(--wf-ink-muted)]">
+                {draft.deleted ? 'Dihapus' : draft.published ? 'Diterbitkan' : 'Dibatalkan'}
+                {draft.published ? ` · ${formatDraftPublishedAt(draft.publishedAt)}` : draft.deleted ? ` · ${formatDraftPublishedAt(draft.deletedAt)}` : ''}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {whatsappUrl && (
+                  <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-live)]/30 px-2.5 py-1.5 text-xs font-medium text-[var(--wf-live)] transition hover:bg-[var(--wf-live)]/10">
+                    <MessageCircle className="h-3.5 w-3.5" />WhatsApp
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+                {canRestore && (
+                  <Button variant="outline" size="sm" onClick={() => onRestore(draft)}>
+                    <RotateCcw className="size-3.5" />Pulihkan
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="hidden md:block">
       <Table tableLabel="Riwayat draft" className="w-full min-w-[980px] text-sm">
           <TableHeader>
             <TableRow className="border-b border-[var(--wf-rule)] bg-[var(--wf-board-2)]">
@@ -84,6 +121,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
             })}
           </TableBody>
         </Table>
+      </div>
     </div>
   );
 }

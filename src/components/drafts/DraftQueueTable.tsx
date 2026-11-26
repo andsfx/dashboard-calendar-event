@@ -22,9 +22,9 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
     return (
       <div className="ui-empty-panel p-8">
         <Empty className="border-0 bg-transparent p-0">
-          <EmptyTitle className="text-sm font-semibold text-[var(--wf-ink)]">Belum ada draft aktif</EmptyTitle>
+          <EmptyTitle className="text-sm font-semibold text-[var(--wf-ink)]">Tidak ada draft aktif</EmptyTitle>
           <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">
-            Draft muncul di sini setelah disimpan, menunggu konfirmasi sebelum diterbitkan.
+            Seluruh draft sudah diterbitkan atau dipindahkan ke Riwayat.
           </EmptyDescription>
         </Empty>
       </div>
@@ -33,6 +33,55 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
 
   return (
     <div className="ui-dashboard-surface overflow-hidden">
+      {/* Mobile: kartu per draft (prototipe memakai daftar baris, bukan tabel
+          1100px yang hanya menyisakan dua kolom terlihat). */}
+      <div className="divide-y divide-[var(--wf-rule)] md:hidden">
+        {drafts.map(draft => {
+          const whatsappUrl = getWhatsAppUrl(draft.phone);
+          return (
+            <div key={draft.id} className="space-y-2.5 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-[var(--wf-ink)]">{draft.acara}</p>
+                  <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
+                    {draft.day}, {draft.tanggal}{draft.jam ? ` · ${draft.jam}` : ''}
+                  </p>
+                  <p className="text-xs text-[var(--wf-ink-muted)]">{draft.lokasi || 'Lokasi belum ditentukan'}</p>
+                </div>
+                <DraftProgressBadge progress={draft.progress} />
+              </div>
+              {onProgressChange && (
+                <NativeSelect
+                  value={draft.progress}
+                  onChange={e => onProgressChange(draft, e.target.value as DraftProgress)}
+                  aria-label={`Progres ${draft.acara}`}
+                  className="w-full"
+                >
+                  <option value="draft">Draf</option>
+                  <option value="confirm">Konfirmasi</option>
+                  <option value="cancel">Batal</option>
+                </NativeSelect>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {onEdit && <Button variant="outline" size="sm" onClick={() => onEdit(draft)}><Edit2 className="size-3.5" />Ubah</Button>}
+                {onDelete && <Button variant="outline" size="sm" onClick={() => onDelete(draft)} className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)]"><Trash2 className="size-3.5" />Hapus</Button>}
+                {onPublish && draft.progress === 'confirm' && (
+                  <Button variant="outline" size="sm" onClick={() => onPublish(draft)} title="Terbitkan ke jadwal utama">
+                    <Upload className="size-3.5" />Terbitkan
+                  </Button>
+                )}
+                {whatsappUrl && (
+                  <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-live)]/30 px-2.5 py-1.5 text-xs font-medium text-[var(--wf-live)] transition hover:bg-[var(--wf-live)]/10">
+                    <MessageCircle className="h-3.5 w-3.5" />WhatsApp
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="hidden md:block">
       <Table tableLabel="Antrian draft event aktif" className="w-full min-w-[1100px] text-sm">
           <TableHeader>
             <TableRow className="border-b border-[var(--wf-rule)] bg-[var(--wf-board-2)]">
@@ -103,6 +152,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
             })}
           </TableBody>
         </Table>
+      </div>
     </div>
   );
 }
