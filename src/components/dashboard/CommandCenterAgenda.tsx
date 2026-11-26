@@ -98,6 +98,7 @@ export const CommandCenterAgenda = memo(function CommandCenterAgenda({
       <div className="wf-agenda__head">
         <div className="min-w-0">
           <h2 id="cc-agenda-title" className="font-display text-base font-semibold text-[var(--wf-ink)]">
+            <span className="mr-2 text-xs font-semibold tabular-nums text-[var(--wf-ink-muted)]">02</span>
             Hari ini di mall
           </h2>
           <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">

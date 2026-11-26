@@ -16,7 +16,6 @@ import type { AuthUser } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
 import { ROLE_DISPLAY_NAMES } from '../../utils/roleDisplay';
 import { getDashboardNavGroups, getWayfindingMap } from './dashboardNavigation';
-import mallLogo from '../../assets/brand/LOGOMETMAL2016-01.svg';
 import type { DashboardNavItem } from './dashboardNavigation';
 
 interface AdminSidebarProps {
@@ -132,28 +131,30 @@ export const AdminSidebar = memo(function AdminSidebar({
       {/* Identity: the mall wordmark, then where you are right now. The current
           route label is the same string the page header uses, so the rail and
           the plate can never disagree. */}
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--wf-rail-rule)] px-4 py-4">
-        <div className="min-w-0">
-          {/* The wordmark's darkest fills (deep tosca, maroon) measure 1.39:1 on
-              the dark rail and 11.89:1 on white, so dark mode gives it a plate.
-              On the light rail it sits directly on the board — a white box
-              there would read as a stray card. */}
-          <span className="inline-flex items-center rounded-lg dark:bg-white dark:px-2 dark:py-1.5">
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-7 w-auto" />
-          </span>
-          <p className="mt-1.5 truncate text-[11px] text-[var(--wf-rail-ink-muted)]">
-            {currentLocation.label}
-          </p>
+      <div className="border-b border-[var(--wf-rail-rule)] px-5 pb-4 pt-6">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <span className="font-display text-[32px] font-extrabold leading-none tracking-[-0.02em] text-[var(--wf-rail-ink)]">
+              metmal<span className="text-[var(--color-brand-secondary-500)]">.</span>
+            </span>
+            <p className="mt-2 text-[11px] font-bold leading-snug text-[var(--wf-rail-ink)]">
+              Metropolitan Mall Bekasi
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={closeMobile}
+            className="wf-focus-rail relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg px-0 text-[var(--wf-rail-ink-muted)] transition-colors hover:bg-[var(--wf-rail-2)] hover:text-[var(--wf-rail-ink)] focus-visible:ring-0 focus-visible:border-transparent active:translate-y-0 lg:hidden"
+            aria-label="Tutup menu"
+          >
+            <X className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+          </Button>
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={closeMobile}
-          className="wf-focus-rail relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg px-0 text-[var(--wf-rail-ink-muted)] transition-colors hover:bg-[var(--wf-rail-2)] hover:text-[var(--wf-rail-ink)] focus-visible:ring-0 focus-visible:border-transparent active:translate-y-0 lg:hidden"
-          aria-label="Tutup menu"
-        >
-          <X className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-        </Button>
+        <p className="mt-3 flex items-center gap-2 text-xs text-[var(--wf-rail-ink-muted)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--wf-accent)]" aria-hidden />
+          Operasional event
+        </p>
       </div>
 
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Navigasi admin">

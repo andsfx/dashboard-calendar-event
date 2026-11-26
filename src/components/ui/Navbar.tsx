@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { Moon, Sun, CalendarDays, Shield, Users } from 'lucide-react';
 import { Button } from '../shadcn/button';
+import { getWayfindingMap } from '../dashboard/dashboardNavigation';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--wf-board)]';
 const focusRingPylon = 'wf-focus-rail focus-visible:outline-none';
@@ -26,6 +27,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
   // tampilannya dibekukan, jadi jarak plat untuk hamburger 44px hanya berlaku
   // di `/dashboard/*`; di rute itu hamburger masih 36px.
   const dashboardChrome = pathname.startsWith('/dashboard');
+  const sectionLabel = getWayfindingMap(pathname.replace('/dashboard', '') || '/').current.label;
   // Admin chrome is the topbar of the rail layout: a board band with a hairline
   // under it, matching the rail's material. Public pages keep the light
   // marketing chrome untouched.
@@ -33,9 +35,10 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
     return (
       <nav className="wf-topbar sticky top-0 z-40">
         <div className="flex w-full items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
-          <div className={`flex min-w-0 items-center gap-2.5 lg:pl-0 ${dashboardChrome ? 'pl-14' : 'pl-10'}`}>
-            <CalendarDays className="h-4 w-4 shrink-0 text-[var(--wf-accent)]" strokeWidth={1.5} aria-hidden />
-            <span className="wf-rail-plate truncate">Metropolitan Mall Bekasi</span>
+          <div className={`flex min-w-0 items-center gap-2 lg:pl-0 ${dashboardChrome ? 'pl-14' : 'pl-10'}`}>
+            <span className="hidden text-[11px] text-[var(--wf-rail-ink-muted)] sm:inline">Ruang kerja</span>
+            <span className="hidden text-[var(--wf-rail-ink-muted)] opacity-50 sm:inline" aria-hidden>›</span>
+            <span className="wf-rail-plate truncate">{sectionLabel}</span>
             {ongoingCount > 0 && (
               <span className="wf-key wf-key--live hidden sm:inline-flex">
                 <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />

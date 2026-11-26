@@ -15,7 +15,7 @@ describe('DashboardStats', () => {
 
   it('renders the actionable counts plus the reference pair', () => {
     render(<DashboardStats stats={mockStats} attention={attention} />)
-    expect(screen.getByText('Menunggu keputusan')).toBeInTheDocument()
+    expect(screen.getByText('Perlu tindakan')).toBeInTheDocument()
     expect(screen.getByText('Sedang berlangsung')).toBeInTheDocument()
     expect(screen.getByText('Akan datang')).toBeInTheDocument()
     expect(screen.getByText('Total acara')).toBeInTheDocument()
@@ -28,7 +28,7 @@ describe('DashboardStats', () => {
     const follows = (first: HTMLElement, second: HTMLElement) =>
       Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
 
-    const lead = screen.getByText('Menunggu keputusan')
+    const lead = screen.getByText('Perlu tindakan')
     const ongoing = screen.getByText('Sedang berlangsung')
     const upcoming = screen.getByText('Akan datang')
     const reference = screen.getByText('Total acara')
@@ -47,7 +47,7 @@ describe('DashboardStats', () => {
   it('drops the reference pair to one quiet line, not two metric cards', () => {
     const { container } = render(<DashboardStats stats={mockStats} attention={attention} />)
 
-    expect(container.querySelectorAll('.wf-metric')).toHaveLength(3)
+    expect(container.querySelectorAll('.wf-status-key > div')).toHaveLength(1)
     expect(container.querySelectorAll('.wf-reference')).toHaveLength(1)
     expect(screen.getByText('100')).toBeInTheDocument()
     expect(screen.getByText('75')).toBeInTheDocument()
@@ -61,7 +61,7 @@ describe('DashboardStats', () => {
 
   it('shows no queue tier at all when nothing is waiting', () => {
     render(<DashboardStats stats={mockStats} attention={{ draftCount: 0, pendingRegistrations: 0, pendingExhibitionLeads: 0, pendingTenantProposals: 0 }} />)
-    expect(screen.queryByText('Menunggu keputusan')).not.toBeInTheDocument()
+    expect(screen.queryByText('Perlu tindakan')).not.toBeInTheDocument()
     expect(screen.getByText('Sedang berlangsung')).toBeInTheDocument()
   })
 
@@ -74,7 +74,9 @@ describe('DashboardStats', () => {
   it('names the cause when the draft queue fails to load', () => {
     render(<DashboardStats stats={mockStats} attention={{ draftCount: 0, pendingRegistrations: 0, pendingExhibitionLeads: 0, pendingTenantProposals: 0, errors: [{ label: 'Draf event', message: 'Gagal memuat draft event.' }] }} />)
     expect(screen.getByText('—')).toBeInTheDocument()
-    expect(screen.getByText(/Sebagian antrian gagal dimuat: Gagal memuat draft event\./)).toBeInTheDocument()
+    expect(screen.getByText('Total belum lengkap')).toBeInTheDocument()
+    expect(screen.getByText('Jumlah parsial')).toBeInTheDocument()
+    expect(screen.getByTitle(/Gagal memuat draft event\./)).toBeInTheDocument()
   })
 
   it('shows the settled values directly, with no decorative count-up', () => {
@@ -90,6 +92,6 @@ describe('DashboardStats', () => {
     expect(screen.getByText('Akan datang')).toBeInTheDocument()
     expect(screen.getByText('Sedang berlangsung')).toBeInTheDocument()
     expect(screen.queryByText('Total acara')).not.toBeInTheDocument()
-    expect(screen.queryByText('Menunggu keputusan')).not.toBeInTheDocument()
+    expect(screen.queryByText('Perlu tindakan')).not.toBeInTheDocument()
   })
 })

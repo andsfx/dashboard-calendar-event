@@ -1,7 +1,6 @@
 import { memo } from 'react';
-import { CalendarDays, Radio, Clock3, CheckCircle2, ArrowUp } from 'lucide-react';
+import { CalendarDays, Radio, Clock3, CheckCircle2 } from 'lucide-react';
 import { StatCard } from '../ui/StatCard';
-import { Card, CardTitle, CardDescription } from '../shadcn/card';
 
 /** Satu sumber antrian yang gagal dimuat. */
 export interface QueueSourceError {
@@ -96,46 +95,54 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
   const pendingTotal = attention
     ? attention.draftCount + attention.pendingRegistrations + attention.pendingExhibitionLeads + attention.pendingTenantProposals + (attention.pendingTenantParticipations ?? 0)
     : 0;
+  const showQueueTier = Boolean(attention) && (pendingTotal > 0 || hasQueueError);
 
   return (
     <div className="wf-status-key">
-      {/* The queue leads: it is the one number that needs a decision today. */}
-      {attention && (pendingTotal > 0 || hasQueueError) && (
-        <Card
-          className="wf-metric wf-metric--lead rounded-[var(--wf-radius-board)] border-[var(--wf-action)] bg-[var(--wf-board)] p-3.5 sm:p-5 ring-0 shadow-none gap-0"
-        >
-          <div className="wf-metric__top">
-            <CardTitle className="wf-metric__label">
-              Menunggu keputusan
-            </CardTitle>
-            <span className="wf-metric__icon">
-              <ArrowUp className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-            </span>
-          </div>
-          <p className="wf-metric__value">{hasQueueError ? '—' : pendingTotal}</p>
-          <CardDescription
-            className="wf-metric__hint"
-            title={hasQueueError ? queueErrors.map(source => `${source.label}: ${source.message}`).join(' · ') : undefined}
-          >
-            {hasQueueError
-              ? `Sebagian antrian gagal dimuat: ${queueErrors.map(source => source.message).join(' ')}`
-              : 'Antrian yang menunggu keputusan hari ini.'}
-          </CardDescription>
-        </Card>
-      )}
-
-      <div className="wf-metrics">
-        {today.map(entry => (
-          <Card
-            key={entry.label}
-            className="wf-metric wf-metric--secondary rounded-[var(--wf-radius-board)] border-[var(--wf-rule)] border-dashed bg-transparent p-3.5 sm:p-5 ring-0 shadow-none gap-0"
-          >
-            <div className="wf-metric__top">
-              <CardTitle className="wf-metric__label">{entry.label}</CardTitle>
-              <span className={`wf-metric__icon wf-key--${entry.tone}`}>{entry.icon}</span>
+      <div className={`grid gap-4 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4 sm:gap-0 sm:p-5 ${showQueueTier ? 'sm:grid-cols-[1.5fr_1fr_1fr]' : 'sm:grid-cols-2'}`}>
+        {showQueueTier && (
+        <div className="sm:pr-6">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p className={`font-display font-extrabold leading-none ${hasQueueError ? 'text-3xl text-[var(--wf-ink-muted)]' : 'text-5xl text-[var(--wf-accent)] sm:text-6xl'}`}>
+              {hasQueueError ? '—' : pendingTotal}
+            </p>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-[var(--wf-ink)]">Perlu tindakan</p>
+              <p
+                className="text-xs text-[var(--wf-ink-muted)]"
+                title={hasQueueError ? queueErrors.map(source => `${source.label}: ${source.message}`).join(' · ') : undefined}
+              >
+                {hasQueueError ? 'Total belum lengkap' : 'Pekerjaan menunggu tindak lanjut'}
+              </p>
+              {hasQueueError && (
+                <span className="mt-1 inline-flex rounded-full bg-[var(--wf-action)]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--wf-action)]">
+                  Jumlah parsial
+                </span>
+              )}
             </div>
-            <p className="wf-metric__value">{entry.value}</p>
-          </Card>
+          </div>
+        </div>
+        )}
+
+        {today.map(entry => (
+          <div
+            key={entry.label}
+            className="flex items-center gap-3 border-t border-[var(--wf-rule)] pt-4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0"
+          >
+            <p className="font-display text-2xl font-bold tabular-nums text-[var(--wf-ink)]">{entry.value}</p>
+            <div className="min-w-0">
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-[var(--wf-ink)]">
+                <span
+                  className={`h-1.5 w-1.5 shrink-0 rounded-full ${entry.tone === 'live' ? 'bg-[var(--wf-live)]' : 'bg-[var(--wf-action)]'}`}
+                  aria-hidden
+                />
+                {entry.label}
+              </p>
+              <p className="text-xs text-[var(--wf-ink-muted)]">
+                {entry.tone === 'live' ? 'Event aktif hari ini' : 'Dalam agenda berikutnya'}
+              </p>
+            </div>
+          </div>
         ))}
       </div>
 

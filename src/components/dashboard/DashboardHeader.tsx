@@ -64,10 +64,13 @@ export function DashboardHeader({
   const hasActions = searchable || Boolean(primaryAction);
 
   return (
-    <div className="wf-plate px-4 py-3.5 sm:px-5 sm:py-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="px-1 py-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <h1 className="font-display text-xl font-extrabold tracking-tight text-[var(--wf-ink)] sm:text-2xl">
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--wf-ink-muted)]">
+            Ruang kerja
+          </span>
+          <h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight text-[var(--wf-ink)] sm:text-[2rem]">
             {current.label}
           </h1>
           <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">{current.description}</p>

@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead, TenantEventProposal, TenantParticipation } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
 import { getCommandCenterCards } from './dashboardNavigation';
@@ -64,9 +64,15 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
     <section aria-labelledby="cc-queue-title">
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h2 id="cc-queue-title" className="font-display text-base font-semibold text-[var(--wf-ink)]">
+          <span className="mr-2 text-xs font-semibold tabular-nums text-[var(--wf-ink-muted)]">01</span>
           Perlu tindakan
+          <span className="ml-2 text-xs font-normal text-[var(--wf-ink-muted)]">
+            {queues.length > 0 ? `${queues.length} modul` : ''}
+          </span>
         </h2>
-        <p className="text-xs text-[var(--wf-ink-muted)]">Modul yang menunggu keputusan.</p>
+        <p className="text-xs text-[var(--wf-ink-muted)]">
+          {queues.some(card => card.queue!.error) ? 'Sebagian sumber belum tersedia' : 'Siap ditindaklanjuti'}
+        </p>
       </div>
 
       {queues.length > 0 ? (
@@ -79,7 +85,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
               className="wf-row wf-row--queue h-auto rounded-none border-0 font-normal whitespace-normal focus-visible:ring-0 active:translate-y-0"
             >
               <Link to={card.route}>
-                <span className="wf-row__icon" aria-hidden>
+                <span className="wf-row__icon rounded-[var(--wf-radius-control)] bg-[var(--wf-board-2)] p-2" aria-hidden>
                   {card.icon}
                 </span>
                 <span className="min-w-0 flex-1">
@@ -90,10 +96,15 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
                       : card.queue!.state}
                   </span>
                 </span>
-                <span className="wf-code wf-row__count">{card.queue!.error ? '—' : card.queue!.count}</span>
+                <span
+                  className="wf-row__count text-lg font-bold tabular-nums"
+                  style={card.queue!.error ? { color: 'var(--wf-ink-muted)' } : undefined}
+                >
+                  {card.queue!.error ? '—' : card.queue!.count}
+                </span>
                 <span className="wf-row__action">
                   <span className="wf-row__action-label">{card.queue!.action}</span>
-                  <ArrowRight className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+                  <ArrowUpRight className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} aria-hidden />
                 </span>
               </Link>
             </Button>

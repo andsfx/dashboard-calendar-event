@@ -75,9 +75,11 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
 
   return (
     <section aria-labelledby="cc-directory-title">
-      <h2 id="cc-directory-title" className="mb-2 font-display text-base font-semibold text-[var(--wf-ink)]">
+      <h2 id="cc-directory-title" className="mb-1 font-display text-base font-semibold text-[var(--wf-ink)]">
+        <span className="mr-2 text-xs font-semibold tabular-nums text-[var(--wf-ink-muted)]">03</span>
         Semua modul
       </h2>
+      <p className="mb-3 text-xs text-[var(--wf-ink-muted)]">Temukan ruang kerja sesuai kebutuhan Anda.</p>
 
       <div className="wf-directory">
         {groups.map(group => (

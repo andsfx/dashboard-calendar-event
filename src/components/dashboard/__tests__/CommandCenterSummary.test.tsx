@@ -57,7 +57,7 @@ describe('CommandCenterSummary: register "Perlu tindakan"', () => {
   it('hanya memuat modul yang punya antrian manusia', () => {
     renderRegister({ activeDrafts: [{ id: 'd1' } as never] });
 
-    const register = screen.getByRole('region', { name: 'Perlu tindakan' });
+    const register = screen.getByRole('region', { name: /Perlu tindakan/ });
     expect(within(register).getByRole('link', { name: /Antrian draft/ })).toBeInTheDocument();
     // Modul pasif tidak boleh naik ke register antrian.
     expect(within(register).queryByRole('link', { name: /Log aktivitas/ })).not.toBeInTheDocument();
