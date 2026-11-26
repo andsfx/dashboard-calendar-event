@@ -58,7 +58,12 @@ export function QuarterTimeline({ themes, isAdmin = false, onEditTheme, onDelete
               <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">{theme.name}</p>
               <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
                 {formatDate(theme.dateStart)} – {formatDate(theme.dateEnd)}
-                <span className="ml-2 tabular-nums">{progress}% berjalan</span>
+                {/* Persen hanya untuk tema yang sedang berjalan: tema lampau di
+                    baris yang sama sudah berstatus Selesai dan tidak perlu diulang
+                    di meta. Pemisah ditulis sebagai teks, bukan margin, supaya
+                    urutannya benar saat dibaca pembaca layar maupun diekstrak. */}
+                {isActive && <span className="tabular-nums"> · {progress}% berjalan</span>}
+                {!isActive && !isPast && <span> · belum dimulai</span>}
               </p>
             </div>
 

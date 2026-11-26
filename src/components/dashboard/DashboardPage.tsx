@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Radio, Clock3 } from 'lucide-react';
 import { Skeleton } from '../shadcn/skeleton';
 import { Empty, EmptyDescription, EmptyTitle } from '../shadcn/empty';
+import { Button } from '../shadcn/button';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
 import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, ExhibitionSlot, TenantEventProposal, TenantEventProposalStatus, TenantParticipation, TenantParticipationStatus, InsightAction } from '../../types';
@@ -640,6 +641,9 @@ export function DashboardPage({
                 <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">
                   Tambah tema untuk menyusun agenda setahun; tema aktif tampil di Pusat Komando.
                 </EmptyDescription>
+                {permissions.canManageThemes && (
+                  <Button type="button" onClick={handlers.handleAddTheme}>Tambah tema</Button>
+                )}
               </Empty>
             </div>
           ) : (
