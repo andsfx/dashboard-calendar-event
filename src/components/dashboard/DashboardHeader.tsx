@@ -1,12 +1,9 @@
 import { Plus } from 'lucide-react';
 import { Button } from '../shadcn/button';
-import { SearchBar } from '../ui/SearchBar';
 import { getWayfindingGroup, getWayfindingMap } from './dashboardNavigation';
 
 interface DashboardHeaderProps {
   isAdmin: boolean;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
   /**
    * The route's own primary action. Only supplied by routes that do not
    * already own a create control in the page body — otherwise the plate would
@@ -16,12 +13,6 @@ interface DashboardHeaderProps {
    * drafts alike.
    */
   primaryAction?: { label: string; onClick: () => void };
-  /**
-   * Whether this route has an event list the plate search actually filters.
-   * The plate search writes to the shared event filter, so on every other
-   * route it was a visible control that changed nothing.
-   */
-  searchable?: boolean;
   /** Admin route path relative to /dashboard ('/', '/events', …) */
   dashboardPath?: string;
 }
@@ -33,10 +24,7 @@ interface DashboardHeaderProps {
  */
 export function DashboardHeader({
   isAdmin,
-  searchQuery,
-  onSearchChange,
   primaryAction,
-  searchable = false,
   dashboardPath = '/',
 }: DashboardHeaderProps) {
   if (!isAdmin) {
@@ -62,7 +50,7 @@ export function DashboardHeader({
   // content. (No `secondaryActions` slot: no route needs one, and a second
   // action here would reopen the "two paths to one mutation" bug documented
   // on `primaryAction`.)
-  const hasActions = searchable || Boolean(primaryAction);
+  const hasActions = Boolean(primaryAction);
 
   return (
     <div className="px-1 py-1">
@@ -79,15 +67,6 @@ export function DashboardHeader({
 
         {hasActions && (
           <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
-            {searchable && (
-              <div className="w-full sm:w-[260px]">
-                <SearchBar
-                  value={searchQuery}
-                  onChange={onSearchChange}
-                  placeholder="Cari acara…"
-                />
-              </div>
-            )}
             {primaryAction && (
               <Button variant="default" onClick={primaryAction.onClick} className="shrink-0">
                 <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden /> <span>{primaryAction.label}</span>

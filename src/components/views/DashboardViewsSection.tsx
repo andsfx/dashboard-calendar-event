@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { CalendarDays, Download, RefreshCw, SearchX } from 'lucide-react';
 import { EventItem, ViewMode, EventStatus, HolidayItem, EventArea } from '../../types';
-import { SearchBar } from '../ui/SearchBar';
 import { FilterBar } from '../ui/FilterBar';
+import { ViewToggle, type ViewToggleTab } from '../dashboard/ViewToggle';
 import { EventTable } from '../events/EventTable';
 import { DashboardCalendarView } from '../dashboard/DashboardCalendarView';
 import { KanbanView } from './KanbanView';
@@ -20,6 +20,10 @@ import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from '..
 
 interface Props {
   viewMode: ViewMode;
+  /** Tab Tabel/Kalender/Kanban/Timeline — dirender di topline, seperti
+   *  segmented control prototipe, bukan di atas toolbar. */
+  viewTabs?: ViewToggleTab[];
+  onSelectView?: (view: ViewMode) => void;
   isAdmin: boolean;
   /** Show Event status "draft" filter tab (admin/superadmin only). */
   showInternalDraftFilter?: boolean;
@@ -55,6 +59,8 @@ interface Props {
 export function DashboardViewsSection(props: Props) {
   const {
     viewMode,
+    viewTabs,
+    onSelectView,
     isAdmin,
     showInternalDraftFilter = false,
     canUseCalendarKanban = false,
@@ -134,13 +140,10 @@ export function DashboardViewsSection(props: Props) {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-3">
-        {!isAdmin && (
-          <div className="w-full sm:w-[360px]">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Cari acara, lokasi, penyelenggara…" />
-          </div>
-        )}
+      <div className="flex flex-col gap-4">
         <FilterBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
           categories={visibleCategories}
@@ -154,15 +157,22 @@ export function DashboardViewsSection(props: Props) {
           showDraft={showInternalDraftFilter}
           showPriority={isAdmin}
         />
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs text-[var(--wf-ink-muted)]">
-            Menampilkan <span className="font-semibold text-[var(--wf-ink)]">{visibleEvents.length}</span> dari {visibleStats.total} acara
-            {searchQuery && <span>, pencarian &ldquo;<em>{searchQuery}</em>&rdquo;</span>}
+        {/* Topline prototipe: "N event dalam jadwal" + Hapus filter di kiri,
+            pemilih tampilan dan unduhan di kanan. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p className="text-sm text-[var(--wf-ink)]">
+            <strong className="font-semibold tabular-nums">{visibleEvents.length}</strong>{' '}
+            <span className="text-[var(--wf-ink-muted)]">
+              {hasActiveFilters ? 'event sesuai filter' : 'event dalam jadwal'}
+            </span>
+            {visibleStats.total > 0 && !hasActiveFilters && (
+              <span className="text-[var(--wf-ink-muted)]"> dari {visibleStats.total}</span>
+            )}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {hasActiveFilters && (
               <Button type="button" variant="ghost" size="sm" onClick={resetFilters} className="text-[var(--wf-accent)]">
-                <RefreshCw className="h-3 w-3" /> Reset {activeFilterCount} filter
+                <RefreshCw className="h-3 w-3" /> Hapus filter
               </Button>
             )}
             {canExportSchedulePdf && (
@@ -177,6 +187,9 @@ export function DashboardViewsSection(props: Props) {
                 <Download className="h-3.5 w-3.5" aria-hidden />
                 Unduh PDF
               </Button>
+            )}
+            {viewTabs && onSelectView && (
+              <ViewToggle tabs={viewTabs} viewMode={viewMode} onSelect={onSelectView} />
             )}
           </div>
         </div>
@@ -201,8 +214,8 @@ export function DashboardViewsSection(props: Props) {
                   <SearchX className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
                 </EmptyMedia>
                 <EmptyHeader>
-                  <EmptyTitle className="font-semibold text-[var(--wf-ink)]">Tidak ada acara yang cocok</EmptyTitle>
-                  <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">Coba ubah atau reset filter.</EmptyDescription>
+                  <EmptyTitle className="font-semibold text-[var(--wf-ink)]">Tidak ada hasil yang cocok</EmptyTitle>
+                  <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">Coba kata kunci atau periode lain, atau hapus semua filter.</EmptyDescription>
                 </EmptyHeader>
                 <Button type="button" onClick={resetFilters}>
                   Reset filter
@@ -217,7 +230,7 @@ export function DashboardViewsSection(props: Props) {
                 </EmptyMedia>
                 <EmptyHeader>
                   <EmptyTitle className="font-semibold text-[var(--wf-ink)]">Jadwal belum memiliki event</EmptyTitle>
-                  <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">Event yang ditambahkan akan muncul di sini beserta statusnya.</EmptyDescription>
+                  <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">Tambahkan event pertama untuk mulai menyusun agenda.</EmptyDescription>
                 </EmptyHeader>
               </Empty>
             </div>

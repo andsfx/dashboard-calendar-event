@@ -6,10 +6,7 @@ import { DashboardHeader } from '../DashboardHeader'
 describe('DashboardHeader', () => {
   const mockProps = {
     isAdmin: true,
-    searchQuery: '',
-    onSearchChange: vi.fn(),
     primaryAction: { label: 'Tambah', onClick: vi.fn() },
-    searchable: true,
     dashboardPath: '/events',
   }
 
@@ -63,13 +60,10 @@ describe('DashboardHeader', () => {
 
   // Regression: the plate search wrote to the shared event filter, so on
   // non-event routes it was a visible control that changed nothing.
-  it('renders the search field only on routes it can actually filter', () => {
+  // Pencarian event pindah ke toolbar jadwal (label "Cari nama event"); kepala
+  // halaman tidak boleh menawarkan input kedua dengan filter yang sama.
+  it('never renders a search field in the plate', () => {
     render(<DashboardHeader {...mockProps} />)
-    expect(screen.getByRole('searchbox')).toBeInTheDocument()
-  })
-
-  it('omits the search field on routes without an event list', () => {
-    render(<DashboardHeader {...mockProps} searchable={false} dashboardPath="/users" />)
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()
   })
 })

@@ -293,19 +293,19 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
           semua tabel). Fokus di wrapper dalam tetap menggulir panel ini secara
           vertikal karena wrapper dalam tidak bisa menggulir di sumbu Y. */}
       <div className="hidden max-h-[70vh] overflow-auto md:block">
-        <Table tableLabel="Daftar jadwal event" className="min-w-[60rem]">
+        <Table tableLabel="Daftar jadwal event" className="min-w-[58rem]">
           <TableHeader className="sticky top-0 z-10 bg-[var(--wf-board-2)] [&_tr]:border-b-0">
             <TableRow className="ui-dashboard-muted border-b border-[var(--wf-rule)] hover:bg-transparent">
+              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Nama event</TableHead>
               <TableHead scope="col" className="h-auto px-4 py-3 text-left">
                 <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
                   <ArrowUpDown className="size-3.5" aria-hidden="true" /> Tanggal
                 </span>
               </TableHead>
               <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Waktu</TableHead>
-              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Acara</TableHead>
               <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Lokasi</TableHead>
-              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Status</TableHead>
               <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Kategori</TableHead>
+              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Status</TableHead>
               {isAdmin && <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Model</TableHead>}
               <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{isAdmin ? 'EO' : 'Penyelenggara'}</TableHead>
               {/* `sticky right-0`: kolom Aksi dipin di kanan supaya tombol
@@ -338,6 +338,28 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                     key={ev.id}
                     className={`group transition-colors hover:bg-[var(--wf-board-2)] ${ev.status === 'past' ? '[&>td:not(:last-child)]:opacity-80' : ''}`}
                   >
+                    {/* Event name — kolom pertama seperti prototipe (`row-title`
+                        dibatasi 280px); tanpa batas, kolom judul menelan lebar
+                        dan mendorong Tanggal/Waktu/Lokasi ke bawah kolom Aksi. */}
+                    <TableCell className="px-4 py-3">
+                      <div className="max-w-[14rem]">
+                      <Button
+                        variant="link"
+                        onClick={() => onDetail(ev)}
+                        className="h-auto justify-start whitespace-normal p-0 text-left font-extrabold text-[var(--wf-ink)] hover:underline active:translate-y-0"
+                      >
+                        {ev.acara}
+                      </Button>
+                      {ev.keterangan && (
+                        <p className="mt-0.5 line-clamp-1 text-xs text-[var(--wf-ink-muted)]">{ev.keterangan}</p>
+                      )}
+                      {isAdmin && (
+                        <div className="mt-1">
+                          <PriorityBadge priority={ev.priority} />
+                        </div>
+                      )}
+                      </div>
+                    </TableCell>
                     {/* Date */}
                     <TableCell className="whitespace-nowrap px-4 py-3">
                       {isMultiDayEvent(ev) ? (
@@ -356,18 +378,6 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                         {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : (ev.jam || '-')}
                       </span>
                     </TableCell>
-                    {/* Event name */}
-                    <TableCell className="px-4 py-3">
-                      <p className="font-semibold ui-text-strong">{ev.acara}</p>
-                      {ev.keterangan && (
-                        <p className="mt-0.5 line-clamp-1 text-xs text-[var(--wf-ink-muted)]">{ev.keterangan}</p>
-                      )}
-                      {isAdmin && (
-                        <div className="mt-1">
-                          <PriorityBadge priority={ev.priority} />
-                        </div>
-                      )}
-                    </TableCell>
                     {/* Location */}
                     <TableCell className="px-4 py-3">
                       <span className="inline-flex items-center gap-1 text-xs text-[var(--wf-ink-muted)]">
@@ -375,17 +385,17 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                         <span className="line-clamp-2">{resolveAreaDisplay(ev.areaId, ev.lokasi, areas ?? []) || '-'}</span>
                       </span>
                     </TableCell>
+                    {/* Category */}
+                    <TableCell className="whitespace-nowrap px-4 py-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        <CategoryBadges categories={ev.categories} maxVisible={2} />
+                      </div>
+                    </TableCell>
                     {/* Status */}
                     <TableCell className="whitespace-nowrap px-4 py-3">
                       <div className="flex items-center gap-1.5">
                         <StatusBadge status={ev.status} />
                         {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]">Reguler</span>}
-                      </div>
-                    </TableCell>
-                    {/* Category */}
-                    <TableCell className="whitespace-nowrap px-4 py-3">
-                      <div className="flex flex-wrap gap-1.5">
-                        <CategoryBadges categories={ev.categories} maxVisible={2} />
                       </div>
                     </TableCell>
                     {isAdmin && (
@@ -404,7 +414,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                         `whitespace-nowrap` membuat kolom ini ~254px dan ikut
                         mendikte lebar tabel. Biarkan terpotong dengan tooltip. */}
                     <TableCell className="px-4 py-3 text-xs text-[var(--wf-ink-muted)]">
-                      <span className="block max-w-[12rem] truncate" title={ev.eo || undefined}>
+                      <span className="block max-w-[7rem] truncate" title={ev.eo || undefined}>
                         {ev.eo || '-'}
                       </span>
                     </TableCell>
@@ -414,9 +424,6 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                         tembus saat tergeser; `group-hover` menyamai hover baris. */}
                     <TableCell className="sticky right-0 z-10 border-l border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-3 text-right transition-colors group-hover:bg-[var(--wf-board-2)]" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon-sm" aria-label="Lihat detail" onClick={() => onDetail(ev)} className="active:translate-y-0">
-                          <ExternalLink className="size-3.5" aria-hidden="true" />
-                        </Button>
                         {onToggleVisibility && (
                           <Button
                             variant="ghost"

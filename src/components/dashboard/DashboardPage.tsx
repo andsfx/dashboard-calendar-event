@@ -364,18 +364,12 @@ export function DashboardPage({
     >
       <DashboardHeader
         isAdmin={isAdmin}
-        searchQuery={filters.searchQuery}
-        onSearchChange={filters.setSearchQuery}
-        /* Only the route that actually renders the event list gets the plate
-           search: it writes to the shared event filter, so anywhere else it was
-           a visible control that changed nothing (and since ADR-009 Pusat
-           Komando no longer renders the list). The create action stays on both
-           routes: Pusat Komando is where an operator takes the call. Every
-           other module owns its own create control in the body (drafts: "Tambah
-           Draft Event", themes: "Tambah Tema", users: "Invite"/"Buat Manual"),
-           so offering the event creator there gave those pages a second, wrong
-           primary action. */
-        searchable={dashboardPath === '/events'}
+        /* Pencarian milik toolbar jadwal (/dashboard/events), bukan kepala
+           halaman: dua input dengan filter yang sama hanya membingungkan.
+           Aksi utama tetap di sini karena Pusat Komando adalah tempat operator
+           menerima panggilan; modul lain mengelola tombol buatnya sendiri di
+           badan halaman, jadi menawarkan pembuat event di sana memberi aksi
+           utama yang salah. */
         primaryAction={
           permissions.canEditEvents && (dashboardPath === '/' || dashboardPath === '/events')
             ? { label: 'Tambah', onClick: handlers.handleAddNew }
@@ -484,16 +478,11 @@ export function DashboardPage({
           merender salinan halaman ini; ia menaut ke sini (lihat ADR-009). */}
       {isAdmin && dashboardPath === '/events' && (
         <section id="views" className="scroll-mt-20">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-            <ViewToggle
-              tabs={availableViewTabs}
-              viewMode={view.viewMode}
-              onSelect={view.setViewMode}
-            />
-          </div>
           <Suspense fallback={<SectionFallback height="h-80" />}>
             <DashboardViewsSection
               viewMode={view.viewMode}
+              viewTabs={availableViewTabs}
+              onSelectView={view.setViewMode}
               isAdmin={isAdmin}
               showInternalDraftFilter={canSeeInternalSchedule}
               canUseCalendarKanban={permissions.canEditEvents}

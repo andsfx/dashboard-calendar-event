@@ -1,11 +1,10 @@
 import { useId } from 'react';
-import { X } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { EventStatus } from '../../types';
 import { Label } from '../shadcn/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../shadcn/select';
-import { Toggle } from '../shadcn/toggle';
-import { Badge } from '../shadcn/badge';
-import { Button } from '../shadcn/button';
+import { NativeSelect } from '../shadcn/native-select';
+import { Input } from '../shadcn/input';
 
 const STATUS_TABS: Array<{ key: EventStatus | 'Semua'; label: string; dot?: string }> = [
   { key: 'Semua',    label: 'Semua' },
@@ -35,6 +34,8 @@ function normalizeOptionKeys(values: string[]) {
 }
 
 interface Props {
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
   activeFilter: EventStatus | 'Semua';
   onFilterChange: (f: EventStatus | 'Semua') => void;
   categories: string[];
@@ -52,16 +53,14 @@ interface Props {
 /**
  * Baris filter dashboard.
  *
- * Status memakai grup chip toggle `md-filter-chip` (`aria-pressed` dipasang md
- * pada button internalnya) — BUKAN `md-tabs`: tidak ada tabpanel di bawah baris
- * ini, jadi `role="tablist"`/`role="tab"` akan menjanjikan navigasi panah
- * antar-panel yang tidak ada. `md-tabs` tetap dipakai untuk berpindah VIEW
- * (Tabel/Kalender/Kanban/Timeline) di `DashboardViewsSection`.
- * Dropdown memakai `md-outlined-select`, dan chip filter aktif memakai
- * `md-filter-chip` removable. Handler keyboard/`listbox` manual yang dulu ada
- * di sini sudah tidak diperlukan.
+ * Toolbar filter berlabel di atas kontrol (pola `toolbar` prototipe Open
+ * Design): cari, status, kategori, bulan, prioritas. Penghapusan filter terjadi
+ * di satu tempat — tombol "Hapus filter" pada topline hasil — bukan lewat chip
+ * per-filter yang menduplikasi keadaan kontrol di atasnya.
  */
 export function FilterBar({
+  searchQuery = '',
+  onSearchChange,
   activeFilter, onFilterChange,
   categories, activeCategory, onCategoryChange,
   activePriority, onPriorityChange,
@@ -69,6 +68,7 @@ export function FilterBar({
   showDraft = true,
   showPriority = true,
 }: Props) {
+  const fieldLabel = 'mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]';
   const filterId = useId();
   const categoryOptions = normalizeOptionKeys(categories ?? []).map(c => ({ value: c, label: c === 'Semua' ? 'Semua kategori' : c }));
   const monthOptions = (months ?? []).map(m => ({ value: m, label: m === 'Semua' ? 'Semua bulan' : m }));
@@ -76,63 +76,54 @@ export function FilterBar({
   const statusTabs = showDraft ? STATUS_TABS : STATUS_TABS.filter(tab => tab.key !== 'draft');
   const dropdownCols = showPriority ? 'grid grid-cols-1 gap-2 sm:grid-cols-3' : 'grid grid-cols-1 gap-2 sm:grid-cols-2';
 
-  const activeChips = [
-    activeFilter !== 'Semua' ? { key: 'status', label: `Status: ${statusTabs.find(tab => tab.key === activeFilter)?.label ?? activeFilter}`, clear: () => onFilterChange('Semua') } : null,
-    activeMonth !== 'Semua' ? { key: 'month', label: `Bulan: ${activeMonth}`, clear: () => onMonthChange('Semua') } : null,
-    activeCategory !== 'Semua' ? { key: 'category', label: `Kategori: ${activeCategory}`, clear: () => onCategoryChange('Semua') } : null,
-    showPriority && activePriority !== 'Semua' ? { key: 'priority', label: `Prioritas: ${PRIORITY_OPTIONS.find(option => option.key === activePriority)?.label ?? activePriority}`, clear: () => onPriorityChange('Semua') } : null,
-  ].filter((chip): chip is { key: string; label: string; clear: () => void } => chip !== null);
-
   return (
     /* Blok kontrol filter = landmark `search`, bukan `<div>`: pengguna SR bisa
        melompat langsung ke sini dan filter halaman lain (survei, arsip) tidak
        tertukar dengan tabel di bawahnya. */
-    <search aria-label="Filter acara" className="flex flex-col gap-3">
-      {/* Filter status — grup chip toggle (`aria-pressed` dari md-filter-chip),
-          bukan tablist: tidak ada tabpanel di bawah baris ini.
-          Scrollable di mobile (chip `shrink-0` supaya tidak terkompresi). */}
-      <div
-        role="group"
-        aria-label="Filter status acara"
-        className="flex w-full items-center gap-2 overflow-x-auto"
-      >
-        {statusTabs.map(tab => (
-          <Toggle
-            key={tab.key}
-            variant="outline"
-            size="sm"
-            pressed={activeFilter === tab.key}
-            onPressedChange={pressed => { if (pressed) onFilterChange(tab.key); }}
-            className="shrink-0 min-h-11 rounded-full px-3 text-[var(--wf-ink-muted)] data-[state=on]:border-[var(--wf-accent)] data-[state=on]:bg-[var(--wf-accent-soft)] data-[state=on]:text-[var(--wf-accent)] aria-pressed:border-[var(--wf-accent)] aria-pressed:bg-[var(--wf-accent-soft)] aria-pressed:text-[var(--wf-accent)] sm:min-h-8"
-          >
-            {tab.dot && <span className={`h-1.5 w-1.5 rounded-full ${tab.dot}`} aria-hidden="true" />}
-            {tab.label}
-          </Toggle>
-        ))}
-      </div>
-
-      {/* Dropdowns row - wrap on mobile. Label sr-only, bukan aria-label:
-          nama aksesibel harus stabil ("Bulan") sementara teks terlihat adalah
-          NILAI terpilih — `aria-label="Semua bulan"` dulu bertabrakan dengan
-          "Oktober" yang tampil setelah memilih (WCAG 2.5.3). */}
-      <div className={dropdownCols}>
-        <div>
-          <Label htmlFor={`${filterId}-bulan`} className="sr-only">Bulan</Label>
-          <Select value={activeMonth} onValueChange={onMonthChange}>
-            <SelectTrigger id={`${filterId}-bulan`} className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {monthOptions.map(option => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+    <search
+      aria-label="Filter acara"
+      className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3 sm:p-4"
+    >
+      {/* Toolbar filter: label di atas kontrol, satu baris di layar lebar —
+          pola yang sama dengan `toolbar` prototipe Open Design. */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="sm:col-span-2 lg:col-span-1">
+          <Label htmlFor={`${filterId}-cari`} className={fieldLabel}>Cari nama event</Label>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--wf-ink-muted)]"
+              aria-hidden="true"
+            />
+            <Input
+              id={`${filterId}-cari`}
+              type="search"
+              value={searchQuery}
+              onChange={event => onSearchChange?.(event.target.value)}
+              placeholder="Cari nama event…"
+              autoComplete="off"
+              className="h-10 pl-9"
+            />
+          </div>
         </div>
+
         <div>
-          <Label htmlFor={`${filterId}-kategori`} className="sr-only">Kategori</Label>
+          <Label htmlFor={`${filterId}-status`} className={fieldLabel}>Status</Label>
+          <NativeSelect
+            id={`${filterId}-status`}
+            value={activeFilter}
+            onChange={event => onFilterChange(event.target.value as EventStatus | 'Semua')}
+            className="w-full"
+          >
+            {statusTabs.map(tab => (
+              <option key={tab.key} value={tab.key}>
+                {tab.key === 'Semua' ? 'Semua status' : tab.label}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+
+        <div>
+          <Label htmlFor={`${filterId}-kategori`} className={fieldLabel}>Kategori</Label>
           <Select value={activeCategory} onValueChange={onCategoryChange}>
             <SelectTrigger id={`${filterId}-kategori`} className="w-full">
               <SelectValue />
@@ -146,9 +137,26 @@ export function FilterBar({
             </SelectContent>
           </Select>
         </div>
+
+        <div>
+          <Label htmlFor={`${filterId}-bulan`} className={fieldLabel}>Bulan</Label>
+          <Select value={activeMonth} onValueChange={onMonthChange}>
+            <SelectTrigger id={`${filterId}-bulan`} className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {monthOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
         {showPriority && (
           <div>
-            <Label htmlFor={`${filterId}-prioritas`} className="sr-only">Prioritas</Label>
+            <Label htmlFor={`${filterId}-prioritas`} className={fieldLabel}>Prioritas</Label>
             <Select value={activePriority} onValueChange={onPriorityChange}>
               <SelectTrigger id={`${filterId}-prioritas`} className="w-full">
                 <SelectValue />
@@ -165,28 +173,6 @@ export function FilterBar({
         )}
       </div>
 
-      {activeChips.length > 0 && (
-        <div role="group" aria-label="Filter aktif" className="flex flex-wrap items-center gap-2">
-          {activeChips.map(chip => (
-            <Badge
-              key={chip.key}
-              variant="outline"
-              className="h-auto gap-1.5 overflow-visible rounded-full border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-2.5 py-1 text-xs font-medium text-[var(--wf-ink)]"
-            >
-              {chip.label}
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                aria-label={`Hapus filter ${chip.label}`}
-                onClick={chip.clear}
-                className="-my-1 -mr-1.5 size-6 rounded-full p-1.5 text-[var(--wf-ink-muted)] hover:bg-transparent hover:text-[var(--wf-ink)] active:translate-y-0"
-              >
-                <X className="size-3" aria-hidden />
-              </Button>
-            </Badge>
-          ))}
-        </div>
-      )}
     </search>
   );
 }
