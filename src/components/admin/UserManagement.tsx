@@ -11,6 +11,7 @@ import { Button } from '../shadcn/button';
 import { Input } from '../shadcn/input';
 import { NativeSelect } from '../shadcn/native-select';
 import { UserEditModal } from './UserEditModal';
+import { Empty, EmptyDescription, EmptyTitle } from '../shadcn/empty';
 
 interface UserRecord {
   id: string;
@@ -205,6 +206,16 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
       {/* Users table */}
       <div className="ui-dashboard-surface">
         <div className="divide-y divide-[var(--wf-rule)]">
+          {users.length === 0 && (
+            <div className="p-6">
+              <Empty className="border-0 bg-transparent p-0">
+                <EmptyTitle className="text-sm font-semibold text-[var(--wf-ink)]">Belum ada pengguna</EmptyTitle>
+                <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">
+                  Undang staf pertama lewat tombol di atas untuk memberi akses dashboard.
+                </EmptyDescription>
+              </Empty>
+            </div>
+          )}
           {users.map((u) => {
             const roleInfo = ROLE_LABELS[u.role] || { label: u.role, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Shield className="h-3 w-3" /> };
             // Label aksesibel harus unik: display_name boleh sama (dua user

@@ -15,14 +15,18 @@ export function useTenantEventProposals(enabled: boolean) {
   const [proposals, setProposals] = useState<TenantEventProposal[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  /** Galat muat daftar saja; `error` tetap dipakai untuk umpan balik mutasi. */
+  const [loadError, setLoadError] = useState('');
 
   const reload = useCallback(async () => {
     setIsLoading(true);
+    setLoadError('');
     try {
       setProposals(await fetchTenantEventProposals());
       setError('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat pengajuan kolaborasi tenant');
+      setLoadError(err instanceof Error ? err.message : 'Gagal memuat pengajuan kolaborasi tenant');
     } finally {
       setIsLoading(false);
     }
@@ -63,5 +67,5 @@ export function useTenantEventProposals(enabled: boolean) {
     [runMutation],
   );
 
-  return { proposals, isLoading, error, reload, reviewProposal, saveNotes, removeProposal };
+  return { proposals, isLoading, error, loadError, reload, reviewProposal, saveNotes, removeProposal };
 }

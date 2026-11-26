@@ -262,6 +262,11 @@ export function ExhibitionManager({
     if (ok) resetSlotForm(exhibition);
   };
 
+  const pendingReviewLeads = leads.filter(lead =>
+    lead.status === 'submitted' || lead.status === 'in_review' || lead.status === 'need_info'
+  );
+  const programTitleById = new Map(exhibitions.map(item => [item.id, item.title]));
+
   return (
     <div className="space-y-6">
       {error && (
@@ -269,6 +274,40 @@ export function ExhibitionManager({
           {error}
         </p>
       )}
+
+      <section aria-labelledby="exh-queue-title" className="ui-dashboard-surface p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h2 id="exh-queue-title" className="font-display text-base font-semibold text-[var(--wf-ink)]">
+            Pengajuan menunggu tinjauan
+          </h2>
+          <p className="text-xs text-[var(--wf-ink-muted)]">
+            {pendingReviewLeads.length > 0
+              ? `${pendingReviewLeads.length} pengajuan perlu dilihat`
+              : 'Tidak ada yang menunggu'}
+          </p>
+        </div>
+        {pendingReviewLeads.length === 0 ? (
+          <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">
+            Semua pengajuan sudah diputuskan. Pengajuan baru akan muncul di sini.
+          </p>
+        ) : (
+          <ul className="mt-3 divide-y divide-[var(--wf-rule)]">
+            {pendingReviewLeads.slice(0, 6).map(lead => (
+              <li key={lead.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-[var(--wf-ink)]">{lead.organizationName}</p>
+                  <p className="truncate text-xs text-[var(--wf-ink-muted)]">
+                    {programTitleById.get(lead.exhibitionId) ?? 'Program tidak ditemukan'} · {LEAD_STATUS_LABELS[lead.status]}
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a href={`#exh-program-${lead.exhibitionId}`}>Buka program</a>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {!readOnly && (
         <form onSubmit={handleSubmit} className="ui-dashboard-surface space-y-4 p-5">
@@ -463,7 +502,7 @@ export function ExhibitionManager({
             const isHiddenByRule = exhibition.status === 'completed' || exhibition.status === 'archived' || exhibition.dateEnd < jakartaToday;
             const isVisible = exhibition.publication === 'published' && !isHiddenByRule;
             return (
-              <li key={exhibition.id} className="rounded-[var(--radius-card)] border border-[var(--wf-rule)] p-4">
+              <li key={exhibition.id} id={`exh-program-${exhibition.id}`} className="rounded-[var(--radius-card)] border border-[var(--wf-rule)] p-4 scroll-mt-24">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-[var(--wf-ink)]">{exhibition.title}</p>

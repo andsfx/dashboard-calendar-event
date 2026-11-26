@@ -244,14 +244,19 @@ npm install
 # Development — SPA (Vite). Tanpa backend, panggilan /api/v1/* akan 404.
 npm run dev
 
-# Development — backend REST (Express + Postgres). Wajib dijalankan
-# berdampingan untuk fitur yang menyentuh server (login, sync Instagram,
-# simpan konten, dsb.), karena `npm run dev` hanyalah Vite.
+# Backend REST (Express + Postgres), di terminal terpisah.
+# Untuk snapshot dan akun lokal, gunakan perintah ber-env pada panduan di bawah.
 npm run dev:api
 
 # Build untuk production
 npm run build
 ```
+
+### Development lokal dengan data live
+
+Ikuti [workflow development lokal](docs/agents/local-development.md) untuk menyalakan Postgres, menarik snapshot produksi, menjalankan API dan SPA, serta login admin. Panduan mencakup perintah Bash dan PowerShell, konfigurasi mesin baru, dan cara mengatasi data kosong atau login gagal.
+
+Workflow ini berlaku untuk semua editor dan agen coding. Akun development memakai sesi login API nyata; password disimpan di `.env.development.local` yang gitignored. Sync mengganti isi database lokal dengan snapshot terbaru.
 
 ### Migrasi database
 

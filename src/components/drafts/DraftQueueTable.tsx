@@ -5,7 +5,7 @@ import { getWhatsAppUrl } from '../../utils/draftUtils';
 import { Button } from '../shadcn/button';
 import { NativeSelect } from '../shadcn/native-select';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../shadcn/table';
-import { Empty, EmptyDescription } from '../shadcn/empty';
+import { Empty, EmptyDescription, EmptyTitle } from '../shadcn/empty';
 
 interface Props {
   drafts: DraftEventItem[];
@@ -22,7 +22,10 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
     return (
       <div className="ui-empty-panel p-8">
         <Empty className="border-0 bg-transparent p-0">
-          <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">Belum ada draft event aktif</EmptyDescription>
+          <EmptyTitle className="text-sm font-semibold text-[var(--wf-ink)]">Belum ada draft aktif</EmptyTitle>
+          <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">
+            Draft muncul di sini setelah disimpan, menunggu konfirmasi sebelum diterbitkan.
+          </EmptyDescription>
         </Empty>
       </div>
     );
@@ -76,15 +79,16 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                     <div className="flex flex-wrap gap-2">
                       {onEdit && <Button variant="outline" size="sm" onClick={() => onEdit(draft)}><Edit2 className="size-3.5" />Ubah</Button>}
                       {onDelete && <Button variant="outline" size="sm" onClick={() => onDelete(draft)} className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)]"><Trash2 className="size-3.5" />Hapus</Button>}
-                      {onPublish && <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onPublish(draft)}
-                        disabled={draft.progress !== 'confirm'}
-                        title={draft.progress !== 'confirm' ? 'Set progress ke Konfirmasi dulu sebelum menerbitkan' : 'Terbitkan ke jadwal utama'}
-                      >
-                        <Upload className="size-3.5" />Terbitkan
-                      </Button>}
+                      {onPublish && draft.progress === 'confirm' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onPublish(draft)}
+                          title="Terbitkan ke jadwal utama"
+                        >
+                          <Upload className="size-3.5" />Terbitkan
+                        </Button>
+                      )}
                       {!canMutate && <span className="text-xs text-[var(--wf-ink-muted)]">-</span>}
                       {whatsappUrl && (
                         <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-live)]/30 px-2.5 py-1.5 text-xs font-medium text-[var(--wf-live)] transition hover:bg-[var(--wf-live)]/10">

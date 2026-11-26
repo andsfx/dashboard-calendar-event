@@ -19,6 +19,8 @@ interface Props {
   onPublishDraft?: (draft: DraftEventItem) => void;
   onDraftProgressChange?: (draft: DraftEventItem, progress: DraftEventItem['progress']) => void;
   onRestoreDraft?: (draft: DraftEventItem) => void;
+  /** Muat ulang antrean setelah galat. */
+  onRetry?: () => void;
 }
 
 export function AdminDraftSection({
@@ -34,6 +36,7 @@ export function AdminDraftSection({
   onPublishDraft,
   onDraftProgressChange,
   onRestoreDraft,
+  onRetry,
 }: Props) {
   return (
     <section id="drafts" className="space-y-4 scroll-mt-32">
@@ -43,7 +46,12 @@ export function AdminDraftSection({
             <ClipboardList className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-bold text-[var(--wf-ink)]">Queue Aktif Draft Event</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-bold text-[var(--wf-ink)]">Queue Aktif Draft Event</p>
+              <span className="rounded-full bg-[var(--wf-board-2)] px-2 py-0.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
+                {activeDrafts.length} draft
+              </span>
+            </div>
             <p className="text-xs text-[var(--wf-ink-muted)]">Antrian event yang masih diproses</p>
           </div>
         </div>
@@ -56,7 +64,12 @@ export function AdminDraftSection({
 
       {draftError && (
         <div role="alert" className="rounded-2xl border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
-          {draftError}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="min-w-0 flex-1">{draftError}</span>
+            {onRetry && (
+              <Button variant="outline" size="sm" onClick={onRetry}>Coba lagi</Button>
+            )}
+          </div>
         </div>
       )}
 

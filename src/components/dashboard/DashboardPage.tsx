@@ -2,6 +2,7 @@ import { Suspense, lazy, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Radio, Clock3 } from 'lucide-react';
 import { Skeleton } from '../shadcn/skeleton';
+import { Empty, EmptyDescription, EmptyTitle } from '../shadcn/empty';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
 import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, ExhibitionSlot, TenantEventProposal, TenantEventProposalStatus, TenantParticipation, TenantParticipationStatus, InsightAction } from '../../types';
@@ -74,6 +75,8 @@ export interface DashboardPageDrafts {
   draftEvents: DraftEventItem[];
   isDraftLoading: boolean;
   draftError: string | null;
+  /** Muat ulang antrean draft setelah galat. */
+  onRetry?: () => void;
 }
 export interface DashboardPageExhibitions {
   exhibitions: AdminExhibition[];
@@ -82,6 +85,8 @@ export interface DashboardPageExhibitions {
   slots: ExhibitionSlot[];
   isLoading: boolean;
   error: string;
+  /** Galat muat daftar saja, terpisah dari galat mutasi. */
+  loadError: string;
   onSave: (input: ExhibitionInput, id?: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
   onTogglePublication: (id: string, published: boolean) => Promise<boolean>;
@@ -98,6 +103,8 @@ export interface DashboardPageTenantProposals {
   proposals: TenantEventProposal[];
   isLoading: boolean;
   error: string;
+  /** Galat muat daftar saja, terpisah dari galat mutasi. */
+  loadError: string;
   onRetry: () => void;
   onReview: (id: string, status: TenantEventProposalStatus) => Promise<boolean>;
   onSaveNotes: (id: string, notes: string) => Promise<boolean>;
@@ -108,6 +115,8 @@ export interface DashboardPageTenantParticipations {
   participations: TenantParticipation[];
   isLoading: boolean;
   error: string;
+  /** Galat muat daftar saja, terpisah dari galat mutasi. */
+  loadError: string;
   onRetry: () => void;
   onReview: (id: string, status: TenantParticipationStatus) => Promise<boolean>;
   onSaveNotes: (id: string, notes: string) => Promise<boolean>;
@@ -397,7 +406,18 @@ export function DashboardPage({
               pendingTenantParticipations: permissions.canViewTenantParticipations
                 ? tenantParticipations.participations.filter(item => item.status === 'pending').length
                 : 0,
-              draftsError: drafts.draftError,
+              errors: [
+                ...(drafts.draftError ? [{ label: 'Draf event', message: drafts.draftError }] : []),
+                ...(permissions.canViewExhibitions && exhibitions.loadError
+                  ? [{ label: 'Pameran & aktivasi', message: exhibitions.loadError }]
+                  : []),
+                ...(permissions.canViewTenantProposals && tenantProposals.loadError
+                  ? [{ label: 'Kolaborasi tenant', message: tenantProposals.loadError }]
+                  : []),
+                ...(permissions.canViewTenantParticipations && tenantParticipations.loadError
+                  ? [{ label: 'Partisipasi tenant', message: tenantParticipations.loadError }]
+                  : []),
+              ],
             }}
           />
           <CommandCenterSummary
@@ -408,6 +428,7 @@ export function DashboardPage({
             tenantProposals={tenantProposals.proposals}
             tenantParticipations={tenantParticipations.participations}
             draftsError={drafts.draftError}
+            queueErrors={{ exhibitions: exhibitions.loadError, tenantProposals: tenantProposals.loadError, tenantParticipations: tenantParticipations.loadError }}
             permissions={permissions}
           />
           <CommandCenterAgenda
@@ -423,7 +444,7 @@ export function DashboardPage({
             exhibitionLeads={exhibitions.leads}
             tenantProposals={tenantProposals.proposals}
             tenantParticipations={tenantParticipations.participations}
-            draftsError={drafts.draftError}
+            queueErrors={{ exhibitions: exhibitions.loadError, tenantProposals: tenantProposals.loadError, tenantParticipations: tenantParticipations.loadError }}
             permissions={permissions}
           />
         </section>
@@ -521,6 +542,7 @@ export function DashboardPage({
               onPublishDraft={permissions.canEditEvents ? handlers.handlePublishDraft : undefined}
               onDraftProgressChange={permissions.canEditEvents ? handlers.handleDraftProgressChange : undefined}
               onRestoreDraft={permissions.canEditEvents ? handlers.handleRestoreDraft : undefined}
+              onRetry={drafts.onRetry}
             />
           </Suspense>
         </section>
@@ -615,9 +637,20 @@ export function DashboardPage({
       {/* 5. Tema Tahunan — admin */}
       {permissions.canViewThemes && dashboardPath === '/themes' && (
         <section id="themes" className="scroll-mt-20">
-          <Suspense fallback={<SectionFallback height="h-40" />}>
-            <QuarterTimeline themes={events.annualThemes} isAdmin onAddTheme={permissions.canManageThemes ? handlers.handleAddTheme : undefined} onEditTheme={permissions.canManageThemes ? handlers.handleEditTheme : undefined} onDeleteTheme={permissions.canManageThemes ? handlers.handleDeleteTheme : undefined} />
-          </Suspense>
+          {events.annualThemes.length === 0 ? (
+            <div className="ui-dashboard-surface p-6">
+              <Empty className="border-0 bg-transparent p-0">
+                <EmptyTitle className="text-sm font-semibold text-[var(--wf-ink)]">Belum ada tema tahunan</EmptyTitle>
+                <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">
+                  Tambah tema untuk menyusun agenda setahun; tema aktif tampil di Pusat Komando.
+                </EmptyDescription>
+              </Empty>
+            </div>
+          ) : (
+            <Suspense fallback={<SectionFallback height="h-40" />}>
+              <QuarterTimeline themes={events.annualThemes} isAdmin onAddTheme={permissions.canManageThemes ? handlers.handleAddTheme : undefined} onEditTheme={permissions.canManageThemes ? handlers.handleEditTheme : undefined} onDeleteTheme={permissions.canManageThemes ? handlers.handleDeleteTheme : undefined} />
+            </Suspense>
+          )}
         </section>
       )}
 

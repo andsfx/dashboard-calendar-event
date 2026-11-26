@@ -3,6 +3,13 @@ import { CalendarDays, Radio, Clock3, CheckCircle2, ArrowUp } from 'lucide-react
 import { StatCard } from '../ui/StatCard';
 import { Card, CardTitle, CardDescription } from '../shadcn/card';
 
+/** Satu sumber antrian yang gagal dimuat. */
+export interface QueueSourceError {
+  /** Nama sumber sebagaimana dibaca operator, mis. "Draf event". */
+  label: string;
+  message: string;
+}
+
 interface DashboardStatsProps {
   stats: {
     total: number;
@@ -26,7 +33,12 @@ interface DashboardStatsProps {
     pendingTenantProposals: number;
     /** Pengajuan partisipasi tenant (open booth & voucher) yang menunggu review. */
     pendingTenantParticipations?: number;
-    draftsError?: string | null;
+    /**
+     * Sumber antrian yang gagal dimuat. Selama daftar ini tidak kosong angka
+     * agregat tidak boleh dibaca sebagai nol: antrian yang gagal dimuat bukan
+     * antrian yang kosong, jadi strip menampilkan `—` dan menyebut sumbernya.
+     */
+    errors?: QueueSourceError[];
   } | null;
 }
 
@@ -79,6 +91,8 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
     { label: 'Akan datang', value: stats.upcoming, icon: <Clock3 className="h-4 w-4" strokeWidth={1.5} aria-hidden />, tone: 'accent' },
   ];
 
+  const queueErrors = attention?.errors ?? [];
+  const hasQueueError = queueErrors.length > 0;
   const pendingTotal = attention
     ? attention.draftCount + attention.pendingRegistrations + attention.pendingExhibitionLeads + attention.pendingTenantProposals + (attention.pendingTenantParticipations ?? 0)
     : 0;
@@ -86,7 +100,7 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
   return (
     <div className="wf-status-key">
       {/* The queue leads: it is the one number that needs a decision today. */}
-      {attention && (pendingTotal > 0 || attention.draftsError) && (
+      {attention && (pendingTotal > 0 || hasQueueError) && (
         <Card
           className="wf-metric wf-metric--lead rounded-[var(--wf-radius-board)] border-[var(--wf-action)] bg-[var(--wf-board)] p-3.5 sm:p-5 ring-0 shadow-none gap-0"
         >
@@ -98,10 +112,13 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
               <ArrowUp className="h-4 w-4" strokeWidth={1.5} aria-hidden />
             </span>
           </div>
-          <p className="wf-metric__value">{attention.draftsError ? '—' : pendingTotal}</p>
-          <CardDescription className="wf-metric__hint">
-            {attention.draftsError
-              ? `Sebagian antrian gagal dimuat: ${attention.draftsError}`
+          <p className="wf-metric__value">{hasQueueError ? '—' : pendingTotal}</p>
+          <CardDescription
+            className="wf-metric__hint"
+            title={hasQueueError ? queueErrors.map(source => `${source.label}: ${source.message}`).join(' · ') : undefined}
+          >
+            {hasQueueError
+              ? `Sebagian antrian gagal dimuat: ${queueErrors.map(source => source.message).join(' ')}`
               : 'Antrian yang menunggu keputusan hari ini.'}
           </CardDescription>
         </Card>

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Download, RefreshCw, SearchX } from 'lucide-react';
+import { CalendarDays, Download, RefreshCw, SearchX } from 'lucide-react';
 import { EventItem, ViewMode, EventStatus, HolidayItem, EventArea } from '../../types';
 import { SearchBar } from '../ui/SearchBar';
 import { FilterBar } from '../ui/FilterBar';
@@ -207,6 +207,18 @@ export function DashboardViewsSection(props: Props) {
                 <Button type="button" onClick={resetFilters}>
                   Reset filter
                 </Button>
+              </Empty>
+            </div>
+          ) : visibleEvents.length === 0 ? (
+            <div className="ui-empty-panel" role="status" aria-live="polite">
+              <Empty className="border-0 bg-transparent py-16">
+                <EmptyMedia>
+                  <CalendarDays className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+                </EmptyMedia>
+                <EmptyHeader>
+                  <EmptyTitle className="font-semibold text-[var(--wf-ink)]">Jadwal belum memiliki event</EmptyTitle>
+                  <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">Event yang ditambahkan akan muncul di sini beserta statusnya.</EmptyDescription>
+                </EmptyHeader>
               </Empty>
             </div>
           ) : (

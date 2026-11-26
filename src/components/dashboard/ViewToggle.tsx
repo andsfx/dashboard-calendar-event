@@ -43,9 +43,9 @@ export function ViewToggle({ tabs, viewMode, onSelect, className = '' }: ViewTog
       onValueChange={v => onSelect(v as ViewMode)}
       className={`max-w-full ${className}`}
     >
-      <TabsList aria-label="Pilih tampilan jadwal" className="max-w-full">
+      <TabsList aria-label="Pilih tampilan jadwal" className="h-auto! max-w-full sm:h-8!">
         {tabs.map(tab => (
-          <TabsTrigger key={tab.key} value={tab.key} id={`dashboard-tab-${tab.key}`} aria-controls={undefined}>
+          <TabsTrigger key={tab.key} value={tab.key} id={`dashboard-tab-${tab.key}`} aria-controls={undefined} className="h-11! min-h-11 sm:h-8!">
             {tab.icon}
             {tab.label}
           </TabsTrigger>

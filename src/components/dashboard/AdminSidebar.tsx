@@ -63,6 +63,11 @@ export const AdminSidebar = memo(function AdminSidebar({
   onOpenEventAreaManager,
 }: AdminSidebarProps) {
   const location = useLocation();
+  // Handoff §8.8: `/tenant-survey-results` memakai shell ini tetapi tampilannya
+  // dibekukan, jadi geometri rail baru hanya berlaku di `/dashboard/*`.
+  const dashboardChrome = location.pathname.startsWith('/dashboard');
+  const railWidth = dashboardChrome ? 'w-[248px]' : 'w-64';
+  const hamburgerBox = dashboardChrome ? 'left-3 top-1.5 h-11! w-11!' : 'left-3 top-2.5 h-9! w-9!';
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
@@ -264,8 +269,8 @@ export const AdminSidebar = memo(function AdminSidebar({
   return (
     <>
       {/* Mobile drawer: shadcn Sheet. The hamburger is now a shadcn Button
-          (ghost/icon) with the primitive chrome neutralized (h-9!/w-9!/p-0!/
-          border-0! + hover/aria-expanded counters) so the fixed 36px square,
+          (ghost/icon) with the primitive chrome neutralized (h-11!/w-11!/p-0!/
+          border-0! + hover/aria-expanded counters) so the fixed 44px square,
           its classes, ref, aria-label 'Buka menu' and aria-controls target
           (the desktop aside) are unchanged; Radix's trigger click replaces the
           manual onClick={open}. The drawer header keeps its own Tutup button,
@@ -280,7 +285,7 @@ export const AdminSidebar = memo(function AdminSidebar({
             type="button"
             variant="ghost"
             size="icon"
-            className="ui-focus-ring flex! fixed left-3 top-2.5 z-50 h-9! w-9! items-center justify-center rounded-lg border-0! p-0! text-[var(--wf-ink-muted)] transition-colors! hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]! aria-expanded:bg-transparent! aria-expanded:text-[var(--wf-ink-muted)]! focus-visible:ring-0 active:translate-y-0! lg:hidden"
+            className={`ui-focus-ring flex! fixed ${hamburgerBox} z-50 items-center justify-center rounded-lg border-0! p-0! text-[var(--wf-ink-muted)] transition-colors! hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]! aria-expanded:bg-transparent! aria-expanded:text-[var(--wf-ink-muted)]! focus-visible:ring-0 active:translate-y-0! lg:hidden`}
             aria-label="Buka menu"
             aria-expanded={isMobileOpen}
             aria-controls="admin-sidebar"
@@ -303,7 +308,7 @@ export const AdminSidebar = memo(function AdminSidebar({
           mounted while open, so Radix covers the <lg path. */}
       <aside
         id="admin-sidebar"
-        className={`wf-rail wf-rail--side fixed left-0 top-0 z-50 h-dvh w-64 transition-transform duration-300 lg:translate-x-0 ${
+        className={`wf-rail wf-rail--side fixed left-0 top-0 z-50 h-dvh ${railWidth} transition-transform duration-300 lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Menu admin"

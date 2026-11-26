@@ -4,14 +4,17 @@ import { DraftProgressBadge } from './DraftProgressBadge';
 import { formatDraftPublishedAt, getWhatsAppUrl } from '../../utils/draftUtils';
 import { Button } from '../shadcn/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../shadcn/table';
-import { Empty, EmptyDescription } from '../shadcn/empty';
+import { Empty, EmptyDescription, EmptyTitle } from '../shadcn/empty';
 
 export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventItem[]; onRestore?: (draft: DraftEventItem) => void }) {
   if (drafts.length === 0) {
     return (
       <div className="ui-empty-panel p-6">
         <Empty className="border-0 bg-transparent p-0">
-          <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">Belum ada riwayat draft event</EmptyDescription>
+          <EmptyTitle className="text-sm font-semibold text-[var(--wf-ink)]">Belum ada riwayat draft</EmptyTitle>
+          <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">
+            Draft yang dibatalkan atau sudah diterbitkan tampil di sini.
+          </EmptyDescription>
         </Empty>
       </div>
     );
@@ -52,7 +55,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                       </div>
                     ) : draft.published ? (
                       <div>
-                        <p className="font-semibold text-[var(--wf-live)]">Dipublish</p>
+                        <p className="font-semibold text-[var(--wf-live)]">Diterbitkan</p>
                         <p>{formatDraftPublishedAt(draft.publishedAt)}</p>
                       </div>
                     ) : (

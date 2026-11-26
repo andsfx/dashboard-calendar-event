@@ -13,9 +13,9 @@ interface CommandCenterDirectoryProps {
   exhibitionLeads?: ExhibitionLead[];
   /** Pengajuan kolaborasi tenant yang menunggu review manusia. */
   tenantProposals?: TenantEventProposal[];
-  /** Pengajuan partisipasi tenant (open booth & voucher) yang menunggu review. */
   tenantParticipations?: TenantParticipation[];
   draftsError?: string | null;
+  queueErrors?: Partial<Record<'exhibitions' | 'tenantProposals' | 'tenantParticipations', string | null>>;
   permissions: Permissions;
 }
 
@@ -39,6 +39,7 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
   tenantProposals,
   tenantParticipations,
   draftsError,
+  queueErrors,
   permissions,
 }: CommandCenterDirectoryProps) {
   const cards = getCommandCenterCards({
@@ -49,6 +50,7 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
     tenantProposals,
     tenantParticipations,
     draftsError,
+    queueErrors,
     permissions,
   });
 
@@ -73,20 +75,14 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
 
   return (
     <section aria-labelledby="cc-directory-title">
-      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h2 id="cc-directory-title" className="font-display text-base font-semibold text-[var(--wf-ink)]">
-          Semua modul
-        </h2>
-        <p className="text-xs text-[var(--wf-ink-muted)]">{cards.length} tujuan yang bisa dibuka.</p>
-      </div>
+      <h2 id="cc-directory-title" className="mb-2 font-display text-base font-semibold text-[var(--wf-ink)]">
+        Semua modul
+      </h2>
 
       <div className="wf-directory">
         {groups.map(group => (
           <div key={group.label} className="min-w-0">
-            <h3 className="wf-group-label mb-1.5">
-              <span>{group.label}</span>
-              <span className="wf-code">{group.cards.length}</span>
-            </h3>
+            <h3 className="wf-group-label mb-1.5">{group.label}</h3>
             <div className="wf-register">
               {group.cards.map(card => (
                 <Button
@@ -107,10 +103,8 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
                         {card.state ?? card.subtitle}
                       </span>
                     </span>
-                    {card.queue && (
-                      <span className="wf-dot wf-dot--action" title="Menunggu keputusan manusia">
-                        <span className="sr-only">Menunggu keputusan manusia</span>
-                      </span>
+                    {card.queue && !card.queue.error && (
+                      <span className="wf-dot wf-dot--queue" aria-hidden />
                     )}
                   </Link>
                 </Button>

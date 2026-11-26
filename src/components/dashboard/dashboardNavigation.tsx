@@ -123,6 +123,8 @@ interface CommandCenterCardParams {
   tenantParticipations?: TenantParticipation[];
   /** Pesan error saat fetch draft gagal: antrian tidak boleh dianggap kosong */
   draftsError?: string | null;
+  /** Galat muat per sumber antrian: antrian yang gagal dimuat tidak boleh dianggap kosong. */
+  queueErrors?: Partial<Record<'exhibitions' | 'tenantProposals' | 'tenantParticipations', string | null>>;
   permissions: Permissions;
 }
 
@@ -307,6 +309,7 @@ export function getCommandCenterCards({
   tenantProposals = [],
   tenantParticipations = [],
   draftsError,
+  queueErrors = {},
   permissions,
 }: CommandCenterCardParams): CommandCenterCard[] {
   const pendingRegistrations = communityRegistrations.filter(r => r.status === 'pending').length;
@@ -362,7 +365,9 @@ export function getCommandCenterCards({
       subtitle: MODULE_PURPOSE['/exhibitions'] ?? 'Kelola pameran, aktivasi, dan pengajuan brand atau EO',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/exhibitions',
-      queue: pendingLeads > 0
+      queue: queueErrors.exhibitions
+        ? { count: 0, state: 'Gagal dimuat', action: 'Buka pameran dan aktivasi', error: queueErrors.exhibitions }
+        : pendingLeads > 0
         ? { count: pendingLeads, state: 'pengajuan menunggu tinjauan', action: 'Buka pameran dan aktivasi' }
         : undefined,
       group: 'Kelola event' as const,
@@ -384,7 +389,9 @@ export function getCommandCenterCards({
       subtitle: MODULE_PURPOSE['/tenant-proposals'] ?? 'Tinjau pengajuan event dan kerja sama dari tenant',
       icon: <Handshake className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-proposals',
-      queue: pendingTenantProposals > 0
+      queue: queueErrors.tenantProposals
+        ? { count: 0, state: 'Gagal dimuat', action: 'Buka kolaborasi tenant', error: queueErrors.tenantProposals }
+        : pendingTenantProposals > 0
         ? { count: pendingTenantProposals, state: 'pengajuan menunggu tinjauan', action: 'Buka kolaborasi tenant' }
         : undefined,
       group: 'Interaksi' as const,
@@ -395,7 +402,9 @@ export function getCommandCenterCards({
       subtitle: MODULE_PURPOSE['/tenant-participations'] ?? 'Tinjau pengajuan open booth dan voucher tenant per event',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-participations',
-      queue: pendingTenantParticipations > 0
+      queue: queueErrors.tenantParticipations
+        ? { count: 0, state: 'Gagal dimuat', action: 'Buka partisipasi tenant', error: queueErrors.tenantParticipations }
+        : pendingTenantParticipations > 0
         ? { count: pendingTenantParticipations, state: 'pengajuan menunggu tinjauan', action: 'Buka partisipasi tenant' }
         : undefined,
       group: 'Interaksi' as const,

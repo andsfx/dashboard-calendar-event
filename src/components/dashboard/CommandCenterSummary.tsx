@@ -14,9 +14,9 @@ interface CommandCenterSummaryProps {
   exhibitionLeads?: ExhibitionLead[];
   /** Pengajuan kolaborasi tenant yang menunggu review manusia. */
   tenantProposals?: TenantEventProposal[];
-  /** Pengajuan partisipasi tenant (open booth & voucher) yang menunggu review. */
   tenantParticipations?: TenantParticipation[];
   draftsError?: string | null;
+  queueErrors?: Partial<Record<'exhibitions' | 'tenantProposals' | 'tenantParticipations', string | null>>;
   permissions: Permissions;
 }
 
@@ -45,6 +45,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
   tenantProposals,
   tenantParticipations,
   draftsError,
+  queueErrors,
   permissions,
 }: CommandCenterSummaryProps) {
   const queues = getCommandCenterCards({
@@ -55,6 +56,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
     tenantProposals,
     tenantParticipations,
     draftsError,
+    queueErrors,
     permissions,
   }).filter(card => card.queue);
 

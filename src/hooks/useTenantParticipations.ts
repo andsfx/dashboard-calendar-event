@@ -16,15 +16,19 @@ export function useTenantParticipations(enabled: boolean) {
   const [participations, setParticipations] = useState<TenantParticipation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  /** Galat muat daftar saja; `error` tetap dipakai untuk umpan balik mutasi. */
+  const [loadError, setLoadError] = useState('');
 
   const reload = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
+    setLoadError('');
     try {
       setParticipations(await fetchTenantParticipations());
       setError('');
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat pengajuan partisipasi tenant');
+      setLoadError(err instanceof Error ? err.message : 'Gagal memuat pengajuan partisipasi tenant');
       return false;
     } finally {
       setIsLoading(false);
@@ -75,7 +79,7 @@ export function useTenantParticipations(enabled: boolean) {
   );
 
   return {
-    participations, isLoading, error, reload,
+    participations, isLoading, error, loadError, reload,
     reviewParticipation, saveNotes, saveCorrection, removeParticipation,
   };
 }

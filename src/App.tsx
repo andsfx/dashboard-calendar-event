@@ -160,6 +160,7 @@ export default function App() {
     draftHistory,
     isLoading: isDraftLoading,
     error: draftError,
+    refreshDrafts,
     addDraft,
     updateDraft,
     deleteDraft,
@@ -315,7 +316,7 @@ export default function App() {
   // ─── Build sub-props for DashboardPage ───────────────────────
   const dpAuth: DashboardPageAuth = { user: auth.user, isSuperadmin: auth.isSuperadmin, login: auth.login };
   const dpEvents: DashboardPageEvents = { events, publicEvents, visibleEvents, visibleStats, ongoingEvents, upcomingEvents, holidays, annualThemes, error };
-  const dpDrafts: DashboardPageDrafts = { activeDrafts, draftHistory, draftEvents, isDraftLoading, draftError };
+  const dpDrafts: DashboardPageDrafts = { activeDrafts, draftHistory, draftEvents, isDraftLoading, draftError, onRetry: refreshDrafts };
   const dpExhibitions: DashboardPageExhibitions = {
     exhibitions: exhibitions.exhibitions,
     leads: exhibitions.leads,
@@ -323,6 +324,7 @@ export default function App() {
     slots: exhibitions.slots,
     isLoading: exhibitions.isLoading,
     error: exhibitions.error,
+    loadError: exhibitions.loadError,
     onSave: exhibitions.saveExhibition,
     onDelete: exhibitions.removeExhibition,
     onTogglePublication: exhibitions.togglePublication,
@@ -340,6 +342,7 @@ export default function App() {
     proposals: tenantProposals.proposals,
     isLoading: tenantProposals.isLoading,
     error: tenantProposals.error,
+    loadError: tenantProposals.loadError,
     onRetry: tenantProposals.reload,
     onReview: tenantProposals.reviewProposal,
     onSaveNotes: tenantProposals.saveNotes,
@@ -349,6 +352,7 @@ export default function App() {
     participations: tenantParticipations.participations,
     isLoading: tenantParticipations.isLoading,
     error: tenantParticipations.error,
+    loadError: tenantParticipations.loadError,
     onRetry: tenantParticipations.reload,
     onReview: tenantParticipations.reviewParticipation,
     onSaveNotes: tenantParticipations.saveNotes,

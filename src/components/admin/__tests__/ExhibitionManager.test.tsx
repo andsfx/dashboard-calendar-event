@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import type { EventItem, ExhibitionSlot } from '../../../types';
@@ -70,7 +70,8 @@ describe('ExhibitionManager', () => {
     const user = userEvent.setup();
     render(<ExhibitionManager {...props} />);
     await user.click(screen.getByRole('button', { name: 'Kelola' }));
-    expect(screen.getByText('Brand A')).toBeInTheDocument();
+    const register = screen.getByRole('region', { name: 'Pengajuan menunggu tinjauan' });
+    expect(within(register).getByText('Brand A')).toBeInTheDocument();
     expect(screen.getByText(/Beauty Class/)).toBeInTheDocument();
     expect(screen.getByText(/2026-10-02 · 06:30 - 10:00 · Atrium/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Chat PIC via WhatsApp/ })).toHaveAttribute(

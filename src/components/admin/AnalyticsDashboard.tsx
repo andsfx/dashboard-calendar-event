@@ -1,29 +1,63 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   TrendingUp, PieChart, MapPin, DollarSign,
   Clock, ArrowUpRight, ArrowDownRight, Minus,
 } from 'lucide-react';
 import type { EventItem } from '../../types';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../shadcn/table';
+import { Label } from '../shadcn/label';
+import { NativeSelect } from '../shadcn/native-select';
 
 interface AnalyticsDashboardProps {
   events: EventItem[];
 }
 
 export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
-  const analytics = useMemo(() => computeAnalytics(events), [events]);
+  const thisYear = new Date().getFullYear();
+  const years = useMemo(() => {
+    const set = new Set(events.map(e => new Date(e.dateStr).getFullYear()).filter(Number.isFinite));
+    set.add(thisYear);
+    return Array.from(set).sort((a, b) => b - a);
+  }, [events, thisYear]);
+  const [selectedYear, setSelectedYear] = useState(thisYear);
 
-  const currentYear = new Date().getFullYear();
+  const currentYear = years.includes(selectedYear) ? selectedYear : thisYear;
   const prevYear = currentYear - 1;
-  const currentYearEvents = events.filter(e => new Date(e.dateStr).getFullYear() === currentYear);
-  const prevYearEvents = events.filter(e => new Date(e.dateStr).getFullYear() === prevYear);
+  const currentYearEvents = useMemo(
+    () => events.filter(e => new Date(e.dateStr).getFullYear() === currentYear),
+    [events, currentYear],
+  );
+  const prevYearEvents = useMemo(
+    () => events.filter(e => new Date(e.dateStr).getFullYear() === prevYear),
+    [events, prevYear],
+  );
+  const analytics = useMemo(
+    () => computeAnalytics(currentYearEvents, currentYear, prevYearEvents),
+    [currentYearEvents, currentYear, prevYearEvents],
+  );
 
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div>
-        <h2 className="text-base font-bold text-[var(--wf-ink)]">Analitik Lanjutan</h2>
-        <p className="text-xs text-[var(--wf-ink-muted)]">Insight mendalam tentang acara dan tempat</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-base font-bold text-[var(--wf-ink)]">Analitik Lanjutan</h2>
+          <p className="text-xs text-[var(--wf-ink-muted)]">Insight mendalam tentang acara dan tempat</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="analytics-year" className="text-xs text-[var(--wf-ink-muted)]">Periode</Label>
+          <NativeSelect
+            id="analytics-year"
+            value={currentYear}
+            onChange={e => setSelectedYear(Number(e.target.value))}
+            className="h-9"
+          >
+            {years.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </NativeSelect>
+        </div>
       </div>
 
       {/* 1. Tren Event per Bulan */}
@@ -40,7 +74,12 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
             )}
           </div>
         </div>
-        <MonthlyTrendChart currentYear={analytics.monthlyTrend} prevYear={analytics.monthlyTrendPrev} />
+        <MonthlyTrendChart
+          currentYear={analytics.monthlyTrend}
+          prevYear={analytics.monthlyTrendPrev}
+          currentYearLabel={currentYear}
+          prevYearLabel={prevYear}
+        />
       </div>
 
       {/* 2. Perbandingan Periode YoY */}
@@ -163,7 +202,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
 
 /* ─── Monthly Trend Chart (CSS bars) ──────────────────────────── */
 
-function MonthlyTrendChart({ currentYear, prevYear }: { currentYear: number[]; prevYear: number[] }) {
+function MonthlyTrendChart({ currentYear, prevYear, currentYearLabel, prevYearLabel }: { currentYear: number[]; prevYear: number[]; currentYearLabel: number; prevYearLabel: number }) {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
   const max = Math.max(...currentYear, ...prevYear, 1);
   /* Yang dianimasikan `transform: scaleY` (compositor), bukan `height`
@@ -172,7 +211,8 @@ function MonthlyTrendChart({ currentYear, prevYear }: { currentYear: number[]; p
    * pengganti `minHeight: 4px` yang dipakai versi height. */
 
   return (
-    <div className="flex items-end gap-1 sm:gap-2" style={{ height: '120px' }}>
+    <div className="space-y-3">
+      <div className="flex items-end gap-1 sm:gap-2" style={{ height: '120px' }}>
       {months.map((m, i) => {
         const cur = currentYear[i] ?? 0;
         const prev = prevYear[i] ?? 0;
@@ -201,6 +241,29 @@ function MonthlyTrendChart({ currentYear, prevYear }: { currentYear: number[]; p
           </div>
         );
       })}
+      </div>
+
+      <details className="rounded-[var(--radius-control)] border border-[var(--wf-rule)] px-3 py-2">
+        <summary className="cursor-pointer text-xs font-semibold text-[var(--wf-ink)]">Lihat angka per bulan</summary>
+        <Table tableLabel={`Tren event per bulan ${currentYearLabel} dan ${prevYearLabel}`} className="mt-2 w-full text-sm">
+          <TableHeader>
+            <TableRow className="border-b border-[var(--wf-rule)]">
+              <TableHead scope="col" className="px-2 py-1.5 text-left text-xs font-semibold text-[var(--wf-ink-muted)]">Bulan</TableHead>
+              <TableHead scope="col" className="px-2 py-1.5 text-right text-xs font-semibold text-[var(--wf-ink-muted)]">{currentYearLabel}</TableHead>
+              <TableHead scope="col" className="px-2 py-1.5 text-right text-xs font-semibold text-[var(--wf-ink-muted)]">{prevYearLabel}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {months.map((m, i) => (
+              <TableRow key={m} className="border-b border-[var(--wf-rule)] last:border-0">
+                <TableCell className="px-2 py-1.5 text-xs text-[var(--wf-ink)]">{m}</TableCell>
+                <TableCell className="px-2 py-1.5 text-right text-xs font-semibold tabular-nums text-[var(--wf-ink)]">{currentYear[i] ?? 0}</TableCell>
+                <TableCell className="px-2 py-1.5 text-right text-xs tabular-nums text-[var(--wf-ink-muted)]">{prevYear[i] ?? 0}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </details>
     </div>
   );
 }
@@ -230,19 +293,20 @@ function CompareCard({ label, current, previous }: { label: string; current: num
 
 /* ─── Analytics computation ────────────────────────────────────── */
 
-function computeAnalytics(events: EventItem[]) {
-  const currentYear = new Date().getFullYear();
-  const prevYear = currentYear - 1;
+function computeAnalytics(events: EventItem[], anchorYear: number, prevYearEvents: EventItem[]) {
+  const currentYear = anchorYear;
+  const prevYear = anchorYear - 1;
 
   // Monthly trend
   const monthlyTrend: number[] = Array(12).fill(0);
   const monthlyTrendPrev: number[] = Array(12).fill(0);
   events.forEach(e => {
     const d = new Date(e.dateStr);
-    const y = d.getFullYear();
-    const m = d.getMonth();
-    if (y === currentYear) monthlyTrend[m] = (monthlyTrend[m] ?? 0) + 1;
-    else if (y === prevYear) monthlyTrendPrev[m] = (monthlyTrendPrev[m] ?? 0) + 1;
+    if (d.getFullYear() === currentYear) monthlyTrend[d.getMonth()] = (monthlyTrend[d.getMonth()] ?? 0) + 1;
+  });
+  prevYearEvents.forEach(e => {
+    const d = new Date(e.dateStr);
+    if (d.getFullYear() === prevYear) monthlyTrendPrev[d.getMonth()] = (monthlyTrendPrev[d.getMonth()] ?? 0) + 1;
   });
 
   // Top categories

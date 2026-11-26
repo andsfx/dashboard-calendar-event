@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom';
 import { Moon, Sun, CalendarDays, Shield, Users } from 'lucide-react';
 import { Button } from '../shadcn/button';
 
@@ -20,6 +21,11 @@ interface Props {
 }
 
 export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCount = 0 }: Props) {
+  const { pathname } = useLocation();
+  // Handoff §8.8: `/tenant-survey-results` memakai topbar admin ini tetapi
+  // tampilannya dibekukan, jadi jarak plat untuk hamburger 44px hanya berlaku
+  // di `/dashboard/*`; di rute itu hamburger masih 36px.
+  const dashboardChrome = pathname.startsWith('/dashboard');
   // Admin chrome is the topbar of the rail layout: a board band with a hairline
   // under it, matching the rail's material. Public pages keep the light
   // marketing chrome untouched.
@@ -27,7 +33,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
     return (
       <nav className="wf-topbar sticky top-0 z-40">
         <div className="flex w-full items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-2.5 pl-10 lg:pl-0">
+          <div className={`flex min-w-0 items-center gap-2.5 lg:pl-0 ${dashboardChrome ? 'pl-14' : 'pl-10'}`}>
             <CalendarDays className="h-4 w-4 shrink-0 text-[var(--wf-accent)]" strokeWidth={1.5} aria-hidden />
             <span className="wf-rail-plate truncate">Metropolitan Mall Bekasi</span>
             {ongoingCount > 0 && (

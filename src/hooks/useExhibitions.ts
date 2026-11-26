@@ -23,9 +23,12 @@ export function useExhibitions(enabled: boolean) {
   const [slots, setSlots] = useState<ExhibitionSlot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  /** Galat muat daftar saja; `error` tetap dipakai untuk umpan balik mutasi. */
+  const [loadError, setLoadError] = useState('');
 
   const reload = useCallback(async () => {
     setIsLoading(true);
+    setLoadError('');
     try {
       const [nextExhibitions, nextLeads, nextActivations, nextSlots] = await Promise.all([
         fetchExhibitions(), fetchExhibitionLeads(), fetchExhibitionActivations(), fetchExhibitionSlots(),
@@ -37,6 +40,7 @@ export function useExhibitions(enabled: boolean) {
       setError('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat data pameran');
+      setLoadError(err instanceof Error ? err.message : 'Gagal memuat data pameran');
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +121,7 @@ export function useExhibitions(enabled: boolean) {
   );
 
   return {
-    exhibitions, leads, activations, slots, isLoading, error,
+    exhibitions, leads, activations, slots, isLoading, error, loadError,
     reload, saveExhibition, removeExhibition, togglePublication, reviewLead, publishLead,
     saveSlot, removeSlot, generateSlots, linkActivation, unlinkActivation,
   };

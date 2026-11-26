@@ -96,7 +96,7 @@ export function DashboardShell({
         />
       )}
 
-      <div className={isAdmin ? 'lg:ml-64' : ''}>
+      <div className={isAdmin ? (pathname.startsWith('/dashboard') ? 'lg:ml-[248px]' : 'lg:ml-64') : ''}>
         <Navbar
           isDark={isDark}
           onToggleDark={onToggleDark}
