@@ -17,6 +17,8 @@ interface CommandCenterSummaryProps {
   tenantParticipations?: TenantParticipation[];
   draftsError?: string | null;
   queueErrors?: Partial<Record<'exhibitions' | 'tenantProposals' | 'tenantParticipations', string | null>>;
+  /** Muat ulang per sumber; hanya dipakai baris yang gagal dimuat. */
+  queueRetries?: Partial<Record<'exhibitions' | 'tenantProposals' | 'tenantParticipations', () => void>>;
   permissions: Permissions;
 }
 
@@ -46,6 +48,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
   tenantParticipations,
   draftsError,
   queueErrors,
+  queueRetries = {},
   permissions,
 }: CommandCenterSummaryProps) {
   const queues = getCommandCenterCards({
@@ -77,7 +80,30 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
 
       {queues.length > 0 ? (
         <div className="wf-register">
-          {queues.map(card => (
+          {queues.map(card => {
+            const retry = card.queue!.error
+              ? queueRetries[card.id as 'exhibitions' | 'tenantProposals' | 'tenantParticipations']
+              : undefined;
+            if (retry) {
+              return (
+                <div key={card.id} className="wf-row wf-row--queue">
+                  <span className="wf-row__icon rounded-[var(--wf-radius-control)] bg-[var(--wf-board-2)] p-2" aria-hidden>
+                    {card.icon}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <Link to={card.route} className="block text-sm font-semibold text-[var(--wf-ink)] hover:underline">
+                      {card.title}
+                    </Link>
+                    <span className="block text-xs text-[var(--wf-ink-muted)]">
+                      Antrian gagal dimuat: {card.queue!.error}
+                    </span>
+                  </span>
+                  <span className="wf-row__count text-lg font-bold tabular-nums" style={{ color: 'var(--wf-ink-muted)' }}>—</span>
+                  <Button variant="outline" size="sm" onClick={retry}>Coba lagi</Button>
+                </div>
+              );
+            }
+            return (
             <Button
               asChild
               key={card.id}
@@ -108,7 +134,8 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
                 </span>
               </Link>
             </Button>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <p className="wf-queue-empty">

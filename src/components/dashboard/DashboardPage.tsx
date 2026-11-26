@@ -87,6 +87,7 @@ export interface DashboardPageExhibitions {
   error: string;
   /** Galat muat daftar saja, terpisah dari galat mutasi. */
   loadError: string;
+  onRetry: () => void;
   onSave: (input: ExhibitionInput, id?: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
   onTogglePublication: (id: string, published: boolean) => Promise<boolean>;
@@ -427,6 +428,7 @@ export function DashboardPage({
             tenantParticipations={tenantParticipations.participations}
             draftsError={drafts.draftError}
             queueErrors={{ exhibitions: exhibitions.loadError, tenantProposals: tenantProposals.loadError, tenantParticipations: tenantParticipations.loadError }}
+            queueRetries={{ exhibitions: exhibitions.onRetry, tenantProposals: tenantProposals.onRetry, tenantParticipations: tenantParticipations.onRetry }}
             permissions={permissions}
           />
           <CommandCenterAgenda

@@ -327,6 +327,7 @@ export default function App() {
     isLoading: exhibitions.isLoading,
     error: exhibitions.error,
     loadError: exhibitions.loadError,
+    onRetry: exhibitions.reload,
     onSave: exhibitions.saveExhibition,
     onDelete: exhibitions.removeExhibition,
     onTogglePublication: exhibitions.togglePublication,
