@@ -6,6 +6,7 @@ import { Button } from '../shadcn/button';
 import { Label } from '../shadcn/label';
 import { Textarea } from '../shadcn/textarea';
 import { Toggle } from '../shadcn/toggle';
+import { Input } from '../shadcn/input';
 import type { TenantEventProposal, TenantEventProposalStatus, TenantEventProposalType } from '../../types';
 import { formatDateRange } from '../../utils/eventUtils';
 
@@ -134,6 +135,8 @@ export function TenantProposalManager({
   proposals, isLoading, error, onRetry, onReview, onSaveNotes, onDelete, onConfirm, readOnly = false,
 }: Props) {
   const [filter, setFilter] = useState<TenantEventProposalStatus | 'all'>('all');
+  /** Pencarian prototipe: judul event + nama tenant. */
+  const [query, setQuery] = useState('');
   /** Kartu yang sedang dibuka detailnya, per id supaya bertahan saat data disegarkan. */
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   /**
@@ -148,10 +151,14 @@ export function TenantProposalManager({
   // Hitungan di header dan di Pusat Komando selalu dari daftar PENUH, bukan
   // hasil saringan: angkanya menjawab "berapa pekerjaan yang tersisa".
   const pendingCount = proposals.filter((item) => item.status === 'pending').length;
-  const visibleProposals = useMemo(
-    () => (filter === 'all' ? proposals : proposals.filter((item) => item.status === filter)),
-    [proposals, filter],
-  );
+  const visibleProposals = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return proposals.filter((item) => {
+      if (filter !== 'all' && item.status !== filter) return false;
+      if (!q) return true;
+      return item.eventTitle.toLowerCase().includes(q) || item.tenantName.toLowerCase().includes(q);
+    });
+  }, [proposals, filter, query]);
 
   /** Draft yang masih sejalan dengan catatan server; selain itu `undefined`. */
   const liveDraft = (item: TenantEventProposal) => {
@@ -205,8 +212,17 @@ export function TenantProposalManager({
         </p>
       </div>
 
-      {/* Saringan status. Klik chip yang sedang aktif mengembalikan ke Semua. */}
-      <div className="flex flex-wrap gap-2">
+      {/* Saringan status + pencarian (prototipe: "Cari pengajuan atau
+          organisasi"). Klik chip yang sedang aktif mengembalikan ke Semua. */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          type="search"
+          value={query}
+          onChange={event => setQuery(event.target.value)}
+          placeholder="Cari pengajuan atau tenant…"
+          aria-label="Cari pengajuan atau tenant"
+          className="h-10 w-full sm:max-w-xs"
+        />
         {STATUS_FILTERS.map((tab) => (
           <Toggle
             key={tab.key}
@@ -244,7 +260,9 @@ export function TenantProposalManager({
 
       {/* Kosong karena saringan, bukan karena antreannya memang kosong. */}
       {!isLoading && proposals.length > 0 && visibleProposals.length === 0 && (
-        <p className="text-sm text-[var(--wf-ink-muted)]">Tidak ada pengajuan dengan status ini.</p>
+        <p className="text-sm text-[var(--wf-ink-muted)]">
+          {query.trim() ? 'Tidak ada hasil yang cocok. Coba kata kunci lain.' : 'Tidak ada pengajuan dengan status ini.'}
+        </p>
       )}
 
       <ul className="space-y-3">

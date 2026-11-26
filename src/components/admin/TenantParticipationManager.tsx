@@ -175,6 +175,8 @@ export function TenantParticipationManager({
   participations, isLoading, error, onRetry, onReview, onSaveNotes, onSaveCorrection, onDelete, onConfirm, readOnly = false,
 }: Props) {
   const [filter, setFilter] = useState<TenantParticipationStatus | 'all'>('all');
+  /** Pencarian tetap: nama tenant + judul event. */
+  const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [notesDraft, setNotesDraft] = useState<Record<string, { value: string; base: string }>>({});
   const [corrections, setCorrections] = useState<Record<string, CorrectionDraft>>({});
@@ -201,10 +203,14 @@ export function TenantParticipationManager({
   };
 
   const pendingCount = participations.filter((item) => item.status === 'pending').length;
-  const visibleParticipations = useMemo(
-    () => (filter === 'all' ? participations : participations.filter((item) => item.status === filter)),
-    [participations, filter],
-  );
+  const visibleParticipations = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return participations.filter((item) => {
+      if (filter !== 'all' && item.status !== filter) return false;
+      if (!q) return true;
+      return item.eventTitle.toLowerCase().includes(q) || item.tenantName.toLowerCase().includes(q);
+    });
+  }, [participations, filter, query]);
 
   const liveDraft = (item: TenantParticipation) => {
     const draft = notesDraft[item.id];
@@ -315,6 +321,14 @@ export function TenantParticipationManager({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
+        <Input
+          type="search"
+          value={query}
+          onChange={event => setQuery(event.target.value)}
+          placeholder="Cari pengajuan atau tenant…"
+          aria-label="Cari pengajuan atau tenant"
+          className="h-10 w-full sm:max-w-xs"
+        />
         {STATUS_FILTERS.map((tab) => (
           <Toggle
             key={tab.key}
@@ -363,7 +377,9 @@ export function TenantParticipationManager({
       )}
 
       {!isLoading && participations.length > 0 && visibleParticipations.length === 0 && (
-        <p className="text-sm text-[var(--wf-ink-muted)]">Tidak ada pengajuan dengan status ini.</p>
+        <p className="text-sm text-[var(--wf-ink-muted)]">
+          {query.trim() ? 'Tidak ada hasil yang cocok. Coba kata kunci lain.' : 'Tidak ada pengajuan dengan status ini.'}
+        </p>
       )}
 
       <ul className="space-y-3">
