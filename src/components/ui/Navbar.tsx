@@ -39,10 +39,16 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
             <span className="hidden text-[11px] text-[var(--wf-rail-ink-muted)] sm:inline">Ruang kerja</span>
             <span className="hidden text-[var(--wf-rail-ink-muted)] opacity-50 sm:inline" aria-hidden>›</span>
             <span className="wf-rail-plate truncate">{sectionLabel}</span>
+            {/* Pembungkus, bukan chip itu sendiri, yang mengatur visibilitas:
+                `.wf-key` memasang `display:inline-flex` di CSS tak berlapis yang
+                mengalahkan utilitas `hidden`, sehingga chip tetap mengambil
+                lebar di layar sempit dan memotong nama bagian. */}
             {ongoingCount > 0 && (
-              <span className="wf-key wf-key--live hidden sm:inline-flex">
-                <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-                {ongoingCount} berlangsung
+              <span className="hidden shrink-0 sm:block">
+                <span className="wf-key wf-key--live">
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
+                  {ongoingCount} berlangsung
+                </span>
               </span>
             )}
           </div>
