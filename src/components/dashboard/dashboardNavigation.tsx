@@ -252,6 +252,31 @@ const CONTENT_FALLBACK: WayfindingEntry = {
   description: 'Kelola konten publik: halaman landing, galeri, surat, berita, dan sponsorship',
 };
 
+/** Grup rail yang memuat sebuah rute, dipakai eyebrow kepala halaman. Group
+ *  dipisahkan dari entri WAYFINDING karena beberapa modul berbagi grup dan
+ *  dropdown Konten memakai fallback. */
+const WAYFINDING_GROUPS: Record<string, DashboardGroupLabel> = {
+  '/': 'Ringkasan',
+  '/insights': 'Ringkasan',
+  '/analytics': 'Ringkasan',
+  '/events': 'Kelola event',
+  '/drafts': 'Kelola event',
+  '/themes': 'Kelola event',
+  '/exhibitions': 'Kelola event',
+  '/registrations': 'Interaksi',
+  '/tenant-proposals': 'Interaksi',
+  '/tenant-participations': 'Interaksi',
+  '/survey': 'Survei',
+  '/tenant-surveys': 'Survei',
+  '/users': 'Sistem',
+  '/activity-log': 'Sistem',
+};
+
+export function getWayfindingGroup(dashboardPath: string): DashboardGroupLabel | null {
+  if (dashboardPath.startsWith('/content')) return 'Konten';
+  return WAYFINDING_GROUPS[dashboardPath === '' ? '/' : dashboardPath] ?? null;
+}
+
 /**
  * Resolve the current route to its location plate. Falls back to the first
  * entry (Pusat Komando) for unknown paths so the header never renders empty.

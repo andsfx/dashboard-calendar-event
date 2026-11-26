@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react';
 import { Button } from '../shadcn/button';
 import { SearchBar } from '../ui/SearchBar';
-import { getWayfindingMap } from './dashboardNavigation';
+import { getWayfindingGroup, getWayfindingMap } from './dashboardNavigation';
 
 interface DashboardHeaderProps {
   isAdmin: boolean;
@@ -55,6 +55,7 @@ export function DashboardHeader({
   }
 
   const { current } = getWayfindingMap(dashboardPath);
+  const sectionGroup = getWayfindingGroup(dashboardPath);
   // An empty action container is not free: it is a flex item in the parent's
   // `flex-col gap-3`, so on mobile it still contributes a gap and leaves the
   // plate looking like it is missing something. Render it only when it has
@@ -68,7 +69,7 @@ export function DashboardHeader({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--wf-ink-muted)]">
-            Ruang kerja
+            {sectionGroup ?? 'Ruang kerja'}
           </span>
           <h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight text-[var(--wf-ink)] sm:text-[2rem]">
             {current.label}
