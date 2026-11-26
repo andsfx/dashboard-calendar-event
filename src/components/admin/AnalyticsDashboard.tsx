@@ -1,8 +1,5 @@
 import { useMemo, useState } from 'react';
-import {
-  TrendingUp, PieChart, MapPin, DollarSign,
-  Clock, ArrowUpRight, ArrowDownRight, Minus,
-} from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
 import type { EventItem } from '../../types';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../shadcn/table';
@@ -39,33 +36,50 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      {/* Toolbar berlabel, pola yang sama dengan toolbar jadwal. Judul halaman
+          sudah datang dari DashboardHeader, jadi tidak diulang di sini. */}
+      <search
+        aria-label="Periode analitik"
+        className="flex flex-wrap items-end gap-3 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3 sm:p-4"
+      >
         <div>
-          <h2 className="text-base font-bold text-[var(--wf-ink)]">Analitik Lanjutan</h2>
-          <p className="text-xs text-[var(--wf-ink-muted)]">Insight mendalam tentang acara dan tempat</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="analytics-year" className="text-xs text-[var(--wf-ink-muted)]">Periode</Label>
+          <Label htmlFor="analytics-year" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">Periode</Label>
           <NativeSelect
             id="analytics-year"
             value={currentYear}
             onChange={e => setSelectedYear(Number(e.target.value))}
-            className="h-9"
+            className="h-10 w-full sm:min-w-40"
           >
             {years.map(year => (
-              <option key={year} value={year}>{year}</option>
+              <option key={year} value={year}>Sepanjang {year}</option>
             ))}
           </NativeSelect>
         </div>
+      </search>
+
+      {/* Angka ringkas periode (prototipe `analytics-stats`). */}
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-rule)] sm:grid-cols-3">
+        {[
+          { value: currentYearEvents.length, label: 'Event pada periode ini' },
+          {
+            value: new Set(currentYearEvents.flatMap(e => (e.categories.length > 0 ? e.categories : [e.category]))).size,
+            label: 'Kategori kegiatan',
+          },
+          { value: new Set(currentYearEvents.map(e => e.lokasi).filter(Boolean)).size, label: 'Lokasi digunakan' },
+        ].map(stat => (
+          <div key={stat.label} className="bg-[var(--wf-board)] px-4 py-3">
+            <p className="font-display text-2xl font-extrabold leading-none tabular-nums text-[var(--wf-ink)]">{stat.value}</p>
+            <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">{stat.label}</p>
+          </div>
+        ))}
       </div>
 
       {/* 1. Tren Event per Bulan */}
       <div className="ui-dashboard-surface p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-[var(--wf-accent)]" />
-            <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Tren Event per Bulan</h3>
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Tren event per bulan</h3>
+            <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">Berdasarkan bulan tanggal mulai event. Sumbu jumlah dimulai dari nol.</p>
           </div>
           <div className="flex items-center gap-1 text-[10px]">
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--wf-accent)]" />{currentYear}</span>
@@ -108,9 +122,9 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
 
       {/* 3. Kategori Terpopuler (donut) */}
       <div className="ui-dashboard-surface p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <PieChart className="h-4 w-4 text-[var(--wf-action)]" />
-          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kategori Terpopuler</h3>
+        <div className="mb-3">
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kategori kegiatan</h3>
+          <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">Jumlah event per kategori.</p>
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {analytics.topCategories.slice(0, 6).map(({ name, count, pct }) => (
@@ -133,9 +147,9 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
 
       {/* 4. Revenue/Model Breakdown */}
       <div className="ui-dashboard-surface p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-[var(--wf-live)]" />
-          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Model Event Breakdown</h3>
+        <div className="mb-3">
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Model event</h3>
+          <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">Komposisi model komersial pada periode ini.</p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {analytics.modelBreakdown.map(({ model, count, pct, color }) => (
@@ -152,9 +166,9 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
 
       {/* 5. Heatmap Lokasi & Waktu */}
       <div className="ui-dashboard-surface p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-[var(--wf-accent)]" />
-          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Top Lokasi</h3>
+        <div className="mb-3">
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Penggunaan lokasi</h3>
+          <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">Jumlah event per lokasi.</p>
         </div>
         <div className="space-y-2">
           {analytics.topLocations.slice(0, 8).map(({ name, count, pct }) => (
@@ -171,9 +185,9 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
 
       {/* 6. Occupancy / Jam Populer */}
       <div className="ui-dashboard-surface p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <Clock className="h-4 w-4 text-[var(--wf-accent)]" />
-          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Distribusi Waktu Event</h3>
+        <div className="mb-3">
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Distribusi waktu event</h3>
+          <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">Sebaran jumlah event menurut jam mulai.</p>
         </div>
         <div className="grid grid-cols-4 gap-1 sm:grid-cols-6">
           {analytics.hourDistribution.map(({ hour, count, intensity }) => (
