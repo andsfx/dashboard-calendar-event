@@ -3,6 +3,7 @@ import { Users, Inbox, Clock, CheckCircle2, XCircle, Eye, Filter, CalendarPlus }
 import { CommunityRegistration, RegistrationStatus, OrganizationType, DraftEventItem, EventItem } from '../../types';
 import { Toggle } from '../shadcn/toggle';
 import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../shadcn/table';
 
 interface Props {
@@ -109,6 +110,8 @@ function formatDate(dateStr: string): string {
 export function CommunityRegistrationSection({ registrations, isLoading, onDetail, draftEvents = [], events = [], onCreateDraft, readOnly = false }: Props) {
   const [activeTab, setActiveTab] = useState<RegistrationStatus | 'all'>('all');
   const [orgTypeFilter, setOrgTypeFilter] = useState<OrganizationType | 'all'>('all');
+  /** Pencarian prototipe: nama organisasi/komunitas + nomor kontak. */
+  const [query, setQuery] = useState('');
 
   // Tindak lanjut per registrasi, dihitung dari relasi yang sudah ada di state
   // dashboard (draft_events.organization_id / events.organization_id). Event
@@ -151,35 +154,36 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
   }, [registrations]);
 
   const filtered = useMemo(() => {
-    let result = registrations;
-    if (activeTab !== 'all') result = result.filter(r => r.status === activeTab);
-    if (orgTypeFilter !== 'all') result = result.filter(r => (r.organizationType || 'community') === orgTypeFilter);
-    return result;
-  }, [registrations, activeTab, orgTypeFilter]);
+    const q = query.trim().toLowerCase();
+    return registrations.filter(r => {
+      if (activeTab !== 'all' && r.status !== activeTab) return false;
+      if (orgTypeFilter !== 'all' && (r.organizationType || 'community') !== orgTypeFilter) return false;
+      if (!q) return true;
+      const name = (r.organizationName || r.communityName || '').toLowerCase();
+      return name.includes(q) || (r.phone || '').toLowerCase().includes(q);
+    });
+  }, [registrations, activeTab, orgTypeFilter, query]);
 
   return (
     <section id="registrations" className="space-y-4 scroll-mt-32">
-      {/* Header card */}
-      <div className="ui-dashboard-surface flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
-            <Users className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-[var(--wf-ink)]">Pendaftaran organisasi</p>
-            <p className="text-xs text-[var(--wf-ink-muted)]">Antrian pendaftaran dari landing page</p>
-          </div>
-        </div>
-        {pendingCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--wf-action)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--wf-action)]">
-            <Clock className="h-3.5 w-3.5" />
-            {pendingCount} pending
-          </span>
-        )}
-      </div>
-
       {/* Filter rows */}
       <div className="space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Input
+            type="search"
+            value={query}
+            onChange={event => setQuery(event.target.value)}
+            placeholder="Cari organisasi atau nomor kontak…"
+            aria-label="Cari pendaftaran"
+            className="h-10 w-full sm:max-w-xs"
+          />
+          {pendingCount > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--wf-action)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--wf-action)]">
+              <Clock className="h-3.5 w-3.5" />
+              {pendingCount} menunggu tinjauan
+            </span>
+          )}
+        </div>
         {/* Status filter — chip toggle (`aria-pressed` dari shadcn `Toggle`) */}
         <div className="flex flex-wrap gap-2">
           {STATUS_TABS.map((tab) => (
@@ -235,7 +239,14 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
       ) : filtered.length === 0 ? (
         <div className="ui-dashboard-surface flex flex-col items-center justify-center gap-3 py-16">
           <Inbox className="h-10 w-10 text-[var(--wf-ink-muted)]" />
-          <p className="text-sm text-[var(--wf-ink-muted)]">Belum ada pendaftaran</p>
+          <p className="text-sm font-semibold text-[var(--wf-ink)]">
+            {registrations.length === 0 ? 'Belum ada pendaftaran' : 'Tidak ada hasil yang cocok'}
+          </p>
+          <p className="text-sm text-[var(--wf-ink-muted)]">
+            {registrations.length === 0
+              ? 'Pendaftaran dari halaman landing akan muncul di sini.'
+              : 'Coba kata kunci atau filter lain.'}
+          </p>
         </div>
       ) : (
         <>
