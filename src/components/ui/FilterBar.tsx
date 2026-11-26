@@ -46,6 +46,10 @@ interface Props {
   months: string[];
   activeMonth: string;
   onMonthChange: (m: string) => void;
+  dateFrom?: string;
+  onDateFromChange?: (value: string) => void;
+  dateTo?: string;
+  onDateToChange?: (value: string) => void;
   showDraft?: boolean;
   showPriority?: boolean;
 }
@@ -65,6 +69,10 @@ export function FilterBar({
   categories, activeCategory, onCategoryChange,
   activePriority, onPriorityChange,
   months, activeMonth, onMonthChange,
+  dateFrom = '',
+  onDateFromChange,
+  dateTo = '',
+  onDateToChange,
   showDraft = true,
   showPriority = true,
 }: Props) {
@@ -86,7 +94,7 @@ export function FilterBar({
     >
       {/* Toolbar filter: label di atas kontrol, satu baris di layar lebar —
           pola yang sama dengan `toolbar` prototipe Open Design. */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
         <div className="sm:col-span-2 lg:col-span-1">
           <Label htmlFor={`${filterId}-cari`} className={fieldLabel}>Cari nama event</Label>
           <div className="relative">
@@ -152,6 +160,30 @@ export function FilterBar({
               </SelectGroup>
             </SelectContent>
           </Select>
+        </div>
+
+        <div>
+          <Label htmlFor={`${filterId}-dari`} className={fieldLabel}>Dari tanggal</Label>
+          <Input
+            id={`${filterId}-dari`}
+            type="date"
+            value={dateFrom}
+            onChange={event => onDateFromChange?.(event.target.value)}
+            max={dateTo || undefined}
+            className="h-10"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor={`${filterId}-sampai`} className={fieldLabel}>Sampai tanggal</Label>
+          <Input
+            id={`${filterId}-sampai`}
+            type="date"
+            value={dateTo}
+            onChange={event => onDateToChange?.(event.target.value)}
+            min={dateFrom || undefined}
+            className="h-10"
+          />
         </div>
 
         {showPriority && (

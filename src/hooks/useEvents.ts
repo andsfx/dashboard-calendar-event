@@ -32,6 +32,11 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [activePriority, setActivePriority] = useState('Semua');
   const [activeMonth, setActiveMonth] = useState('Semua');
+  // Rentang tanggal (prototipe: "Dari tanggal"/"Sampai tanggal"). String
+  // ISO kosong berarti batas itu tidak aktif; perbandingan leksikografis aman
+  // karena `dateStr` selalu YYYY-MM-DD.
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [lastError, setLastError] = useState<AdminError | null>(null);
   // Salinan sinkron dari `lastError` untuk pemanggil yang butuh pesan tepat
   // setelah mutasi gagal (toast di useEventHandlers). State React belum tentu
@@ -201,6 +206,8 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
     if (activeCategory !== 'Semua') result = result.filter(e => e.categories.includes(activeCategory));
     if (activePriority !== 'Semua') result = result.filter(e => e.priority === activePriority);
     if (activeMonth !== 'Semua') result = result.filter(e => e.month === activeMonth);
+    if (dateFrom) result = result.filter(e => e.dateStr >= dateFrom);
+    if (dateTo) result = result.filter(e => e.dateStr <= dateTo);
     if (debouncedSearch.trim()) {
       const q = debouncedSearch.toLowerCase();
       result = result.filter(e =>
@@ -212,7 +219,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       );
     }
     return sortEvents(result);
-  }, [events, activeFilter, activeCategory, activePriority, activeMonth, debouncedSearch]);
+  }, [events, activeFilter, activeCategory, activePriority, activeMonth, dateFrom, dateTo, debouncedSearch]);
 
   const addEvent = useCallback(async (ev: EventItem, overrideConflicts?: boolean): Promise<boolean> => {
     const tempId = ev.id;
@@ -407,6 +414,8 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
     activeCategory, setActiveCategory,
     activePriority, setActivePriority,
     activeMonth, setActiveMonth,
+    dateFrom, setDateFrom,
+    dateTo, setDateTo,
     addEvent, addRecurringEvents, updateEvent, setEventVisibility, deleteEvent, deleteRecurringSeries,
     addTheme, updateTheme, deleteTheme,
     refreshEvents,

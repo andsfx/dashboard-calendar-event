@@ -135,6 +135,10 @@ export interface DashboardPageFilters {
   setActivePriority: (v: string) => void;
   activeMonth: string;
   setActiveMonth: (v: string) => void;
+  dateFrom: string;
+  setDateFrom: (v: string) => void;
+  dateTo: string;
+  setDateTo: (v: string) => void;
   visibleCategories: string[];
   visibleMonths: string[];
 }
@@ -501,6 +505,10 @@ export function DashboardPage({
               setActivePriority={filters.setActivePriority}
               activeMonth={filters.activeMonth}
               setActiveMonth={filters.setActiveMonth}
+              dateFrom={filters.dateFrom}
+              setDateFrom={filters.setDateFrom}
+              dateTo={filters.dateTo}
+              setDateTo={filters.setDateTo}
               visibleCategories={filters.visibleCategories}
               visibleMonths={filters.visibleMonths}
               areas={siteSettings.eventAreas}
@@ -714,6 +722,10 @@ export function DashboardPage({
               setActivePriority={filters.setActivePriority}
               activeMonth={filters.activeMonth}
               setActiveMonth={filters.setActiveMonth}
+              dateFrom={filters.dateFrom}
+              setDateFrom={filters.setDateFrom}
+              dateTo={filters.dateTo}
+              setDateTo={filters.setDateTo}
               visibleCategories={filters.visibleCategories}
               visibleMonths={filters.visibleMonths}
               areas={siteSettings.eventAreas}
