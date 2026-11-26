@@ -22,7 +22,7 @@ ditulis:
 | S3 jadwal | `d446ff2` | toolbar berlabel, Status = `NativeSelect`, topline + pemilih tampilan, tabel mulai dari Nama event (judul = tombol detail) |
 | S4 draft | `79d480d` | tab Aktif/Riwayat berjumlah item, strip pemberitahuan, kartu mobile |
 | S5 modul pengajuan | `5bb43e3`, `162fee9` | pencarian per antrean (tenant/judul, organisasi/kontak), keadaan kosong dua tingkat |
-| S6 analitik | `e65b80f` | filter tahun + tabel angka YoY; grafik tetap bar/donut/heatmap milik repo |
+| S6 analitik | `e65b80f`, `8bb5395` | pemilih tahun jadi toolbar berlabel, tiga angka ringkas periode, judul seksi + penjelas; grafik bar/donut/heatmap dan tabel YoY tetap milik repo |
 | S7 modul pendukung | `e65b80f`, `c728505` | keadaan kosong pengguna; tema tahunan kini daftar baris (`record-row`) dengan aksi tambah di kepala halaman |
 
 **Gap yang diterima (jangan ditambal dengan mengubah perilaku):**
@@ -40,10 +40,10 @@ ditulis:
 
 **Angka verifikasi terakhir**: suite penuh 188 file / 1558 tes lulus
 (`NODE_ENV=test … --maxWorkers=2`), `npm run build` hijau + `assert-lazy-entry-chunks`.
-Axe 0 pelanggaran pada 28 run: `events` 4, `drafts` 4, lalu `themes`, `analytics`,
+Axe 0 pelanggaran pada 36 run: `events` 4, `drafts` 4, lalu `themes`, `analytics`,
 `exhibitions`, `registrations`, `tenant-proposals` masing-masing 4 (375/1280 ×
-terang/gelap). Halaman tema dijalankan ulang 4 run setelah daftar baris (§0 di
-atas) dan tetap 0 pelanggaran.
+terang/gelap), ditambah 4 run ulang untuk tema setelah jadi daftar baris dan 4 run
+ulang untuk analitik setelah toolbar/angka ringkas.
 
 ---
 
