@@ -23,7 +23,7 @@ ditulis:
 | S4 draft | `79d480d` | tab Aktif/Riwayat berjumlah item, strip pemberitahuan, kartu mobile |
 | S5 modul pengajuan | `5bb43e3`, `162fee9` | pencarian per antrean (tenant/judul, organisasi/kontak), keadaan kosong dua tingkat |
 | S6 analitik | `e65b80f` | filter tahun + tabel angka YoY; grafik tetap bar/donut/heatmap milik repo |
-| S7 modul pendukung | `e65b80f` | keadaan kosong pengguna & tema tahunan |
+| S7 modul pendukung | `e65b80f`, `c728505` | keadaan kosong pengguna; tema tahunan kini daftar baris (`record-row`) dengan aksi tambah di kepala halaman |
 
 **Gap yang diterima (jangan ditambal dengan mengubah perilaku):**
 
@@ -39,9 +39,11 @@ ditulis:
 4. **Antrean pengajuan**: chip status 4 nilai menggantikan 2 tab prototipe.
 
 **Angka verifikasi terakhir**: suite penuh 188 file / 1558 tes lulus
-(`NODE_ENV=test … --maxWorkers=2`), `npm run build` hijau + `assert-lazy-entry-chunks`,
-axe 0 pelanggaran pada `events`, `drafts`, `themes`, `analytics`, `exhibitions`,
-`registrations`, `tenant-proposals` × 375/1280 × terang/gelap.
+(`NODE_ENV=test … --maxWorkers=2`), `npm run build` hijau + `assert-lazy-entry-chunks`.
+Axe 0 pelanggaran pada 28 run: `events` 4, `drafts` 4, lalu `themes`, `analytics`,
+`exhibitions`, `registrations`, `tenant-proposals` masing-masing 4 (375/1280 ×
+terang/gelap). Halaman tema dijalankan ulang 4 run setelah daftar baris (§0 di
+atas) dan tetap 0 pelanggaran.
 
 ---
 
