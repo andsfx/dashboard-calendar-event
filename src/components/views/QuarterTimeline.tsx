@@ -1,19 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Pencil, Plus, Trash2 } from 'lucide-react';
+import { CalendarRange, Pencil, Trash2 } from 'lucide-react';
 import { AnnualTheme } from '../../types';
 import { Button } from '../shadcn/button';
-import { Badge } from '../shadcn/badge';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../shadcn/select';
 
 interface Props {
   themes: AnnualTheme[];
   isAdmin?: boolean;
-  onAddTheme?: () => void;
   onEditTheme?: (theme: AnnualTheme) => void;
   onDeleteTheme?: (theme: AnnualTheme) => void;
 }
 
-const MONTH_ABBR = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
 function formatDate(str: string) {
   const [, m, d] = str.split('-');
@@ -31,175 +27,87 @@ function calcProgress(start: string, end: string, today: string): number {
   return Math.round(((t - s) / (e - s)) * 100);
 }
 
-export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditTheme, onDeleteTheme }: Props) {
+/**
+ * Daftar tema tahunan, satu baris per tema seperti `record-row` prototipe Open
+ * Design: ikon periode, nama, rentang tanggal, status (Aktif/Mendatang/Selesai),
+ * lalu aksi. Warna tema tetap tampil sebagai titik identitas, tetapi keputusan
+ * visualnya bukan lagi empat kartu berwarna: tema dibaca sebagai daftar, dan
+ * kemajuannya jadi angka pendamping, bukan bar yang bersaing dengan teks.
+ */
+export function QuarterTimeline({ themes, isAdmin = false, onEditTheme, onDeleteTheme }: Props) {
   const today = new Date().toISOString().split('T')[0] ?? '';
-  const [selectedThemeId, setSelectedThemeId] = useState('');
-
-  const activeTheme = useMemo(
-    () => {
-      const found = themes.find(t => today >= t.dateStart && today <= t.dateEnd);
-      return found ?? themes[0];
-    },
-    [themes, today]
-  );
-
-  useEffect(() => {
-    if (activeTheme) {
-      setSelectedThemeId(activeTheme.id);
-    }
-  }, [activeTheme]);
-
-  const selectedTheme = themes.find(t => t.id === selectedThemeId) ?? activeTheme;
-  const firstTheme = themes[0];
-  const themeYear = firstTheme?.dateStart?.slice(0, 4) ?? new Date().getFullYear().toString();
 
   return (
-    <div className="ui-dashboard-surface p-5">
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-[var(--wf-ink)]"><CalendarDays className="h-4 w-4 shrink-0 text-[var(--wf-accent)]" />Tema Tahunan {themeYear}</p>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="shrink-0 self-start text-xs text-[var(--wf-ink-muted)] sm:self-auto">
-            {themes.filter(t => today >= t.dateStart && today <= t.dateEnd).length > 0
-              ? 'Tema aktif'
-              : 'Tidak ada tema aktif'}
-          </span>
-          {isAdmin && onAddTheme && (
-            <Button type="button" variant="outline" size="sm" onClick={onAddTheme}>
-              <Plus className="h-3.5 w-3.5" />Tambah Tema
-            </Button>
-          )}
-        </div>
-      </div>
+    <div className="ui-dashboard-surface divide-y divide-[var(--wf-rule)]">
+      {themes.map(theme => {
+        const isActive = today >= theme.dateStart && today <= theme.dateEnd;
+        const isPast = today > theme.dateEnd;
+        const progress = calcProgress(theme.dateStart, theme.dateEnd, today);
+        const statusLabel = isActive ? 'Aktif' : isPast ? 'Selesai' : 'Mendatang';
 
-      <div className="sm:hidden">
-        {selectedTheme && (
-          <>
-            <div className="relative">
-              <Select value={selectedTheme.id} onValueChange={value => setSelectedThemeId(value)}>
-                <SelectTrigger aria-label="Pilih tema" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {themes.map(theme => (
-                      <SelectItem key={theme.id} value={theme.id}>{theme.name}</SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+        return (
+          <div key={theme.id} className="flex flex-wrap items-start gap-3 px-4 py-3 sm:flex-nowrap sm:items-center">
+            <span
+              className="flex size-9 shrink-0 items-center justify-center rounded-[var(--wf-radius-control)] bg-[var(--wf-board-2)]"
+              aria-hidden="true"
+            >
+              <CalendarRange className="size-4" style={{ color: theme.color }} />
+            </span>
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">{theme.name}</p>
+              <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
+                {formatDate(theme.dateStart)} – {formatDate(theme.dateEnd)}
+                <span className="ml-2 tabular-nums">{progress}% berjalan</span>
+              </p>
             </div>
 
-            <div
-              className="mt-3 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] p-4"
-              style={{
-                backgroundColor: `${selectedTheme.color}18`,
-                ...(today >= selectedTheme.dateStart && today <= selectedTheme.dateEnd
-                  ? { borderColor: 'var(--wf-live)', boxShadow: `0 0 0 2px ${selectedTheme.color}33` }
-                  : {}),
-              }}
-            >
-              <div className="flex min-w-0 items-start gap-1.5">
-                <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: selectedTheme.color }} />
-                <p className="min-w-0 line-clamp-2 text-sm font-bold leading-snug text-[var(--wf-ink)]">{selectedTheme.name}</p>
-              </div>
-              {isAdmin && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {onEditTheme && <Button type="button" variant="outline" size="sm" onClick={() => onEditTheme(selectedTheme)}><Pencil className="h-3.5 w-3.5" />Ubah</Button>}
-                  {onDeleteTheme && <Button type="button" variant="outline" size="sm" onClick={() => onDeleteTheme(selectedTheme)} className="text-[var(--wf-danger)] hover:text-[var(--wf-danger)]"><Trash2 className="h-3.5 w-3.5" />Hapus</Button>}
+            <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+              <span
+                className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+                  isActive
+                    ? 'text-[var(--wf-live)]'
+                    : isPast
+                      ? 'text-[var(--wf-ink-muted)]'
+                      : 'text-[var(--wf-action)]'
+                }`}
+              >
+                {isActive && <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />}
+                {statusLabel}
+              </span>
+
+              {isAdmin && (onEditTheme || onDeleteTheme) && (
+                <div className="flex items-center gap-1">
+                  {onEditTheme && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEditTheme(theme)}
+                      aria-label={`Ubah tema ${theme.name}`}
+                      className="active:translate-y-0"
+                    >
+                      <Pencil className="size-3.5" aria-hidden="true" /> Ubah
+                    </Button>
+                  )}
+                  {onDeleteTheme && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onDeleteTheme(theme)}
+                      aria-label={`Hapus tema ${theme.name}`}
+                      className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)] active:translate-y-0"
+                    >
+                      <Trash2 className="size-3.5" aria-hidden="true" /> Hapus
+                    </Button>
+                  )}
                 </div>
               )}
-              <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
-                {formatDate(selectedTheme.dateStart)} - {formatDate(selectedTheme.dateEnd)}
-              </p>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--wf-rule-strong)]">
-                <div
-                  className="h-full rounded-full transition-all duration-700"
-                  style={{
-                    width: `${calcProgress(selectedTheme.dateStart, selectedTheme.dateEnd, today)}%`,
-                    backgroundColor: selectedTheme.color,
-                  }}
-                />
-              </div>
             </div>
-          </>
-        )}
-      </div>
-
-      <div className="hidden gap-3 sm:grid sm:grid-cols-2 xl:grid-cols-4">
-        {themes.map(theme => {
-          const isActive = today >= theme.dateStart && today <= theme.dateEnd;
-          const isPast   = today > theme.dateEnd;
-          const progress = calcProgress(theme.dateStart, theme.dateEnd, today);
-
-          return (
-            <div
-              key={theme.id}
-              className={`relative min-w-0 rounded-[var(--wf-radius-board)] border p-4 transition-colors duration-200 ${
-                isActive
-                  ? 'border-[var(--wf-live)]'
-                  : isPast
-                  ? 'border-[var(--wf-rule)]'
-                  : 'border-[var(--wf-rule)]'
-              }`}
-              style={{
-                backgroundColor: `${theme.color}18`,
-                ...(isActive ? { boxShadow: `0 0 0 2px ${theme.color}55` } : {}),
-              }}
-            >
-              {/* Live pulse dot */}
-              {isActive && (
-                <div
-                  className="absolute right-3 top-3 h-2 w-2 rounded-full live-dot"
-                  style={{ backgroundColor: theme.color }}
-                />
-              )}
-              {isAdmin && (
-                <div className="absolute right-3 top-3 flex gap-1">
-                  {onEditTheme && <Button type="button" variant="outline" size="icon-sm" aria-label={`Ubah tema ${theme.name}`} onClick={() => onEditTheme(theme)}><Pencil className="h-3.5 w-3.5" aria-hidden /></Button>}
-                  {onDeleteTheme && <Button type="button" variant="outline" size="icon-sm" aria-label={`Hapus tema ${theme.name}`} onClick={() => onDeleteTheme(theme)} className="text-[var(--wf-danger)] hover:text-[var(--wf-danger)]"><Trash2 className="h-3.5 w-3.5" aria-hidden /></Button>}
-                </div>
-              )}
-
-              <div className="flex min-w-0 items-start gap-1.5">
-                <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: theme.color }} />
-                <p className="min-w-0 line-clamp-2 text-xs font-bold leading-snug text-[var(--wf-ink)]">{theme.name}</p>
-              </div>
-              <p className="mt-0.5 text-[10px] text-[var(--wf-ink-muted)]">
-                {formatDate(theme.dateStart)} - {formatDate(theme.dateEnd)}
-              </p>
-
-              {/* Progress bar */}
-              <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-[var(--wf-rule-strong)]">
-                <div
-                  className="h-full rounded-full transition-all duration-700"
-                  style={{ width: `${progress}%`, backgroundColor: theme.color }}
-                />
-              </div>
-
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                {isActive && (
-                  <Badge
-                    variant="outline"
-                    className="wf-key wf-key--live wf-key--plain h-auto rounded-none border-0 bg-transparent px-0 py-0 font-normal"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
-                    Aktif
-                  </Badge>
-                )}
-                {!isActive && !isPast && (
-                  <span className="text-[10px] text-[var(--wf-ink-muted)]">Mendatang</span>
-                )}
-                {isPast && (
-                  <span className="text-[10px] text-[var(--wf-ink-muted)]">Selesai</span>
-                )}
-                <span className="ml-auto text-[10px] font-semibold text-[var(--wf-ink-muted)]">
-                  {progress}%
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

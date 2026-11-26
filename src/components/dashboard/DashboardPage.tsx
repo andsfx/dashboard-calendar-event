@@ -372,9 +372,11 @@ export function DashboardPage({
            badan halaman, jadi menawarkan pembuat event di sana memberi aksi
            utama yang salah. */
         primaryAction={
-          permissions.canEditEvents && (dashboardPath === '/' || dashboardPath === '/events')
-            ? { label: 'Tambah', onClick: handlers.handleAddNew }
-            : undefined
+          dashboardPath === '/themes'
+            ? (permissions.canManageThemes ? { label: 'Tambah tema', onClick: handlers.handleAddTheme } : undefined)
+            : permissions.canEditEvents && (dashboardPath === '/' || dashboardPath === '/events')
+              ? { label: 'Tambah', onClick: handlers.handleAddNew }
+              : undefined
         }
         dashboardPath={dashboardPath}
       />
@@ -627,7 +629,10 @@ export function DashboardPage({
 
       {/* 5. Tema Tahunan — admin */}
       {permissions.canViewThemes && dashboardPath === '/themes' && (
-        <section id="themes" className="scroll-mt-20">
+        <section id="themes" className="scroll-mt-20 space-y-4">
+          <p className="text-sm text-[var(--wf-ink-muted)]">
+            Kelompokkan program menurut periode agar susunan tema tahunan mudah dipindai.
+          </p>
           {events.annualThemes.length === 0 ? (
             <div className="ui-dashboard-surface p-6">
               <Empty className="border-0 bg-transparent p-0">
@@ -639,7 +644,7 @@ export function DashboardPage({
             </div>
           ) : (
             <Suspense fallback={<SectionFallback height="h-40" />}>
-              <QuarterTimeline themes={events.annualThemes} isAdmin onAddTheme={permissions.canManageThemes ? handlers.handleAddTheme : undefined} onEditTheme={permissions.canManageThemes ? handlers.handleEditTheme : undefined} onDeleteTheme={permissions.canManageThemes ? handlers.handleDeleteTheme : undefined} />
+              <QuarterTimeline themes={events.annualThemes} isAdmin onEditTheme={permissions.canManageThemes ? handlers.handleEditTheme : undefined} onDeleteTheme={permissions.canManageThemes ? handlers.handleDeleteTheme : undefined} />
             </Suspense>
           )}
         </section>
