@@ -815,12 +815,12 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                 {posterUploading ? (
                   <>
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-live)]" />
-                    <span className="text-xs font-medium">Mengupload…</span>
+                    <span className="text-xs font-medium">Mengunggah…</span>
                   </>
                 ) : (
                   <>
                     <Upload className="h-5 w-5" />
-                    <span className="text-xs font-medium">Klik untuk upload poster / flyer</span>
+                    <span className="text-xs font-medium">Klik untuk mengunggah poster / flyer</span>
                     <span className="text-[10px]">JPG, PNG, WebP · maks. 10 MB</span>
                   </>
                 )}
