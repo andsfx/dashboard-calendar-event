@@ -264,7 +264,7 @@ export default function TenantSurveyList({
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p>{error}</p>
-            <Button variant="ghost" onClick={onRefresh} className="mt-1">
+            <Button variant="ghost" onClick={onRefresh} className="mt-1 min-h-11 sm:min-h-0">
               Coba lagi
             </Button>
           </div>
@@ -297,7 +297,7 @@ export default function TenantSurveyList({
               // (axe: label-title-only). Label visual tidak ditambahkan karena
               // ikon kaca pembesar + placeholder sudah menandai fungsinya.
               aria-label="Cari tenant, event, penanggung jawab, kategori"
-              className="w-full pl-9"
+              className="w-full pl-9 min-h-11 sm:min-h-0"
             />
           </div>
 
@@ -305,7 +305,7 @@ export default function TenantSurveyList({
               tampil juga untuk role read-only (mis. demo) dan selalu gagal 403
               setelah form diisi — lebih baik disembunyikan sejak awal. */}
           {isAdmin && <div className="relative shrink-0">
-            <Button className="w-full sm:w-auto" onClick={() => setShowEventPicker(!showEventPicker)}>
+            <Button className="w-full min-h-11 sm:min-h-0 sm:w-auto" onClick={() => setShowEventPicker(!showEventPicker)}>
               <ClipboardCheck className="size-4" />
               Buat penilaian mandiri
             </Button>
@@ -318,7 +318,7 @@ export default function TenantSurveyList({
                   onChange={(e) => setEventQuery(e.target.value)}
                   aria-label="Cari event…"
                   placeholder="Cari event…"
-                  className="mb-2 w-full"
+                  className="mb-2 w-full min-h-11 sm:min-h-0"
                 />
                 {availableEvents.length === 0 ? (
                   <p className="px-3 py-2 text-xs text-[var(--wf-ink-muted)]">
@@ -342,7 +342,7 @@ export default function TenantSurveyList({
                           setShowEventPicker(false);
                           setEventQuery('');
                         }}
-                        className="flex! h-auto! w-full! cursor-pointer items-center justify-start! gap-2 whitespace-normal! rounded-xl border-0! px-3 py-2 text-sm transition-colors hover:bg-[var(--wf-board-2)]! [text-align:left] active:translate-y-0! font-normal!"
+                        className="flex! h-auto! min-h-11 w-full! cursor-pointer items-center justify-start! gap-2 whitespace-normal! rounded-xl border-0! px-3 py-2 text-sm transition-colors hover:bg-[var(--wf-board-2)]! [text-align:left] active:translate-y-0! font-normal! sm:min-h-0"
                       >
                         <span className="flex-1 truncate text-[var(--wf-ink)]">{ev.acara}</span>
                         <span className="shrink-0 text-[10px] text-[var(--wf-ink-muted)]">
@@ -374,6 +374,7 @@ export default function TenantSurveyList({
                 variant={statusFilter === tab.key ? 'default' : 'outline'}
                 aria-pressed={statusFilter === tab.key}
                 onClick={() => setStatusFilter(tab.key)}
+                className="min-h-11 sm:min-h-0"
               >
                 {tab.dot && (
                   <span
@@ -402,6 +403,7 @@ export default function TenantSurveyList({
             value={eventFilter}
             onChange={(e) => setEventFilter(e.target.value)}
             aria-label="Filter event"
+            className="[&>select]:min-h-11 sm:[&>select]:min-h-0"
           >
             <option value="all">Semua event</option>
             {eventsInData.map((ev) => (
@@ -414,6 +416,7 @@ export default function TenantSurveyList({
               value={kategoriFilter}
               onChange={(e) => setKategoriFilter(e.target.value)}
               aria-label="Filter kategori"
+              className="[&>select]:min-h-11 sm:[&>select]:min-h-0"
             >
               <option value="all">Semua kategori</option>
               {kategoriInData.map((k) => (
@@ -423,7 +426,7 @@ export default function TenantSurveyList({
           )}
 
           {hasActiveFilters && (
-            <Button variant="ghost" onClick={clearFilters}>
+            <Button variant="ghost" onClick={clearFilters} className="min-h-11 sm:min-h-0">
               <X className="size-3" />
               Reset filter
             </Button>
@@ -462,7 +465,7 @@ export default function TenantSurveyList({
           <EmptyHeader role="status">
             <EmptyTitle className="text-sm font-medium">Tidak ada hasil filter</EmptyTitle>
           </EmptyHeader>
-          <Button variant="ghost" className="mt-2" onClick={clearFilters}>
+          <Button variant="ghost" className="mt-2 min-h-11 sm:min-h-0" onClick={clearFilters}>
             Reset filter
           </Button>
         </Empty>
@@ -692,6 +695,7 @@ export default function TenantSurveyList({
                     variant="outline"
                     disabled={safePage <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="min-h-11 sm:min-h-0"
                   >
                     <ChevronLeft className="size-3.5" />
                     Sebelum
@@ -700,6 +704,7 @@ export default function TenantSurveyList({
                     variant="outline"
                     disabled={safePage >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className="min-h-11 sm:min-h-0"
                   >
                     Berikut
                     <ChevronRight className="size-3.5" />
@@ -716,6 +721,7 @@ export default function TenantSurveyList({
                 variant="outline"
                 disabled={safePage <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="min-h-11 md:min-h-0"
               >
                 <ChevronLeft className="size-3.5" />
                 Sebelum
@@ -727,6 +733,7 @@ export default function TenantSurveyList({
                 variant="outline"
                 disabled={safePage >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="min-h-11 md:min-h-0"
               >
                 Berikut
                 <ChevronRight className="size-3.5" />
@@ -783,10 +790,12 @@ function ActionBtn({
   compact?: boolean;
   disabled?: boolean;
 }) {
+  // Kartu mobile tampil sampai md dan tabel desktop baru muncul pada md — jadi
+  // minimum 44 px dipertahankan sampai md, lalu ringkas lagi seperti semula.
   return (
     <Button
       variant={primary ? 'default' : 'outline'}
-      className={compact ? 'text-[11px]' : undefined}
+      className={compact ? 'min-h-11 text-[11px] md:min-h-0' : 'min-h-11 md:min-h-0'}
       onClick={onClick}
       disabled={disabled}
     >

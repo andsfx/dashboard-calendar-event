@@ -265,7 +265,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
           aria-required={required || undefined}
           aria-invalid={!!error || undefined}
           aria-describedby={describedBy}
-          className={cn('h-auto w-full rounded-xl border border-[var(--wf-rule-strong)] bg-[var(--wf-board)] py-2 pl-9 pr-9 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-control)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60', className)}
+          className={cn('h-auto w-full min-h-11 rounded-xl border border-[var(--wf-rule-strong)] bg-[var(--wf-board)] py-2 pl-9 pr-9 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-control)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60 sm:min-h-0', className)}
         />
         {query && !disabled && (
           <Button
@@ -273,7 +273,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
             variant="ghost"
             size="icon-xs"
             onClick={handleClear}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink-muted)]"
+            className="absolute right-1.5 top-1/2 min-h-11 min-w-11 -translate-y-1/2 rounded-full p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink-muted)] sm:min-h-0 sm:min-w-0"
             aria-label="Hapus"
           >
             <X className="h-3.5 w-3.5" />
@@ -297,7 +297,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
                 variant="link"
                 size="xs"
                 onClick={() => setRetryTick((n) => n + 1)}
-                className="h-auto p-0 font-medium text-red-600 underline underline-offset-2 hover:text-red-700 hover:no-underline dark:text-red-400 dark:hover:text-red-300"
+                className="h-auto min-h-11 p-0 font-medium text-red-600 underline underline-offset-2 hover:text-red-700 hover:no-underline sm:min-h-0 dark:text-red-400 dark:hover:text-red-300"
               >
                 Coba lagi
               </Button>

@@ -422,7 +422,9 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
         {canViewResults && (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2 text-xs text-[var(--wf-ink-muted)]">
             <span>Ringkasan hasil, checklist tenant, dan ekspor PDF ada di halaman hasil evaluasi.</span>
-            <Link to="/tenant-survey-results" className="font-semibold text-[var(--wf-action)] underline-offset-2 hover:underline">
+            {/* Tautan ini berdiri sendiri (bukan di tengah kalimat), jadi wajib
+                target ≥44 px di mobile; desktop tetap sebaris ringkas. */}
+            <Link to="/tenant-survey-results" className="inline-flex min-h-11 items-center font-semibold text-[var(--wf-action)] underline-offset-2 hover:underline sm:min-h-0">
               Buka hasil evaluasi tenant
             </Link>
           </div>
@@ -433,13 +435,16 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
           value={effectiveTab}
           onValueChange={(key) => setActiveTab(key as TabKey)}
         >
-          <TabsList aria-label="Tenant self-assessment" className="ui-dashboard-surface p-1">
-            <TabsTrigger value="list">
+          {/* Trigger tab 21 px di mobile (di bawah 44 px). Tinggi minimum hanya
+              di <sm; mulai sm kembali ke `h-[calc(100%-1px)]` bawaan primitif
+              supaya strip tab desktop tetap setinggi sebelumnya. */}
+          <TabsList aria-label="Tenant self-assessment" className="ui-dashboard-surface h-auto p-1 sm:h-8">
+            <TabsTrigger value="list" className="min-h-11 sm:min-h-0">
               <List className="size-4 shrink-0" />
               Penilaian mandiri
             </TabsTrigger>
             {canViewAnalytics && (
-              <TabsTrigger value="analytics">
+              <TabsTrigger value="analytics" className="min-h-11 sm:min-h-0">
                 <BarChart3 className="size-4 shrink-0" />
                 Analitik
               </TabsTrigger>
@@ -477,6 +482,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                 value={analyticsEventFilter}
                 onChange={(e) => setAnalyticsEventFilter(e.target.value)}
                 aria-label="Filter event"
+                className="[&>select]:min-h-11 sm:[&>select]:min-h-0"
               >
                 <option value="all">Semua event</option>
                 {surveyableEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.acara}</option>)}
@@ -524,7 +530,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
 
     return (
       <div className="space-y-4">
-        <Button variant="ghost" onClick={handleCancelForm}>
+        <Button variant="ghost" onClick={handleCancelForm} className="min-h-11 sm:min-h-0">
           <ChevronLeft className="size-4" />
           Kembali ke daftar
         </Button>
@@ -548,6 +554,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                 <Button
                   variant="outline"
                   onClick={() => handleEditSurvey(editingSurvey)}
+                  className="min-h-11 sm:min-h-0"
                 >
                   <Edit className="size-3.5" />
                   Ubah
@@ -556,6 +563,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
               {canSubmitDraft && (
                 <Button
                   disabled={actionLoading === 'submit'}
+                  className="min-h-11 sm:min-h-0"
                   onClick={async () => {
                     setActionLoading('submit');
                     setActionError(null);
@@ -580,6 +588,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                     setReviewOpen((v) => !v);
                     setConfirmDelete(false);
                   }}
+                  className="min-h-11 sm:min-h-0"
                 >
                   <Eye className="size-3.5" />
                   {editingSurvey.status === 'reviewed' ? 'Perbarui tinjauan' : 'Tinjauan'}
@@ -592,7 +601,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                     setConfirmDelete(true);
                     setReviewOpen(false);
                   }}
-                  className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)]"
+                  className="min-h-11 text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)] sm:min-h-0"
                 >
                   <Trash2 className="size-3.5" />
                   Hapus
@@ -621,6 +630,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                       variant="destructive"
                       disabled={actionLoading === 'delete'}
                       onClick={handleDelete}
+                      className="min-h-11 sm:min-h-0"
                     >
                       {actionLoading === 'delete' ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
                       Ya, hapus
@@ -629,6 +639,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                       variant="outline"
                       disabled={actionLoading === 'delete'}
                       onClick={() => setConfirmDelete(false)}
+                      className="min-h-11 sm:min-h-0"
                     >
                       Batal
                     </Button>
@@ -656,6 +667,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                 <Button
                   disabled={actionLoading === 'review'}
                   onClick={handleReview}
+                  className="min-h-11 sm:min-h-0"
                 >
                   {actionLoading === 'review' ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
                   Simpan tinjauan
@@ -664,6 +676,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
                   variant="outline"
                   disabled={actionLoading === 'review'}
                   onClick={() => setReviewOpen(false)}
+                  className="min-h-11 sm:min-h-0"
                 >
                   Batal
                 </Button>
@@ -809,7 +822,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
   if (formStatus === 'duplicate' && !editingSurvey) {
     return (
       <div>
-        <Button variant="ghost" className="mb-4" onClick={handleStartNewAfterSuccess}>
+        <Button variant="ghost" className="mb-4 min-h-11 sm:min-h-0" onClick={handleStartNewAfterSuccess}>
           <ChevronLeft className="size-4" />
           Kembali ke daftar
         </Button>
@@ -840,7 +853,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
   ) {
     return (
       <div>
-        <Button variant="ghost" className="mb-4" onClick={handleStartNewAfterSuccess}>
+        <Button variant="ghost" className="mb-4 min-h-11 sm:min-h-0" onClick={handleStartNewAfterSuccess}>
           <ChevronLeft className="size-4" />
           Kembali ke daftar
         </Button>
@@ -862,7 +875,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
   if (formStatus === 'error' && formError) {
     return (
       <div>
-        <Button variant="ghost" className="mb-4" onClick={() => setFormStatus('idle')}>
+        <Button variant="ghost" className="mb-4 min-h-11 sm:min-h-0" onClick={() => setFormStatus('idle')}>
           <ChevronLeft className="size-4" />
           Coba lagi
         </Button>
@@ -889,7 +902,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
   return (
     <div>
       <Button variant="ghost"
-        className="mb-4"
+        className="mb-4 min-h-11 sm:min-h-0"
         disabled={formStatus === 'submitting'}
         onClick={handleCancelForm}
       >
@@ -948,8 +961,11 @@ function TenantSurveyEventRow({
 
   return (
     <div className="px-4 py-2.5">
-      <div className="flex items-center gap-2">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Di <sm tombol aksi (44 px) tidak muat sebaris dengan judul: judul
+            mengambil satu baris penuh, tombol membungkus ke baris berikutnya.
+            Mulai sm kembali seperti semula (judul + tombol sebaris). */}
+        <div className="min-w-0 flex-1 basis-full sm:basis-auto">
           <p className="truncate text-xs font-medium text-[var(--wf-ink)]">{event.acara}</p>
           <p className="text-[10px] text-[var(--wf-ink-muted)]">
             {event.status === 'ongoing' ? 'Berlangsung' : 'Selesai'}
@@ -966,8 +982,8 @@ function TenantSurveyEventRow({
             disabled={isToggling}
             onClick={() => onToggleConfig(event.id, isActive)}
             className={isActive
-              ? 'shrink-0 text-[var(--wf-live)] hover:text-[var(--wf-live)] active:translate-y-0'
-              : 'shrink-0 text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink-muted)] active:translate-y-0'}
+              ? 'min-h-11 min-w-11 shrink-0 text-[var(--wf-live)] hover:text-[var(--wf-live)] active:translate-y-0 sm:min-h-0 sm:min-w-0'
+              : 'min-h-11 min-w-11 shrink-0 text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink-muted)] active:translate-y-0 sm:min-h-0 sm:min-w-0'}
           >
             {isToggling ? (
               <Loader2 className="size-5 animate-spin" />
@@ -981,7 +997,9 @@ function TenantSurveyEventRow({
 
         <Button
           variant="ghost"
-          className={isCopied ? 'shrink-0 text-[var(--wf-live)] hover:text-[var(--wf-live)]' : 'shrink-0'}
+          className={isCopied
+            ? 'min-h-11 shrink-0 text-[var(--wf-live)] hover:text-[var(--wf-live)] sm:min-h-0'
+            : 'min-h-11 shrink-0 sm:min-h-0'}
           title="Salin tautan survei"
           onClick={() => onCopyLink(event.id)}
         >
@@ -991,7 +1009,7 @@ function TenantSurveyEventRow({
 
         {canExportCsv && (
           <Button variant="ghost"
-            className="shrink-0"
+            className="min-h-11 shrink-0 sm:min-h-0"
             title="Ekspor CSV"
             onClick={() => onExport(event.id)}
           >
@@ -1002,7 +1020,7 @@ function TenantSurveyEventRow({
 
         <Button
           variant="ghost"
-          className="shrink-0"
+          className="min-h-11 shrink-0 sm:min-h-0"
           title="Kode QR"
           onClick={() => setShowQR(!showQR)}
         >
@@ -1132,7 +1150,7 @@ function TenantSurveyManagementSection({
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Cari event"
                 placeholder="Cari event (contoh: Bekasi Criterium)…"
-                className="w-full pl-9"
+                className="w-full pl-9 min-h-11 sm:min-h-0"
               />
             </div>
             <p className="mt-1.5 text-[10px] text-[var(--wf-ink-muted)]">

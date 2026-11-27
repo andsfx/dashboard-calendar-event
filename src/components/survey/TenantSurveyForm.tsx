@@ -354,7 +354,7 @@ export default function TenantSurveyForm({
               required
               aria-label="Zona"
               aria-invalid={!!fieldLevelErrors.lokasi_zona || undefined}
-              className="w-full"
+              className="w-full [&>select]:min-h-11 sm:[&>select]:min-h-0"
             >
               <option value="">Pilih zona</option>
               {SURVEY_OPTIONS.lokasi_zona.map((z) => (
@@ -441,7 +441,7 @@ export default function TenantSurveyForm({
                 maxLength={100}
                 disabled={disabled}
                 aria-label="Nama penanggung jawab"
-                className="w-full"
+                className="w-full min-h-11 sm:min-h-0"
               />
             </div>
             <div>
@@ -458,7 +458,7 @@ export default function TenantSurveyForm({
                 maxLength={20}
                 disabled={disabled}
                 aria-label="Nomor telepon penanggung jawab"
-                className="w-full"
+                className="w-full min-h-11 sm:min-h-0"
               />
             </div>
           </div>
@@ -499,15 +499,15 @@ export default function TenantSurveyForm({
 
       {/* Actions */}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting} className="min-h-11 sm:min-h-0">
           <ChevronLeft className="size-4" />
           Batal
         </Button>
-        <Button type="button" variant="outline" onClick={() => handleSubmit(true)} disabled={isSubmitting || disabled}>
+        <Button type="button" variant="outline" onClick={() => handleSubmit(true)} disabled={isSubmitting || disabled} className="min-h-11 sm:min-h-0">
           <Save className="size-4" />
           Simpan Draft
         </Button>
-        <Button type="submit" disabled={isSubmitting || disabled}>
+        <Button type="submit" disabled={isSubmitting || disabled} className="min-h-11 sm:min-h-0">
           {isSubmitting ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (

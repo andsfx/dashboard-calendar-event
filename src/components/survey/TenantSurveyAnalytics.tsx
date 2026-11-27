@@ -93,7 +93,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry?: () => voi
       <p className="mt-2 text-sm font-medium text-red-700 dark:text-red-300">Gagal memuat analitik</p>
       <p className="mt-1 text-xs text-red-700/80 dark:text-red-300/80">{message}</p>
       {onRetry && (
-        <Button type="button" variant="outline" className="mt-3" onClick={onRetry}>
+        <Button type="button" variant="outline" className="mt-3 min-h-11 sm:min-h-0" onClick={onRetry}>
           Coba lagi
         </Button>
       )}
