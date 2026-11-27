@@ -72,7 +72,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
     for (let i = 0; i < 3; i++) {
       const url = postUrls[i];
       if (url && url.trim() && !url.includes('instagram.com')) {
-        setError(`Post ${i + 1}: URL harus dari instagram.com`);
+        setError(`Unggahan ${i + 1}: URL harus dari instagram.com`);
         return false;
       }
     }
@@ -96,10 +96,10 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
       <form onSubmit={handleSubmit} className="ui-dashboard-surface space-y-3 p-4 sm:p-5">
         {/* Hero Background Image */}
         <div className="space-y-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink-muted)]">Hero Background</p>
+          <h2 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink-muted)]">Latar utama</h2>
           {heroUrl ? (
             <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)]">
-              <img src={heroUrl} alt="Hero background" className="h-32 w-full object-cover" />
+              <img src={heroUrl} alt="Latar utama" className="h-32 w-full object-cover" />
               {!readOnly && <Button
                 type="button"
                 variant="ghost"
@@ -111,7 +111,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>}
-              <p className="absolute bottom-2 left-3 rounded-md bg-black/50 px-1.5 py-0.5 text-xs font-medium text-white/90">Hero background aktif</p>
+              <p className="absolute bottom-2 left-3 rounded-md bg-black/50 px-1.5 py-0.5 text-xs font-medium text-white/90">Latar utama aktif</p>
             </div>
           ) : readOnly ? null : (
             <Button
@@ -122,7 +122,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
               className="w-full"
             >
               {heroUploading ? (
-                <span>Mengupload…</span>
+                <span>Mengunggah…</span>
               ) : (
                 <>
                   <ImageIcon className="h-5 w-5" />
@@ -145,7 +145,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
               onClick={() => heroFileRef.current?.click()}
               disabled={heroUploading}
             >
-              {heroUploading ? 'Mengupload…' : 'Ganti foto'}
+              {heroUploading ? 'Mengunggah…' : 'Ganti foto'}
             </Button>
           )}
         </div>
@@ -153,12 +153,12 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
         <div className="border-t border-[var(--wf-rule)]" />
 
         {/* Instagram Posts */}
-        <p className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink-muted)]">Instagram Gallery</p>
+        <h2 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink-muted)]">Galeri Instagram</h2>
         {[0, 1, 2].map(i => (
           <div key={i}>
             <Label htmlFor={`ig-post-${i}`} className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
               <Globe className="h-3.5 w-3.5" />
-              Post {i + 1}:
+              Unggahan {i + 1}:
             </Label>
             <Input
               id={`ig-post-${i}`}
@@ -166,7 +166,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
               onChange={(e) => setUrl(i, e.target.value)}
               readOnly={readOnly}
               placeholder="https://www.instagram.com/p/..."
-              aria-label={`Post ${i + 1}`}
+              aria-label={`Unggahan ${i + 1}`}
               className="w-full"
             />
           </div>
@@ -192,7 +192,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
                 urls: validUrls,
               });
               if (data.success) {
-                setSyncResult(`Berhasil sync ${data.data?.synced ?? validUrls.length} post! Image di-cache ke CDN.`);
+                setSyncResult(`Berhasil disinkronkan ${data.data?.synced ?? validUrls.length} unggahan! Gambar disimpan di CDN.`);
               } else {
                 setSyncResult(`Gagal: ${data.error}`);
               }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { GeneratedLetter } from '../../types';
 import { Button } from '../shadcn/button';
 import { Input } from '../shadcn/input';
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from '../shadcn/empty';
 import { Archive, ArchiveRestore, Copy, FileText, Search, Trash2 } from 'lucide-react';
 import { DOC_TYPE_LABEL } from './letterDocuments';
 import type { LetterPair } from '../../lib/letterStudio/schema';
@@ -104,7 +105,7 @@ export function LetterHistoryList({
                   {p.status === 'published' ? 'Terbit' : 'Draf lokal'}
                 </span>
                 <Button variant="outline" onClick={() => onOpenPair?.(p)} aria-label="Buka surat">
-                  Buka
+                  Buka surat
                 </Button>
                 {onDuplicate && (
                   <Button variant="ghost" size="icon-sm" aria-label="Duplikat" onClick={() => onDuplicate(p)}>
@@ -151,10 +152,14 @@ export function LetterHistoryList({
       )}
 
       {localPairs.length === 0 && letters.length === 0 && (
-        <div className="rounded-xl border border-dashed border-[var(--wf-rule)] px-6 py-12 text-center">
-          <FileText className="mx-auto mb-2 h-8 w-8 text-[var(--wf-ink-muted)]" />
-          <p className="text-sm text-[var(--wf-ink-muted)]">Belum ada riwayat surat.</p>
-        </div>
+        <Empty className="border border-[var(--wf-rule)] px-6 py-12">
+          <EmptyHeader>
+            <EmptyMedia>
+              <FileText className="h-8 w-8 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+            </EmptyMedia>
+            <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Belum ada riwayat surat.</EmptyTitle>
+          </EmptyHeader>
+        </Empty>
       )}
     </div>
   );

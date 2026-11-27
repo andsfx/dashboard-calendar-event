@@ -382,6 +382,8 @@ export function LetterWorkspace({ events, readOnly }: LetterWorkspaceProps) {
         <EventLetterPickerModal events={events} onClose={() => setShowPicker(false)} onSelect={(e) => void handleSelectEvent(e)} />
       )}
 
+      <h2 className="sr-only">Editor surat</h2>
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
           {status === 'published' ? 'Terbit' : 'Draf lokal'}

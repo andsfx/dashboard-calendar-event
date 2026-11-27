@@ -9,6 +9,7 @@ import { Input } from '../shadcn/input';
 import { Label } from '../shadcn/label';
 import { Textarea } from '../shadcn/textarea';
 import { MarkdownBody } from '../shared/MarkdownBody';
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '../shadcn/empty';
 
 interface Props {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
@@ -280,22 +281,26 @@ export function NewsManagerModal({ readOnly = false }: Props) {
             <>
               {!readOnly && (
                 <Button
-                  variant="outline"
+                  variant="default"
                   type="button"
                   onClick={startCreate}
                   className="w-full"
                 >
                   <Plus className="h-4 w-4" />
-                  Buat Artikel Baru
+                  Tambah Artikel
                 </Button>
               )}
 
               {articles.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
-                  <Newspaper className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
-                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada artikel</p>
-                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Buat artikel pertama untuk mulai mengelola berita</p>
-                </div>
+                <Empty className="border border-[var(--wf-rule)] py-10">
+                  <EmptyHeader>
+                    <EmptyMedia>
+                      <Newspaper className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+                    </EmptyMedia>
+                    <EmptyTitle className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada artikel</EmptyTitle>
+                    <EmptyDescription className="text-xs text-[var(--wf-ink-muted)]">Buat artikel pertama untuk mulai mengelola berita</EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
               )}
 
               {articles.length > 0 && (
@@ -353,7 +358,7 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
-                          variant={article.status === 'published' ? 'ghost' : 'default'}
+                          variant={article.status === 'published' ? 'ghost' : 'outline'}
                           type="button"
                           onClick={() => handleTogglePublish(article)}
                           className="px-2 py-1.5 text-xs"
@@ -422,7 +427,7 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                   <div className="min-h-[8rem] w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-page)] px-4 py-4 sm:px-6">
                     <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Pratinjau artikel</p>
                     {title.trim() && (
-                      <h1 className="text-2xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-3xl">{title}</h1>
+                      <h2 className="text-2xl font-bold tracking-tight text-[var(--wf-ink)] sm:text-3xl">{title}</h2>
                     )}
                     {author.trim() && (
                       <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">{author}</p>
