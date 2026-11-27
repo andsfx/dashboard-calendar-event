@@ -9,6 +9,13 @@ import { Input } from '../shadcn/input';
 import { Label } from '../shadcn/label';
 import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
 import { Progress } from '../shadcn/progress';
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from '../shadcn/empty';
 
 interface Props {
   pastEvents?: EventItem[];
@@ -386,13 +393,13 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
               {/* Create Album Button */}
               {!readOnly && !showCreateForm && (
                 <Button
-                  variant="outline"
+                  variant="default"
                   type="button"
                   onClick={() => { setShowCreateForm(true); setError(''); }}
                   className="w-full"
                 >
                   <Plus className="h-4 w-4" />
-                  Buat Album Baru
+                  Tambah Album
                 </Button>
               )}
 
@@ -424,7 +431,7 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                               {`${e.acara} - ${e.tanggal}`}
                             </NativeSelectOption>
                           ))}
-                        <NativeSelectOption value="__custom__">✏ Custom (ketik manual)</NativeSelectOption>
+                        <NativeSelectOption value="__custom__">Ketik manual</NativeSelectOption>
                       </NativeSelect>
                     </div>
 
@@ -450,7 +457,7 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                         ))}
                       </NativeSelect>
                       {selectedThemeId && !isCustomEvent && (
-                        <p className="mt-1 text-xs text-[var(--wf-accent)]">Auto-matched berdasarkan tanggal event</p>
+                        <p className="mt-1 text-xs text-[var(--wf-accent)]">Dicocokkan otomatis berdasarkan tanggal event</p>
                       )}
                     </div>
 
@@ -544,11 +551,17 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
 
               {/* Album List */}
               {albums.length === 0 && !showCreateForm && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
-                  <ImageIcon className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
-                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada album</p>
-                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Buat album pertama untuk mulai mengelola foto</p>
-                </div>
+                <Empty className="border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <EmptyMedia>
+                    <ImageIcon className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+                  </EmptyMedia>
+                  <EmptyHeader>
+                    <EmptyTitle className="text-[var(--wf-ink-muted)]">Belum ada album</EmptyTitle>
+                    <EmptyDescription className="text-xs text-[var(--wf-ink-muted)]">
+                      Buat album pertama untuk mulai mengelola foto
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
               )}
 
               {albums.length > 0 && (
@@ -558,29 +571,28 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                       key={album.id}
                       className="group flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] p-3 transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]"
                     >
-                      {/* Cover thumbnail */}
-                      <div
-                        className="h-14 w-14 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-[var(--wf-board-2)]"
-                        onClick={() => openAlbumDetail(album)}
-                      >
+                      {/* Cover thumbnail — dekoratif; pembuka album ada di Button nama */}
+                      <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--wf-board-2)]">
                         {album.coverPhotoUrl ? (
                           <img
                             src={adminThumbUrl(album.coverPhotoUrl)}
-                            alt={album.name}
+                            alt=""
                             className="h-full w-full object-cover"
                             loading="lazy"
                             onError={(e) => { (e.target as HTMLImageElement).src = album.coverPhotoUrl; }}
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
-                            <ImageIcon className="h-5 w-5 text-[var(--wf-ink-muted)]" />
+                            <ImageIcon className="h-5 w-5 text-[var(--wf-ink-muted)]" aria-hidden="true" />
                           </div>
                         )}
                       </div>
 
-                      {/* Info */}
-                      <div
-                        className="min-w-0 flex-1 cursor-pointer"
+                      {/* Info — satu-satunya pembuka album yang bisa dijangkau keyboard */}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="min-w-0 flex-1 shrink! cursor-pointer ui-focus-ring h-auto! flex! flex-col! items-stretch! justify-start! gap-0! p-0! rounded-none! border-0! font-normal! whitespace-normal! text-left! text-[1em]! active:translate-y-0!"
                         onClick={() => openAlbumDetail(album)}
                       >
                         <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
@@ -590,7 +602,7 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                           {album.eventDate && <span>{album.eventDate}</span>}
                           <span>{album.photoCount ?? 0} foto</span>
                         </div>
-                      </div>
+                      </Button>
 
                       {/* Delete */}
                       {!readOnly && <Button
@@ -683,16 +695,22 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
 
               {/* Empty state */}
               {albumPhotos.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
-                  <ImageIcon className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
-                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada foto</p>
-                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Upload foto pertama di bawah</p>
-                </div>
+                <Empty className="border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <EmptyMedia>
+                    <ImageIcon className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+                  </EmptyMedia>
+                  <EmptyHeader>
+                    <EmptyTitle className="text-[var(--wf-ink-muted)]">Belum ada foto</EmptyTitle>
+                    <EmptyDescription className="text-xs text-[var(--wf-ink-muted)]">
+                      Unggah foto pertama di bawah
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
               )}
 
               {/* Upload Section */}
               <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
-                <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">Upload Foto Baru</p>
+                <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">Unggah Foto Baru</p>
 
                 {isMaxPhotos && uploadFiles.length === 0 && (
                   <p className="text-xs text-[var(--wf-action)]">
@@ -700,26 +718,34 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                   </p>
                 )}
 
-                {/* Drag & drop upload zone */}
+                {/* Drag & drop upload zone — tarik & lepas di wrapper, pilih berkas lewat Button */}
                 {!readOnly && !isMaxPhotos && !uploading && (
                   <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition-colors ${
+                    className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed px-4 py-6 text-center transition-colors ${
                       isDragOver
                         ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)]'
                         : 'border-[var(--wf-rule-strong)] hover:border-[var(--wf-accent)] hover:bg-[var(--wf-board-2)]'
                     }`}
                   >
-                    <Upload className="h-7 w-7 text-[var(--wf-ink-muted)]" />
+                    <Upload className="h-7 w-7 text-[var(--wf-ink-muted)]" aria-hidden="true" />
                     <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
-                      Drag & drop foto di sini
+                      Tarik & lepas foto di sini
                     </p>
                     <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
-                      atau klik untuk pilih · max {MAX_PHOTOS - albumPhotos.length} foto · 10MB/file
+                      atau pilih berkas · maks {MAX_PHOTOS - albumPhotos.length} foto · 10 MB/berkas
                     </p>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="mt-3"
+                    >
+                      <Upload className="h-4 w-4" aria-hidden="true" />
+                      Pilih Foto
+                    </Button>
                   </div>
                 )}
 
