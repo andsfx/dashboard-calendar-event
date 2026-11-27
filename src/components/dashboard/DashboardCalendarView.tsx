@@ -353,7 +353,7 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                           isToday
                             ? 'text-[var(--wf-accent)]'
                             : isOtherMonth
-                              ? 'text-[var(--wf-ink-muted)]/60'
+                              ? 'text-[var(--wf-ink-muted)]'
                               : 'text-[var(--wf-ink)]'
                         }`}
                       >
