@@ -2,7 +2,10 @@ import { memo } from 'react';
 import { Badge } from '../shadcn/badge';
 
 const CONFIG = {
-  high:   { label: 'Prioritas Tinggi', className: 'bg-[var(--wf-danger)]/10 text-[var(--wf-danger)]' },
+  // Merah pekat + teks `--wf-accent-ink`: latar tint 10% di atas nada kartu
+  // (mis. `--wf-action`/10 di Timeline) hanya 4.46:1 — di bawah ambang 4.5.
+  // Isian pekat membuat rasio tidak lagi bergantung pada latar induk.
+  high:   { label: 'Prioritas Tinggi', className: 'bg-[var(--wf-danger)] text-[var(--wf-accent-ink)]' },
   medium: { label: 'Sedang',           className: 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]' },
   low:    { label: 'Rendah',           className: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' },
 };
