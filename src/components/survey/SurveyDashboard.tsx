@@ -220,6 +220,7 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
   if (error) {
     return (
       <div className="space-y-4">
+        <h2 className="sr-only">Survei kepuasan</h2>
         <SurveyWorkflowBanner />
         <div
           role="alert"
@@ -246,6 +247,10 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
   if (!stats || stats.total_responses === 0) {
     return (
       <div className="space-y-4">
+        <h2 className="sr-only">Survei kepuasan</h2>
+        <p className="text-sm text-[var(--wf-ink-muted)]">
+          Status aktif menandai event yang formulir surveinya sedang dibuka untuk pengunjung.
+        </p>
         <SurveyWorkflowBanner />
         {/* Aksi lebih dulu: admin bisa mengaktifkan/membagikan walau belum ada respons. */}
         <EventManagementSection
@@ -278,19 +283,20 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-bold text-[var(--wf-ink)]">Survei kepuasan</h2>
-          <p className="text-xs text-[var(--wf-ink-muted)]">Umpan balik dari penyelenggara dan peserta event</p>
-        </div>
+      {/* Tanpa judul h2: nama halaman sudah dari DashboardHeader. Baris ini
+          hanya menjelaskan arti status aktif + aksi muat ulang. */}
+      <h2 className="sr-only">Survei kepuasan</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-[var(--wf-ink-muted)]">
+          Status aktif menandai event yang formulir surveinya sedang dibuka untuk pengunjung.
+        </p>
         <Button
           type="button"
           variant="ghost"
           size="icon-sm"
           onClick={fetchStats}
-          title="Refresh"
-          aria-label="Refresh"
+          title="Muat ulang statistik"
+          aria-label="Muat ulang statistik"
           className="active:translate-y-0"
         >
           <RefreshCw className="size-4" />

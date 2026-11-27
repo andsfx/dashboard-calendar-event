@@ -384,7 +384,7 @@ export default function TenantSurveyList({
                 <span
                   className={`rounded-full px-1.5 text-[10px] tabular-nums ${
                     statusFilter === tab.key
-                      ? 'bg-[var(--wf-accent-ink)]/20 text-[var(--wf-accent-ink)]'
+                      ? 'bg-[var(--wf-board)] text-[var(--wf-accent)]'
                       : 'bg-[var(--wf-board)] text-[var(--wf-ink-muted)]'
                   }`}
                 >
