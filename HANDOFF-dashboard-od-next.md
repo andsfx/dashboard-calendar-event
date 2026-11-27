@@ -64,8 +64,14 @@ ditulis:
    `--wf-danger` + teks `--wf-accent-ink` (`PriorityBadge`), jadi rasio tidak
    bergantung latar kartu: axe terang **0** `color-contrast` di Kanban/Timeline,
    375 maupun 1280 (gelap juga 0).
-   **Utang struktur yang tidak diselesaikan:** `nested-interactive` **23 node** di
-   Kanban dan Timeline — kartu `Button` membungkus `Button` aksi, sudah tercatat
+   **`nested-interactive` Kanban/Timeline — DITUTUP (2026-11-27):** kartu kini
+   `div.relative` + satu `Button absolute inset-0` («Lihat rincian <acara>»),
+   tombol aksi di atasnya (`relative z-10`). Terukur axe **0**
+   `nested-interactive` (23 → 0 per tampilan) dan **0** pelanggaran total pada
+   8 kombinasi (Kanban/Timeline × 375/1280 × terang/gelap); urutan Tab kartu =
+   overlay → Lihat → Ubah → Hapus, Enter/Space pada overlay membuka detail
+   tepat sekali, Enter pada Ubah/Hapus tidak membuka detail. Dulu tercatat sebagai
+   utang di `AGENTS.md` §UI Rules 9; catatan itu ikut diperbarui.
    Kalender `color-contrast` pada angka hari bulan lain telah **ditutup**:
    `text-[var(--wf-ink-muted)]/60` diganti `text-[var(--wf-ink-muted)]`
    (`DashboardCalendarView`), rasio terukur **5.53–5.73:1** terang (latar

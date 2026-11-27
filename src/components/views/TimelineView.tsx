@@ -34,13 +34,18 @@ const DOT_COLOR: Record<string, string> = {
 };
 
 /**
- * Kartu timeline adalah kontrol penuh (dulu `div` dengan peran button + tabIndex), sekarang
- * `Button` shadcn. Primitive membawa tinggi/padding/radius/translate-press/
- * ukuran teks sendiri; kelas di bawah menetralkannya supaya geometri kartu
- * asli bertahan (`p-4!` menyelesaikan padding asli di kelas elemennya).
+ * Kartu timeline bukan lagi kontrol pembungkus: `div` visual + satu `Button`
+ * overlay `absolute inset-0` untuk membuka detail. Tombol aksi duduk di atas
+ * overlay lewat `relative z-10`, jadi tidak ada kontrol fokus bersarang
+ * (`nested-interactive`). `CARD_ACCENT` hanya membawa nada latar; geometri
+ * kartu ada di kelas `div`-nya.
  */
-const CARD_BUTTON_RESET =
-  'h-auto! w-full! flex! flex-col! items-stretch! justify-start! gap-0! font-normal! whitespace-normal! text-left! text-[1em]! active:translate-y-0!';
+const CARD_BASE =
+  'group relative cursor-pointer rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] p-4 transition';
+
+/** Overlay transparan: carry geometri kartu tanpa chrome primitive. */
+const CARD_OVERLAY_RESET =
+  'absolute inset-0 z-0 h-auto! w-full! rounded-[inherit]! border-0! bg-transparent! p-0! font-normal! text-[1em]! transition-none! active:translate-y-0! ui-focus-ring focus-visible:ring-offset-0 hover:bg-transparent! hover:text-inherit!';
 
 const CARD_ACCENT: Record<string, string> = {
   // Hanya nada latar: warna garis sudah dibawa kelas kartu. Nada diulang di
@@ -102,18 +107,18 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                 />
 
                 {/* Card */}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className={`group cursor-pointer rounded-[var(--wf-radius-board)]! border border-[var(--wf-rule)]! p-4! transition ui-focus-ring ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''} ${CARD_BUTTON_RESET}`}
-                  onClick={() => onDetail(ev)}
-                  onKeyDown={(e) => {
-                    // Enter/Space pada tombol aksi di dalam kartu milik tombol itu, bukan kartu.
-                    if (e.target !== e.currentTarget) return;
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); }
-                  }}
+                <div
+                  className={`${CARD_BASE} ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''}`}
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className={CARD_OVERLAY_RESET}
+                    onClick={() => onDetail(ev)}
+                    aria-label={`Lihat rincian ${ev.acara}`}
+                  />
+
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     {/* Left: date + name */}
                     <div className="flex-1">
@@ -142,7 +147,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
                       {/* Actions */}
                       <div
-                        className="flex items-center gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
+                        className="relative z-10 flex items-center gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
                         onClick={e => e.stopPropagation()}
                       >
                         <Button
@@ -193,7 +198,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                       )}
                       {ev.eo && <span className="flex items-center gap-1"><FileText className="h-3 w-3" /> {ev.eo}</span>}
                     </div>
-                </Button>
+                </div>
               </div>
             ))}
           </div>

@@ -37,16 +37,17 @@ const COLUMNS: Array<{
 ];
 
 /**
- * Kartu kanban adalah kontrol penuh (dulu `div` dengan peran button + tabIndex), sekarang
- * `Button` shadcn. Primitive membawa tinggi/padding/radius/translate-press/
- * ukuran teks sendiri; kelas di bawah menetralkannya supaya geometri kartu
- * asli bertahan. Nilai asli yang berebut properti sama (radius, warna garis,
- * ring fokus) diberi sufiks `!` di kelasnya sendiri — termasuk `cardBorder`
- * kolom, karena warna garis dasar kini `!` dan deklarasi `!` mengalahkan
- * varian `hover:` yang tidak `!`.
+ * Kartu kanban bukan lagi kontrol pembungkus: `div` visual + satu `Button`
+ * overlay `absolute inset-0` untuk membuka detail. Tombol aksi (Lihat/Ubah/
+ * Hapus) duduk di atas overlay lewat `relative z-10`, jadi tidak ada kontrol
+ * fokus bersarang (`nested-interactive`).
  */
-const CARD_BUTTON_RESET =
-  'h-auto! w-full! flex! flex-col! items-stretch! justify-start! gap-0! p-0! font-normal! whitespace-normal! text-left! text-[1em]! active:translate-y-0! hover:bg-[var(--wf-board)]!';
+const CARD_RESET =
+  'group relative cursor-pointer overflow-hidden rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] transition-[transform,border-color,opacity] duration-150';
+
+/** Overlay transparan: carry geometri kartu tanpa chrome primitive. */
+const CARD_OVERLAY_RESET =
+  'absolute inset-0 z-0 h-auto! w-full! rounded-[inherit]! border-0! bg-transparent! p-0! font-normal! text-[1em]! transition-none! active:translate-y-0! ui-focus-ring focus-visible:ring-offset-0 dark:focus-visible:bg-transparent! hover:bg-transparent! hover:text-inherit!';
 
 /** Optional internal column — Event status draft (legacy), not Draft antrian */
 const INTERNAL_DRAFT_COLUMN = {
@@ -80,14 +81,17 @@ function EventCard({
   const color = CATEGORY_COLORS[ev.category] ?? '#00918e';
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      className={`group relative cursor-pointer overflow-hidden rounded-[var(--wf-radius-board)]! border border-[var(--wf-rule)]! bg-[var(--wf-board)] transition-[transform,border-color,opacity] duration-150 hover:-translate-y-0.5 focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! focus-visible:border-[var(--wf-rule)]! focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-offset-[var(--wf-board)] ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder} ${CARD_BUTTON_RESET}`}
-      onClick={() => onDetail(ev)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
-      aria-label={`${ev.acara} - ${ev.tanggal}`}
+    <div
+      className={`${CARD_RESET} ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder}`}
     >
+      <Button
+        type="button"
+        variant="ghost"
+        className={CARD_OVERLAY_RESET}
+        onClick={() => onDetail(ev)}
+        aria-label={`Lihat rincian ${ev.acara}`}
+      />
+
       {/* Color top bar */}
       <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${color}, ${color}55)` }} />
 
@@ -95,10 +99,7 @@ function EventCard({
         <div className="mb-2.5 flex items-start justify-between gap-2">
           <p className="text-sm font-semibold leading-snug text-[var(--wf-ink)] line-clamp-2 flex-1">{ev.acara}</p>
           {/* Action buttons */}
-          <div
-            className="flex shrink-0 gap-0.5 opacity-100 md:opacity-0 md:transition-opacity md:duration-150 md:group-hover:opacity-100 focus-within:opacity-100"
-            onClick={e => e.stopPropagation()}
-          >
+          <div className="relative z-10 flex shrink-0 gap-0.5 opacity-100 md:opacity-0 md:transition-opacity md:duration-150 md:group-hover:opacity-100 focus-within:opacity-100">
             <Button
               variant="ghost"
               size="icon-sm"
@@ -166,7 +167,7 @@ function EventCard({
           {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-ink-muted)]">Reguler</span>}
         </div>
       </div>
-    </Button>
+    </div>
   );
 }
 
