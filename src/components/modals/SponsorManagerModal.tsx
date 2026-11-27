@@ -180,13 +180,13 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
             >
               <TabsTrigger
                 value="proposals"
-                className="h-auto! flex-1 rounded-lg px-3 py-2 whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
+                className="h-auto! min-h-11 flex-1 rounded-lg px-3 py-2 whitespace-nowrap sm:min-h-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
               >
                 Proposal Event
               </TabsTrigger>
               <TabsTrigger
                 value="leads"
-                className="h-auto! flex-1 rounded-lg px-3 py-2 whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
+                className="h-auto! min-h-11 flex-1 rounded-lg px-3 py-2 whitespace-nowrap sm:min-h-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
               >
                 Minat Support ({leads.length})
               </TabsTrigger>

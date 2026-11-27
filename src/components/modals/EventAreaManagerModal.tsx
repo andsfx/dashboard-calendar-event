@@ -967,7 +967,7 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                       variant="outline"
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="mt-3"
+                      className="mt-3 min-h-11 min-w-11 sm:min-h-0 sm:min-w-0"
                     >
                       <Upload className="h-4 w-4" aria-hidden="true" />
                       Pilih Foto
