@@ -124,6 +124,11 @@ sama (0 pelanggaran)** ditambah **8 run pada `events` dan `tenant-surveys`
 `heading-order` hilang di analitik state berisi data (6 album, 8 area, event lokal
 ada) dan di `content/landing` urutannya h1 → h2 «Latar utama» → h2 «Galeri
 Instagram»; tidak ada label berbahasa Inggris yang tersisa.
+Fix lanjutan (2026-11-27): tab **Analitik** `/dashboard/tenant-surveys` ternyata
+masih melanggar `heading-order` saat state berisi data (h3 «Umpan balik publik» +
+h3 «Tren Bulanan» sebelum h2 «Kelola penilaian mandiri per event») — ditambal
+dengan `<h2 class="sr-only">Analitik evaluasi</h2>` di awal `TabsContent`
+analytics; axe ulang 8 run (375/1280 × terang/gelap × tab daftar/analitik) 0 pelanggaran.
 Keyboard terverifikasi di peramban nyata: galeri — 27 Tab sampai tombol nama album,
 Enter membuka detail; foto-area — Enter pada nama area membuka detail, 37 Tab sampai
 **Pilih Foto** (32 px), opacity aksi baris 0 → 1 saat fokus; sponsorship — ArrowRight
