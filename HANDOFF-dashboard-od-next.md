@@ -12,7 +12,7 @@ Sumber desain: prototipe Open Design (lihat §3) + `DESIGN.md` + `docs/agents/de
 
 ## 0. Status pelaksanaan (2026-11-26)
 
-Seluruh irisan S1–S7 sudah dikerjakan dan di-push. Yang berubah sejak kontrak ini
+Seluruh irisan S1–S8 sudah dikerjakan dan di-push. Yang berubah sejak kontrak ini
 ditulis:
 
 | Irisan | Commit | Catatan |
@@ -61,14 +61,19 @@ ditulis:
   agar `aria-controls` selalu menunjuk elemen nyata; `Empty` untuk keadaan kosong;
   label PIC → Narahubung.
 
-**Angka verifikasi terakhir**: suite penuh 189 file / 1562 tes lulus
+**Angka verifikasi terakhir** (run S8): suite penuh 189 file / 1562 tes lulus
 (`NODE_ENV=test … --maxWorkers=2`), `npm run build` hijau (
 `tsc && vite build`, vite 11,66 s) + `assert-lazy-entry-chunks`.
-Axe 0 pelanggaran pada 36 run: `events` 4, `drafts` 4, lalu `themes`, `analytics`,
-`exhibitions`, `registrations`, `tenant-proposals` masing-masing 4 (375/1280 ×
-terang/gelap), ditambah 4 run ulang untuk tema setelah jadi daftar baris dan 4 run
-ulang untuk analitik setelah toolbar/angka ringkas.
-Axe S8: **24 run, 0 pelanggaran** — 6 rute (`analytics`, `content/galeri`,
+
+Daftar "36 run, 0 pelanggaran" di bawah berasal dari batch S1–S7 dan **klaim di
+dalamnya untuk analitik tidak berlaku**: run itu tidak menangkap `heading-order`
+karena state yang dipindai belum memuat data, sehingga lompatan h1 → h3 lolos.
+`heading-order` baru tertangkap pada S8 (semua lebar × tema, state berisi data) dan
+diperbaiki di `4e6d130`; hasilnya diverifikasi ulang **0 pelanggaran pada 24 run S8**.
+Yang tetap berlaku dari batch S1–S7 hanya rute non-analitik: `events` 4, `drafts` 4,
+lalu `themes`, `exhibitions`, `registrations`, `tenant-proposals` masing-masing 4
+(375/1280 × terang/gelap), ditambah 4 run ulang untuk tema setelah jadi daftar baris.
+Axe S8 (satu-satunya angka axe yang berlaku saat ini): **24 run, 0 pelanggaran** — 6 rute (`analytics`, `content/galeri`,
 `content/foto-area`, `content/berita`, `content/surat`, `content/sponsorship`)
 × 375/1280 × terang/gelap, `colorScheme: dark` + `localStorage.theme=dark`,
 jeda 3,5 s agar tween GSAP selesai sebelum sampling; `heading-order` hilang di
