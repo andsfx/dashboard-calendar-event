@@ -474,6 +474,7 @@ export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv
 
         {effectiveTab === 'analytics' && (
           <TabsContent value="analytics" className="mt-4 flex-none">
+          <h2 className="sr-only">Analitik evaluasi</h2>
           <div className="space-y-3">
             <div className="ui-dashboard-surface flex flex-wrap items-center gap-2 px-3 py-2.5">
               <Calendar className="size-3.5 text-[var(--wf-ink-muted)]" />
