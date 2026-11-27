@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Activity, Loader2, Filter,
+  Activity, Loader2,
   Plus, Pencil, Trash2, LogIn, LogOut, Mail, Settings, AlertCircle,
 } from 'lucide-react';
 import { apiGet } from '../../lib/rest';
@@ -108,35 +108,42 @@ export function ActivityLog() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Filter className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
-        <NativeSelect aria-label="Filter aksi" value={filterAction} onChange={e => { setFilterAction(e.target.value); setPage(1); }} size="sm">
-          <option value="">Semua aksi</option>
-          <option value="create">Buat</option>
-          <option value="update">Perbarui</option>
-          <option value="delete">Hapus</option>
-          <option value="login">Login</option>
-          <option value="logout">Logout</option>
-          <option value="invite">Undang</option>
-        </NativeSelect>
-        <NativeSelect aria-label="Filter tipe resource" value={filterResource} onChange={e => { setFilterResource(e.target.value); setPage(1); }} size="sm">
-          <option value="">Semua tipe</option>
-          <option value="event">Event</option>
-          <option value="draft">Draf</option>
-          <option value="user">Pengguna</option>
-          <option value="theme">Tema</option>
-          <option value="survey_config">Konfigurasi Survey</option>
-        </NativeSelect>
-        <Input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
-          aria-label="Dari tanggal"
-          className="h-auto w-auto rounded-lg bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)] md:text-[11px]" />
-        <span className="text-[10px] text-[var(--wf-ink-muted)]">-</span>
-        <Input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
-          aria-label="Sampai tanggal"
-          className="h-auto w-auto rounded-lg bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)] md:text-[11px]" />
+      {/* Toolbar filter berlabel di atas kontrol — pola yang sama dengan
+          jadwal dan analitik. Kontrol tetap memakai state yang sama. */}
+      <div className="flex flex-wrap items-end gap-3 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3 sm:p-4">
+        <div>
+          <label htmlFor="log-filter-aksi" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">Aksi</label>
+          <NativeSelect id="log-filter-aksi" value={filterAction} onChange={e => { setFilterAction(e.target.value); setPage(1); }} className="h-10 w-full sm:min-w-40">
+            <option value="">Semua aksi</option>
+            <option value="create">Buat</option>
+            <option value="update">Perbarui</option>
+            <option value="delete">Hapus</option>
+            <option value="login">Login</option>
+            <option value="logout">Logout</option>
+            <option value="invite">Undang</option>
+          </NativeSelect>
+        </div>
+        <div>
+          <label htmlFor="log-filter-tipe" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">Tipe resource</label>
+          <NativeSelect id="log-filter-tipe" value={filterResource} onChange={e => { setFilterResource(e.target.value); setPage(1); }} className="h-10 w-full sm:min-w-40">
+            <option value="">Semua tipe</option>
+            <option value="event">Event</option>
+            <option value="draft">Draf</option>
+            <option value="user">Pengguna</option>
+            <option value="theme">Tema</option>
+            <option value="survey_config">Konfigurasi Survey</option>
+          </NativeSelect>
+        </div>
+        <div>
+          <label htmlFor="log-filter-dari" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">Dari tanggal</label>
+          <Input id="log-filter-dari" type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }} className="h-10 w-full sm:w-40" />
+        </div>
+        <div>
+          <label htmlFor="log-filter-sampai" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]">Sampai tanggal</label>
+          <Input id="log-filter-sampai" type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }} className="h-10 w-full sm:w-40" />
+        </div>
         {(filterAction || filterResource || dateFrom || dateTo) && (
-          <Button variant="ghost" size="sm" onClick={() => { setFilterAction(''); setFilterResource(''); setDateFrom(''); setDateTo(''); setPage(1); }}>
+          <Button variant="ghost" size="sm" onClick={() => { setFilterAction(''); setFilterResource(''); setDateFrom(''); setDateTo(''); setPage(1); }} className="text-[var(--wf-accent)]">
             Atur Ulang
           </Button>
         )}
@@ -206,10 +213,18 @@ export function ActivityLog() {
                         ))}
                       </p>
                     )}
-                    <p className="mt-0.5 text-[10px] text-[var(--wf-ink-muted)]">
+                    <p className="mt-0.5 text-[10px] text-[var(--wf-ink-muted)] sm:hidden">
                       {new Date(log.created_at).toLocaleString('id-ID')}
                       {log.ip_address && ` · ${log.ip_address}`}
                     </p>
+                  </div>
+                  <div className="ml-auto hidden shrink-0 text-right sm:block">
+                    <time className="block text-[11px] tabular-nums text-[var(--wf-ink-muted)]" dateTime={log.created_at}>
+                      {new Date(log.created_at).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </time>
+                    {log.ip_address && (
+                      <span className="block text-[10px] text-[var(--wf-ink-muted)]">{log.ip_address}</span>
+                    )}
                   </div>
                 </div>
               </div>

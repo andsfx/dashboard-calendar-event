@@ -224,7 +224,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
             return (
               <div key={u.id} className="flex items-center gap-3 px-4 py-3">
                 {/* Avatar */}
-<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] ">
+<div className="flex size-9 shrink-0 items-center justify-center rounded-[var(--wf-radius-control)] bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]" aria-hidden="true">
                   <Users className="h-4 w-4" />
                 </div>
                 {/* Info */}
