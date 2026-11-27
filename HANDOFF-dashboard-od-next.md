@@ -38,11 +38,13 @@ ditulis:
 3. **Pameran**: prototipe memperlakukannya sebagai antrean pengajuan polos; repo
    mempertahankan manajer program + pengajuan per program.
 4. **Antrean pengajuan**: chip status 4 nilai menggantikan 2 tab prototipe.
-5. **Target sentuh mobile < 44 px** belum dibereskan. Terukur pada 375: `/events`
-   punya 95 kontrol setinggi 28 px; di rute `/dashboard/content/*` yang disentuh S8
-   tidak ada kontrol di bawah 24 px (tinggi tombol minimum 32 px), tetapi belum
-   mencapai 44 px. Perbaikan menyentuh token ukuran tombol global, jadi sengaja
-   tidak dikerjakan di S8.
+5. **Target sentuh mobile** — kontrol baru S8 sekarang memenuhi 44 px. Terukur pada
+   375: tombol **Pilih Foto** (`AlbumManagerModal`, `EventAreaManagerModal`) 32 → 44 px,
+   tab **Sponsorship** (`TabsTrigger` Proposal Event / Minat Support) 38 → 44 px. Di
+   desktop ukuran aslinya dipertahankan (32 px dan 38 px) lewat `sm:min-h-0`.
+   Sisa celah yang sengaja tidak disentuh: `/events` 95 kontrol setinggi 28 px dan
+   `/tenant-surveys` 294 kontrol di bawah 32 px. Keduanya legacy, perbaikannya
+   menyentuh token ukuran tombol global, jadi dicatat sebagai celah terpisah.
 
 **Irisan S8 (delta yang benar-benar diperbaiki):**
 
