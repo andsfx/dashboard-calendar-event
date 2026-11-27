@@ -24,6 +24,7 @@ ditulis:
 | S5 modul pengajuan | `5bb43e3`, `162fee9` | pencarian per antrean (tenant/judul, organisasi/kontak), keadaan kosong dua tingkat |
 | S6 analitik | `e65b80f`, `8bb5395` | pemilih tahun jadi toolbar berlabel, tiga angka ringkas periode, judul seksi + penjelas; grafik bar/donut/heatmap dan tabel YoY tetap milik repo |
 | S7 modul pendukung | `e65b80f`, `c728505` | keadaan kosong pengguna; tema tahunan kini daftar baris (`record-row`) dengan aksi tambah di kepala halaman |
+| S8 aksesibilitas konten | `4e6d130`, `3ae50f4`, `02fea1e`, `90df030` | h2 sr-only di analitik (heading-order); baris album/area + unggah foto bisa dijangkau keyboard; primitif Empty + copy Indonesia di berita/surat/landing; tab sponsorship pakai Tabs/Empty |
 
 **Gap yang diterima (jangan ditambal dengan mengubah perilaku):**
 
@@ -37,13 +38,48 @@ ditulis:
 3. **Pameran**: prototipe memperlakukannya sebagai antrean pengajuan polos; repo
    mempertahankan manajer program + pengajuan per program.
 4. **Antrean pengajuan**: chip status 4 nilai menggantikan 2 tab prototipe.
+5. **Target sentuh mobile < 44 px** belum dibereskan. Terukur pada 375: `/events`
+   punya 95 kontrol setinggi 28 px; di rute `/dashboard/content/*` yang disentuh S8
+   tidak ada kontrol di bawah 24 px (tinggi tombol minimum 32 px), tetapi belum
+   mencapai 44 px. Perbaikan menyentuh token ukuran tombol global, jadi sengaja
+   tidak dikerjakan di S8.
 
-**Angka verifikasi terakhir**: suite penuh 188 file / 1558 tes lulus
-(`NODE_ENV=test … --maxWorkers=2`), `npm run build` hijau + `assert-lazy-entry-chunks`.
+**Irisan S8 (delta yang benar-benar diperbaiki):**
+
+- Analitik: satu `<h2 class="sr-only">Ringkasan analitik</h2>` di awal cabang data
+  menutup lompatan h1 → h3; tes baru menjaga urutan heading saat periode berisi event.
+- Album/Area: thumbnail jadi dekoratif; nama album/area adalah Button ber-`ui-focus-ring`
+  yang membuka detail lewat Tab + Enter; dropzone punya tombol **Pilih Foto**;
+  aksi baris area yang tadinya hover-only ikut muncul lewat `group-focus-within`;
+  keadaan kosong memakai primitif `Empty`; copy/label diseragamkan
+  (Tambah Album / Tambah Area, Unggah, Tarik & lepas, maks, 10 MB/berkas).
+- Berita/surat/landing: `Empty` untuk daftar artikel dan riwayat surat; pratinjau
+  artikel turun h1 → h2; tombol "Buka" → "Buka surat"; label seksi Instagram/landing
+  jadi h2 + copy Indonesia; editor surat dapat h2 sr-only.
+- Sponsorship: dua tombol tab diganti `Tabs` (Radix) yang dikendalikan state `tab`
+  yang sudah ada; kedua `TabsContent` `forceMount` + `data-[state=inactive]:hidden`
+  agar `aria-controls` selalu menunjuk elemen nyata; `Empty` untuk keadaan kosong;
+  label PIC → Narahubung.
+
+**Angka verifikasi terakhir**: suite penuh 189 file / 1562 tes lulus
+(`NODE_ENV=test … --maxWorkers=2`), `npm run build` hijau (
+`tsc && vite build`, vite 11,66 s) + `assert-lazy-entry-chunks`.
 Axe 0 pelanggaran pada 36 run: `events` 4, `drafts` 4, lalu `themes`, `analytics`,
 `exhibitions`, `registrations`, `tenant-proposals` masing-masing 4 (375/1280 ×
 terang/gelap), ditambah 4 run ulang untuk tema setelah jadi daftar baris dan 4 run
 ulang untuk analitik setelah toolbar/angka ringkas.
+Axe S8: **24 run, 0 pelanggaran** — 6 rute (`analytics`, `content/galeri`,
+`content/foto-area`, `content/berita`, `content/surat`, `content/sponsorship`)
+× 375/1280 × terang/gelap, `colorScheme: dark` + `localStorage.theme=dark`,
+jeda 3,5 s agar tween GSAP selesai sebelum sampling; `heading-order` hilang di
+analitik state berisi data (6 album, 8 area, event lokal ada).
+Keyboard terverifikasi di peramban nyata: galeri — 27 Tab sampai tombol nama album,
+Enter membuka detail; foto-area — Enter pada nama area membuka detail, 37 Tab sampai
+**Pilih Foto** (32 px), opacity aksi baris 0 → 1 saat fokus; sponsorship — ArrowRight
+memindah seleksi ke "Minat Support" (`aria-selected=true`, panel lain `display:none`,
+tepat 1 panel terlihat, semua `aria-controls` menunjuk elemen nyata).
+Mobile 375: `scrollWidth == clientWidth` di galeri/foto-area/sponsorship, tanpa
+kontrol < 24 px di tiga seksi itu.
 
 ---
 
