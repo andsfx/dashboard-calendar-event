@@ -43,7 +43,7 @@ function LabeledText({
 }) {
   return (
     <div className="min-w-0">
-      <div className={`flex gap-1 ${bold ? 'font-bold' : ''}`}>
+      <div className={`flex gap-1 max-sm:flex-wrap ${bold ? 'font-bold' : ''}`}>
         {label != null && (
           <span className="shrink-0 whitespace-nowrap text-[var(--wf-ink-muted)]">{label}</span>
         )}
@@ -54,9 +54,11 @@ function LabeledText({
           disabled={disabled}
           id={id}
           ariaLabel={label ?? placeholder}
-          className="min-w-0 flex-1"
+          className="min-w-0 flex-1 max-sm:min-w-11"
         />
-        {label != null && <span className="shrink-0 text-[var(--wf-ink-muted)]">:</span>}
+        {label != null && (
+          <span className="shrink-0 text-[var(--wf-ink-muted)] max-sm:hidden">:</span>
+        )}
       </div>
       <FieldError message={errors} id={`${id}-error`} />
     </div>
@@ -105,7 +107,7 @@ export function LetterPaper({ letter, onChange, readOnly = false, errors = {} }:
                 disabled={disabled}
                 id="letter-tempat-surat"
                 ariaLabel="Tempat surat"
-                className="min-w-0"
+                className="min-w-0 max-sm:min-w-11"
               />
               <span>,&nbsp;</span>
               <EditableText
@@ -115,7 +117,7 @@ export function LetterPaper({ letter, onChange, readOnly = false, errors = {} }:
                 disabled={disabled}
                 id="letter-tanggal-surat"
                 ariaLabel="Tanggal surat"
-                className="min-w-0"
+                className="min-w-0 max-sm:min-w-11"
               />
             </div>
             <FieldError message={errors.tanggalSurat} id="letter-tanggal-surat-error" />
@@ -277,7 +279,7 @@ export function LetterPaper({ letter, onChange, readOnly = false, errors = {} }:
 
           {/* A10/A11 — dua kolom tanda tangan: mall kiri, EO kanan */}
           <div className="mt-10 flex grow justify-between">
-            <div className="w-1/2 pr-4">
+            <div className="w-1/2 pr-4 max-sm:pr-1">
               <p>Hormat kami,</p>
               <div className="h-14" />
               <LabeledText
@@ -297,7 +299,7 @@ export function LetterPaper({ letter, onChange, readOnly = false, errors = {} }:
                 onChange={set('penandatanganJabatan')}
               />
             </div>
-            <div className="w-1/2 pl-4">
+            <div className="w-1/2 pl-4 max-sm:pl-1">
               <p>Menyetujui,</p>
               <div className="h-14" />
               <LabeledText

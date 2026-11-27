@@ -150,7 +150,7 @@ export function EditableArea({
       <Textarea
         ref={textareaRef}
         id={id}
-        className="editable editable--area field-sizing-fixed! min-h-0! rounded-none focus-visible:ring-0!"
+        className="editable editable--area field-sizing-fixed! rounded-none focus-visible:ring-0!"
         aria-label={ariaLabel || placeholder}
         placeholder={placeholder}
         value={value}

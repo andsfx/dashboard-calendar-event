@@ -30,6 +30,15 @@
   width: 100%;
 }
 
+/* Target sentuh mobile: 44 px hanya di ≤639 px. Slot satu baris jadi lebih
+   tinggi di ponsel (dokumen memang mengalir), sedangkan kertas A4 di desktop
+   dan hasil cetak tidak berubah — reset cetak di bawah tetap berlaku. */
+@media (max-width: 639px) {
+  .editable {
+    min-block-size: 44px;
+  }
+}
+
 @media print {
   .editable,
   .editable--area {
