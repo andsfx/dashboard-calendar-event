@@ -38,13 +38,28 @@ ditulis:
 3. **Pameran**: prototipe memperlakukannya sebagai antrean pengajuan polos; repo
    mempertahankan manajer program + pengajuan per program.
 4. **Antrean pengajuan**: chip status 4 nilai menggantikan 2 tab prototipe.
-5. **Target sentuh mobile** — kontrol baru S8 sekarang memenuhi 44 px. Terukur pada
+5. **Target sentuh mobile** — kontrol baru S8 memenuhi 44 px. Terukur pada
    375: tombol **Pilih Foto** (`AlbumManagerModal`, `EventAreaManagerModal`) 32 → 44 px,
    tab **Sponsorship** (`TabsTrigger` Proposal Event / Minat Support) 38 → 44 px. Di
    desktop ukuran aslinya dipertahankan (32 px dan 38 px) lewat `sm:min-h-0`.
-   Sisa celah yang sengaja tidak disentuh: `/events` 95 kontrol setinggi 28 px dan
-   `/tenant-surveys` 294 kontrol di bawah 32 px. Keduanya legacy, perbaikannya
-   menyentuh token ukuran tombol global, jadi dicatat sebagai celah terpisah.
+   Sesudah irisan target sentuh `f4037b0..HEAD`, sensus kontrol di dalam `main`
+   pada 375 (sesi admin nyata; `button`/`select`/`input`/`textarea`/`[role=tab]`/
+   `[role=switch]` yang terlihat) bersih: `/dashboard/events` **128 kontrol,
+   0 di bawah 44 px** dan `/dashboard/tenant-surveys` **1202 kontrol (tab daftar),
+   0 di bawah 44 px**. Opsi dropdown `FilterBar` ikut naik lewat prop opt-in
+   `touchTargets`: `[role=option]` **Kategori 21 opsi, Bulan 16, Prioritas 4 —
+   semuanya 44 px** di 375; di 1280 tetap **28 px** karena `min-h-11 sm:min-h-0`.
+   Chrome shell (`Tutup menu`, tombol tema) berada di luar `main` sehingga tidak
+   termasuk sensus ini.
+   Desktop tidak berubah: TabsTrigger `/tenant-surveys` tetap **21 px** (strip 32),
+   chip status 32, aksi baris tabel 32, Tautan/CSV/QR 32, select/input 32,
+   «Buat penilaian mandiri» 32; `/events` aksi ikon tabel 28, toolbar 28, dan aksi
+   kartu mobile `display:none` di 1280.
+   Sisa celah yang **belum** ditutup: `/dashboard/content/landing` 7 kontrol
+   setinggi 32 px — «Hapus foto hero», «Ganti foto», 3× input «Unggahan n»,
+   «Sinkron dan simpan unggahan Instagram», «Simpan». Tautan prosa yang tingginya
+   < 44 px di desktop (mis. tautan di tengah kalimat) dibiarkan karena pengecualian
+   inline WCAG 2.5.8. Jadi klaim "semua celah legacy tertutup" tidak berlaku.
 
 **Irisan S8 (delta yang benar-benar diperbaiki):**
 
@@ -71,15 +86,20 @@ Daftar "36 run, 0 pelanggaran" di bawah berasal dari batch S1–S7 dan **klaim d
 dalamnya untuk analitik tidak berlaku**: run itu tidak menangkap `heading-order`
 karena state yang dipindai belum memuat data, sehingga lompatan h1 → h3 lolos.
 `heading-order` baru tertangkap pada S8 (semua lebar × tema, state berisi data) dan
-diperbaiki di `4e6d130`; hasilnya diverifikasi ulang **0 pelanggaran pada 24 run S8**.
+diperbaiki di `4e6d130`; hasilnya diverifikasi ulang **0 pelanggaran pada 28 run S8**.
 Yang tetap berlaku dari batch S1–S7 hanya rute non-analitik: `events` 4, `drafts` 4,
 lalu `themes`, `exhibitions`, `registrations`, `tenant-proposals` masing-masing 4
 (375/1280 × terang/gelap), ditambah 4 run ulang untuk tema setelah jadi daftar baris.
-Axe S8 (satu-satunya angka axe yang berlaku saat ini): **24 run, 0 pelanggaran** — 6 rute (`analytics`, `content/galeri`,
-`content/foto-area`, `content/berita`, `content/surat`, `content/sponsorship`)
-× 375/1280 × terang/gelap, `colorScheme: dark` + `localStorage.theme=dark`,
-jeda 3,5 s agar tween GSAP selesai sebelum sampling; `heading-order` hilang di
-analitik state berisi data (6 album, 8 area, event lokal ada).
+Axe S8 (satu-satunya angka axe yang berlaku saat ini): **28 run, 0 pelanggaran** — 7 rute (`analytics`, `content/galeri`,
+`content/foto-area`, `content/berita`, `content/surat`, `content/sponsorship`,
+`content/landing`) × 375/1280 × terang/gelap, `colorScheme: dark` +
+`localStorage.theme=dark`, jeda 3,5 s agar tween GSAP selesai sebelum sampling.
+Sesudah irisan target sentuh, axe dijalankan lagi: **28 run ulang pada 7 rute yang
+sama (0 pelanggaran)** ditambah **8 run pada `events` dan `tenant-surveys`
+(375/1280 × terang/gelap, 0 pelanggaran)**;
+`heading-order` hilang di analitik state berisi data (6 album, 8 area, event lokal
+ada) dan di `content/landing` urutannya h1 → h2 «Latar utama» → h2 «Galeri
+Instagram»; tidak ada label berbahasa Inggris yang tersisa.
 Keyboard terverifikasi di peramban nyata: galeri — 27 Tab sampai tombol nama album,
 Enter membuka detail; foto-area — Enter pada nama area membuka detail, 37 Tab sampai
 **Pilih Foto** (32 px), opacity aksi baris 0 → 1 saat fokus; sponsorship — ArrowRight
