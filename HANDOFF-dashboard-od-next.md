@@ -52,14 +52,25 @@ ditulis:
    **36×36** (`min-h-11 min-w-11 … sm:min-h-[36px] sm:min-w-[36px]`); multisets
    tinggi kontrol 1280 identik sebelum/sesudah. `/dashboard/tenant-surveys`
    **1202 kontrol (tab daftar), 0 di bawah 44 px**.
-   **Sisa celah `/dashboard/events`:** tampilan **Kalender** — 27 kontrol,
-   **15 di bawah 44 px** (chip event 26 px, segmented Agenda/Bulan/Minggu/Hari/
-   Linimasa 25 px, «Hari Ini» 32 px, panah periode 32×32). Belum disentuh di
-   irisan ini. Axe di Kanban/Timeline: `nested-interactive` 23 node (kartu
-   Button membungkus Button — utang struktural yang sudah tercatat), plus
-   `color-contrast` 2 node lencana `--wf-danger` di Timeline terang (pra-ada,
-   tanpa kaitan dengan ukuran target); `incomplete` 0 pada 8 kombinasi
-   (375/1280 × terang/gelap). Opsi dropdown `FilterBar` ikut naik lewat prop opt-in
+   **Kalender** (`DashboardCalendarView` — `CalendarView` tidak dipakai
+   dashboard, itu komponen rute publik) 27 kontrol **/ 0 di bawah 44 px** di 375
+   (sebelum: 15 — 5 tab mode 25 px, «Hari Ini» & panah periode 32 px, 7 chip
+   event 26 px); sub-tampilan Bulan 27 / Minggu 22 / Hari 20 / Agenda 43 /
+   Linimasa 43 kontrol, **semuanya 0** dan tanpa overflow horizontal; sheet hari
+   **0**. Di 1280 tidak berubah: tab mode 25 px, chip 26 px, «Hari Ini» 32 px,
+   panah 32×32.
+   Kontras Timeline terang: lencana «Prioritas Tinggi» semula `--wf-danger` di
+   atas tint 10% (`#e9d2c6`) = **4.46:1** — gagal ambang 4.5. Kini isian
+   `--wf-danger` + teks `--wf-accent-ink` (`PriorityBadge`), jadi rasio tidak
+   bergantung latar kartu: axe terang **0** `color-contrast` di Kanban/Timeline,
+   375 maupun 1280 (gelap juga 0).
+   **Utang struktur yang tidak diselesaikan:** `nested-interactive` **23 node** di
+   Kanban dan Timeline — kartu `Button` membungkus `Button` aksi, sudah tercatat
+   di `AGENTS.md`. Kalender masih punya `color-contrast` **3** (375) / **6**
+   (1280) pada angka hari bulan lain (`text-[var(--wf-ink-muted)]/60`, pra-ada,
+   tak terkait ukuran target) dan `incomplete` **17** (375) / **6** (1280);
+   Kanban/Timeline `incomplete` 0 pada 8 kombinasi (375/1280 × terang/gelap).
+   Opsi dropdown `FilterBar` ikut naik lewat prop opt-in
    `touchTargets`: `[role=option]` **Kategori 21 opsi, Bulan 16, Prioritas 4 —
    semuanya 44 px** di 375; di 1280 tetap **28 px** karena `min-h-11 sm:min-h-0`.
    Chrome shell (`Tutup menu`, tombol tema) berada di luar `main` sehingga tidak
