@@ -42,11 +42,24 @@ ditulis:
    375: tombol **Pilih Foto** (`AlbumManagerModal`, `EventAreaManagerModal`) 32 → 44 px,
    tab **Sponsorship** (`TabsTrigger` Proposal Event / Minat Support) 38 → 44 px. Di
    desktop ukuran aslinya dipertahankan (32 px dan 38 px) lewat `sm:min-h-0`.
-   Sesudah irisan target sentuh `f4037b0..HEAD`, sensus kontrol di dalam `main`
-   pada 375 (sesi admin nyata; `button`/`select`/`input`/`textarea`/`[role=tab]`/
-   `[role=switch]` yang terlihat) bersih: `/dashboard/events` **128 kontrol,
-   0 di bawah 44 px** dan `/dashboard/tenant-surveys` **1202 kontrol (tab daftar),
-   0 di bawah 44 px**. Opsi dropdown `FilterBar` ikut naik lewat prop opt-in
+   Sensus kontrol di dalam `main` pada 375 (sesi admin nyata; `button`/`select`/
+   `input`/`textarea`/`[role=tab]`/`[role=switch]` yang terlihat) per tampilan
+   `/dashboard/events`, sesudah `1bcd35f` + commit kanban/timeline:
+   **Tabel 128 kontrol / 0 di bawah 44 px**, **Kanban 104 / 0** (sebelum:
+   69 — 23 kartu × aksi Lihat/Ubah/Hapus 36×36), **Timeline 104 / 0**
+   (sebelum: 69), **dialog detail `EventDetailModal` 4 / 0** (sebelum: 3 —
+   tombol X 32×32, Ubah & Hapus 22 px). Aksi kartu Kanban/Timeline di 1280 tetap
+   **36×36** (`min-h-11 min-w-11 … sm:min-h-[36px] sm:min-w-[36px]`); multisets
+   tinggi kontrol 1280 identik sebelum/sesudah. `/dashboard/tenant-surveys`
+   **1202 kontrol (tab daftar), 0 di bawah 44 px**.
+   **Sisa celah `/dashboard/events`:** tampilan **Kalender** — 27 kontrol,
+   **15 di bawah 44 px** (chip event 26 px, segmented Agenda/Bulan/Minggu/Hari/
+   Linimasa 25 px, «Hari Ini» 32 px, panah periode 32×32). Belum disentuh di
+   irisan ini. Axe di Kanban/Timeline: `nested-interactive` 23 node (kartu
+   Button membungkus Button — utang struktural yang sudah tercatat), plus
+   `color-contrast` 2 node lencana `--wf-danger` di Timeline terang (pra-ada,
+   tanpa kaitan dengan ukuran target); `incomplete` 0 pada 8 kombinasi
+   (375/1280 × terang/gelap). Opsi dropdown `FilterBar` ikut naik lewat prop opt-in
    `touchTargets`: `[role=option]` **Kategori 21 opsi, Bulan 16, Prioritas 4 —
    semuanya 44 px** di 375; di 1280 tetap **28 px** karena `min-h-11 sm:min-h-0`.
    Chrome shell (`Tutup menu`, tombol tema) berada di luar `main` sehingga tidak
