@@ -80,6 +80,15 @@ describe('ExhibitionManager', () => {
     );
   });
 
+  it('membuka rincian kurasi langsung dari baris register', async () => {
+    const user = userEvent.setup();
+    render(<ExhibitionManager {...props} />);
+    // Tanpa menekan "Kelola": CTA register harus membuka program + detailnya.
+    await user.click(screen.getByRole('button', { name: 'Tinjau rincian' }));
+    expect(screen.getByLabelText('Status pengajuan')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Tutup' })).toBeInTheDocument();
+  });
+
   it('menyimpan status kurasi tanpa membuat event otomatis', async () => {
     const user = userEvent.setup();
     render(<ExhibitionManager {...props} />);

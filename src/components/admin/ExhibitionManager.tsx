@@ -270,6 +270,16 @@ export function ExhibitionManager({
     if (ok) resetSlotForm(exhibition);
   };
 
+  /** Buka program pemilik pengajuan lalu gulir ke kartunya. Detail kurasi
+   *  (LeadReviewCard) hanya dirender untuk program `selectedId`, jadi tautan
+   *  anchor saja tidak cukup: tombol ini memakai mekanisme "Kelola" yang sama. */
+  const openProgramReview = (lead: ExhibitionLead) => {
+    setSelectedId(lead.exhibitionId);
+    window.setTimeout(() => {
+      document.getElementById(`exh-program-${lead.exhibitionId}`)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
+
   const pendingReviewLeads = leads.filter(lead =>
     lead.status === 'submitted' || lead.status === 'in_review' || lead.status === 'need_info'
   );
@@ -322,8 +332,8 @@ export function ExhibitionManager({
                     <span className="font-mono text-[11px]">{lead.referenceCode}</span>
                   </div>
                 </div>
-                <Button asChild variant="outline" size="sm">
-                  <a href={`#exh-program-${lead.exhibitionId}`}>Tinjau rincian</a>
+                <Button type="button" variant="outline" size="sm" onClick={() => openProgramReview(lead)}>
+                  Tinjau rincian
                 </Button>
               </li>
             ))}
