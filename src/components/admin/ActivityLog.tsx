@@ -220,7 +220,7 @@ export function ActivityLog() {
                   </div>
                   <div className="ml-auto hidden shrink-0 text-right sm:block">
                     <time className="block text-[11px] tabular-nums text-[var(--wf-ink-muted)]" dateTime={log.created_at}>
-                      {new Date(log.created_at).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      {new Date(log.created_at).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </time>
                     {log.ip_address && (
                       <span className="block text-[10px] text-[var(--wf-ink-muted)]">{log.ip_address}</span>
