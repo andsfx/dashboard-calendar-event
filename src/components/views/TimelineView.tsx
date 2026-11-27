@@ -150,7 +150,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                           size="icon-sm"
                           onClick={() => onDetail(ev)}
                           aria-label="Lihat detail"
-                          className="min-h-[36px] min-w-[36px] active:translate-y-0"
+                          className="min-h-11 min-w-11 active:translate-y-0 sm:min-h-[36px] sm:min-w-[36px]"
                         >
                           <ExternalLink className="size-3.5" aria-hidden="true" />
                         </Button>
@@ -162,7 +162,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                               size="icon-sm"
                               onClick={() => onEdit(ev)}
                               aria-label="Ubah acara"
-                              className="min-h-[36px] min-w-[36px] active:translate-y-0"
+                              className="min-h-11 min-w-11 active:translate-y-0 sm:min-h-[36px] sm:min-w-[36px]"
                             >
                               <Edit2 className="size-3.5" aria-hidden="true" />
                             </Button>
@@ -173,7 +173,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                               size="icon-sm"
                               onClick={() => onDelete(ev)}
                               aria-label="Hapus acara"
-                              className="min-h-[36px] min-w-[36px] active:translate-y-0"
+                              className="min-h-11 min-w-11 active:translate-y-0 sm:min-h-[36px] sm:min-w-[36px]"
                             >
                               <Trash2 className="size-3.5" aria-hidden="true" />
                             </Button>

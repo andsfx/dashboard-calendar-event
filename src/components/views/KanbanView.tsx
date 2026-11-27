@@ -105,7 +105,7 @@ function EventCard({
               onClick={() => onDetail(ev)}
               title="Lihat detail"
               aria-label="Lihat detail"
-              className="min-h-[36px] min-w-[36px] active:translate-y-0"
+              className="min-h-11 min-w-11 active:translate-y-0 sm:min-h-[36px] sm:min-w-[36px]"
             >
               <ExternalLink className="size-3" aria-hidden="true" />
             </Button>
@@ -118,7 +118,7 @@ function EventCard({
                   onClick={() => onEdit(ev)}
                   title="Ubah"
                   aria-label="Ubah acara"
-                  className="min-h-[36px] min-w-[36px] active:translate-y-0"
+                  className="min-h-11 min-w-11 active:translate-y-0 sm:min-h-[36px] sm:min-w-[36px]"
                 >
                   <Edit2 className="size-3" aria-hidden="true" />
                 </Button>
@@ -130,7 +130,7 @@ function EventCard({
                   onClick={() => onDelete(ev)}
                   title="Hapus"
                   aria-label="Hapus acara"
-                  className="min-h-[36px] min-w-[36px] active:translate-y-0"
+                  className="min-h-11 min-w-11 active:translate-y-0 sm:min-h-[36px] sm:min-w-[36px]"
                 >
                   <Trash2 className="size-3" aria-hidden="true" />
                 </Button>

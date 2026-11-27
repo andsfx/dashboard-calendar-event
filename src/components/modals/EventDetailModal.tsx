@@ -104,7 +104,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             onClick={onClose}
             className={`absolute right-4 top-4 ${event.posterUrl
               ? 'bg-black/45 text-white backdrop-blur-sm hover:bg-black/65'
-              : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]'}`}
+              : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]'} min-h-11 min-w-11 sm:min-h-0 sm:min-w-0`}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -275,7 +275,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
               type="button"
               variant="outline"
               onClick={() => { onClose(); onEdit(event); }}
-              className="flex-1"
+              className="min-h-11 flex-1 sm:min-h-0"
             >
               <Edit2 className="h-3.5 w-3.5" /> Ubah
             </Button>
@@ -285,7 +285,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
               type="button"
               variant="destructive"
               onClick={() => { onClose(); onDelete(event); }}
-              className="flex-1"
+              className="min-h-11 flex-1 sm:min-h-0"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus
             </Button>
@@ -295,7 +295,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
               type="button"
               variant="destructive"
               onClick={() => { onClose(); onDeleteSeries(event.recurrenceGroupId!); }}
-              className="flex-1"
+              className="min-h-11 flex-1 sm:min-h-0"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus seluruh rangkaian
             </Button>
