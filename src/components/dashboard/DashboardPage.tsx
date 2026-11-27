@@ -376,7 +376,13 @@ export function DashboardPage({
           dashboardPath === '/themes'
             ? (permissions.canManageThemes ? { label: 'Tambah tema', onClick: handlers.handleAddTheme } : undefined)
             : permissions.canEditEvents && (dashboardPath === '/' || dashboardPath === '/events')
-              ? { label: 'Tambah', onClick: handlers.handleAddNew }
+              ? {
+                  label: 'Tambah',
+                  onClick: handlers.handleAddNew,
+                  /* Target sentuh 44 px hanya di rute jadwal; Pusat Komando
+                     tetap memakai tinggi tombol bawaannya. */
+                  className: dashboardPath === '/events' ? 'min-h-11 sm:min-h-0' : undefined,
+                }
               : undefined
         }
         dashboardPath={dashboardPath}

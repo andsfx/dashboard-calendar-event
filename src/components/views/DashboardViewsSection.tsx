@@ -156,6 +156,7 @@ export function DashboardViewsSection(props: Props) {
           onMonthChange={setActiveMonth}
           showDraft={showInternalDraftFilter}
           showPriority={isAdmin}
+          touchTargets
         />
         {/* Topline prototipe: "N event dalam jadwal" + Hapus filter di kiri,
             pemilih tampilan dan unduhan di kanan. */}
@@ -171,7 +172,7 @@ export function DashboardViewsSection(props: Props) {
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {hasActiveFilters && (
-              <Button type="button" variant="ghost" size="sm" onClick={resetFilters} className="text-[var(--wf-accent)]">
+              <Button type="button" variant="ghost" size="sm" onClick={resetFilters} className="min-h-11 text-[var(--wf-accent)] sm:min-h-0">
                 <RefreshCw className="h-3 w-3" /> Hapus filter
               </Button>
             )}
@@ -183,6 +184,7 @@ export function DashboardViewsSection(props: Props) {
                 onClick={() => setIsExportOptionsOpen(true)}
                 disabled={visibleEvents.length === 0}
                 aria-label="Unduh jadwal event sebagai PDF"
+                className="min-h-11 sm:min-h-0"
               >
                 <Download className="h-3.5 w-3.5" aria-hidden />
                 Unduh PDF

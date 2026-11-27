@@ -12,7 +12,7 @@ interface DashboardHeaderProps {
    * "Tambah Acara Baru" on users, analytics, activity-log, registrations and
    * drafts alike.
    */
-  primaryAction?: { label: string; onClick: () => void };
+  primaryAction?: { label: string; onClick: () => void; className?: string };
   /** Admin route path relative to /dashboard ('/', '/events', …) */
   dashboardPath?: string;
 }
@@ -68,7 +68,7 @@ export function DashboardHeader({
         {hasActions && (
           <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
             {primaryAction && (
-              <Button variant="default" onClick={primaryAction.onClick} className="shrink-0">
+              <Button variant="default" onClick={primaryAction.onClick} className={`shrink-0 ${primaryAction.className ?? ''}`}>
                 <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden /> <span>{primaryAction.label}</span>
               </Button>
             )}

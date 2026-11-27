@@ -48,6 +48,12 @@ interface Props {
   onMonthChange: (m: string) => void;
   showDraft?: boolean;
   showPriority?: boolean;
+  /**
+   * Target sentuh 44 px untuk kontrol filter di bawah `sm` (aturan dashboard
+   * §5). Opt-in supaya pemakai FilterBar lain di rute yang belum diaudit tidak
+   * ikut berubah; `sm:min-h-0` mengembalikan tinggi asli di layar lebar.
+   */
+  touchTargets?: boolean;
 }
 
 /**
@@ -67,8 +73,13 @@ export function FilterBar({
   months, activeMonth, onMonthChange,
   showDraft = true,
   showPriority = true,
+  touchTargets = false,
 }: Props) {
   const fieldLabel = 'mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--wf-ink-muted)]';
+  const touch = touchTargets ? 'min-h-11 sm:min-h-0' : '';
+  /* `NativeSelect` memasang `className` pada pembungkusnya, bukan pada
+     `<select>`, jadi tinggi target sentuh diturunkan lewat selector anak. */
+  const touchNativeSelect = touchTargets ? '[&>select]:min-h-11 sm:[&>select]:min-h-0' : '';
   const filterId = useId();
   const categoryOptions = normalizeOptionKeys(categories ?? []).map(c => ({ value: c, label: c === 'Semua' ? 'Semua kategori' : c }));
   const monthOptions = (months ?? []).map(m => ({ value: m, label: m === 'Semua' ? 'Semua bulan' : m }));
@@ -101,7 +112,7 @@ export function FilterBar({
               onChange={event => onSearchChange?.(event.target.value)}
               placeholder="Cari nama event…"
               autoComplete="off"
-              className="h-10 pl-9"
+              className={`h-10 pl-9 ${touch}`}
             />
           </div>
         </div>
@@ -112,7 +123,7 @@ export function FilterBar({
             id={`${filterId}-status`}
             value={activeFilter}
             onChange={event => onFilterChange(event.target.value as EventStatus | 'Semua')}
-            className="w-full"
+            className={`w-full ${touchNativeSelect}`}
           >
             {statusTabs.map(tab => (
               <option key={tab.key} value={tab.key}>
@@ -125,13 +136,13 @@ export function FilterBar({
         <div>
           <Label htmlFor={`${filterId}-kategori`} className={fieldLabel}>Kategori</Label>
           <Select value={activeCategory} onValueChange={onCategoryChange}>
-            <SelectTrigger id={`${filterId}-kategori`} className="w-full">
+            <SelectTrigger id={`${filterId}-kategori`} className={`w-full ${touch}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 {categoryOptions.map(option => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  <SelectItem key={option.value} value={option.value} className={touch}>{option.label}</SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
@@ -141,13 +152,13 @@ export function FilterBar({
         <div>
           <Label htmlFor={`${filterId}-bulan`} className={fieldLabel}>Bulan</Label>
           <Select value={activeMonth} onValueChange={onMonthChange}>
-            <SelectTrigger id={`${filterId}-bulan`} className="w-full">
+            <SelectTrigger id={`${filterId}-bulan`} className={`w-full ${touch}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 {monthOptions.map(option => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  <SelectItem key={option.value} value={option.value} className={touch}>{option.label}</SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
@@ -158,13 +169,13 @@ export function FilterBar({
           <div>
             <Label htmlFor={`${filterId}-prioritas`} className={fieldLabel}>Prioritas</Label>
             <Select value={activePriority} onValueChange={onPriorityChange}>
-              <SelectTrigger id={`${filterId}-prioritas`} className="w-full">
+              <SelectTrigger id={`${filterId}-prioritas`} className={`w-full ${touch}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   {priorityOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                    <SelectItem key={option.value} value={option.value} className={touch}>{option.label}</SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>

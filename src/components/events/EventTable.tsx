@@ -245,8 +245,11 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                     tombol "Sembunyikan" yang membuatnya meluber 59px). Grid 2×2
                     menjaga lebar tombol setara alih-alih menyisakan satu tombol
                     selebar penuh. */}
+                {/* Target sentuh 44 px di layout kartu (`min-h-11`); reset
+                    `sm:min-h-0` tidak diperlukan karena blok ini `md:hidden`
+                    dan tidak pernah dirender di samping tabel desktop. */}
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <Button variant="outline" size="sm" onClick={() => onDetail(ev)}>
+                  <Button variant="outline" size="sm" onClick={() => onDetail(ev)} className="min-h-11">
                     <ExternalLink className="size-3.5" aria-hidden /> Detail
                   </Button>
                   {onToggleVisibility && (
@@ -255,6 +258,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                         size="sm"
                         onClick={() => onToggleVisibility(ev)}
                         aria-label={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
+                        className="min-h-11"
                       >
                         {ev.status === 'draft'
                           ? <><Eye className="size-3.5" aria-hidden /> Tampilkan</>
@@ -262,12 +266,12 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                       </Button>
                   )}
                   {onEdit && (
-                      <Button variant="outline" size="sm" onClick={() => onEdit(ev)}>
+                      <Button variant="outline" size="sm" onClick={() => onEdit(ev)} className="min-h-11">
                         <Edit2 className="size-3.5" aria-hidden /> Ubah
                       </Button>
                   )}
                   {onDelete && (
-                      <Button variant="outline" size="sm" onClick={() => onDelete(ev)} className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)]">
+                      <Button variant="outline" size="sm" onClick={() => onDelete(ev)} className="min-h-11 text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)]">
                         <Trash2 className="size-3.5" aria-hidden /> Hapus
                       </Button>
                   )}
@@ -465,7 +469,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
       <div className="ui-dashboard-muted flex items-center justify-between border-t border-[var(--wf-rule)] px-4 py-2.5">
         <p className="text-xs text-[var(--wf-ink-muted)]">Menampilkan {events.length} acara</p>
         {isAdmin && (
-          <Button variant="ghost" size="sm" onClick={() => exportCSV(events)}>
+          <Button variant="ghost" size="sm" onClick={() => exportCSV(events)} className="min-h-11 sm:min-h-0">
             <Download className="size-3.5" aria-hidden /> Ekspor CSV
           </Button>
         )}
