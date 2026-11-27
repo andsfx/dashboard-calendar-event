@@ -78,7 +78,7 @@ function EventCard({
   onDetail: (e: EventItem) => void;
   cardBorder: string;
 }) {
-  const color = CATEGORY_COLORS[ev.category] ?? '#00918e';
+  const color = CATEGORY_COLORS[ev.category] ?? 'var(--wf-accent)';
 
   return (
     <div
@@ -93,7 +93,7 @@ function EventCard({
       />
 
       {/* Color top bar */}
-      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${color}, ${color}55)` }} />
+      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${color}, color-mix(in srgb, ${color} 33%, transparent))` }} />
 
       <div className="p-4">
         <div className="mb-2.5 flex items-start justify-between gap-2">

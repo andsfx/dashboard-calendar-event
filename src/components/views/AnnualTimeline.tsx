@@ -49,7 +49,7 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
                       ? 'border-[var(--wf-rule)] opacity-40'
                       : 'border-[var(--wf-rule)]'
                   }`} style={{
-                    backgroundColor: status === 'past' ? '#94a3b8' : theme.color,
+                    backgroundColor: status === 'past' ? 'var(--wf-rule-control)' : theme.color,
                   }}>
                     <span className="text-white text-xs font-bold">{index + 1}</span>
                     {status === 'active' && (

@@ -126,7 +126,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
 
   const isMultiDay = event ? isMultiDayEvent(event) : false;
   const isRecurring = event ? isRecurringEvent(event) : false;
-  const accent = event ? getEventAccentColor(event) : '#00918e';
+  const accent = event ? getEventAccentColor(event) : 'var(--brand-tosca)';
   const posterUrl = resolveEventPoster(event, albums);
 
   return (
@@ -205,7 +205,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
               className="relative overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--wf-board)] px-5 pb-6 pt-7 shadow-[var(--shadow-card-soft)] sm:px-8  "
               style={{ '--event-color': accent } as React.CSSProperties}
             >
-              <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${accent}, ${accent}44)` }} />
+              <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${accent}, color-mix(in srgb, ${accent} 27%, transparent))` }} />
               <div className="absolute inset-0 opacity-[0.06] dark:opacity-[0.04]" style={{ background: accent }} />
 
               {posterUrl && (

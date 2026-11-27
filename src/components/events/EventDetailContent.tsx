@@ -172,6 +172,6 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
 
 /** Warna aksen kategori untuk header halaman publik. */
 export function getEventAccentColor(event: EventItem): string {
-  return CATEGORY_COLORS[event.category] ?? '#00918e';
+  return CATEGORY_COLORS[event.category] ?? 'var(--brand-tosca)';
 }
 
