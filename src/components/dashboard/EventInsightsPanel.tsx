@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { AlertTriangle, Copy, EyeOff, Info, Lightbulb, RotateCcw, Sparkles } from 'lucide-react';
+import { AlertTriangle, Copy, EyeOff, Info, Lightbulb, RotateCcw } from 'lucide-react';
 import type {
   CommunityRegistration,
   DraftEventItem,
@@ -12,7 +12,6 @@ import type {
   TenantEventSurvey,
   TenantParticipation,
 } from '../../types';
-import { Card } from './Card';
 import { InsightAiSummary } from './InsightAiSummary';
 import { Button } from '../shadcn/button';
 import { Badge } from '../shadcn/badge';
@@ -152,23 +151,25 @@ export function EventInsightsPanel({
   const crossModuleCount = visible.filter((insight) => insight.crossModule).length;
 
   return (
-    <Card
-      title={
-        <span className="inline-flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-[var(--wf-accent)]" aria-hidden />
-          Insight Cerdas
-        </span>
-      }
-      subtitle={`Analisis otomatis dari data event${crossModuleCount > 0 ? ' dan modul lain' : ''} · diperbarui ${generatedLabel}`}
-      actions={
-        visible.length > 0 ? (
-          <Button type="button" variant="ghost" size="sm" onClick={copySummary}>
+    <section aria-label="Insight Cerdas" className="ui-dashboard-surface p-5">
+      {/* h2 tersembunyi: kartu pembungkus dulu memasok heading ini; tanpa itu
+          h3 per-temuan melompat satu tingkat dari h1 halaman (axe
+          heading-order). */}
+      <h2 className="sr-only">Insight Cerdas</h2>
+      {/* Topline menggantikan judul kartu: nama halaman sudah ada di kepala
+          dashboard, jadi panel ini hanya melaporkan kesegaran data dan aksi. */}
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+        <p className="text-xs text-[var(--wf-ink-muted)]">
+          {visible.length} temuan · diperbarui {generatedLabel}
+          {crossModuleCount > 0 ? ` · ${crossModuleCount} dari modul lain` : ''}
+        </p>
+        {visible.length > 0 && (
+          <Button type="button" variant="ghost" size="sm" onClick={copySummary} className="active:translate-y-0">
             <Copy className="h-3.5 w-3.5" aria-hidden />
             Salin ringkasan
           </Button>
-        ) : null
-      }
-    >
+        )}
+      </div>
       {visible.length === 0 ? (
         <div className="flex flex-wrap items-center gap-3">
           <p className="text-sm text-[var(--wf-ink-muted)]">
@@ -217,7 +218,7 @@ export function EventInsightsPanel({
             <p className="text-sm text-[var(--wf-ink-muted)]">Tidak ada insight pada tingkat ini.</p>
           ) : (
             <ul className="space-y-3">
-              {filtered.map((insight) => {
+              {filtered.map((insight, index) => {
                 const meta = SEVERITY[insight.severity];
                 const Icon = meta.icon;
                 const actions = (insight.actions ?? []).filter(
@@ -228,6 +229,9 @@ export function EventInsightsPanel({
                     key={insight.id}
                     className="flex items-start gap-3 rounded-[var(--wf-radius-control)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-4 py-3"
                   >
+                    <span className="mt-0.5 w-6 shrink-0 font-display text-xs font-extrabold tabular-nums text-[var(--wf-ink-muted)]">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
                     <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${meta.tone}`} aria-hidden />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -272,6 +276,6 @@ export function EventInsightsPanel({
           )}
         </div>
       )}
-    </Card>
+    </section>
   );
 }

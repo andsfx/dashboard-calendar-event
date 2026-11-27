@@ -455,7 +455,10 @@ export function DashboardPage({
           menambah gulir tanpa menambah keputusan. Pintu masuknya rail
           "Ringkasan" dan register "Semua modul" di Pusat Komando. */}
       {isAdmin && dashboardPath === '/insights' && (
-        <section id="insights" className="scroll-mt-20">
+        <section id="insights" className="scroll-mt-20 space-y-4">
+          <p className="rounded-[var(--wf-radius-control)] bg-[var(--wf-board-2)] px-3 py-2 text-xs text-[var(--wf-ink-muted)]">
+            Temuan dihitung di browser dari data yang sudah dimuat halaman ini. Ringkasan AI hanya merangkum temuan tersebut, bukan meramalkan.
+          </p>
           {insightContext.error && (
             <div
               role="alert"

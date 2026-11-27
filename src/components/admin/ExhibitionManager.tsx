@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { CalendarDays, CalendarPlus, CheckCircle2, Link2, MessageCircle, Plus, Send, Trash2, Unlink, Users } from 'lucide-react';
+import { CalendarDays, CalendarPlus, CheckCircle2, Link2, MessageCircle, Plus, Send, Trash2, Unlink, Users, Store } from 'lucide-react';
 import { Button } from '../shadcn/button';
+import { Badge } from '../shadcn/badge';
 import { Checkbox } from '../shadcn/checkbox';
 import { Input } from '../shadcn/input';
 import { Label } from '../shadcn/label';
@@ -34,6 +35,13 @@ const SLOT_STATUS_LABELS: Record<ExhibitionSlotStatus, string> = {
   full: 'Penuh',
   closed: 'Ditutup',
 };
+
+/** Tanggal pengajuan untuk meta baris register: "27 Nov" (prototipe memakai tanggal pendek). */
+function formatLeadSubmitted(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+}
 
 const LEAD_STATUS_LABELS: Record<ExhibitionLead['status'], string> = {
   submitted: 'Baru Masuk',
@@ -292,16 +300,30 @@ export function ExhibitionManager({
           </p>
         ) : (
           <ul className="mt-3 divide-y divide-[var(--wf-rule)]">
-            {pendingReviewLeads.slice(0, 6).map(lead => (
-              <li key={lead.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-[var(--wf-ink)]">{lead.organizationName}</p>
+            {pendingReviewLeads.map(lead => (
+              <li key={lead.id} className="flex flex-wrap items-start gap-3 py-3 sm:flex-nowrap sm:items-center">
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center rounded-[var(--wf-radius-control)] bg-[var(--wf-board-2)]"
+                  aria-hidden="true"
+                >
+                  <Store className="size-4 text-[var(--wf-accent)]" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">{lead.organizationName}</p>
                   <p className="truncate text-xs text-[var(--wf-ink-muted)]">
-                    {programTitleById.get(lead.exhibitionId) ?? 'Program tidak ditemukan'} · {LEAD_STATUS_LABELS[lead.status]}
+                    {programTitleById.get(lead.exhibitionId) ?? 'Program tidak ditemukan'}
                   </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--wf-ink-muted)]">
+                    <Badge variant="outline" className="h-auto rounded-full border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-2 py-0.5 text-[11px] font-semibold text-[var(--wf-ink)]">
+                      {LEAD_STATUS_LABELS[lead.status]}
+                    </Badge>
+                    <span>Dikirim {formatLeadSubmitted(lead.createdAt)}</span>
+                    <span aria-hidden="true">·</span>
+                    <span className="font-mono text-[11px]">{lead.referenceCode}</span>
+                  </div>
                 </div>
                 <Button asChild variant="outline" size="sm">
-                  <a href={`#exh-program-${lead.exhibitionId}`}>Buka program</a>
+                  <a href={`#exh-program-${lead.exhibitionId}`}>Tinjau rincian</a>
                 </Button>
               </li>
             ))}

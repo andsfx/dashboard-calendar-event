@@ -115,10 +115,12 @@ describe('EventInsightsPanel', () => {
   beforeEach(() => {
     localStorage.clear();
   });
-  it('menampilkan judul panel dan label analisis otomatis', () => {
+  it('menampilkan heading panel dan topline kesegaran data', () => {
     render(<EventInsightsPanel {...emptyProps} />);
+    // Heading tetap ada untuk pembaca layar walau judul visual dipindah ke
+    // kepala halaman (mencegah heading-order h1 → h3).
     expect(screen.getByRole('heading', { name: /Insight Cerdas/ })).toBeInTheDocument();
-    expect(screen.getByText(/Analisis otomatis dari data event/)).toBeInTheDocument();
+    expect(screen.getByText(/temuan · diperbarui/)).toBeInTheDocument();
   });
 
   it('menampilkan pesan kosong saat tidak ada insight', () => {

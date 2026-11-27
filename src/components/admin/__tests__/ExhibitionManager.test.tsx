@@ -62,7 +62,8 @@ const props = {
 describe('ExhibitionManager', () => {
   it('menampilkan daftar program dan jumlah pengajuan', () => {
     render(<ExhibitionManager {...props} />);
-    expect(screen.getByText('Beauty Fair')).toBeInTheDocument();
+    // Nama program muncul di kartu program dan di baris register pengajuan.
+    expect(screen.getAllByText('Beauty Fair').length).toBeGreaterThan(0);
     expect(screen.getByText('1 pengajuan')).toBeInTheDocument();
   });
 
