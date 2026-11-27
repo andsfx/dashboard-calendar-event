@@ -147,7 +147,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
                       {/* Actions */}
                       <div
-                        className="relative z-10 flex items-center gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
+                        className="relative z-10 flex items-center gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100 md:group-focus-within:opacity-100 focus-within:opacity-100"
                         onClick={e => e.stopPropagation()}
                       >
                         <Button
