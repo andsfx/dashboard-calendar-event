@@ -232,7 +232,7 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
         variant="ghost"
         onClick={() => onDetail(event)}
         title={`${event.acara} (${event.jam || 'jam belum ditentukan'})`}
-        className={`flex h-auto w-full items-center justify-start gap-1.5 truncate rounded-[var(--wf-radius-control)] border px-2 py-1 text-left text-xs font-medium transition hover:brightness-[0.97] ui-focus-ring focus-visible:ring-0 active:translate-y-0 ${STATUS_CHIP[event.status]}`}
+        className={`flex h-auto min-h-11 w-full items-center justify-start gap-1.5 truncate rounded-[var(--wf-radius-control)] border px-2 py-1 sm:min-h-0 text-left text-xs font-medium transition hover:brightness-[0.97] ui-focus-ring focus-visible:ring-0 active:translate-y-0 ${STATUS_CHIP[event.status]}`}
       >
         <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATUS_DOT[event.status]}`} aria-hidden="true" />
         <span className="truncate">{event.acara}</span>
@@ -253,7 +253,7 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
           type="button"
           variant="ghost"
           onClick={() => onDetail(event)}
-          className="min-w-0 flex-1 rounded-sm text-left ui-focus-ring h-auto px-0 py-0 font-normal focus-visible:ring-0 active:translate-y-0"
+          className="min-h-11 min-w-0 flex-1 rounded-sm text-left ui-focus-ring h-auto px-0 py-0 font-normal focus-visible:ring-0 active:translate-y-0 sm:min-h-0"
         >
           <span className="block truncate font-medium text-[var(--wf-ink)]">{event.acara}</span>
           <span className="block truncate text-xs text-[var(--wf-ink-muted)]">
@@ -275,9 +275,9 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
           onValueChange={key => { setMode(key as CalendarMode); setSelectedDate(null); }}
           className="max-w-full"
         >
-          <TabsList aria-label="Pilih tampilan kalender" className="max-w-full">
+          <TabsList aria-label="Pilih tampilan kalender" className="h-auto! max-w-full sm:h-8!">
             {VIEW_TABS.map(tab => (
-              <TabsTrigger key={tab.key} value={tab.key} aria-controls={undefined}>
+              <TabsTrigger key={tab.key} value={tab.key} aria-controls={undefined} className="h-11! min-h-11 min-w-11 sm:h-[calc(100%-1px)]! sm:min-h-0 sm:min-w-0">
                 {tab.label}
               </TabsTrigger>
             ))}
@@ -290,17 +290,18 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
             {periodLabel}
           </p>
           <div className="flex items-center gap-1">
-            <Button type="button" variant="outline" size="icon" aria-label="Periode sebelumnya" onClick={() => shift(-1)}>
+            <Button type="button" variant="outline" size="icon" aria-label="Periode sebelumnya" onClick={() => shift(-1)} className="min-h-11 min-w-11 sm:min-h-0 sm:min-w-0">
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => { setReference(new Date()); setSelectedDate(null); }}
+              className="min-h-11 sm:min-h-0"
             >
               Hari Ini
             </Button>
-            <Button type="button" variant="outline" size="icon" aria-label="Periode berikutnya" onClick={() => shift(1)}>
+            <Button type="button" variant="outline" size="icon" aria-label="Periode berikutnya" onClick={() => shift(1)} className="min-h-11 min-w-11 sm:min-h-0 sm:min-w-0">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -366,7 +367,7 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                           type="button"
                           variant="ghost"
                           onClick={() => setSelectedDate(dayKey)}
-                          className="ui-focus-ring h-auto px-1 text-[11px] text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)] focus-visible:ring-0 active:translate-y-0"
+                          className="ui-focus-ring h-auto min-h-11 px-1 text-[11px] sm:min-h-0 text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)] focus-visible:ring-0 active:translate-y-0"
                         >
                           +{dayEvents.length - 3} event lain
                         </Button>
@@ -509,7 +510,7 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                         type="button"
                         variant="ghost"
                         onClick={() => onDetail(event)}
-                        className="min-w-0 flex-1 rounded-sm text-left ui-focus-ring h-auto px-0 py-0 font-normal focus-visible:ring-0 active:translate-y-0"
+                        className="min-h-11 min-w-0 flex-1 rounded-sm text-left ui-focus-ring h-auto px-0 py-0 font-normal focus-visible:ring-0 active:translate-y-0 sm:min-h-0"
                       >
                         <span className="block truncate font-medium text-[var(--wf-ink)]">{event.acara}</span>
                         <span className="block truncate text-xs text-[var(--wf-ink-muted)]">
@@ -553,7 +554,7 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                   {selectedDayHolidays.length > 0 ? ` · ${selectedDayHolidays.length} hari libur` : ''}
                 </p>
               </div>
-              <Button type="button" variant="ghost" size="icon" aria-label="Tutup" onClick={() => setSelectedDate(null)}>
+              <Button type="button" variant="ghost" size="icon" aria-label="Tutup" onClick={() => setSelectedDate(null)} className="min-h-11 min-w-11 sm:min-h-0 sm:min-w-0">
                 <X className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
@@ -591,7 +592,7 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                         type="button"
                         variant="ghost"
                         onClick={() => { setSelectedDate(null); onDetail(event); }}
-                        className="w-full rounded-sm text-left ui-focus-ring h-auto px-0 py-0 font-normal focus-visible:ring-0 active:translate-y-0"
+                        className="min-h-11 w-full rounded-sm text-left ui-focus-ring h-auto px-0 py-0 font-normal focus-visible:ring-0 active:translate-y-0 sm:min-h-0"
                       >
                         <span className="block font-semibold text-[var(--wf-ink)]">{event.acara}</span>
                       </Button>
