@@ -12,6 +12,8 @@ import {
 import { useConfirmDialog } from './useConfirmDialog';
 import { Button } from '../shadcn/button';
 import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../shadcn/empty';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../shadcn/tabs';
 
 interface Props {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
@@ -161,59 +163,77 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
       <div className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]">
 
         <div className="space-y-3 px-4 py-4 sm:px-6">
-          {/* Tabs */}
-          <div className="flex gap-1 overflow-x-auto rounded-xl bg-[var(--wf-board-2)] p-1">
-            <Button
-              variant={tab === 'proposals' ? 'default' : 'ghost'}
-              type="button"
-              onClick={() => { setTab('proposals'); setError(''); setSuccess(''); }}
-              className="flex-1 whitespace-nowrap px-3 py-2"
+          {/* Tabs — primitif shadcn/Radix: aria-selected, aria-controls, roving
+              tabindex, dan navigasi panah dikelola Radix. */}
+          <Tabs
+            value={tab}
+            onValueChange={(v) => {
+              setTab(v as 'proposals' | 'leads');
+              setError('');
+              setSuccess('');
+            }}
+            className="gap-3"
+          >
+            <TabsList
+              aria-label="Sponsorship"
+              className="flex h-auto! w-full gap-1 overflow-x-auto rounded-xl bg-[var(--wf-board-2)] p-1"
             >
-              Proposal Event
-            </Button>
-            <Button
-              variant={tab === 'leads' ? 'default' : 'ghost'}
-              type="button"
-              onClick={() => { setTab('leads'); setError(''); setSuccess(''); }}
-              className="flex-1 whitespace-nowrap px-3 py-2"
-            >
-              Minat Support ({leads.length})
-            </Button>
-          </div>
+              <TabsTrigger
+                value="proposals"
+                className="h-auto! flex-1 rounded-lg px-3 py-2 whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
+              >
+                Proposal Event
+              </TabsTrigger>
+              <TabsTrigger
+                value="leads"
+                className="h-auto! flex-1 rounded-lg px-3 py-2 whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
+              >
+                Minat Support ({leads.length})
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Error message */}
-          {error && (
-            <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-              <div className="min-w-0 flex-1">
-                <p>{error}</p>
-                <Button variant="ghost" type="button" onClick={loadData} className="mt-2 underline underline-offset-2">
-                  <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-                  Coba lagi
-                </Button>
+            {/* Error message — tetap di dalam Tabs agar tampil di panel mana pun */}
+            {error && (
+              <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <div className="min-w-0 flex-1">
+                  <p>{error}</p>
+                  <Button variant="ghost" type="button" onClick={loadData} className="mt-2 underline underline-offset-2">
+                    <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+                    Coba lagi
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Loading */}
-          {isLoading && (
-            <div role="status" className="flex items-center justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-accent)]" aria-hidden="true" />
-              <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat…</span>
-            </div>
-          )}
+            {/* Loading */}
+            {isLoading && (
+              <div role="status" className="flex items-center justify-center py-8">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-accent)]" aria-hidden="true" />
+                <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat…</span>
+              </div>
+            )}
 
           {/* ===== TAB 1: Proposal Event ===== */}
-          {tab === 'proposals' && !isLoading && (
+          <TabsContent
+            value="proposals"
+            forceMount
+            className="mt-0 flex-none data-[state=inactive]:hidden"
+          >
+            {!isLoading && (
             <div className="space-y-2">
               <p className="text-xs text-[var(--wf-ink-muted)]">
                 Lampirkan satu berkas proposal (PDF / gambar / DOCX) per event. Proposal tampil di halaman publik /sponsor.
               </p>
               {events.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
-                  <Handshake className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
-                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada event upcoming</p>
-                </div>
+                <Empty className="border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <EmptyHeader>
+                    <EmptyMedia>
+                      <Handshake className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+                    </EmptyMedia>
+                    <EmptyTitle className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada event upcoming</EmptyTitle>
+                  </EmptyHeader>
+                </Empty>
               )}
               {events.map((item) => (
                 <div
@@ -287,20 +307,30 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                 </div>
               ))}
             </div>
-          )}
+            )}
+          </TabsContent>
 
           {/* ===== TAB 2: Lead Sponsor ===== */}
-          {tab === 'leads' && !isLoading && (
+          <TabsContent
+            value="leads"
+            forceMount
+            className="mt-0 flex-none data-[state=inactive]:hidden"
+          >
+            {!isLoading && (
             <div className="space-y-2">
               <p className="text-xs text-[var(--wf-ink-muted)]">
                 Minat support dari pengunjung halaman /sponsor. Perbarui status saat tim menindaklanjuti.
               </p>
               {leads.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
-                  <Handshake className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
-                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada lead</p>
-                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Lead muncul saat pengunjung mengirim Minat Support</p>
-                </div>
+                <Empty className="border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <EmptyHeader>
+                    <EmptyMedia>
+                      <Handshake className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+                    </EmptyMedia>
+                    <EmptyTitle className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada lead</EmptyTitle>
+                    <EmptyDescription className="text-xs text-[var(--wf-ink-muted)]">Lead muncul saat pengunjung mengirim Minat Support</EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
               )}
               {leads.map((lead) => (
                 <div
@@ -321,7 +351,7 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                         {lead.eventAcara || '-'}{lead.eventDate ? ` · ${formatDate(lead.eventDate)}` : ''}
                       </p>
                       <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
-                        PIC: {lead.contactName || '-'}
+                        Narahubung: {lead.contactName || '-'}
                         {lead.phone ? ` · WA: ${lead.phone}` : ''}
                         {lead.email ? ` · ${lead.email}` : ''}
                       </p>
@@ -367,7 +397,9 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                 </div>
               ))}
             </div>
-          )}
+            )}
+          </TabsContent>
+          </Tabs>
         </div>
       </div>
       {confirmDialogEl}
