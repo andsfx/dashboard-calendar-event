@@ -66,10 +66,23 @@ ditulis:
    375 maupun 1280 (gelap juga 0).
    **Utang struktur yang tidak diselesaikan:** `nested-interactive` **23 node** di
    Kanban dan Timeline — kartu `Button` membungkus `Button` aksi, sudah tercatat
-   di `AGENTS.md`. Kalender masih punya `color-contrast` **3** (375) / **6**
-   (1280) pada angka hari bulan lain (`text-[var(--wf-ink-muted)]/60`, pra-ada,
-   tak terkait ukuran target) dan `incomplete` **17** (375) / **6** (1280);
-   Kanban/Timeline `incomplete` 0 pada 8 kombinasi (375/1280 × terang/gelap).
+   Kalender `color-contrast` pada angka hari bulan lain telah **ditutup**:
+   `text-[var(--wf-ink-muted)]/60` diganti `text-[var(--wf-ink-muted)]`
+   (`DashboardCalendarView`), rasio terukur **5.53–5.73:1** terang (latar
+   `--wf-board-2`/50 di atas latar halaman) dan **7.94:1** gelap; axe
+   `color-contrast` kini **0** pada Kalender di 375/1280, terang dan gelap
+   (verifikasi browser 2026-11-27; tersisa `incomplete` `aria-valid-attr-value`
+   **1** pada trigger Sheet «Buka menu» — atribut valid, `aria-controls`
+   `admin-sidebar` ada di DOM, axe hanya menandai perlu review, tidak diubah).
+   Kanban/Timeline `incomplete` 0 pada 8 kombinasi (375/1280 × terang/gelap);
+   pada Kalender 1280 gelap tersisa `incomplete` `color-contrast` **1** pada
+   `th` tabel yang tersembunyi (latar transparan), artefak tampilan tersembunyi.
+   Target sentuh: tombol **Ubah/Hapus** tema (`QuarterTimeline`,
+   `/dashboard/themes`) kini **44×44 px** di 375 via `min-h-11 min-w-11
+   sm:min-h-0 sm:min-w-0` (1280 tetap 28 px); tombol tutup popup hari
+   `CalendarView` (rute publik `/events`) juga **44×44 px** di 375 dan tetap
+   **28×28 px** di 1280, tanpa overflow horizontal (`scrollWidth == clientWidth`
+   375) dan tanpa pelanggaran axe baru pada `/events` publik.
    Opsi dropdown `FilterBar` ikut naik lewat prop opt-in
    `touchTargets`: `[role=option]` **Kategori 21 opsi, Bulan 16, Prioritas 4 —
    semuanya 44 px** di 375; di 1280 tetap **28 px** karena `min-h-11 sm:min-h-0`.
