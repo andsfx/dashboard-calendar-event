@@ -455,7 +455,7 @@ export default function TenantSurveyResultsPage({
             <h2 id="filter-heading" className="text-[11px] font-bold uppercase tracking-wide">
               Filter
             </h2>
-            <span className="rounded-full bg-[var(--wf-rule-strong)] px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-[var(--wf-ink-muted)]">
+            <span className="rounded-full bg-[var(--wf-rule-strong)] px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-[var(--wf-ink)]">
               {agg.total}
             </span>
           </div>
@@ -690,7 +690,7 @@ export default function TenantSurveyResultsPage({
                   className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums leading-none ${
                     active
                       ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
-: 'bg-[var(--wf-rule-strong)] text-[var(--wf-ink-muted)]'
+: 'bg-[var(--wf-rule-strong)] text-[var(--wf-ink)]'
                   }`}
                 >
                   {t.count}
