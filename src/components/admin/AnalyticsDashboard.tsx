@@ -90,6 +90,10 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
         </div>
       ) : (
       <>
+      {/* Judul halaman datang dari DashboardHeader (h1). Heading seksi di bawah
+          memakai h3 agar tidak bersaing dengan judul halaman, jadi butuh satu
+          h2 sr-only sebagai jembatan hierarki (axe `heading-order`). */}
+      <h2 className="sr-only">Ringkasan analitik</h2>
       {/* 1. Tren Event per Bulan */}
       <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">

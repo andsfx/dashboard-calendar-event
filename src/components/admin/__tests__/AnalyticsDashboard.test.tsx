@@ -52,4 +52,20 @@ describe('AnalyticsDashboard', () => {
     expect(screen.queryByText('Belum ada data')).not.toBeInTheDocument();
     expect(screen.getByText('Tren event per bulan')).toBeInTheDocument();
   });
+
+  it('punya satu h2 sebelum h3 pertama saat periode punya event (heading-order)', () => {
+    const thisYear = new Date().getFullYear();
+    const { container } = render(
+      <AnalyticsDashboard events={[makeEvent({ dateStr: `${thisYear}-05-10` })]} />,
+    );
+
+    const h2 = container.querySelectorAll('h2');
+    expect(h2).toHaveLength(1);
+    expect(h2[0]).toHaveTextContent('Ringkasan analitik');
+
+    const headings = Array.from(container.querySelectorAll('h1, h2, h3'));
+    expect(headings.length).toBeGreaterThan(0);
+    expect(headings[0]?.tagName).toBe('H2');
+    expect(headings.filter(h => h.tagName === 'H3').length).toBeGreaterThan(0);
+  });
 });
