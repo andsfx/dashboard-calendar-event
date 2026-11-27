@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Camera, Loader2, MapPin } from 'lucide-react';
 import { Skeleton } from '../shadcn/skeleton';
 import { Button } from '../shadcn/button';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../shadcn/empty';
 import type { AreaPhoto, EventArea } from '../../types';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { PhotoLightbox } from '../media/PhotoLightbox';
@@ -167,11 +168,17 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
             })}
           </div>
         ) : (
-          <div className="mt-10 flex flex-col items-center justify-center rounded-[var(--radius-campaign-card)] border-2 border-dashed border-[var(--wf-rule)] py-14 text-center">
-            <MapPin className="mb-3 h-10 w-10 text-[var(--wf-rule-strong)]" aria-hidden="true" />
-            <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada foto area</p>
-            <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Foto area akan tampil di sini saat admin menambahkannya.</p>
-          </div>
+          <Empty className="mt-10 rounded-[var(--radius-campaign-card)] border-2 border-dashed border-[var(--wf-rule)] py-14">
+            <EmptyMedia>
+              <MapPin className="h-10 w-10 text-[var(--wf-rule-strong)]" aria-hidden="true" />
+            </EmptyMedia>
+            <EmptyHeader>
+              <EmptyTitle className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada foto area</EmptyTitle>
+              <EmptyDescription className="text-xs text-[var(--wf-ink-muted)]">
+                Foto area akan tampil di sini saat admin menambahkannya.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         )}
 
         {/* Lightbox foto area — klik kartu (portal ke body: RevealSection pakai transform,

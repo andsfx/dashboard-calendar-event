@@ -3,6 +3,7 @@ import { CalendarRange, Search } from 'lucide-react';
 import { EXPORT_PERIODS, describeRange } from '../../utils/exportDateRange';
 import { Button } from '../shadcn/button';
 import { Checkbox } from '../shadcn/checkbox';
+import { Empty, EmptyHeader, EmptyTitle } from '../shadcn/empty';
 import { Input } from '../shadcn/input';
 import { Label } from '../shadcn/label';
 import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
@@ -242,9 +243,13 @@ export function ExportScopePicker<T>({
         </div>
 
         {visibleItems.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-[var(--wf-rule)] px-4 py-6 text-center text-sm text-[var(--wf-ink-muted)]">
-            {scope.inRange.length === 0 ? emptyLabel : 'Tidak ada yang cocok dengan pencarian.'}
-          </p>
+          <Empty className="rounded-2xl border border-dashed border-[var(--wf-rule)] px-4 py-6">
+            <EmptyHeader>
+              <EmptyTitle className="text-sm font-normal text-[var(--wf-ink-muted)]">
+                {scope.inRange.length === 0 ? emptyLabel : 'Tidak ada yang cocok dengan pencarian.'}
+              </EmptyTitle>
+            </EmptyHeader>
+          </Empty>
         ) : (
           <div className="max-h-64 overflow-y-auto rounded-2xl border border-[var(--wf-rule)]">
             <ul className="divide-y divide-[var(--wf-rule)]">

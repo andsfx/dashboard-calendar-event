@@ -21,6 +21,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { Button } from '../shadcn/button';
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from '../shadcn/empty';
 import { Input } from '../shadcn/input';
 import { NativeSelect } from '../shadcn/native-select';
 import { Label } from '../shadcn/label';
@@ -1107,13 +1108,17 @@ export default function TenantSurveyResultsPage({
             </div>
             <div className="max-h-[min(40rem,70dvh)] overflow-y-auto overscroll-contain p-2.5 sm:p-4">
               {feedbackFiltered.length === 0 ? (
-                <div className="rounded-[var(--wf-radius-board)] border border-dashed border-[var(--wf-rule)] px-4 py-8 text-center">
-                  <MessageSquareText
-                    className="mx-auto h-6 w-6 text-[var(--wf-ink-muted)]"
-                    aria-hidden
-                  />
-                  <p className="mt-2 text-xs font-medium text-[var(--wf-ink-muted)]">Tidak ada umpan balik teks</p>
-                </div>
+                <Empty className="rounded-[var(--wf-radius-board)] border border-dashed border-[var(--wf-rule)] px-4 py-8">
+                  <EmptyMedia>
+                    <MessageSquareText
+                      className="h-6 w-6 text-[var(--wf-ink-muted)]"
+                      aria-hidden
+                    />
+                  </EmptyMedia>
+                  <EmptyHeader>
+                    <EmptyTitle className="text-xs font-medium text-[var(--wf-ink-muted)]">Tidak ada umpan balik teks</EmptyTitle>
+                  </EmptyHeader>
+                </Empty>
               ) : (
                 <ul className="grid gap-2.5 sm:gap-3">
                   {feedbackFiltered.slice(0, 100).map((f) => (

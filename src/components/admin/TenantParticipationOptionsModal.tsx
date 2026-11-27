@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { ModalWrapper } from '../modals/ModalWrapper';
 import { Button } from '../shadcn/button';
+import { Empty, EmptyTitle } from '../shadcn/empty';
 import { Input } from '../shadcn/input';
 import { Label } from '../shadcn/label';
 import { NativeSelect } from '../shadcn/native-select';
@@ -440,8 +441,10 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
                         );
                       })}
                       {list.length === 0 && (
-                        <li className="rounded-[var(--wf-radius-control)] border border-dashed border-[var(--wf-rule)] px-3 py-2 text-xs text-[var(--wf-ink-muted)]">
-                          Belum ada opsi.
+                        <li>
+                          <Empty className="rounded-[var(--wf-radius-control)] border border-dashed border-[var(--wf-rule)] px-3 py-2">
+                            <EmptyTitle className="text-xs font-normal text-[var(--wf-ink-muted)]">Belum ada opsi.</EmptyTitle>
+                          </Empty>
                         </li>
                       )}
                     </ul>

@@ -7,23 +7,26 @@ import { parseStartTime, parseTimeRange } from '../../utils/eventDateTime';
 import { resolveEventPoster } from '../../utils/eventPoster';
 import { EventPosterBanner } from '../events/EventPosterBanner';
 import { Button } from '../shadcn/button';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../shadcn/empty';
 import { RevealSection } from './CommunityRevealPrimitives';
 
 function EmptyEvents() {
   return (
-    <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--wf-rule)] bg-[var(--wf-board)]/60 py-16 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)]">
+    <Empty className="mt-8 rounded-2xl border border-dashed border-[var(--wf-rule)] bg-[var(--wf-board)]/60 py-16">
+      <EmptyMedia className="h-16 w-16 rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)]">
         <CalendarDays className="h-8 w-8 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
-      </div>
-      <p className="mt-4 text-base font-semibold text-[var(--wf-ink-muted)]">Belum ada event mendatang</p>
-      <p className="mt-2 max-w-xs text-sm text-[var(--wf-ink-muted)]">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
+      </EmptyMedia>
+      <EmptyHeader>
+        <EmptyTitle className="text-base font-semibold text-[var(--wf-ink-muted)]">Belum ada event mendatang</EmptyTitle>
+        <EmptyDescription className="max-w-xs text-sm text-[var(--wf-ink-muted)]">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</EmptyDescription>
+      </EmptyHeader>
       <a
         href="#contact"
-        className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]"
+        className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]"
       >
         Hubungi kami <ArrowRight className="h-4 w-4" />
       </a>
-    </div>
+    </Empty>
   );
 }
 
