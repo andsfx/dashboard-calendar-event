@@ -121,6 +121,17 @@ ditulis:
   agar `aria-controls` selalu menunjuk elemen nyata; `Empty` untuk keadaan kosong;
   label PIC → Narahubung.
 
+**Sapuan kosmetik (penutup, 2026-11-27).** `10d9f04` menutup sisa keadaan kosong
+ke primitif `Empty` di 5 tempat (komunitas area + event mendatang, pemilih cakupan
+PDF, hasil survei tenant, opsi partisipasi tenant); `2198c63` menyelesaikan copy
+unggah modal event («Mengunggah…», «Klik untuk mengunggah poster / flyer»);
+`ae7c7b2` menghapus hex yang tersisa di permukaan UI (aksen kategori detail event,
+kanban, garis timeline) — palet PDF/surat/QR sengaja tidak disentuh karena itu
+permukaan dokumen. Verifikasi: axe `/`, `/community`, `/events` @375 terang =
+0 pelanggaran; tsc 0, 205 tes / 27 file lulus, `npm run build` hijau.
+Cabang `onDelete` di `LetterHistoryList` tercatat sebagai dead branch — induk sudah
+mengonfirmasi tidak dipakai, jadi dibiarkan (tidak dihapus di sapuan ini).
+
 **Angka verifikasi terakhir** (run S8): suite penuh 189 file / 1562 tes lulus
 (`NODE_ENV=test … --maxWorkers=2`), `npm run build` hijau (
 `tsc && vite build`, vite 11,66 s) + `assert-lazy-entry-chunks`.
