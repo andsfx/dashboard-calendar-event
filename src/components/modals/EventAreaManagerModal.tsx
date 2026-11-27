@@ -587,7 +587,7 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                   {areas.map((area, idx) => (
                     <div
                       key={area.id}
-                      className="group flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] p-3 transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]"
+                      className="group flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] p-3 transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)] max-sm:gap-1.5"
                     >
                       {/* Thumbnail — dekoratif; pembuka area ada di Button nama */}
                       <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--wf-board-2)]">
@@ -641,7 +641,7 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                           title="Naik"
                           onClick={() => handleMoveArea(area, -1)}
                           disabled={idx === 0}
-                          className="-m-1"
+                          className="-m-1 max-sm:m-0"
                         >
                           <ChevronLeft className="h-4 w-4 rotate-90" />
                         </Button>
@@ -652,7 +652,7 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                           title="Turun"
                           onClick={() => handleMoveArea(area, 1)}
                           disabled={idx === areas.length - 1}
-                          className="-m-1"
+                          className="-m-1 max-sm:m-0"
                         >
                           <ChevronLeft className="h-4 w-4 -rotate-90" />
                         </Button>
@@ -899,7 +899,7 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                                 title="Naik"
                                 onClick={() => handleMovePhoto(photo, -1)}
                                 disabled={idx === 0}
-                                className="-m-1"
+                                className="-m-1 max-sm:m-0"
                               >
                                 <ChevronLeft className="h-4 w-4 rotate-90" />
                               </Button>
@@ -910,7 +910,7 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                                 title="Turun"
                                 onClick={() => handleMovePhoto(photo, 1)}
                                 disabled={idx === areaPhotos.length - 1}
-                                className="-m-1"
+                                className="-m-1 max-sm:m-0"
                               >
                                 <ChevronLeft className="h-4 w-4 -rotate-90" />
                               </Button>
