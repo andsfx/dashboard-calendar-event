@@ -131,6 +131,11 @@ permukaan dokumen. Verifikasi: axe `/`, `/community`, `/events` @375 terang =
 0 pelanggaran; tsc 0, 205 tes / 27 file lulus, `npm run build` hijau.
 Cabang `onDelete` di `LetterHistoryList` tercatat sebagai dead branch — induk sudah
 mengonfirmasi tidak dipakai, jadi dibiarkan (tidak dihapus di sapuan ini).
+Temuan P2 terakhir ikut tertutup: **P2-2** (aksi hover-only tanpa jejak fokus)
+ditutup `807fc3b` — wrapper aksi `TimelineView` kini memakai
+`md:group-focus-within:opacity-100` + `focus-within:opacity-100` (pola yang sudah
+ada di `KanbanView`), terukur opacity 0 → 1 saat fokus keyboard di lebar 1280;
+jadi hover-only tanpa fokus = 0 di seluruh repo.
 
 **Angka verifikasi terakhir** (run S8): suite penuh 189 file / 1562 tes lulus
 (`NODE_ENV=test … --maxWorkers=2`), `npm run build` hijau (
