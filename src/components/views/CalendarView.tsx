@@ -590,7 +590,7 @@ export function CalendarView({ events, areas = [], holidays, onDetail }: Props) 
               <p id="calendar-day-title" className="font-bold text-[var(--wf-ink)] ">Agenda {selectedDayTitle}</p>
               <p className="text-xs text-[var(--wf-ink-muted)] ">{selectedDayEvents.length} acara pada tanggal ini</p>
             </div>
-            <Button variant="ghost" size="icon-sm" onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-[var(--wf-ink-muted)]  transition-colors hover:bg-[var(--wf-board-2)] " aria-label="Tutup">
+            <Button variant="ghost" size="icon-sm" onClick={() => setSelectedDate(null)} className="min-h-11 min-w-11 rounded-xl p-2 text-[var(--wf-ink-muted)]  transition-colors hover:bg-[var(--wf-board-2)] sm:min-h-0 sm:min-w-0 " aria-label="Tutup">
               <X className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>

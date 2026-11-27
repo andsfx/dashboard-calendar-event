@@ -90,7 +90,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onEditTheme, onDelete
                       size="sm"
                       onClick={() => onEditTheme(theme)}
                       aria-label={`Ubah tema ${theme.name}`}
-                      className="active:translate-y-0"
+                      className="min-h-11 min-w-11 active:translate-y-0 sm:min-h-0 sm:min-w-0"
                     >
                       <Pencil className="size-3.5" aria-hidden="true" /> Ubah
                     </Button>
@@ -102,7 +102,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onEditTheme, onDelete
                       size="sm"
                       onClick={() => onDeleteTheme(theme)}
                       aria-label={`Hapus tema ${theme.name}`}
-                      className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)] active:translate-y-0"
+                      className="min-h-11 min-w-11 text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)] active:translate-y-0 sm:min-h-0 sm:min-w-0"
                     >
                       <Trash2 className="size-3.5" aria-hidden="true" /> Hapus
                     </Button>
