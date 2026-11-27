@@ -43,7 +43,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
               </p>
               <div className="flex flex-wrap gap-2">
                 {whatsappUrl && (
-                  <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-live)]/30 px-2.5 py-1.5 text-xs font-medium text-[var(--wf-live)] transition hover:bg-[var(--wf-live)]/10">
+                  <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex max-sm:min-h-11 items-center gap-1 rounded-lg border border-[var(--wf-live)]/30 px-2.5 py-1.5 text-xs font-medium text-[var(--wf-live)] transition hover:bg-[var(--wf-live)]/10">
                     <MessageCircle className="h-3.5 w-3.5" />WhatsApp
                     <ExternalLink className="h-3 w-3" />
                   </a>
@@ -102,7 +102,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                   <TableCell className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
                       {whatsappUrl ? (
-                        <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-live)]/30 px-2.5 py-1.5 text-xs font-medium text-[var(--wf-live)] transition hover:bg-[var(--wf-live)]/10">
+                        <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex max-sm:min-h-11 items-center gap-1 rounded-lg border border-[var(--wf-live)]/30 px-2.5 py-1.5 text-xs font-medium text-[var(--wf-live)] transition hover:bg-[var(--wf-live)]/10">
                           <MessageCircle className="h-3.5 w-3.5" />WhatsApp
                           <ExternalLink className="h-3 w-3" />
                         </a>

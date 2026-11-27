@@ -686,7 +686,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                 rel="noreferrer"
                 title="Buka form survei"
                 aria-label={`Buka form survei ${ev.acara}`}
-                className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
+                className="inline-flex h-8 max-sm:min-h-11 items-center gap-1 rounded-md px-2 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
               >
                 <ExternalLink className="size-3" />
                 Buka

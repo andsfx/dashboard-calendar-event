@@ -469,7 +469,7 @@ export function TenantParticipationManager({
                 <span className="[overflow-wrap:anywhere]">{item.contactName}</span>
                 <a
                   href={`tel:${item.phone.replace(/[^\d+]/g, '')}`}
-                  className="inline-flex items-center gap-1 py-1 text-[var(--wf-accent)] underline-offset-2 hover:underline"
+                  className="inline-flex max-sm:min-h-11 items-center gap-1 py-1 text-[var(--wf-accent)] underline-offset-2 hover:underline"
                 >
                   <Phone className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   {item.phone}
@@ -477,7 +477,7 @@ export function TenantParticipationManager({
                 {item.email && (
                   <a
                     href={`mailto:${item.email}`}
-                    className="inline-flex items-center gap-1 py-1 text-[var(--wf-accent)] underline-offset-2 hover:underline"
+                    className="inline-flex max-sm:min-h-11 items-center gap-1 py-1 text-[var(--wf-accent)] underline-offset-2 hover:underline"
                   >
                     <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     <span className="min-w-0 break-all">{item.email}</span>

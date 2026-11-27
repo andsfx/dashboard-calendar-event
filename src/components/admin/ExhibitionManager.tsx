@@ -478,15 +478,15 @@ export function ExhibitionManager({
                 className={inputClass}
               />
             </div>
-            <Label htmlFor="exh-accepting" className="flex items-center gap-2 text-sm text-[var(--wf-ink)]">
+            <Label htmlFor="exh-accepting" className="flex max-sm:min-h-11 items-center gap-2 text-sm text-[var(--wf-ink)]">
               <Checkbox id="exh-accepting" checked={form.acceptingApplications} onCheckedChange={checked => setForm({ ...form, acceptingApplications: checked === true })} aria-label="Terima pengajuan kolaborasi" />
               Terima pengajuan kolaborasi
             </Label>
-            <Label htmlFor="exh-featured" className="flex items-center gap-2 text-sm text-[var(--wf-ink)]">
+            <Label htmlFor="exh-featured" className="flex max-sm:min-h-11 items-center gap-2 text-sm text-[var(--wf-ink)]">
               <Checkbox id="exh-featured" checked={form.isFeatured} onCheckedChange={checked => setForm({ ...form, isFeatured: checked === true })} aria-label="Tampilkan di urutan teratas" />
               Tampilkan di urutan teratas
             </Label>
-            <Label htmlFor="exh-show-estimate" className="flex items-center gap-2 text-sm text-[var(--wf-ink)]">
+            <Label htmlFor="exh-show-estimate" className="flex max-sm:min-h-11 items-center gap-2 text-sm text-[var(--wf-ink)]">
               <Checkbox
                 id="exh-show-estimate"
                 checked={form.formConfig.show_participant_estimate !== false}
@@ -494,7 +494,7 @@ export function ExhibitionManager({
               />
               Tanyakan perkiraan peserta
             </Label>
-            <Label htmlFor="exh-show-technical" className="flex items-center gap-2 text-sm text-[var(--wf-ink)]">
+            <Label htmlFor="exh-show-technical" className="flex max-sm:min-h-11 items-center gap-2 text-sm text-[var(--wf-ink)]">
               <Checkbox
                 id="exh-show-technical"
                 checked={form.formConfig.show_technical_needs !== false}
