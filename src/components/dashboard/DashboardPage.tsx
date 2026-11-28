@@ -259,6 +259,7 @@ export function DashboardPage({
     exhibitionLeads: permissions.canViewExhibitions,
     tenantProposals: permissions.canViewTenantProposals,
     tenantParticipations: permissions.canViewTenantParticipations,
+    enabled: dashboardPath === '/insights',
   });
   const allowedInsightPaths = useMemo(() => getAllowedDashboardPaths(permissions), [permissions]);
 

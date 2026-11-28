@@ -519,8 +519,11 @@ async function switchAction(action, req) {
 
     // ══════════ DRAFT EVENTS (baca + alur terbit/hapus) ══════════
     case 'readDrafts': {
+      // Riwayat memuat draft TERHAPUS juga: UI memilahnya ke draftHistory
+      // dengan tombol restore. Tanpa ini restore mati setelah reload karena
+      // baris terhapus tidak pernah kembali dari server.
       const { rows } = await db.query(
-        `SELECT * FROM draft_events WHERE deleted = false ORDER BY date_str ASC`,
+        `SELECT * FROM draft_events ORDER BY date_str ASC`,
       );
       // Demo = read-only: struktur draft boleh dilihat, identitas PIC tidak.
       if (req.auth?.user?.role === DEMO_ROLE) {

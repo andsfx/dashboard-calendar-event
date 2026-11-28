@@ -785,9 +785,19 @@ router.get('/list', requireRole(LIST_READ_ROLES_WITH_DEMO), async (req, res, nex
       where.push(`event_id = $${params.length}`);
     }
     // EO/tenant: hanya row milik sendiri. TR: hanya final (bukan draft).
+    // eo_tenant juga hanya boleh melihat event yang ditugaskan padanya
+    // (assigned_events) — menyembunyikan pilihan event di UI tidak cukup.
     if (isScopedTenant(role)) {
       params.push(user.id);
       where.push(`tenant_user_id = $${params.length}`);
+      if (role === 'eo_tenant') {
+        const assigned = Array.isArray(user.assigned_events) ? user.assigned_events : [];
+        const idx = params.length;
+        where.push(assigned.length === 0
+          ? 'FALSE'
+          : `event_id IN (${assigned.map((_, i) => `$${idx + i + 1}`).join(', ')})`);
+        params.push(...assigned);
+      }
     } else if (role === 'tenant_relation') {
       where.push(`status IN ('submitted', 'reviewed')`);
     }
@@ -814,10 +824,17 @@ router.get('/get', requireRole(LIST_READ_ROLES_WITH_DEMO), async (req, res, next
     const { rows } = await db.query('SELECT * FROM tenant_event_surveys WHERE id = $1 LIMIT 1', [id]);
     const row = rows[0] || null;
     if (!row) return res.status(404).json({ success: false, error: 'Survey ini tidak ada atau sudah dihapus. Muat ulang daftar survey.' });
-
     // Demo = akun peragaan: boleh melihat baris siapa pun (read-only), dengan
     // PII disamarkan seperti tenant_relation.
+    // eo_tenant: hanya survey miliknya DAN pada event yang ditugaskan padanya
+    // (assigned_events) — selaras dengan /create dan /update.
     const canSeeAll = STAFF_ROLES.includes(role) || role === 'tenant_relation' || role === DEMO_ROLE;
+    if (role === 'eo_tenant' && !canAccessSurveyEvent(user, row.event_id)) {
+      return res.status(403).json({
+        success: false,
+        error: 'Event ini belum ditugaskan ke akun kamu. Minta admin untuk menambahkannya.',
+      });
+    }
     if (!canSeeAll && row.tenant_user_id !== user.id) {
       return res.status(403).json({ success: false, error: 'Survey ini tidak termasuk cakupan akun kamu. Minta admin atau hubungi pemilik survey.' });
     }

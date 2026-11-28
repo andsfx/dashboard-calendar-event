@@ -108,6 +108,7 @@ const TENANT_SURVEY_SECTION_ITEMS: SectionNavItem[] = [];
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
   const dashboardPath = location.pathname.replace('/dashboard', '') || '/';
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
@@ -118,9 +119,12 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const auth = useAuth();
   const permissions = usePermission(auth.user);
-  const exhibitions = useExhibitions(permissions.canViewExhibitions);
-  const tenantProposals = useTenantEventProposals(permissions.canViewTenantProposals);
-  const tenantParticipations = useTenantParticipations(permissions.canViewTenantParticipations);
+  // Route-aware fetch: data modul hanya ditarik saat modulnya (atau Pusat
+  // Komando yang memakai badge/antrian) aktif — mencegah 429 prefetch global
+  // saat superadmin berpindah rute cepat. Hook tetap menerima boolean saja.
+  const exhibitions = useExhibitions(isDashboardRoute && permissions.canViewExhibitions && ['/', '/exhibitions'].includes(dashboardPath));
+  const tenantProposals = useTenantEventProposals(isDashboardRoute && permissions.canViewTenantProposals && ['/', '/tenant-proposals'].includes(dashboardPath));
+  const tenantParticipations = useTenantParticipations(isDashboardRoute && permissions.canViewTenantParticipations && ['/', '/tenant-participations'].includes(dashboardPath));
   const isAdmin = permissions.canViewDashboard;
   const canSeeInternalSchedule = permissions.canViewInternalSchedule;
   const { toasts, showToast, removeToast } = useToast();
@@ -166,7 +170,7 @@ export default function App() {
     deleteDraft,
     publishDraft,
     restoreDraft,
-  } = useDraftEvents(canSeeInternalSchedule);
+  } = useDraftEvents(isDashboardRoute && canSeeInternalSchedule && ['/', '/drafts', '/insights'].includes(dashboardPath));
 
   const toggleDark = useCallback(() => {
     const next = !document.documentElement.classList.contains('dark');

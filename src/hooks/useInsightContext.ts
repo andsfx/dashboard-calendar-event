@@ -42,7 +42,10 @@ export function useInsightContext({
   exhibitionLeads = false,
   tenantProposals = false,
   tenantParticipations = false,
-}: InsightContextOptions): InsightContext {
+  /** Hanya muat saat panel Insight benar-benar dibuka (`/insights`), bukan
+   *  ikut di-mount di semua rute dashboard — mencegah 429 prefetch global. */
+  enabled = true,
+}: InsightContextOptions & { enabled?: boolean }): InsightContext {
   const [surveyRows, setSurveyRows] = useState<TenantEventSurvey[]>([]);
   const [leadRows, setLeadRows] = useState<ExhibitionLead[]>([]);
   const [proposalRows, setProposalRows] = useState<TenantEventProposal[]>([]);
@@ -50,7 +53,7 @@ export function useInsightContext({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!surveys && !exhibitionLeads && !tenantProposals && !tenantParticipations) return;
+    if (!enabled || (!surveys && !exhibitionLeads && !tenantProposals && !tenantParticipations)) return;
     let cancelled = false;
     const failures: string[] = [];
 
@@ -93,7 +96,7 @@ export function useInsightContext({
     void Promise.all(tasks);
 
     return () => { cancelled = true; };
-  }, [surveys, exhibitionLeads, tenantProposals, tenantParticipations]);
+  }, [enabled, surveys, exhibitionLeads, tenantProposals, tenantParticipations]);
 
   return {
     surveys: surveyRows,
